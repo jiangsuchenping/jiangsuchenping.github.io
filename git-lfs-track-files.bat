@@ -1,3 +1,4 @@
+:: 配置 Git LFS 跟踪指定类型的文件
 git lfs track "*.iso"
 git lfs track "*.dll"
 git lfs track "*.exe"
