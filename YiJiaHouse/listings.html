@@ -32,14 +32,15 @@
             <!-- 重复房产卡片结构 -->
         </div>
     </main>
-    <!-- 页面页脚，显示版权信息 -->
-    <footer>
-        <p>&copy; <span id="currentYear"></span> 宜家房产</p>
-    </footer>
-    <!-- 自动获取当前年份的脚本 -->
-    <script>
-        // 获取当前年份并更新版权信息
-        document.getElementById('currentYear').textContent = new Date().getFullYear();
-    </script>
+    <!-- 嵌入页脚模板 -->
+    <div id="footer-container"></div>
 </body>
 </html>
+<script>
+    // 加载页脚模板
+    fetch('footer-template.html')
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('footer-container').innerHTML = html;
+        });
+</script>
