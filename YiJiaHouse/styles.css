@@ -91,3 +91,17 @@ footer {
     padding: 2rem 1rem; /* 设置内边距 */
     margin-top: 2rem; /* 设置顶部外边距 */
 }
+
+.qr-code-section {
+    margin-top: 20px;
+    text-align: center;
+}
+
+#phoneQrCode {
+    width: 150px;
+    height: 150px;
+    margin: 10px auto;
+    padding: 10px;
+    background: white;
+    border: 1px solid #ddd;
+}

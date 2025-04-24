@@ -34,6 +34,13 @@
             <p>电话：18914690766</p>
             <p>邮箱：1638988@qq.com</p>
             <p>地址：江苏省盐城市大丰区维罗纳步行街</p>
+            
+            <!-- 新增二维码生成区域 -->
+            <div class="qr-code-section">
+                <h3>手机扫码联系</h3>
+                <div id="phoneQrCode"></div>
+                <p>扫描二维码直接拨打电话</p>
+            </div>
         </section>       
     </main>
     <!-- 页脚，包含版权信息和自动更新的年份 -->
@@ -45,5 +52,19 @@
         document.getElementById('currentYear').textContent = new Date().getFullYear();
     </script>
     <script src="version-checker.js"></script>
+    <!-- 引入qrcode.js库 -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+    <script>
+        // 生成电话二维码
+        document.addEventListener('DOMContentLoaded', function() {
+            const phoneNumber = 'tel:18914690766';
+            QRCode.toCanvas(document.getElementById('phoneQrCode'), phoneNumber, {
+                width: 150,
+                margin: 1
+            }, function(error) {
+                if (error) console.error(error);
+            });
+        });
+    </script>
 </body>
 </html>
