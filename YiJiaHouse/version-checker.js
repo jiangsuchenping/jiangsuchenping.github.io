@@ -8,7 +8,7 @@
 
 // 配置常量
 const VERSION_CHECKER_CONFIG = {
-    version: new Date().toISOString(), // 使用当前ISO时间作为版本号
+    version: '2025-04-24', //new Date().toISOString(), // 使用当前ISO时间作为版本号
     checkInterval: 60000, // 检查间隔(毫秒)，默认60秒
     versionParam: 'v' // URL版本参数名
 };
