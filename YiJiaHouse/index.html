@@ -59,27 +59,7 @@
         // 自动更新年份
         document.getElementById('currentYear').textContent = new Date().getFullYear();
     </script>
-    <script src="version-checker.js"></script>
-    <script>
-        // 为所有导航链接添加版本参数
-        document.addEventListener('DOMContentLoaded', function() {
-            const links = document.querySelectorAll('.nav-link');
-            // 从version-checker.js配置中获取版本号
-            const version = VERSION_CHECKER_CONFIG.version;
-            
-            links.forEach(link => {
-                const url = new URL(link.href, window.location.origin);
-                url.searchParams.set('v', version);
-                link.href = url.toString();
-            });
-
-            // 在页面底部显示当前版本号
-            const versionInfo = document.createElement('div');
-            versionInfo.className = 'version-info';
-            versionInfo.textContent = `当前版本: ${version}`;
-            document.body.appendChild(versionInfo);
-        });
-    </script>
+    <script src="version-checker.js"></script>    
 </body>
 
 </html>
