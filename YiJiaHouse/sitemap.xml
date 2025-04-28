@@ -1,16 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  项目级注释：宜家房产网站地图
+  功能：为搜索引擎提供网站所有页面的索引信息
+  更新频率：根据页面重要性设置不同更新频率
+-->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <!-- 首页 - 最高优先级 -->
     <url>
         <loc>https://jiangsuchenping.github.io/YiJiaHouse/index.html</loc>
-        <lastmod>2023-04-24</lastmod>
+        <lastmod>2023-11-15</lastmod>
         <changefreq>daily</changefreq>
         <priority>1.0</priority>
     </url>
+    
+    <!-- 房源页面 - 高优先级 -->
     <url>
         <loc>https://jiangsuchenping.github.io/YiJiaHouse/listings.html</loc>
-        <lastmod>2023-04-24</lastmod>
+        <lastmod>2023-11-15</lastmod>
         <changefreq>daily</changefreq>
+        <priority>0.9</priority>
+    </url>
+    
+    <!-- 服务页面 - 中等优先级 -->
+    <url>
+        <loc>https://jiangsuchenping.github.io/YiJiaHouse/services.html</loc>
+        <lastmod>2023-11-15</lastmod>
+        <changefreq>weekly</changefreq>
         <priority>0.8</priority>
     </url>
-    <!-- 其他页面URL -->
+    
+    <!-- 关于我们页面 - 中等优先级 -->
+    <url>
+        <loc>https://jiangsuchenping.github.io/YiJiaHouse/about.html</loc>
+        <lastmod>2023-11-15</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    
+    <!-- 联系我们页面 - 中等优先级 -->
+    <url>
+        <loc>https://jiangsuchenping.github.io/YiJiaHouse/contact.html</loc>
+        <lastmod>2023-11-15</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
 </urlset>
