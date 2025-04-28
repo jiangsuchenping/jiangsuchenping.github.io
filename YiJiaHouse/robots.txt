@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://jiangsuchenping.github.io/YiJiaHouse/sitemap.xml
