@@ -32,6 +32,11 @@
                 <p>快乐英语，轻松学习</p>
                 <button class="btn" onclick="navigateTo('english')">开始学习</button>
             </div>
+            <div class="module-card game-module">
+                <h3>趣味游戏</h3>
+                <p>华容道，锻炼思维</p>
+                <button class="btn" onclick="navigateTo('game')">开始游戏</button>
+            </div>
         </div>
 
         <!-- 语文模块主页 -->
@@ -121,6 +126,33 @@
             <button class="btn" onclick="navigateTo('home')">返回首页</button>
         </div>
 
+        <!-- 游戏模块 -->
+        <div id="game-page" class="page">
+            <h1>趣味游戏</h1>
+            <div class="module-card">
+                <h3>华容道</h3>
+                <p>经典益智游戏，锻炼思维</p>
+                <button class="btn" onclick="navigateTo('klotski-game')">开始游戏</button>
+            </div>
+            <button class="btn" onclick="navigateTo('home')">返回首页</button>
+        </div>
+
+        <!-- 华容道游戏页面 -->
+        <div id="klotski-game-page" class="page" style="display: none;">
+            <h1>华容道</h1>
+            <div class="game-container">
+                <div class="game-info">
+                    <div class="moves">移动次数：<span id="klotski-moves">0</span></div>
+                    <div class="time">用时：<span id="klotski-time">00:00</span></div>
+                </div>
+                <div id="klotski-container" class="klotski-container"></div>
+                <div class="klotski-controls">
+                    <button id="restart-klotski-btn" class="btn">重新开始</button>
+                </div>
+            </div>
+            <button class="btn" onclick="navigateTo('game')">返回</button>
+        </div>
+
         <!-- 英语单词学习页面 -->
         <div id="english-word-page" class="page" style="display: none;">
             <h1>单词学习</h1>
@@ -159,6 +191,9 @@
         <div class="nav-item" data-id="english">
             <a href="#" data-target="english">英语</a>
         </div>
+        <div class="nav-item" data-id="game">
+            <a href="#" data-target="game">游戏</a>
+        </div>
     </div>
 
     <!-- 引入JavaScript文件 -->
@@ -172,6 +207,8 @@
             initMathTestPage();
             // 初始化英语单词学习页面
             initEnglishWordPage();
+            // 初始化华容道游戏
+            initKlotskiGame();
         });
     </script>
 </body>

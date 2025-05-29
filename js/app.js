@@ -19,6 +19,14 @@ document.addEventListener('DOMContentLoaded', function() {
     if (showChineseHistoryBtn) {
         showChineseHistoryBtn.addEventListener('click', showChineseHistoryDialog);
     }
+
+    // 初始化游戏模块
+    if (document.getElementById('memory-game-page')) {
+        initMemoryGame();
+    }
+    if (document.getElementById('puzzle-game-page')) {
+        initPuzzleGame();
+    }
 });
 
 /**
@@ -1497,6 +1505,26 @@ function showRestMessage(containerId, getNextReviewTime, message, options = {}) 
             }
         });
         
+        // 如果没有找到英语单词的复习时间，检查数学题目
+        if (!earliestTime) {
+            Object.values(mathProblemHistory).forEach(record => {
+                const nextReview = new Date(record.nextReviewTime);
+                if (nextReview > now && (!earliestTime || nextReview < earliestTime)) {
+                    earliestTime = nextReview;
+                }
+            });
+        }
+        
+        // 如果没有找到数学题目的复习时间，检查汉字
+        if (!earliestTime) {
+            Object.values(chineseWordHistory).forEach(record => {
+                const nextReview = new Date(record.nextReviewTime);
+                if (nextReview > now && (!earliestTime || nextReview < earliestTime)) {
+                    earliestTime = nextReview;
+                }
+            });
+        }
+        
         return earliestTime;
     }
 
@@ -1554,6 +1582,19 @@ function showRestMessage(containerId, getNextReviewTime, message, options = {}) 
     document.addEventListener('visibilitychange', () => {
         if (document.hidden) {
             clearInterval(window.timeUpdateInterval);
+        } else {
+            // 页面重新显示时，立即更新一次时间
+            updateTimeDisplay();
+            // 重新设置定时器
+            const nextReview = getNextReviewTimestamp();
+            if (nextReview) {
+                const diff = nextReview - new Date();
+                if (diff < 60000) {
+                    window.timeUpdateInterval = setInterval(updateTimeDisplay, 1000);
+                } else {
+                    window.timeUpdateInterval = setInterval(updateTimeDisplay, 60000);
+                }
+            }
         }
     });
 }
@@ -1667,4 +1708,406 @@ function showNextEnglishWord() {
         recordEnglishWord(word, false);
         showNextEnglishWord();
     });
+}
+
+/**
+ * 游戏模块 - 华容道
+ */
+let klotskiMoves = 0;
+let klotskiStartTime = null;
+let klotskiTimerInterval = null;
+let klotskiPieces = [];
+let emptyIndex = 8; // 空白格子的位置
+
+// 游戏时间记录数据结构
+let gameTimeHistory = JSON.parse(localStorage.getItem('gameTimeHistory')) || {
+    totalTime: 0, // 总游戏时间（分钟）
+    lastPlayTime: null, // 上次游戏时间
+    nextPlayTime: null // 下次可游戏时间
+};
+
+/**
+ * 记录游戏时间
+ * @param {number} minutes - 本次游戏时长（分钟）
+ */
+function recordGameTime(minutes) {
+    gameTimeHistory.totalTime += minutes;
+    gameTimeHistory.lastPlayTime = new Date().toISOString();
+    
+    // 计算下次可游戏时间
+    calculateNextGameTime();
+    
+    // 保存到本地存储
+    localStorage.setItem('gameTimeHistory', JSON.stringify(gameTimeHistory));
+}
+
+/**
+ * 计算下次可游戏时间
+ */
+function calculateNextGameTime() {
+    const now = new Date();
+    
+    // 获取各模块的学习情况
+    const chineseProgress = getModuleProgress(chineseWordHistory);
+    const mathProgress = getModuleProgress(mathProblemHistory);
+    const englishProgress = getModuleProgress(englishWordHistory);
+    
+    // 计算总体学习进度（0-100）
+    const totalProgress = (chineseProgress + mathProgress + englishProgress) / 3;
+    
+    // 根据学习进度和游戏时间计算下次可游戏时间
+    let nextInterval;
+    if (totalProgress >= 80) {
+        // 学习进度很好，1小时后可以再玩
+        nextInterval = 60;
+    } else if (totalProgress >= 60) {
+        // 学习进度一般，2小时后可以再玩
+        nextInterval = 120;
+    } else {
+        // 学习进度较差，4小时后可以再玩
+        nextInterval = 240;
+    }
+    
+    // 如果今天游戏时间超过2小时，增加等待时间
+    const todayGameTime = getTodayGameTime();
+    if (todayGameTime >= 120) {
+        nextInterval = Math.max(nextInterval, 240); // 至少4小时
+    }
+    
+    // 设置下次可游戏时间
+    gameTimeHistory.nextPlayTime = new Date(now.getTime() + nextInterval * 60 * 1000).toISOString();
+}
+
+/**
+ * 获取模块学习进度
+ * @param {Object} history - 模块的学习记录
+ * @returns {number} - 学习进度（0-100）
+ */
+function getModuleProgress(history) {
+    if (!history || Object.keys(history).length === 0) return 0;
+    
+    let totalProgress = 0;
+    let count = 0;
+    
+    Object.values(history).forEach(record => {
+        if (record.totalAttempts > 0) {
+            const accuracy = record.correctAttempts / record.totalAttempts;
+            const stageProgress = (record.reviewStage + 1) / EBBINGHAUS_INTERVALS.length;
+            totalProgress += (accuracy * 0.7 + stageProgress * 0.3) * 100;
+            count++;
+        }
+    });
+    
+    return count > 0 ? totalProgress / count : 0;
+}
+
+/**
+ * 获取今天的游戏时间（分钟）
+ * @returns {number} - 今天的游戏时间
+ */
+function getTodayGameTime() {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    
+    if (!gameTimeHistory.lastPlayTime) return 0;
+    
+    const lastPlay = new Date(gameTimeHistory.lastPlayTime);
+    if (lastPlay < today) return 0;
+    
+    return gameTimeHistory.totalTime;
+}
+
+/**
+ * 检查是否可以开始游戏
+ * @returns {boolean} - 是否可以开始游戏
+ */
+function canStartGame() {
+    const now = new Date();
+    if (!gameTimeHistory.nextPlayTime) {
+        calculateNextGameTime();
+    }
+    
+    const nextPlay = new Date(gameTimeHistory.nextPlayTime);
+    return now >= nextPlay;
+}
+
+/**
+ * 获取下次可游戏时间
+ * @returns {string} - 下次可游戏时间描述
+ */
+function getNextGameTime() {
+    const now = new Date();
+    if (!gameTimeHistory.nextPlayTime) {
+        calculateNextGameTime();
+    }
+    
+    const nextPlay = new Date(gameTimeHistory.nextPlayTime);
+    if (now >= nextPlay) {
+        return "现在";
+    }
+    
+    const diff = nextPlay - now;
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    
+    if (hours > 0) {
+        return `${hours}小时${minutes}分钟后`;
+    } else {
+        return `${minutes}分钟后`;
+    }
+}
+
+/**
+ * 初始化华容道游戏
+ */
+function initKlotskiGame() {
+    const container = document.getElementById('klotski-container');
+    const restartBtn = document.getElementById('restart-klotski-btn');
+    const movesDisplay = document.getElementById('klotski-moves');
+    const timeDisplay = document.getElementById('klotski-time');
+    
+    if (!container) return;
+    
+    // 检查是否可以开始游戏
+    if (!canStartGame()) {
+        const gameContainer = document.querySelector('.game-container');
+        if (gameContainer) {
+            gameContainer.innerHTML = '';
+            const restMessage = document.createElement('div');
+            restMessage.className = 'word-card';
+            restMessage.innerHTML = `
+                <div class="word">休息一下</div>
+                <div class="pinyin">xiū xi yí xià</div>
+                <div class="example">游戏时间已用完，请先完成学习任务！</div>
+                <div class="review-info">下次游戏时间：<span class="next-review-time">${getNextGameTime()}</span></div>
+            `;
+            gameContainer.appendChild(restMessage);
+            
+            // 清除之前的定时器
+            if (window.timeUpdateInterval) {
+                clearInterval(window.timeUpdateInterval);
+            }
+            
+            // 更新显示的时间
+            function updateTimeDisplay() {
+                const nextPlay = new Date(gameTimeHistory.nextPlayTime);
+                const now = new Date();
+                const diff = nextPlay - now;
+                
+                // 如果时间差小于等于0，恢复游戏
+                if (diff <= 0) {
+                    clearInterval(window.timeUpdateInterval);
+                    initKlotskiGame();
+                    return;
+                }
+                
+                const hours = Math.floor(diff / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                
+                const timeElement = restMessage.querySelector('.next-review-time');
+                if (timeElement) {
+                    if (hours > 0) {
+                        timeElement.textContent = `${hours}小时${minutes}分钟后`;
+                    } else if (minutes > 0) {
+                        timeElement.textContent = `${minutes}分钟后`;
+                    } else {
+                        timeElement.textContent = `${seconds}秒后`;
+                    }
+                }
+                
+                // 如果剩余时间小于1分钟，使用1秒的更新间隔
+                if (diff < 60000) {
+                    clearInterval(window.timeUpdateInterval);
+                    window.timeUpdateInterval = setInterval(updateTimeDisplay, 1000);
+                }
+            }
+            
+            // 初始更新显示
+            updateTimeDisplay();
+            
+            // 添加定时器，每分钟更新一次时间
+            window.timeUpdateInterval = setInterval(updateTimeDisplay, 60000);
+            
+            // 当页面隐藏时清除定时器
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    clearInterval(window.timeUpdateInterval);
+                } else {
+                    // 页面重新显示时，立即更新一次时间
+                    updateTimeDisplay();
+                    // 重新设置定时器
+                    const nextPlay = new Date(gameTimeHistory.nextPlayTime);
+                    const diff = nextPlay - new Date();
+                    if (diff < 60000) {
+                        window.timeUpdateInterval = setInterval(updateTimeDisplay, 1000);
+                    } else {
+                        window.timeUpdateInterval = setInterval(updateTimeDisplay, 60000);
+                    }
+                }
+            });
+        }
+        return;
+    }
+    
+    // 重置游戏状态
+    klotskiMoves = 0;
+    klotskiStartTime = null;
+    if (klotskiTimerInterval) {
+        clearInterval(klotskiTimerInterval);
+    }
+    movesDisplay.textContent = '0';
+    timeDisplay.textContent = '00:00';
+    
+    // 初始化拼图块
+    klotskiPieces = [1, 2, 3, 4, 5, 6, 7, 8, null];
+    emptyIndex = 8;
+    
+    // 清空容器
+    container.innerHTML = '';
+    
+    // 打乱拼图
+    shuffleKlotski();
+    
+    // 添加拼图块
+    klotskiPieces.forEach((piece, index) => {
+        const pieceElement = document.createElement('div');
+        pieceElement.className = 'klotski-piece';
+        if (piece === null) {
+            pieceElement.classList.add('empty');
+        } else {
+            pieceElement.textContent = piece;
+            pieceElement.dataset.index = index;
+            pieceElement.addEventListener('click', moveKlotskiPiece);
+        }
+        container.appendChild(pieceElement);
+    });
+    
+    // 重新开始按钮事件
+    if (restartBtn) {
+        restartBtn.addEventListener('click', initKlotskiGame);
+    }
+}
+
+/**
+ * 打乱华容道拼图
+ */
+function shuffleKlotski() {
+    // 随机移动空白格子100次
+    for (let i = 0; i < 100; i++) {
+        const possibleMoves = getPossibleMoves(emptyIndex);
+        const randomMove = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
+        [klotskiPieces[emptyIndex], klotskiPieces[randomMove]] = 
+        [klotskiPieces[randomMove], klotskiPieces[emptyIndex]];
+        emptyIndex = randomMove;
+    }
+}
+
+/**
+ * 获取可能的移动位置
+ */
+function getPossibleMoves(emptyIndex) {
+    const moves = [];
+    const row = Math.floor(emptyIndex / 3);
+    const col = emptyIndex % 3;
+    
+    // 上
+    if (row > 0) moves.push(emptyIndex - 3);
+    // 下
+    if (row < 2) moves.push(emptyIndex + 3);
+    // 左
+    if (col > 0) moves.push(emptyIndex - 1);
+    // 右
+    if (col < 2) moves.push(emptyIndex + 1);
+    
+    return moves;
+}
+
+/**
+ * 移动拼图块
+ */
+function moveKlotskiPiece() {
+    // 开始计时
+    if (!klotskiStartTime) {
+        klotskiStartTime = Date.now();
+        klotskiTimerInterval = setInterval(updateKlotskiTimer, 1000);
+    }
+    
+    const clickedIndex = parseInt(this.dataset.index);
+    const possibleMoves = getPossibleMoves(emptyIndex);
+    
+    if (possibleMoves.includes(clickedIndex)) {
+        // 移动拼图块
+        [klotskiPieces[clickedIndex], klotskiPieces[emptyIndex]] = 
+        [klotskiPieces[emptyIndex], klotskiPieces[clickedIndex]];
+        
+        // 更新显示
+        updateKlotskiDisplay();
+        
+        // 更新移动次数
+        klotskiMoves++;
+        document.getElementById('klotski-moves').textContent = klotskiMoves;
+        
+        // 检查是否完成
+        if (isKlotskiComplete()) {
+            clearInterval(klotskiTimerInterval);
+            // 记录游戏时间
+            const elapsedMinutes = Math.ceil((Date.now() - klotskiStartTime) / (1000 * 60));
+            recordGameTime(elapsedMinutes);
+            
+            setTimeout(() => {
+                alert(`恭喜你完成了华容道！\n用时：${document.getElementById('klotski-time').textContent}\n移动次数：${klotskiMoves}`);
+            }, 500);
+        }
+    }
+}
+
+/**
+ * 更新华容道显示
+ */
+function updateKlotskiDisplay() {
+    const container = document.getElementById('klotski-container');
+    container.innerHTML = '';
+    
+    klotskiPieces.forEach((piece, index) => {
+        const pieceElement = document.createElement('div');
+        pieceElement.className = 'klotski-piece';
+        if (piece === null) {
+            pieceElement.classList.add('empty');
+            emptyIndex = index;
+        } else {
+            pieceElement.textContent = piece;
+            pieceElement.dataset.index = index;
+            pieceElement.addEventListener('click', moveKlotskiPiece);
+        }
+        container.appendChild(pieceElement);
+    });
+}
+
+/**
+ * 检查华容道是否完成
+ */
+function isKlotskiComplete() {
+    return klotskiPieces.every((piece, index) => {
+        if (index === klotskiPieces.length - 1) {
+            return piece === null;
+        }
+        return piece === index + 1;
+    });
+}
+
+/**
+ * 更新华容道计时器
+ */
+function updateKlotskiTimer() {
+    const timeDisplay = document.getElementById('klotski-time');
+    const elapsed = Math.floor((Date.now() - klotskiStartTime) / 1000);
+    const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
+    const seconds = (elapsed % 60).toString().padStart(2, '0');
+    timeDisplay.textContent = `${minutes}:${seconds}`;
+    
+    // 每完成一分钟记录一次游戏时间
+    if (elapsed % 60 === 0) {
+        recordGameTime(1);
+    }
 }

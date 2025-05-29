@@ -584,3 +584,94 @@ button.check-update:hover {
     background-color: #fff3e0;
     border: 1px solid #ffe0b2;
 }
+
+/* 游戏模块样式 */
+.game-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.game-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    font-size: 1.2em;
+}
+
+/* 华容道游戏样式 */
+.klotski-container {
+    width: 100%;
+    max-width: 300px;
+    margin: 0 auto 20px;
+    aspect-ratio: 1;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    background-color: #ddd;
+    padding: 2px;
+    border-radius: 5px;
+}
+
+.klotski-piece {
+    background-color: #4CAF50;
+    border-radius: 3px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5em;
+    color: white;
+    transition: transform 0.2s ease;
+    user-select: none;
+}
+
+.klotski-piece:hover {
+    transform: scale(0.98);
+}
+
+.klotski-piece.empty {
+    background-color: transparent;
+    cursor: default;
+}
+
+.klotski-piece.target {
+    background-color: #2196F3;
+}
+
+.klotski-controls {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+/* 响应式设计 */
+@media (max-width: 600px) {
+    .klotski-container {
+        max-width: 280px;
+    }
+}
+
+.module-card.game-module {
+    background: linear-gradient(135deg, #FF9A9E 0%, #FAD0C4 100%);
+    color: #fff;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.module-card.game-module:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(255, 154, 158, 0.4);
+}
+
+.module-card.game-module .btn {
+    background-color: #fff;
+    color: #FF9A9E;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+.module-card.game-module .btn:hover {
+    background-color: #FF9A9E;
+    color: #fff;
+}
