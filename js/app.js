@@ -27,6 +27,12 @@ document.addEventListener('DOMContentLoaded', function() {
     if (document.getElementById('puzzle-game-page')) {
         initPuzzleGame();
     }
+
+    // 检查时间并显示提醒
+    showTimeNotification();
+    
+    // 每小时检查一次时间
+    setInterval(showTimeNotification, 60 * 60 * 1000);
 });
 
 /**
@@ -2616,3 +2622,245 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+/**
+ * 检查当前时间是否合适
+ * @returns {Object} - 包含检查结果和消息的对象
+ */
+function checkCurrentTime() {
+    const now = new Date();
+    const hour = now.getHours();
+    const day = now.getDay(); // 0是周日，6是周六
+    const isWeekend = day === 0 || day === 6;
+    
+    // 检查是否是节假日（这里可以添加更多节假日判断逻辑）
+    const isHoliday = checkIsHoliday(now);
+    
+    // 检查是否是节假日的最后一天
+    const isLastDayOfHoliday = isHoliday && !checkIsHoliday(new Date(now.getTime() + 24 * 60 * 60 * 1000));
+    
+    // 检查时间是否太晚或太早
+    if (hour >= 22 || hour < 6) {
+        return {
+            shouldShow: true,
+            message: '现在时间太晚了，该休息了！明天再继续学习吧。',
+            shouldDisable: true
+        };
+    }
+    
+    // 如果是节假日的最后一天，且时间超过21点，提醒早点休息
+    if (isLastDayOfHoliday && hour >= 21) {
+        return {
+            shouldShow: true,
+            message: '明天就要上学了，早点休息吧！',
+            shouldDisable: false
+        };
+    }
+    
+    // 如果是工作日早上6点到7点，提醒准备上学
+    if (!isWeekend && !isHoliday && hour >= 6 && hour < 7) {
+        return {
+            shouldShow: true,
+            message: '早上好！记得准备上学哦！',
+            shouldDisable: false
+        };
+    }
+    
+    return {
+        shouldShow: false,
+        message: '',
+        shouldDisable: false
+    };
+}
+
+/**
+ * 检查是否是节假日
+ * @param {Date} date - 要检查的日期
+ * @returns {boolean} - 是否是节假日
+ */
+function checkIsHoliday(date) {
+    // 这里可以添加节假日判断逻辑
+    // 示例：检查是否是法定节假日
+    const holidays = [
+        '2025-01-01', // 元旦
+        '2025-01-29', // 春节
+        '2025-01-30',
+        '2025-01-31',
+        '2025-02-01',
+        '2025-02-02',
+        '2025-02-03',
+        '2025-02-04',
+        '2025-02-05',
+        '2025-04-05', // 清明节
+        '2025-05-01', // 劳动节
+        '2025-05-02',
+        '2025-05-03',
+        '2025-06-02', // 端午节
+        '2025-09-29', // 中秋节
+        '2025-09-30',
+        '2025-10-01', // 国庆节
+        '2025-10-02',
+        '2025-10-03',
+        '2025-10-04',
+        '2025-10-05',
+        '2025-10-06',
+        '2025-10-07',
+        '2025-10-08'        
+    ];
+    
+    const dateStr = date.toISOString().split('T')[0];
+    return holidays.includes(dateStr);
+}
+
+/**
+ * 检查是否是调休工作日
+ * @param {Date} date - 要检查的日期
+ * @returns {boolean} - 是否是调休工作日
+ */
+/**
+ * 2025年调休工作日数组
+ */
+const workdays = [
+    '2025-01-26', // 春节调休
+    '2025-02-08', // 春节调休
+    '2025-04-06', // 清明节调休
+    '2025-05-04', // 劳动节调休
+    '2025-09-28', // 中秋节调休
+    '2025-10-11' // 国庆节调休   
+];
+
+/**
+ * 检查是否是调休工作日
+ * @param {Date} date - 要检查的日期
+ * @returns {boolean} - 是否是调休工作日
+ */
+function checkIsWorkday(date) {
+    const dateStr = date.toISOString().split('T')[0];
+    return workdays.includes(dateStr);
+}
+
+/**
+ * 检查当前时间是否合适
+ * @returns {Object} - 包含检查结果和消息的对象
+ */
+function checkCurrentTime() {
+    const now = new Date();
+    const hour = now.getHours();
+    const day = now.getDay(); // 0是周日，6是周六
+    const isWeekend = day === 0 || day === 6;
+    
+    // 检查是否是节假日
+    const isHoliday = checkIsHoliday(now);
+    
+    // 检查是否是调休工作日
+    const isWorkday = checkIsWorkday(now);
+    
+    // 检查是否是节假日的最后一天
+    const isLastDayOfHoliday = isHoliday && !checkIsHoliday(new Date(now.getTime() + 24 * 60 * 60 * 1000));
+    
+    // 检查时间是否太晚或太早
+    if (hour >= 22 || hour < 6) {
+        return {
+            shouldShow: true,
+            message: '现在时间太晚了，该休息了！明天再继续学习吧。',
+            shouldDisable: true
+        };
+    }
+    
+    // 如果是节假日的最后一天，且时间超过21点，提醒早点休息
+    if (isLastDayOfHoliday && hour >= 21) {
+        return {
+            shouldShow: true,
+            message: '明天就要上学了，早点休息吧！',
+            shouldDisable: false
+        };
+    }
+    
+    // 如果是工作日早上6点到7点，提醒准备上学
+    if ((!isWeekend && !isHoliday) || isWorkday) {
+        if (hour >= 6 && hour < 7) {
+            return {
+                shouldShow: true,
+                message: '早上好！记得准备上学哦！',
+                shouldDisable: false
+            };
+        }
+    }
+    
+    return {
+        shouldShow: false,
+        message: '',
+        shouldDisable: false
+    };
+}
+
+/**
+ * 显示时间提醒
+ */
+function showTimeNotification() {
+    const timeCheck = checkCurrentTime();
+    const notification = document.getElementById('time-notification');
+    const message = document.getElementById('notification-message');
+    const container = document.querySelector('.container');
+    
+    if (timeCheck.shouldShow) {
+        message.textContent = timeCheck.message;
+        notification.style.display = 'block';
+        container.classList.add('has-notification');
+        
+        // 如果应该禁用功能，禁用所有学习按钮
+        if (timeCheck.shouldDisable) {
+            disableLearningFeatures();
+        }
+    } else {
+        notification.style.display = 'none';
+        container.classList.remove('has-notification');
+        enableLearningFeatures();
+    }
+}
+
+/**
+ * 关闭时间提醒
+ */
+function closeTimeNotification() {
+    const notification = document.getElementById('time-notification');
+    const container = document.querySelector('.container');
+    notification.style.display = 'none';
+    container.classList.remove('has-notification');
+}
+
+/**
+ * 禁用学习功能
+ */
+function disableLearningFeatures() {
+    // 禁用所有学习按钮
+    document.querySelectorAll('.btn').forEach(btn => {
+        btn.disabled = true;
+        btn.style.opacity = '0.5';
+        btn.style.cursor = 'not-allowed';
+    });
+    
+    // 禁用游戏功能
+    document.querySelectorAll('.game-tab').forEach(tab => {
+        tab.style.pointerEvents = 'none';
+        tab.style.opacity = '0.5';
+    });
+}
+
+/**
+ * 启用学习功能
+ */
+function enableLearningFeatures() {
+    // 启用所有学习按钮
+    document.querySelectorAll('.btn').forEach(btn => {
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        btn.style.cursor = 'pointer';
+    });
+    
+    // 启用游戏功能
+    document.querySelectorAll('.game-tab').forEach(tab => {
+        tab.style.pointerEvents = 'auto';
+        tab.style.opacity = '1';
+    });
+}

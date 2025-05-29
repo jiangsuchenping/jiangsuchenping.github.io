@@ -798,3 +798,54 @@ button.check-update:hover {
     background-color: #FF9A9E;
     color: #fff;
 }
+
+/* 时间提醒样式 */
+.time-notification {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background-color: #fff3cd;
+    color: #856404;
+    padding: 15px;
+    text-align: center;
+    z-index: 1000;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    animation: slideDown 0.5s ease-out;
+}
+
+.notification-content {
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.close-notification {
+    background: none;
+    border: none;
+    color: #856404;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 0 5px;
+}
+
+.close-notification:hover {
+    color: #533f03;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-100%);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+/* 当有通知时，调整主容器位置 */
+.container.has-notification {
+    margin-top: 60px;
+}
