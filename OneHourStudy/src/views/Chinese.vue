@@ -27,14 +27,6 @@
       <div class="history-section" :class="{ 'show': showHistory }">
         <div class="history-header">
           <h3>学习历史</h3>
-          <div class="history-filters">
-            <select v-model="historyFilter">
-              <option value="all">全部</option>
-              <option value="known">已掌握</option>
-              <option value="fuzzy">模糊</option>
-              <option value="unknown">未掌握</option>
-            </select>
-          </div>
         </div>
         <div class="history-list">
           <div v-for="record in filteredHistory" 
@@ -106,19 +98,14 @@ const learningStats = ref({
 
 // 修改历史记录相关状态
 const showHistory = ref(false)
-const historyFilter = ref('all')
 const learningHistory = ref({}) // 改为对象，以汉字为键
 
-// 计算属性：过滤后的历史记录
+// 计算属性：历史记录
 const filteredHistory = computed(() => {
-  const records = Object.entries(learningHistory.value).map(([char, record]) => ({
+  return Object.entries(learningHistory.value).map(([char, record]) => ({
     char,
     ...record
   }))
-  if (historyFilter.value === 'all') {
-    return records
-  }
-  return records.filter(record => record.status === historyFilter.value)
 })
 
 // 计算属性：总学习次数
@@ -643,7 +630,7 @@ const nextReviewTime = computed(() => {
   min-width: 0; /* 防止内容溢出 */
   background-color: white;
   border-radius: var(--border-radius);
-  padding: 1.5rem;
+  padding: 0;
   box-shadow: var(--box-shadow);
   max-height: calc(100vh - 200px);
   overflow-y: auto;
@@ -740,12 +727,13 @@ const nextReviewTime = computed(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
+  margin: 0;
   position: sticky;
   top: 0;
   background-color: white;
-  padding: 1rem 0;
+  padding: 1rem 1.5rem;
   z-index: 1;
+  border-bottom: 1px solid #eee;
 }
 
 .history-filters select {
@@ -758,6 +746,7 @@ const nextReviewTime = computed(() => {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  padding: 1rem 1.5rem;
 }
 
 .history-item {
