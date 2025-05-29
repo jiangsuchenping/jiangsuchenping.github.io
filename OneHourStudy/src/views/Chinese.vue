@@ -38,9 +38,9 @@
               <div class="history-pinyin">{{ record.pinyin }}</div>
               <div class="history-meaning">{{ record.meaning }}</div>
               <div class="history-counts">
-                <span class="count known">认识: {{ record.knownCount }}</span>
-                <span class="count fuzzy">模糊: {{ record.fuzzyCount }}</span>
-                <span class="count unknown">忘记: {{ record.unknownCount }}</span>
+                <span class="count known">{{ record.knownCount }}</span>
+                <span class="count fuzzy">{{ record.fuzzyCount }}</span>
+                <span class="count unknown">{{ record.unknownCount }}</span>
               </div>
             </div>
             <div class="history-status">
@@ -102,10 +102,26 @@ const learningHistory = ref({}) // 改为对象，以汉字为键
 
 // 计算属性：历史记录
 const filteredHistory = computed(() => {
-  return Object.entries(learningHistory.value).map(([char, record]) => ({
-    char,
-    ...record
-  }))
+  return Object.entries(learningHistory.value)
+    .map(([char, record]) => ({
+      char,
+      ...record
+    }))
+    .sort((a, b) => {
+      // 计算掌握程度得分（0-100）
+      const getMasteryScore = (record) => {
+        const total = record.knownCount + record.fuzzyCount + record.unknownCount
+        if (total === 0) return 0
+        // 认识得3分，模糊得1分，忘记得0分
+        return (record.knownCount * 3 + record.fuzzyCount * 1) / (total * 3) * 100
+      }
+      
+      const scoreA = getMasteryScore(a)
+      const scoreB = getMasteryScore(b)
+      
+      // 得分低的排在前面（最需要强化学习的）
+      return scoreA - scoreB
+    })
 })
 
 // 计算属性：总学习次数
@@ -795,6 +811,8 @@ const nextReviewTime = computed(() => {
   padding: 0.2rem 0.5rem;
   border-radius: 1rem;
   font-size: 0.9rem;
+  min-width: 2rem;
+  text-align: center;
 }
 
 .count.known {
