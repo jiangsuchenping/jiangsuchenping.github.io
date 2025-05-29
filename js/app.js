@@ -547,8 +547,19 @@ function recordMathAnswer(problem, isCorrect) {
     }
     
     record.lastAttemptTime = new Date().toISOString();
+    
+    // 计算正确率
+    const accuracy = record.correctAttempts / record.totalAttempts;
+    
+    // 根据正确率和当前阶段调整复习间隔
+    let nextInterval = EBBINGHAUS_INTERVALS[record.reviewStage];
+    
+    // 如果正确率低于当前阶段的要求，增加复习频率
+    if (!isAccuracyMet(record.reviewStage, record.correctAttempts, record.totalAttempts)) {
+        nextInterval = Math.max(5/60, nextInterval * 0.5); // 至少5分钟
+    }
+    
     // 设置下次复习时间
-    const nextInterval = EBBINGHAUS_INTERVALS[record.reviewStage];
     record.nextReviewTime = new Date(Date.now() + nextInterval * 60 * 60 * 1000).toISOString();
     
     // 保存到本地存储
@@ -606,6 +617,272 @@ function calculateProblemWeight(record) {
 }
 
 /**
+ * 检查当前复习阶段的正确率是否达标
+ * @param {number} reviewStage - 当前复习阶段
+ * @param {number} correctCount - 当前阶段的正确次数
+ * @param {number} totalCount - 当前阶段的总次数
+ * @returns {boolean} - 是否达标
+ */
+function isAccuracyMet(reviewStage, correctCount, totalCount) {
+    if (totalCount === 0) return false;
+    
+    const accuracy = correctCount / totalCount;
+    // 根据复习阶段设置不同的正确率要求
+    const requiredAccuracy = [
+        0.8,  // 5分钟阶段：80%
+        0.85, // 30分钟阶段：85%
+        0.9,  // 12小时阶段：90%
+        0.9,  // 1天阶段：90%
+        0.95, // 2天阶段：95%
+        0.95, // 4天阶段：95%
+        0.95, // 7天阶段：95%
+        0.95  // 15天阶段：95%
+    ][reviewStage];
+    
+    return accuracy >= requiredAccuracy;
+}
+
+/**
+ * 检查是否有需要复习的题目
+ * @returns {boolean} - 是否有需要复习的题目
+ */
+function hasReviewableProblems() {
+    const now = new Date();
+    return Object.values(mathProblemHistory).some(record => {
+        const nextReview = new Date(record.nextReviewTime);
+        return now >= nextReview;
+    });
+}
+
+/**
+ * 初始化数学测试页面
+ */
+function initMathTestPage() {
+    const problemContainer = document.getElementById('math-problem-container');
+    const optionsContainer = document.getElementById('math-options-container');
+    const resultContainer = document.getElementById('math-result');
+    const scoreContainer = document.getElementById('math-score');
+    const showHistoryBtn = document.getElementById('show-history-btn');
+    const startPracticeBtn = document.getElementById('start-practice-btn');
+    
+    let currentProblem = null;
+    let score = 0;
+    let totalAnswered = 0;
+    let isAnswered = false;
+    let currentStageCorrect = 0;
+    let currentStageTotal = 0;
+    let currentReviewStage = 0;
+    let timeUpdateInterval = null;
+
+    // 显示历史记录
+    showHistoryBtn.addEventListener('click', function() {
+        isHistoryDialogOpen = true;
+        showHistoryDialog();
+    });
+
+    // 开始练习按钮点击事件
+    if (startPracticeBtn) {
+        startPracticeBtn.addEventListener('click', function() {
+            if (!hasReviewableProblems()) {
+                showRestMessage();
+            } else {
+                generateNewProblem();
+            }
+        });
+    }
+
+    // 更新得分显示
+    function updateScore() {
+        const percentage = totalAnswered > 0 ? Math.round((score / totalAnswered) * 100) : 0;
+        scoreContainer.innerHTML = `得分: ${percentage}分`;
+    }
+
+    // 显示休息提示
+    function showRestMessage() {
+        const nextReviewTime = getNextEarliestMathReviewTime();
+        const restMessage = document.createElement('div');
+        restMessage.className = 'word-card';
+        restMessage.innerHTML = `
+            <div class="word">休息一下</div>
+            <div class="pinyin">xiū xi yí xià</div>
+            <div class="example">今天的数学练习已经完成！</div>
+            <div class="review-info">下次练习时间：<span class="next-review-time">${nextReviewTime}</span></div>
+        `;
+        
+        problemContainer.innerHTML = '';
+        problemContainer.appendChild(restMessage);
+        optionsContainer.innerHTML = '';
+        resultContainer.innerHTML = '';
+
+        // 清除之前的定时器（如果存在）
+        if (timeUpdateInterval) {
+            clearInterval(timeUpdateInterval);
+        }
+
+        // 添加定时器，每分钟更新一次时间
+        timeUpdateInterval = setInterval(() => {
+            const nextTime = getNextEarliestMathReviewTime();
+            const timeElement = restMessage.querySelector('.next-review-time');
+            if (timeElement) {
+                timeElement.textContent = nextTime;
+            }
+            
+            // 如果时间到了，自动刷新页面
+            if (nextTime === "现在") {
+                clearInterval(timeUpdateInterval);
+                // 延迟1秒后刷新，确保用户能看到"现在"的提示
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            }
+        }, 60000); // 每分钟更新一次
+
+        // 当页面隐藏时清除定时器
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                clearInterval(timeUpdateInterval);
+            }
+        });
+    }
+
+    // 生成新的数学题目
+    function generateNewProblem() {
+        // 检查当前阶段的正确率是否达标
+        if (currentStageTotal >= 5 && isAccuracyMet(currentReviewStage, currentStageCorrect, currentStageTotal)) {
+            showRestMessage();
+            return;
+        }
+
+        currentProblem = generateSmartMathProblem();
+        
+        // 如果没有需要复习的题目，显示休息提示
+        if (!currentProblem) {
+            showRestMessage();
+            return;
+        }
+        
+        isAnswered = false;
+        
+        // 清空结果提示
+        resultContainer.innerHTML = '';
+        resultContainer.className = '';
+        
+        // 显示题目
+        problemContainer.innerHTML = `<div class="math-problem">${currentProblem.problem}</div>`;
+
+        // 生成选项
+        const options = generateMathOptions(currentProblem.answer);
+        optionsContainer.innerHTML = '';
+        options.forEach(function(option) {
+            const optionElem = document.createElement('div');
+            optionElem.className = 'math-option';
+            optionElem.textContent = option;
+            optionElem.addEventListener('click', function() {
+                checkAnswer(option);
+            });
+            optionsContainer.appendChild(optionElem);
+        });
+
+        // 初始化得分显示
+        updateScore();
+    }
+
+    // 检查答案
+    window.checkAnswer = function(selectedAnswer) {
+        if (isAnswered) return;
+        
+        isAnswered = true;
+        totalAnswered++;
+        const isCorrect = selectedAnswer === currentProblem.answer;
+        
+        // 更新当前阶段的统计
+        currentStageTotal++;
+        if (isCorrect) {
+            score++;
+            currentStageCorrect++;
+        }
+        
+        // 禁用所有选项并添加相应的样式
+        const options = optionsContainer.getElementsByClassName('math-option');
+        for (let option of options) {
+            option.style.pointerEvents = 'none';
+            const optionValue = parseInt(option.textContent);
+            if (optionValue === currentProblem.answer) {
+                option.classList.add('correct');
+            } else if (optionValue === selectedAnswer && !isCorrect) {
+                option.classList.add('wrong');
+            }
+        }
+        
+        if (isCorrect) {
+            resultContainer.innerHTML = '<div class="success">答对了！真棒！</div>';
+        } else {
+            resultContainer.innerHTML = `<div class="error">答错了！正确答案是 ${currentProblem.answer}</div>`;
+        }
+
+        // 记录答题历史（无论对错）
+        recordMathAnswer(currentProblem, isCorrect);
+
+        // 更新得分显示
+        updateScore();
+
+        // 1秒后生成新题目
+        setTimeout(generateNewProblem, 1000);
+    };
+
+    // 初始化显示
+    if (!hasReviewableProblems()) {
+        showRestMessage();
+    } else {
+        generateNewProblem();
+    }
+}
+
+/**
+ * 生成数学题目的选项
+ * @param {number} correctAnswer - 正确答案
+ * @returns {Array} - 选项数组
+ */
+function generateMathOptions(correctAnswer) {
+    const options = [correctAnswer];
+    
+    // 生成3个不同的干扰项
+    while (options.length < 4) {
+        const option = Math.floor(Math.random() * 20) + 1;
+        if (!options.includes(option)) {
+            options.push(option);
+        }
+    }
+    
+    // 打乱选项顺序
+    return shuffleArray(options);
+}
+
+/**
+ * 辅助函数 - 从数组中随机获取指定数量的元素
+ * @param {Array} array - 源数组
+ * @param {number} count - 需要的元素数量
+ * @returns {Array} - 随机选择的元素数组
+ */
+function getRandomItems(array, count) {
+    const shuffled = shuffleArray([...array]);
+    return shuffled.slice(0, count);
+}
+
+/**
+ * 辅助函数 - 打乱数组顺序
+ * @param {Array} array - 要打乱的数组
+ * @returns {Array} - 打乱后的数组
+ */
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+/**
  * 获取下一次最早的学习时间
  * @returns {string} - 下一次最早的学习时间描述
  */
@@ -622,13 +899,19 @@ function getNextEarliestMathReviewTime() {
     });
     
     if (!earliestTime) {
-        return "现在";
+        // 如果没有记录，返回第一个复习间隔（5分钟）
+        return "5分钟后";
     }
     
     // 计算时间差
     const diff = earliestTime - now;
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    
+    // 如果时间差小于1分钟，返回"现在"
+    if (diff < 60000) {
+        return "现在";
+    }
     
     if (hours > 0) {
         return `${hours}小时${minutes}分钟后`;
@@ -860,218 +1143,6 @@ function closeChineseHistoryDialog() {
 }
 
 /**
- * 检查当前复习阶段的正确率是否达标
- * @param {number} reviewStage - 当前复习阶段
- * @param {number} correctCount - 当前阶段的正确次数
- * @param {number} totalCount - 当前阶段的总次数
- * @returns {boolean} - 是否达标
- */
-function isAccuracyMet(reviewStage, correctCount, totalCount) {
-    if (totalCount === 0) return false;
-    
-    const accuracy = correctCount / totalCount;
-    // 根据复习阶段设置不同的正确率要求
-    const requiredAccuracy = [
-        0.8,  // 5分钟阶段：80%
-        0.85, // 30分钟阶段：85%
-        0.9,  // 12小时阶段：90%
-        0.9,  // 1天阶段：90%
-        0.95, // 2天阶段：95%
-        0.95, // 4天阶段：95%
-        0.95, // 7天阶段：95%
-        0.95  // 15天阶段：95%
-    ][reviewStage];
-    
-    return accuracy >= requiredAccuracy;
-}
-
-/**
- * 初始化数学测试页面
- */
-function initMathTestPage() {
-    const problemContainer = document.getElementById('math-problem-container');
-    const optionsContainer = document.getElementById('math-options-container');
-    const resultContainer = document.getElementById('math-result');
-    const scoreContainer = document.getElementById('math-score');
-    const showHistoryBtn = document.getElementById('show-history-btn');
-    
-    let currentProblem = null;
-    let score = 0;
-    let totalAnswered = 0;
-    let isAnswered = false;
-    let currentStageCorrect = 0;
-    let currentStageTotal = 0;
-    let currentReviewStage = 0;
-
-    // 显示历史记录
-    showHistoryBtn.addEventListener('click', function() {
-        isHistoryDialogOpen = true;
-        showHistoryDialog();
-    });
-
-    // 更新得分显示
-    function updateScore() {
-        const percentage = totalAnswered > 0 ? Math.round((score / totalAnswered) * 100) : 0;
-        scoreContainer.innerHTML = `得分: ${percentage}分`;
-    }
-
-    // 生成新的数学题目
-    function generateNewProblem() {
-        // 检查当前阶段的正确率是否达标
-        if (currentStageTotal >= 5 && isAccuracyMet(currentReviewStage, currentStageCorrect, currentStageTotal)) {
-            const nextReviewTime = getNextEarliestMathReviewTime();
-            problemContainer.innerHTML = `
-                <div class="math-problem">
-                    <div class="rest-message">
-                        <h3>休息一下</h3>
-                        <p>当前阶段的练习已经达标！</p>
-                        <p>正确率：${Math.round((currentStageCorrect / currentStageTotal) * 100)}%</p>
-                        <p>下次练习时间：${nextReviewTime}</p>
-                    </div>
-                </div>
-            `;
-            optionsContainer.innerHTML = '';
-            resultContainer.innerHTML = '';
-            return;
-        }
-
-        currentProblem = generateSmartMathProblem();
-        
-        // 如果没有需要复习的题目，显示休息提示
-        if (!currentProblem) {
-            const nextReviewTime = getNextEarliestMathReviewTime();
-            problemContainer.innerHTML = `
-                <div class="math-problem">
-                    <div class="rest-message">
-                        <h3>休息一下</h3>
-                        <p>今天的数学练习已经完成！</p>
-                        <p>下次练习时间：${nextReviewTime}</p>
-                    </div>
-                </div>
-            `;
-            optionsContainer.innerHTML = '';
-            resultContainer.innerHTML = '';
-            return;
-        }
-        
-        isAnswered = false;
-        
-        // 清空结果提示
-        resultContainer.innerHTML = '';
-        resultContainer.className = '';
-        
-        // 显示题目
-        problemContainer.innerHTML = `<div class="math-problem">${currentProblem.problem}</div>`;
-
-        // 生成选项
-        const options = generateMathOptions(currentProblem.answer);
-        optionsContainer.innerHTML = '';
-        options.forEach(function(option) {
-            const optionElem = document.createElement('div');
-            optionElem.className = 'math-option';
-            optionElem.textContent = option;
-            optionElem.addEventListener('click', function() {
-                checkAnswer(option);
-            });
-            optionsContainer.appendChild(optionElem);
-        });
-
-        // 初始化得分显示
-        updateScore();
-    }
-
-    // 检查答案
-    window.checkAnswer = function(selectedAnswer) {
-        if (isAnswered) return;
-        
-        isAnswered = true;
-        totalAnswered++;
-        const isCorrect = selectedAnswer === currentProblem.answer;
-        
-        // 更新当前阶段的统计
-        currentStageTotal++;
-        if (isCorrect) {
-            score++;
-            currentStageCorrect++;
-        }
-        
-        // 禁用所有选项并添加相应的样式
-        const options = optionsContainer.getElementsByClassName('math-option');
-        for (let option of options) {
-            option.style.pointerEvents = 'none';
-            const optionValue = parseInt(option.textContent);
-            if (optionValue === currentProblem.answer) {
-                option.classList.add('correct');
-            } else if (optionValue === selectedAnswer && !isCorrect) {
-                option.classList.add('wrong');
-            }
-        }
-        
-        if (isCorrect) {
-            resultContainer.innerHTML = '<div class="success">答对了！真棒！</div>';
-        } else {
-            resultContainer.innerHTML = `<div class="error">答错了！正确答案是 ${currentProblem.answer}</div>`;
-        }
-
-        // 记录答题历史（无论对错）
-        recordMathAnswer(currentProblem, isCorrect);
-
-        // 更新得分显示
-        updateScore();
-
-        // 1秒后生成新题目
-        setTimeout(generateNewProblem, 1000);
-    };
-
-    // 初始化显示第一道题
-    generateNewProblem();
-}
-
-/**
- * 生成数学题目的选项
- * @param {number} correctAnswer - 正确答案
- * @returns {Array} - 选项数组
- */
-function generateMathOptions(correctAnswer) {
-    const options = [correctAnswer];
-    
-    // 生成3个不同的干扰项
-    while (options.length < 4) {
-        const option = Math.floor(Math.random() * 20) + 1;
-        if (!options.includes(option)) {
-            options.push(option);
-        }
-    }
-    
-    // 打乱选项顺序
-    return shuffleArray(options);
-}
-
-/**
- * 辅助函数 - 从数组中随机获取指定数量的元素
- * @param {Array} array - 源数组
- * @param {number} count - 需要的元素数量
- * @returns {Array} - 随机选择的元素数组
- */
-function getRandomItems(array, count) {
-    const shuffled = shuffleArray([...array]);
-    return shuffled.slice(0, count);
-}
-
-/**
- * 辅助函数 - 打乱数组顺序
- * @param {Array} array - 要打乱的数组
- * @returns {Array} - 打乱后的数组
- */
-function shuffleArray(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
-}
-
-/**
  * 英语模块 - 单词学习
  */
 const englishWords = [
@@ -1097,47 +1168,380 @@ const englishWords = [
     { word: 'tree', pronunciation: '/triː/', translation: '树', image: 'img/tree.svg' }
 ];
 
+// 英语单词学习记录数据结构
+let englishWordHistory = JSON.parse(localStorage.getItem('englishWordHistory')) || {};
+
+/**
+ * 记录英语单词学习情况
+ * @param {string} word - 英语单词
+ * @param {boolean} isCorrect - 是否认识
+ */
+function recordEnglishWord(word, isCorrect) {
+    if (!englishWordHistory[word]) {
+        englishWordHistory[word] = {
+            totalAttempts: 0,
+            correctAttempts: 0,
+            wrongAttempts: 0,
+            lastAttemptTime: null,
+            reviewStage: 0,
+            nextReviewTime: null
+        };
+    }
+    
+    const record = englishWordHistory[word];
+    record.totalAttempts++;
+    if (isCorrect) {
+        record.correctAttempts++;
+        // 如果答对了，进入下一个复习阶段
+        if (record.reviewStage < EBBINGHAUS_INTERVALS.length - 1) {
+            record.reviewStage++;
+        }
+    } else {
+        record.wrongAttempts++;
+        // 如果答错了，回到上一个复习阶段
+        if (record.reviewStage > 0) {
+            record.reviewStage--;
+        }
+    }
+    
+    record.lastAttemptTime = new Date().toISOString();
+    
+    // 计算正确率
+    const accuracy = record.correctAttempts / record.totalAttempts;
+    
+    // 根据正确率和当前阶段调整复习间隔
+    let nextInterval = EBBINGHAUS_INTERVALS[record.reviewStage];
+    
+    // 如果正确率低于当前阶段的要求，增加复习频率
+    if (!isAccuracyMet(record.reviewStage, record.correctAttempts, record.totalAttempts)) {
+        nextInterval = Math.max(5/60, nextInterval * 0.5); // 至少5分钟
+    }
+    
+    // 设置下次复习时间
+    record.nextReviewTime = new Date(Date.now() + nextInterval * 60 * 60 * 1000).toISOString();
+    
+    // 保存到本地存储
+    localStorage.setItem('englishWordHistory', JSON.stringify(englishWordHistory));
+}
+
+/**
+ * 计算英语单词的复习权重
+ * @param {Object} record - 单词的学习记录
+ * @returns {number} - 权重分数
+ */
+function calculateEnglishWordWeight(record) {
+    if (!record) return 100; // 未学习过的单词给予最高权重
+    
+    const now = new Date();
+    const nextReview = new Date(record.nextReviewTime);
+    
+    // 如果已经超过复习时间，权重最高
+    if (now > nextReview) {
+        return 100;
+    }
+    
+    // 计算距离下次复习的时间（小时）
+    const hoursUntilReview = (nextReview - now) / (1000 * 60 * 60);
+    
+    // 计算正确率
+    const accuracy = record.correctAttempts / record.totalAttempts;
+    
+    // 综合权重计算
+    // 1. 时间权重：距离复习时间越近，权重越高
+    const timeWeight = Math.max(0, 100 - hoursUntilReview);
+    
+    // 2. 正确率权重：正确率越低，权重越高
+    const accuracyWeight = (1 - accuracy) * 100;
+    
+    // 3. 复习阶段权重：阶段越低，权重越高
+    const stageWeight = (EBBINGHAUS_INTERVALS.length - record.reviewStage) * 10;
+    
+    // 综合权重：时间权重40%，正确率权重40%，复习阶段权重20%
+    return timeWeight * 0.4 + accuracyWeight * 0.4 + stageWeight * 0.2;
+}
+
+/**
+ * 智能选择下一个要学习的英语单词
+ * @returns {Object|null} - 选中的单词对象，如果没有需要学习的单词则返回null
+ */
+function selectNextEnglishWord() {
+    const now = new Date();
+    
+    // 计算每个单词的权重，并过滤掉未到复习时间的单词
+    const weightedWords = englishWords
+        .map(wordObj => {
+            const record = englishWordHistory[wordObj.word];
+            const weight = calculateEnglishWordWeight(record);
+            const nextReview = record ? new Date(record.nextReviewTime) : now;
+            
+            return {
+                ...wordObj,
+                weight,
+                nextReview,
+                isReadyForReview: !record || now >= nextReview
+            };
+        })
+        .filter(word => word.isReadyForReview); // 只保留已到复习时间的单词
+    
+    // 如果没有已到复习时间的单词，返回null
+    if (weightedWords.length === 0) {
+        return null;
+    }
+    
+    // 根据权重随机选择
+    const totalWeight = weightedWords.reduce((sum, word) => sum + word.weight, 0);
+    let random = Math.random() * totalWeight;
+    
+    for (const word of weightedWords) {
+        random -= word.weight;
+        if (random <= 0) {
+            return word;
+        }
+    }
+    
+    // 如果出现意外情况，返回第一个已到复习时间的单词
+    return weightedWords[0];
+}
+
+/**
+ * 获取下一次最早的英语单词学习时间
+ * @returns {string} - 下一次最早的学习时间描述
+ */
+function getNextEarliestEnglishReviewTime() {
+    const now = new Date();
+    let earliestTime = null;
+    
+    // 遍历所有单词记录，找出最早的下次复习时间
+    Object.values(englishWordHistory).forEach(record => {
+        const nextReview = new Date(record.nextReviewTime);
+        if (nextReview > now && (!earliestTime || nextReview < earliestTime)) {
+            earliestTime = nextReview;
+        }
+    });
+    
+    if (!earliestTime) {
+        // 如果没有记录，返回第一个复习间隔（5分钟）
+        return "5分钟后";
+    }
+    
+    // 计算时间差
+    const diff = earliestTime - now;
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    
+    // 如果时间差小于1分钟，返回"现在"
+    if (diff < 60000) {
+        return "现在";
+    }
+    
+    if (hours > 0) {
+        return `${hours}小时${minutes}分钟后`;
+    } else {
+        return `${minutes}分钟后`;
+    }
+}
+
+/**
+ * 检查是否有需要复习的英语单词
+ * @returns {boolean} - 是否有需要复习的单词
+ */
+function hasReviewableEnglishWords() {
+    const now = new Date();
+    return Object.values(englishWordHistory).some(record => {
+        const nextReview = new Date(record.nextReviewTime);
+        return now >= nextReview;
+    });
+}
+
+/**
+ * 显示英语单词学习记录
+ */
+function showEnglishHistoryDialog() {
+    const dialog = document.getElementById('english-history-dialog');
+    const historyList = document.getElementById('english-history-list');
+    
+    // 清空历史记录列表
+    historyList.innerHTML = '';
+    
+    // 获取所有单词记录并按权重排序
+    const words = Object.entries(englishWordHistory)
+        .map(([word, record]) => ({
+            word,
+            ...record,
+            weight: calculateEnglishWordWeight(record)
+        }))
+        .sort((a, b) => b.weight - a.weight); // 按权重从高到低排序
+    
+    // 显示每个单词的记录
+    words.forEach(record => {
+        const accuracy = (record.correctAttempts / record.totalAttempts * 100).toFixed(1);
+        const lastAttempt = new Date(record.lastAttemptTime).toLocaleString();
+        const nextReview = new Date(record.nextReviewTime).toLocaleString();
+        const hoursUntilReview = ((new Date(record.nextReviewTime) - new Date()) / (1000 * 60 * 60)).toFixed(1);
+        
+        const historyItem = document.createElement('div');
+        historyItem.className = 'history-item';
+        if (hoursUntilReview < 0) {
+            historyItem.classList.add('needs-review');
+        }
+        historyItem.innerHTML = `
+            <div class="problem">${record.word}</div>
+            <div class="stats">
+                <span>总次数: ${record.totalAttempts}</span>
+                <span>正确: ${record.correctAttempts}</span>
+                <span>错误: ${record.wrongAttempts}</span>
+                <span class="accuracy">正确率: ${accuracy}%</span>
+            </div>
+            <div class="review-info">
+                <div>最后学习时间: ${lastAttempt}</div>
+                <div>下次复习时间: ${nextReview}</div>
+                <div>复习阶段: ${record.reviewStage + 1}/${EBBINGHAUS_INTERVALS.length}</div>
+            </div>
+            ${hoursUntilReview < 0 ? '<div class="review-tag">需要复习</div>' : ''}
+        `;
+        historyList.appendChild(historyItem);
+    });
+    
+    // 显示弹窗
+    dialog.style.display = 'flex';
+    
+    // 添加点击事件监听器
+    dialog.addEventListener('click', function(e) {
+        // 如果点击的是弹窗背景（而不是内容区域），则关闭弹窗
+        if (e.target === dialog) {
+            closeEnglishHistoryDialog();
+        }
+    });
+    
+    // 添加关闭按钮
+    const closeButton = document.createElement('div');
+    closeButton.className = 'close-button';
+    closeButton.innerHTML = '×';
+    closeButton.onclick = closeEnglishHistoryDialog;
+    dialog.querySelector('.dialog-content').appendChild(closeButton);
+}
+
+/**
+ * 关闭英语单词学习记录弹窗
+ */
+function closeEnglishHistoryDialog() {
+    const dialog = document.getElementById('english-history-dialog');
+    dialog.style.display = 'none';
+}
+
 /**
  * 初始化英语单词学习页面
  */
 function initEnglishWordPage() {
     const wordContainer = document.getElementById('english-word-container');
+    const showHistoryBtn = document.getElementById('show-english-history-btn');
+    
     if (!wordContainer) return;
+    
+    // 显示历史记录
+    if (showHistoryBtn) {
+        showHistoryBtn.addEventListener('click', showEnglishHistoryDialog);
+    }
     
     // 清空容器
     wordContainer.innerHTML = '';
     
-    // 随机选择1个单词进行展示
-    const selectedWords = getRandomItems(englishWords, 1);
+    // 智能选择一个单词
+    const selectedWord = selectNextEnglishWord();
+    
+    if (!selectedWord) {
+        // 如果没有需要学习的单词，显示提示信息
+        const nextReviewTime = getNextEarliestEnglishReviewTime();
+        wordContainer.innerHTML = `
+            <div class="word-card">
+                <div class="word">休息一下</div>
+                <div class="pinyin">xiū xi yí xià</div>
+                <div class="example">所有单词都已经学习完成！</div>
+                <div class="review-info">下次学习时间：${nextReviewTime}</div>
+            </div>
+        `;
+        return;
+    }
     
     // 创建单词卡片
-    selectedWords.forEach(function(wordObj) {
-        const wordCard = document.createElement('div');
-        wordCard.className = 'english-card';
-        wordCard.innerHTML = `
-            <div class="word">${wordObj.word}</div>
-            <div class="pronunciation">${wordObj.pronunciation}</div>
-            <div class="translation">${wordObj.translation}</div>
-            <img src="${wordObj.image}" alt="${wordObj.word}" class="word-image">
-            <button class="btn pronounce-btn" data-word="${wordObj.word}">读一读</button>
-        `;
-        wordContainer.appendChild(wordCard);
+    const wordCard = document.createElement('div');
+    wordCard.className = 'word-card';
+    wordCard.innerHTML = `
+        <div class="word">${selectedWord.word}</div>
+        <div class="pinyin">${selectedWord.pronunciation}</div>
+        <div class="example">${selectedWord.translation}</div>
+        <img src="${selectedWord.image}" alt="${selectedWord.word}" class="word-image">
+        <div class="word-buttons">
+            <button class="btn know-btn" data-word="${selectedWord.word}">认识</button>
+            <button class="btn dont-know-btn" data-word="${selectedWord.word}">不认识</button>
+        </div>
+    `;
+    wordContainer.appendChild(wordCard);
+    
+    // 添加按钮事件
+    wordCard.querySelector('.know-btn').addEventListener('click', function() {
+        const word = this.getAttribute('data-word');
+        recordEnglishWord(word, true);
+        showNextEnglishWord();
     });
     
-    // 添加发音按钮事件
-    document.querySelectorAll('.pronounce-btn').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-            const word = this.getAttribute('data-word');
-            pronounceEnglishWord(word);
-        });
+    wordCard.querySelector('.dont-know-btn').addEventListener('click', function() {
+        const word = this.getAttribute('data-word');
+        recordEnglishWord(word, false);
+        showNextEnglishWord();
     });
 }
 
 /**
- * 英语单词发音功能（模拟）
- * @param {string} word - 要发音的英语单词
+ * 显示下一个英语单词
  */
-function pronounceEnglishWord(word) {
-    // 在实际应用中，这里可以调用语音API
-    alert('发音: ' + word);
+function showNextEnglishWord() {
+    // 清空容器
+    const wordContainer = document.getElementById('english-word-container');
+    wordContainer.innerHTML = '';
+    
+    // 智能选择下一个单词
+    const selectedWord = selectNextEnglishWord();
+    
+    if (!selectedWord) {
+        // 如果没有需要学习的单词，显示提示信息
+        const nextReviewTime = getNextEarliestEnglishReviewTime();
+        wordContainer.innerHTML = `
+            <div class="word-card">
+                <div class="word">休息一下</div>
+                <div class="pinyin">xiū xi yí xià</div>
+                <div class="example">所有单词都已经学习完成！</div>
+                <div class="review-info">下次学习时间：${nextReviewTime}</div>
+            </div>
+        `;
+        return;
+    }
+    
+    // 创建单词卡片
+    const wordCard = document.createElement('div');
+    wordCard.className = 'word-card';
+    wordCard.innerHTML = `
+        <div class="word">${selectedWord.word}</div>
+        <div class="pinyin">${selectedWord.pronunciation}</div>
+        <div class="example">${selectedWord.translation}</div>
+        <img src="${selectedWord.image}" alt="${selectedWord.word}" class="word-image">
+        <div class="word-buttons">
+            <button class="btn know-btn" data-word="${selectedWord.word}">认识</button>
+            <button class="btn dont-know-btn" data-word="${selectedWord.word}">不认识</button>
+        </div>
+    `;
+    wordContainer.appendChild(wordCard);
+    
+    // 添加按钮事件
+    wordCard.querySelector('.know-btn').addEventListener('click', function() {
+        const word = this.getAttribute('data-word');
+        recordEnglishWord(word, true);
+        showNextEnglishWord();
+    });
+    
+    wordCard.querySelector('.dont-know-btn').addEventListener('click', function() {
+        const word = this.getAttribute('data-word');
+        recordEnglishWord(word, false);
+        showNextEnglishWord();
+    });
 }

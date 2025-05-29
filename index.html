@@ -123,13 +123,24 @@
 
         <!-- 英语单词学习页面 -->
         <div id="english-word-page" class="page" style="display: none;">
-            <h2>单词学习</h2>
+            <h1>单词学习</h1>
             <div id="english-word-container">
                 <!-- 英语单词卡片将通过JavaScript动态生成 -->
             </div>
             <div class="button-group">
-                <button id="refresh-english-btn" class="btn">换一个</button>
+                <button id="show-english-history-btn" class="btn">查看学习记录</button>
                 <button class="btn" onclick="navigateTo('english')">返回</button>
+            </div>
+        </div>
+
+        <!-- 英语单词学习记录弹窗 -->
+        <div id="english-history-dialog" class="dialog" style="display: none;">
+            <div class="dialog-content">
+                <h3>英语单词学习记录</h3>
+                <div id="english-history-list" class="history-list"></div>
+                <div class="dialog-buttons">
+                    <button class="btn" onclick="closeEnglishHistoryDialog()">关闭</button>
+                </div>
             </div>
         </div>
     </div>
