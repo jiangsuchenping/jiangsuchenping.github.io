@@ -1174,7 +1174,32 @@ const englishWords = [
     { word: 'queen', pronunciation: '/kwiːn/', translation: '女王', image: 'img/queen.svg' },
     { word: 'rabbit', pronunciation: '/ˈræbɪt/', translation: '兔子', image: 'img/rabbit.svg' },
     { word: 'sun', pronunciation: '/sʌn/', translation: '太阳', image: 'img/sun.svg' },
-    { word: 'tree', pronunciation: '/triː/', translation: '树', image: 'img/tree.svg' }
+    { word: 'tree', pronunciation: '/triː/', translation: '树', image: 'img/tree.svg' },
+    // 新增单词
+    { word: 'book', pronunciation: '/bʊk/', translation: '书', image: 'img/book.svg' },
+    { word: 'car', pronunciation: '/kɑː/', translation: '汽车', image: 'img/car.svg' },
+    { word: 'desk', pronunciation: '/desk/', translation: '书桌', image: 'img/desk.svg' },
+    { word: 'egg', pronunciation: '/eɡ/', translation: '鸡蛋', image: 'img/egg.svg' },
+    { word: 'flower', pronunciation: '/ˈflaʊə/', translation: '花', image: 'img/flower.svg' },
+    { word: 'grape', pronunciation: '/ɡreɪp/', translation: '葡萄', image: 'img/grape.svg' },
+    { word: 'hat', pronunciation: '/hæt/', translation: '帽子', image: 'img/hat.svg' },
+    { word: 'ice', pronunciation: '/aɪs/', translation: '冰', image: 'img/ice.svg' },
+    { word: 'jacket', pronunciation: '/ˈdʒækɪt/', translation: '夹克', image: 'img/jacket.svg' },
+    { word: 'key', pronunciation: '/kiː/', translation: '钥匙', image: 'img/key.svg' },
+    { word: 'leaf', pronunciation: '/liːf/', translation: '叶子', image: 'img/leaf.svg' },
+    { word: 'moon', pronunciation: '/muːn/', translation: '月亮', image: 'img/moon.svg' },
+    { word: 'nest', pronunciation: '/nest/', translation: '鸟巢', image: 'img/nest.svg' },
+    { word: 'owl', pronunciation: '/aʊl/', translation: '猫头鹰', image: 'img/owl.svg' },
+    { word: 'pen', pronunciation: '/pen/', translation: '钢笔', image: 'img/pen.svg' },
+    { word: 'rain', pronunciation: '/reɪn/', translation: '雨', image: 'img/rain.svg' },
+    { word: 'star', pronunciation: '/stɑː/', translation: '星星', image: 'img/star.svg' },
+    { word: 'tiger', pronunciation: '/ˈtaɪɡə/', translation: '老虎', image: 'img/tiger.svg' },
+    { word: 'umbrella', pronunciation: '/ʌmˈbrelə/', translation: '雨伞', image: 'img/umbrella.svg' },
+    { word: 'violin', pronunciation: '/ˌvaɪəˈlɪn/', translation: '小提琴', image: 'img/violin.svg' },
+    { word: 'water', pronunciation: '/ˈwɔːtə/', translation: '水', image: 'img/water.svg' },
+    { word: 'box', pronunciation: '/bɒks/', translation: '盒子', image: 'img/box.svg' },
+    { word: 'yellow', pronunciation: '/ˈjeləʊ/', translation: '黄色', image: 'img/yellow.svg' },
+    { word: 'zebra', pronunciation: '/ˈzebrə/', translation: '斑马', image: 'img/zebra.svg' }
 ];
 
 // 英语单词学习记录数据结构
@@ -2111,3 +2136,458 @@ function updateKlotskiTimer() {
         recordGameTime(1);
     }
 }
+
+/**
+ * 游戏模块 - 记忆配对游戏
+ */
+let memoryMoves = 0;
+let memoryPairs = 0;
+let memoryStartTime = null;
+let memoryTimerInterval = null;
+let flippedCards = [];
+let matchedPairs = 0;
+
+// 记忆配对游戏卡片数据
+const memoryCards = [
+    '🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼',
+    '🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼'
+];
+
+/**
+ * 初始化记忆配对游戏
+ */
+function initMemoryGame() {
+    const container = document.getElementById('memory-container');
+    const restartBtn = document.getElementById('restart-memory-btn');
+    const movesDisplay = document.getElementById('memory-moves');
+    const pairsDisplay = document.getElementById('memory-pairs');
+    
+    if (!container) return;
+    
+    // 重置游戏状态
+    memoryMoves = 0;
+    memoryPairs = 0;
+    memoryStartTime = null;
+    if (memoryTimerInterval) {
+        clearInterval(memoryTimerInterval);
+    }
+    flippedCards = [];
+    matchedPairs = 0;
+    
+    movesDisplay.textContent = '0';
+    pairsDisplay.textContent = '0';
+    
+    // 清空容器
+    container.innerHTML = '';
+    
+    // 打乱卡片
+    const shuffledCards = shuffleArray([...memoryCards]);
+    
+    // 添加卡片
+    shuffledCards.forEach((card, index) => {
+        const cardElement = document.createElement('div');
+        cardElement.className = 'memory-card';
+        cardElement.dataset.card = card;
+        cardElement.dataset.index = index;
+        
+        const frontElement = document.createElement('div');
+        frontElement.className = 'memory-card-front';
+        frontElement.textContent = '?';
+        
+        const backElement = document.createElement('div');
+        backElement.className = 'memory-card-back';
+        backElement.textContent = card;
+        
+        cardElement.appendChild(frontElement);
+        cardElement.appendChild(backElement);
+        
+        cardElement.addEventListener('click', flipCard);
+        container.appendChild(cardElement);
+    });
+    
+    // 重新开始按钮事件
+    if (restartBtn) {
+        restartBtn.addEventListener('click', initMemoryGame);
+    }
+}
+
+/**
+ * 翻转卡片
+ */
+function flipCard() {
+    // 如果已经翻开两张卡片，或者这张卡片已经翻开或已配对，则返回
+    if (flippedCards.length === 2 || this.classList.contains('flipped') || this.classList.contains('matched')) {
+        return;
+    }
+    
+    // 开始计时
+    if (!memoryStartTime) {
+        memoryStartTime = Date.now();
+        memoryTimerInterval = setInterval(updateMemoryTimer, 1000);
+    }
+    
+    // 翻转卡片
+    this.classList.add('flipped');
+    flippedCards.push(this);
+    
+    // 更新翻牌次数
+    memoryMoves++;
+    document.getElementById('memory-moves').textContent = memoryMoves;
+    
+    // 如果翻开了两张卡片，检查是否匹配
+    if (flippedCards.length === 2) {
+        setTimeout(checkMatch, 1000);
+    }
+}
+
+/**
+ * 检查卡片是否匹配
+ */
+function checkMatch() {
+    const [card1, card2] = flippedCards;
+    const match = card1.dataset.card === card2.dataset.card;
+    
+    if (match) {
+        card1.classList.add('matched');
+        card2.classList.add('matched');
+        matchedPairs++;
+        document.getElementById('memory-pairs').textContent = matchedPairs;
+        
+        // 检查是否完成游戏
+        if (matchedPairs === memoryCards.length / 2) {
+            clearInterval(memoryTimerInterval);
+            setTimeout(() => {
+                alert(`恭喜你完成了记忆配对游戏！\n用时：${document.getElementById('memory-time').textContent}\n翻牌次数：${memoryMoves}`);
+            }, 500);
+        }
+    } else {
+        card1.classList.remove('flipped');
+        card2.classList.remove('flipped');
+    }
+    
+    flippedCards = [];
+}
+
+/**
+ * 更新记忆配对游戏计时器
+ */
+function updateMemoryTimer() {
+    const timeDisplay = document.getElementById('memory-time');
+    const elapsed = Math.floor((Date.now() - memoryStartTime) / 1000);
+    const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
+    const seconds = (elapsed % 60).toString().padStart(2, '0');
+    timeDisplay.textContent = `${minutes}:${seconds}`;
+}
+
+/**
+ * 游戏模块 - 拼图游戏
+ */
+let puzzleMoves = 0;
+let puzzleStartTime = null;
+let puzzleTimerInterval = null;
+let puzzlePieces = [];
+let emptyPieceIndex = 8;
+
+// 拼图游戏图片
+const puzzleImage = 'img/puzzle.jpg';
+
+/**
+ * 初始化拼图游戏
+ */
+function initPuzzleGame() {
+    const container = document.getElementById('puzzle-container');
+    const restartBtn = document.getElementById('restart-puzzle-btn');
+    const movesDisplay = document.getElementById('puzzle-moves');
+    const timeDisplay = document.getElementById('puzzle-time');
+    
+    if (!container) return;
+    
+    // 重置游戏状态
+    puzzleMoves = 0;
+    puzzleStartTime = null;
+    if (puzzleTimerInterval) {
+        clearInterval(puzzleTimerInterval);
+    }
+    puzzlePieces = [0, 1, 2, 3, 4, 5, 6, 7, null];
+    emptyPieceIndex = 8;
+    
+    movesDisplay.textContent = '0';
+    timeDisplay.textContent = '00:00';
+    
+    // 清空容器
+    container.innerHTML = '';
+    
+    // 打乱拼图
+    shufflePuzzle();
+    
+    // 添加拼图块
+    puzzlePieces.forEach((piece, index) => {
+        if (piece !== null) {
+            const pieceElement = document.createElement('div');
+            pieceElement.className = 'puzzle-piece';
+            pieceElement.dataset.index = index;
+            
+            // 设置拼图块背景图片位置
+            const row = Math.floor(piece / 3);
+            const col = piece % 3;
+            pieceElement.style.backgroundImage = `url(${puzzleImage})`;
+            pieceElement.style.backgroundPosition = `${-col * 100}% ${-row * 100}%`;
+            
+            pieceElement.addEventListener('click', movePuzzlePiece);
+            container.appendChild(pieceElement);
+        }
+    });
+    
+    // 重新开始按钮事件
+    if (restartBtn) {
+        restartBtn.addEventListener('click', initPuzzleGame);
+    }
+}
+
+/**
+ * 打乱拼图
+ */
+function shufflePuzzle() {
+    // 随机移动空白格子100次
+    for (let i = 0; i < 100; i++) {
+        const possibleMoves = getPossibleMoves(emptyPieceIndex);
+        const randomMove = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
+        [puzzlePieces[emptyPieceIndex], puzzlePieces[randomMove]] = 
+        [puzzlePieces[randomMove], puzzlePieces[emptyPieceIndex]];
+        emptyPieceIndex = randomMove;
+    }
+}
+
+/**
+ * 移动拼图块
+ */
+function movePuzzlePiece() {
+    // 开始计时
+    if (!puzzleStartTime) {
+        puzzleStartTime = Date.now();
+        puzzleTimerInterval = setInterval(updatePuzzleTimer, 1000);
+    }
+    
+    const clickedIndex = parseInt(this.dataset.index);
+    const possibleMoves = getPossibleMoves(emptyPieceIndex);
+    
+    if (possibleMoves.includes(clickedIndex)) {
+        // 移动拼图块
+        [puzzlePieces[clickedIndex], puzzlePieces[emptyPieceIndex]] = 
+        [puzzlePieces[emptyPieceIndex], puzzlePieces[clickedIndex]];
+        
+        // 更新显示
+        updatePuzzleDisplay();
+        
+        // 更新移动次数
+        puzzleMoves++;
+        document.getElementById('puzzle-moves').textContent = puzzleMoves;
+        
+        // 检查是否完成
+        if (isPuzzleComplete()) {
+            clearInterval(puzzleTimerInterval);
+            setTimeout(() => {
+                alert(`恭喜你完成了拼图游戏！\n用时：${document.getElementById('puzzle-time').textContent}\n移动次数：${puzzleMoves}`);
+            }, 500);
+        }
+    }
+}
+
+/**
+ * 更新拼图显示
+ */
+function updatePuzzleDisplay() {
+    const container = document.getElementById('puzzle-container');
+    container.innerHTML = '';
+    
+    puzzlePieces.forEach((piece, index) => {
+        if (piece !== null) {
+            const pieceElement = document.createElement('div');
+            pieceElement.className = 'puzzle-piece';
+            pieceElement.dataset.index = index;
+            
+            // 设置拼图块背景图片位置
+            const row = Math.floor(piece / 3);
+            const col = piece % 3;
+            pieceElement.style.backgroundImage = `url(${puzzleImage})`;
+            pieceElement.style.backgroundPosition = `${-col * 100}% ${-row * 100}%`;
+            
+            pieceElement.addEventListener('click', movePuzzlePiece);
+            container.appendChild(pieceElement);
+        } else {
+            emptyPieceIndex = index;
+        }
+    });
+}
+
+/**
+ * 检查拼图是否完成
+ */
+function isPuzzleComplete() {
+    return puzzlePieces.every((piece, index) => {
+        if (index === puzzlePieces.length - 1) {
+            return piece === null;
+        }
+        return piece === index;
+    });
+}
+
+/**
+ * 更新拼图游戏计时器
+ */
+function updatePuzzleTimer() {
+    const timeDisplay = document.getElementById('puzzle-time');
+    const elapsed = Math.floor((Date.now() - puzzleStartTime) / 1000);
+    const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
+    const seconds = (elapsed % 60).toString().padStart(2, '0');
+    timeDisplay.textContent = `${minutes}:${seconds}`;
+}
+
+/**
+ * 游戏模块 - 找不同游戏
+ */
+let spotDifferenceStartTime = null;
+let spotDifferenceTimerInterval = null;
+let differencesFound = 0;
+
+// 找不同游戏的差异点坐标
+const differenceSpots = [
+    { x: 100, y: 150 },
+    { x: 250, y: 200 },
+    { x: 400, y: 300 },
+    { x: 550, y: 250 },
+    { x: 700, y: 350 }
+];
+
+/**
+ * 初始化找不同游戏
+ */
+function initSpotDifferenceGame() {
+    const container = document.getElementById('spot-difference-container');
+    const restartBtn = document.getElementById('restart-spot-difference-btn');
+    const foundDisplay = document.getElementById('differences-found');
+    const timeDisplay = document.getElementById('spot-difference-time');
+    
+    if (!container) return;
+    
+    // 重置游戏状态
+    spotDifferenceStartTime = null;
+    if (spotDifferenceTimerInterval) {
+        clearInterval(spotDifferenceTimerInterval);
+    }
+    differencesFound = 0;
+    
+    foundDisplay.textContent = '0';
+    timeDisplay.textContent = '00:00';
+    
+    // 清空容器
+    container.innerHTML = `
+        <div class="image-container">
+            <img src="img/spot-difference-1.png" alt="图片1" class="difference-image">
+            <img src="img/spot-difference-2.png" alt="图片2" class="difference-image">
+        </div>
+    `;
+    
+    // 添加点击事件
+    const images = container.getElementsByClassName('difference-image');
+    Array.from(images).forEach(image => {
+        image.addEventListener('click', checkDifference);
+    });
+    
+    // 重新开始按钮事件
+    if (restartBtn) {
+        restartBtn.addEventListener('click', initSpotDifferenceGame);
+    }
+}
+
+/**
+ * 检查点击位置是否在差异点上
+ */
+function checkDifference(e) {
+    // 开始计时
+    if (!spotDifferenceStartTime) {
+        spotDifferenceStartTime = Date.now();
+        spotDifferenceTimerInterval = setInterval(updateSpotDifferenceTimer, 1000);
+    }
+    
+    const rect = e.target.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    // 检查是否点击到差异点
+    const spot = differenceSpots.find(spot => {
+        const dx = Math.abs(spot.x - x);
+        const dy = Math.abs(spot.y - y);
+        return dx < 20 && dy < 20;
+    });
+    
+    if (spot) {
+        // 标记已找到的差异点
+        const spotElement = document.createElement('div');
+        spotElement.className = 'difference-spot';
+        spotElement.style.left = `${spot.x - 10}px`;
+        spotElement.style.top = `${spot.y - 10}px`;
+        e.target.parentElement.appendChild(spotElement);
+        
+        // 更新找到的差异点数量
+        differencesFound++;
+        document.getElementById('differences-found').textContent = differencesFound;
+        
+        // 检查是否完成游戏
+        if (differencesFound === differenceSpots.length) {
+            clearInterval(spotDifferenceTimerInterval);
+            setTimeout(() => {
+                alert(`恭喜你找到了所有不同！\n用时：${document.getElementById('spot-difference-time').textContent}`);
+            }, 500);
+        }
+    }
+}
+
+/**
+ * 更新找不同游戏计时器
+ */
+function updateSpotDifferenceTimer() {
+    const timeDisplay = document.getElementById('spot-difference-time');
+    const elapsed = Math.floor((Date.now() - spotDifferenceStartTime) / 1000);
+    const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
+    const seconds = (elapsed % 60).toString().padStart(2, '0');
+    timeDisplay.textContent = `${minutes}:${seconds}`;
+}
+
+// 添加游戏标签切换事件
+document.addEventListener('DOMContentLoaded', function() {
+    const gameTabs = document.querySelectorAll('.game-tab');
+    gameTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            // 移除所有标签的活跃状态
+            gameTabs.forEach(t => t.classList.remove('active'));
+            // 设置当前标签为活跃状态
+            this.classList.add('active');
+            
+            // 隐藏所有游戏区域
+            document.querySelectorAll('.game-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // 显示对应的游戏区域
+            const gameId = this.dataset.game;
+            document.getElementById(`${gameId}-game`).classList.add('active');
+            
+            // 初始化对应的游戏
+            switch (gameId) {
+                case 'klotski':
+                    initKlotskiGame();
+                    break;
+                case 'memory':
+                    initMemoryGame();
+                    break;
+                case 'puzzle':
+                    initPuzzleGame();
+                    break;
+                case 'spot-difference':
+                    initSpotDifferenceGame();
+                    break;
+            }
+        });
+    });
+});

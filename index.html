@@ -128,13 +128,62 @@
 
         <!-- 游戏模块 -->
         <div id="game-page" class="page">
-            <h1>趣味游戏</h1>
-            <div class="module-card">
-                <h3>华容道</h3>
-                <p>经典益智游戏，锻炼思维</p>
-                <button class="btn" onclick="navigateTo('klotski-game')">开始游戏</button>
+            <div class="page-header">
+                <h2>趣味游戏</h2>
             </div>
-            <button class="btn" onclick="navigateTo('home')">返回首页</button>
+            <div class="game-container">
+                <div class="game-tabs">
+                    <button class="game-tab active" data-game="klotski">华容道</button>
+                    <button class="game-tab" data-game="memory">记忆配对</button>
+                    <button class="game-tab" data-game="puzzle">拼图游戏</button>
+                    <button class="game-tab" data-game="spot-difference">找不同</button>
+                </div>
+                
+                <!-- 华容道游戏 -->
+                <div id="klotski-game" class="game-section active">
+                    <div class="game-info">
+                        <div class="moves">移动次数: <span id="klotski-moves">0</span></div>
+                        <div class="time">用时: <span id="klotski-time">00:00</span></div>
+                    </div>
+                    <div id="klotski-container" class="klotski-container"></div>
+                    <button id="restart-klotski-btn" class="btn">重新开始</button>
+                </div>
+
+                <!-- 记忆配对游戏 -->
+                <div id="memory-game" class="game-section">
+                    <div class="game-info">
+                        <div class="moves">翻牌次数: <span id="memory-moves">0</span></div>
+                        <div class="pairs">配对成功: <span id="memory-pairs">0</span></div>
+                    </div>
+                    <div id="memory-container" class="memory-container"></div>
+                    <button id="restart-memory-btn" class="btn">重新开始</button>
+                </div>
+
+                <!-- 拼图游戏 -->
+                <div id="puzzle-game" class="game-section">
+                    <div class="game-info">
+                        <div class="moves">移动次数: <span id="puzzle-moves">0</span></div>
+                        <div class="time">用时: <span id="puzzle-time">00:00</span></div>
+                    </div>
+                    <div id="puzzle-container" class="puzzle-container"></div>
+                    <button id="restart-puzzle-btn" class="btn">重新开始</button>
+                </div>
+
+                <!-- 找不同游戏 -->
+                <div id="spot-difference-game" class="game-section">
+                    <div class="game-info">
+                        <div class="differences">找到: <span id="differences-found">0</span>/5</div>
+                        <div class="time">用时: <span id="spot-difference-time">00:00</span></div>
+                    </div>
+                    <div id="spot-difference-container" class="spot-difference-container">
+                        <div class="image-container">
+                            <img src="img/spot-difference-1.png" alt="图片1" class="difference-image">
+                            <img src="img/spot-difference-2.png" alt="图片2" class="difference-image">
+                        </div>
+                    </div>
+                    <button id="restart-spot-difference-btn" class="btn">重新开始</button>
+                </div>
+            </div>
         </div>
 
         <!-- 华容道游戏页面 -->

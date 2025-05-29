@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="500" viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg">
+    <!-- 背景 -->
+    <rect width="800" height="500" fill="#E3F2FD"/>
+    
+    <!-- 太阳 -->
+    <circle cx="100" cy="100" r="40" fill="#FFEB3B" stroke="#FBC02D" stroke-width="2"/>
+    <path d="M100 40 L100 20 M100 160 L100 180 M40 100 L20 100 M160 100 L180 100" stroke="#FBC02D" stroke-width="2"/>
+    
+    <!-- 房子 -->
+    <rect x="200" y="200" width="150" height="120" fill="#FF5722" stroke="#E64A19" stroke-width="2"/>
+    <path d="M200 200 L275 150 L350 200" fill="#FF5722" stroke="#E64A19" stroke-width="2"/>
+    <rect x="230" y="250" width="30" height="50" fill="#795548" stroke="#5D4037" stroke-width="2"/>
+    <rect x="290" y="250" width="30" height="50" fill="#795548" stroke="#5D4037" stroke-width="2"/>
+    
+    <!-- 树 -->
+    <rect x="400" y="250" width="30" height="70" fill="#795548" stroke="#5D4037" stroke-width="2"/>
+    <circle cx="415" cy="200" r="40" fill="#4CAF50" stroke="#2E7D32" stroke-width="2"/>
+    
+    <!-- 云朵 -->
+    <path d="M500 100 Q530 80 560 100 Q590 80 620 100 Q620 130 590 150 Q560 170 530 150 Q500 170 470 150 Q440 130 440 100 Q470 80 500 100" fill="#FFFFFF" stroke="#BDBDBD" stroke-width="2"/>
+    
+    <!-- 小鸟 -->
+    <path d="M600 150 Q620 140 640 150 Q620 160 600 150" fill="#FFC107" stroke="#FFA000" stroke-width="2"/>
+    <circle cx="620" cy="145" r="5" fill="#FFA000"/>
+    
+    <!-- 花 -->
+    <circle cx="700" cy="300" r="20" fill="#FFEB3B" stroke="#FBC02D" stroke-width="2"/>
+    <path d="M700 280 L700 260 M680 300 L660 300 M720 300 L740 300 M700 320 L700 340" stroke="#FBC02D" stroke-width="2"/>
+</svg> 
