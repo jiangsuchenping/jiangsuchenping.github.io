@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <title>Fish</title>
+  <path d="M30 50 C50 30, 70 30, 80 50 C70 70, 50 70, 30 50" fill="#6699cc" stroke="#336699" stroke-width="1"/>
+  <circle cx="70" cy="50" r="3" fill="#000"/>
+  <path d="M30 50 L10 40" stroke="#6699cc" stroke-width="5" fill="none"/>
+  <path d="M30 50 L10 60" stroke="#6699cc" stroke-width="5" fill="none"/>
+  <path d="M60 40 L65 30" stroke="#336699" stroke-width="1" fill="none"/>
+  <path d="M60 60 L65 70" stroke="#336699" stroke-width="1" fill="none"/>
+</svg>

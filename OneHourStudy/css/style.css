@@ -1,0 +1,591 @@
+/* 全局样式 */
+body {
+    font-family: 'Arial Rounded MT Bold', 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f8ff; /* 淡蓝色背景 */
+    color: #333;
+}
+
+/* 标题样式 */
+h1, h2, h3 {
+    text-align: center;
+    color: #ff6b6b; /* 粉红色标题 */
+    margin: 15px 0;
+}
+
+h1 {
+    font-size: 24px;
+}
+
+h2 {
+    font-size: 20px;
+}
+
+h3 {
+    font-size: 18px;
+}
+
+/* 主容器 */
+.container {
+    padding: 15px;
+    padding-bottom: 80px; /* 增加底部内边距，确保按钮完全显示 */
+    max-width: 100%;
+    margin: 0 auto;
+    min-height: 100vh; /* 确保容器至少占满整个视口高度 */
+    box-sizing: border-box; /* 确保padding不会增加元素总宽度 */
+}
+
+/* 页面样式 */
+.page {
+    position: relative;
+    min-height: calc(100vh - 80px); /* 减去底部导航栏的高度 */
+    padding-bottom: 40px; /* 增加底部内边距，为按钮组留出更多空间 */
+}
+
+/* 按钮容器样式 */
+#chinese-word-page, #english-word-page {
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100vh - 80px);
+}
+
+#word-container, #english-word-container {
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: 20px; /* 与底部按钮保持距离 */
+}
+
+/* 底部按钮组样式 */
+.button-group {
+    position: relative;
+    z-index: 100; /* 确保按钮在最上层 */
+    background-color: #f0f8ff; /* 与页面背景色相同 */
+    padding: 10px 0;
+    margin-top: auto; /* 将按钮组推到底部 */
+    margin-bottom: 20px; /* 增加底部间距 */
+    display: flex;
+    justify-content: flex-end; /* 按钮靠右对齐 */
+    gap: 10px; /* 按钮之间的间距 */
+    padding-right: 15px; /* 右侧内边距 */
+}
+
+/* 导航菜单 */
+.nav-menu {
+    display: flex;
+    justify-content: space-around;
+    background-color: #66ccff;
+    padding: 10px 0;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+    z-index: 1000; /* 确保导航栏在最上层 */
+}
+
+.nav-item {
+    text-align: center;
+    flex: 1;
+}
+
+.nav-item a {
+    color: white;
+    text-decoration: none;
+    font-size: 16px;
+    display: block;
+    padding: 5px;
+}
+
+.nav-item.active {
+    background-color: #ff9933; /* 橙色高亮 */
+    border-radius: 20px;
+}
+
+/* 模块卡片 */
+.module-card {
+    background-color: white;
+    border-radius: 15px;
+    margin: 15px 0;
+    padding: 15px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.module-card img {
+    max-width: 80px;
+    margin-bottom: 10px;
+}
+
+.module-card h3 {
+    margin: 10px 0;
+}
+
+/* 按钮样式 */
+.btn {
+    background-color: #ffcc00; /* 黄色按钮 */
+    color: #333;
+    border: none;
+    border-radius: 20px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    min-width: 80px; /* 设置最小宽度 */
+    text-align: center; /* 文字居中 */
+}
+
+.btn:hover {
+    background-color: #ffdd33;
+}
+
+/* 语文模块特定样式 */
+.chinese-module {
+    background-color: #ffcccc; /* 淡粉色背景 */
+}
+
+/* 数学模块特定样式 */
+.math-module {
+    background-color: #ccffcc; /* 淡绿色背景 */
+}
+
+/* 英语模块特定样式 */
+.english-module {
+    background-color: #ccccff; /* 淡紫色背景 */
+}
+
+/* 字卡样式 */
+.word-card {
+    background-color: white;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px auto;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    text-align: center;
+    max-width: 300px;
+}
+
+.word-card .word {
+    font-size: 48px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.word-card .pinyin {
+    font-size: 24px;
+    color: #666;
+    margin-bottom: 15px;
+}
+
+.word-card .example {
+    font-size: 18px;
+    color: #666;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+.word-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.word-buttons .btn {
+    min-width: 100px;
+    font-size: 16px;
+    padding: 12px 24px;
+}
+
+.know-btn {
+    background-color: #4CAF50 !important;
+    color: white !important;
+}
+
+.know-btn:hover {
+    background-color: #45a049 !important;
+}
+
+.dont-know-btn {
+    background-color: #f44336 !important;
+    color: white !important;
+}
+
+.dont-know-btn:hover {
+    background-color: #da190b !important;
+}
+
+/* 数学题目样式 */
+.math-problem {
+    font-size: 2em;
+    text-align: center;
+    margin: 20px 0;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* 数学选项样式 */
+.math-options {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.math-option {
+    background-color: #ffcc00;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.math-option:hover {
+    background-color: #ffdd33;
+    transform: scale(1.1);
+}
+
+.math-option.correct {
+    background-color: #28a745;
+    color: white;
+}
+
+.math-option.wrong {
+    background-color: #dc3545;
+    color: white;
+}
+
+/* 英语单词卡片 */
+.english-card {
+    background-color: white;
+    border-radius: 10px;
+    padding: 15px;
+    margin: 15px 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    text-align: center;
+}
+
+.english-card .word {
+    font-size: 24px;
+    font-weight: bold;
+    color: #3366cc;
+    margin-bottom: 5px;
+}
+
+.english-card .pronunciation {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.english-card img {
+    max-width: 100%;
+    height: auto;
+    margin: 10px 0;
+    border-radius: 5px;
+}
+
+/* 动画效果 */
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.animated {
+    animation: bounce 2s infinite;
+}
+
+/* 成功和错误提示 */
+.success {
+    color: #33cc33;
+    font-weight: bold;
+}
+
+.error {
+    color: #ff3333;
+    font-weight: bold;
+}
+
+/* 响应式调整 */
+@media (max-width: 480px) {
+    .container {
+        padding: 10px;
+    }
+    
+    h1 {
+        font-size: 22px;
+    }
+    
+    .btn {
+        padding: 8px 16px;
+        font-size: 14px;
+    }
+}
+
+/* 更新提示框样式 */
+.update-dialog {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.update-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 15px;
+    width: 80%;
+    max-width: 400px;
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.update-content h3 {
+    color: #ff6b6b;
+    margin-bottom: 15px;
+}
+
+.update-content p {
+    margin: 10px 0;
+    color: #666;
+}
+
+.update-buttons {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.update-buttons .btn {
+    min-width: 100px;
+}
+
+.update-now {
+    background-color: #ff6b6b !important;
+    color: white !important;
+}
+
+.update-later {
+    background-color: #ccc !important;
+    color: #666 !important;
+}
+
+/* 弹窗样式 */
+.dialog {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.dialog-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 500px;
+    max-height: 80vh;
+    overflow-y: auto;
+    position: relative; /* 添加相对定位，作为关闭按钮的定位参考 */
+    display: flex;
+    flex-direction: column;
+}
+
+.dialog-content h3 {
+    color: #ff6b6b;
+    margin: 0 0 15px 0;
+    text-align: center;
+    padding: 0 30px; /* 为关闭按钮留出空间 */
+    position: sticky;
+    top: 0;
+    background-color: white;
+    z-index: 1;
+}
+
+/* 关闭按钮样式 */
+.close-button {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+    text-align: center;
+    font-size: 24px;
+    color: #666;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    z-index: 2; /* 确保按钮在标题之上 */
+}
+
+.close-button:hover {
+    background-color: #f0f0f0;
+    color: #ff6b6b;
+}
+
+.dialog-buttons {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+/* 错题记录列表样式 */
+#history-list, #chinese-history-list {
+    margin: 15px 0;
+    flex: 1;
+    overflow-y: auto;
+    padding-top: 15px; /* 添加顶部内边距 */
+}
+
+.history-item {
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 10px;
+    position: relative;
+}
+
+.history-item.recent {
+    background-color: #fff3e0;
+    border: 1px solid #ffe0b2;
+}
+
+.history-item .problem {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.history-item .stats {
+    display: flex;
+    justify-content: space-between;
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.history-item .accuracy {
+    color: #ff6b6b;
+    font-weight: bold;
+}
+
+.history-item .last-attempt {
+    color: #666;
+    font-size: 12px;
+}
+
+.history-item .recent-tag {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #ff6b6b;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 12px;
+}
+
+/* 更新进度条样式 */
+.progress-container {
+    margin: 20px 0;
+    padding: 0 20px;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 20px;
+    background-color: #f0f0f0;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.progress {
+    height: 100%;
+    background-color: #4CAF50;
+    transition: width 0.3s ease;
+}
+
+.progress-text {
+    text-align: center;
+    font-size: 14px;
+    color: #666;
+}
+
+.update-status {
+    text-align: center;
+    color: #666;
+    margin-top: 10px;
+}
+
+/* 联系按钮容器 */
+.contact-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+/* 检查更新按钮样式 */
+button.check-update {
+    background-color: #66ccff; /* 蓝色按钮 */
+    color: white;
+    margin-top: 10px;
+}
+
+button.check-update:hover {
+    background-color: #33aaff;
+}
+
+/* 汉字学习记录样式 */
+.review-info {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #666;
+}
+
+.review-info div {
+    margin: 5px 0;
+}
+
+.review-tag {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #ff6b6b;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 12px;
+}
+
+.history-item.needs-review {
+    background-color: #fff3e0;
+    border: 1px solid #ffe0b2;
+}

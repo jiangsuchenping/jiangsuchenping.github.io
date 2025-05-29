@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <title>Orange</title>
+  <circle cx="50" cy="50" r="30" fill="#ff9933" stroke="#cc6600" stroke-width="1"/>
+  <path d="M50 20 L50 10" stroke="#006600" stroke-width="3" fill="none"/>
+  <path d="M50 20 C55 15, 60 20, 55 25" stroke="#006600" stroke-width="2" fill="none"/>
+  <path d="M40 30 C45 35, 55 35, 60 30" stroke="#cc6600" stroke-width="1" fill="none"/>
+  <path d="M35 40 C40 45, 60 45, 65 40" stroke="#cc6600" stroke-width="1" fill="none"/>
+  <path d="M35 60 C40 65, 60 65, 65 60" stroke="#cc6600" stroke-width="1" fill="none"/>
+</svg>
