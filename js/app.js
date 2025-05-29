@@ -115,29 +115,30 @@ const chineseWords = [
     { word: '雨', pinyin: 'yǔ', example: '下雨了。' },
     { word: '雪', pinyin: 'xuě', example: '下雪了。' },
     { word: '风', pinyin: 'fēng', example: '风吹树叶。' },
-    { word: '雷', pinyin: 'léi', example: '打雷了。' },
     
-    // 自然景物
-    { word: '山', pinyin: 'shān', example: '山上有很多树。' },
-    { word: '水', pinyin: 'shuǐ', example: '水是无色的。' },
-    { word: '火', pinyin: 'huǒ', example: '火是热的。' },
-    { word: '石', pinyin: 'shí', example: '石头很硬。' },
-    { word: '土', pinyin: 'tǔ', example: '土是黑色的。' },
-    { word: '田', pinyin: 'tián', example: '田里种着庄稼。' },
+    // 自然元素
+    { word: '水', pinyin: 'shuǐ', example: '水很清澈。' },
+    { word: '火', pinyin: 'huǒ', example: '火很温暖。' },
+    { word: '山', pinyin: 'shān', example: '山很高。' },
     { word: '河', pinyin: 'hé', example: '河水在流淌。' },
-    { word: '海', pinyin: 'hǎi', example: '大海很蓝。' },
+    { word: '树', pinyin: 'shù', example: '树上有小鸟。' },
+    { word: '花', pinyin: 'huā', example: '花儿真漂亮。' },
+    { word: '草', pinyin: 'cǎo', example: '草地上有露珠。' },
+    { word: '鸟', pinyin: 'niǎo', example: '小鸟在唱歌。' },
+    { word: '鱼', pinyin: 'yú', example: '鱼儿在水里游。' },
+    { word: '虫', pinyin: 'chóng', example: '小虫在爬。' },
     
-    // 动植物
-    { word: '花', pinyin: 'huā', example: '花很香。' },
-    { word: '草', pinyin: 'cǎo', example: '草是绿色的。' },
-    { word: '树', pinyin: 'shù', example: '树很高大。' },
-    { word: '虫', pinyin: 'chóng', example: '虫子很小。' },
-    { word: '鱼', pinyin: 'yú', example: '鱼在水里游。' },
-    { word: '鸟', pinyin: 'niǎo', example: '鸟儿在天上飞。' },
-    { word: '猫', pinyin: 'māo', example: '小猫很可爱。' },
-    { word: '狗', pinyin: 'gǒu', example: '小狗在跑。' },
-    { word: '鸡', pinyin: 'jī', example: '公鸡在打鸣。' },
-    { word: '鸭', pinyin: 'yā', example: '小鸭在游泳。' },
+    // 生活用品
+    { word: '门', pinyin: 'mén', example: '门是关着的。' },
+    { word: '窗', pinyin: 'chuāng', example: '窗户很明亮。' },
+    { word: '书', pinyin: 'shū', example: '书很有趣。' },
+    { word: '笔', pinyin: 'bǐ', example: '笔可以写字。' },
+    { word: '纸', pinyin: 'zhǐ', example: '纸是白色的。' },
+    { word: '桌', pinyin: 'zhuō', example: '桌子上有书。' },
+    { word: '椅', pinyin: 'yǐ', example: '椅子很舒服。' },
+    { word: '床', pinyin: 'chuáng', example: '床很柔软。' },
+    { word: '灯', pinyin: 'dēng', example: '灯很明亮。' },
+    { word: '钟', pinyin: 'zhōng', example: '钟在滴答响。' },
     
     // 身体部位
     { word: '头', pinyin: 'tóu', example: '我的头很圆。' },
@@ -196,20 +197,44 @@ const chineseWords = [
     { word: '后', pinyin: 'hòu', example: '后面是山。' },
     
     // 学校相关
-    { word: '书', pinyin: 'shū', example: '看书学习。' },
-    { word: '笔', pinyin: 'bǐ', example: '用笔写字。' },
-    { word: '纸', pinyin: 'zhǐ', example: '纸上画画。' },
     { word: '本', pinyin: 'běn', example: '一本故事书。' },
     { word: '字', pinyin: 'zì', example: '写字要工整。' },
     { word: '画', pinyin: 'huà', example: '画画很开心。' },
+    { word: '读', pinyin: 'dú', example: '读书学习。' },
+    { word: '写', pinyin: 'xiě', example: '写字要工整。' },
+    { word: '算', pinyin: 'suàn', example: '算数要仔细。' },
     
-    // 生活用品
-    { word: '桌', pinyin: 'zhuō', example: '桌子上有书。' },
-    { word: '椅', pinyin: 'yǐ', example: '椅子上坐着。' },
-    { word: '床', pinyin: 'chuáng', example: '床上睡觉。' },
-    { word: '门', pinyin: 'mén', example: '门是关着的。' },
-    { word: '窗', pinyin: 'chuāng', example: '窗户很亮。' },
-    { word: '灯', pinyin: 'dēng', example: '灯很亮。' }
+    // 食物
+    { word: '米', pinyin: 'mǐ', example: '米饭很香。' },
+    { word: '面', pinyin: 'miàn', example: '面条很好吃。' },
+    { word: '菜', pinyin: 'cài', example: '蔬菜很新鲜。' },
+    { word: '肉', pinyin: 'ròu', example: '肉要煮熟。' },
+    { word: '蛋', pinyin: 'dàn', example: '鸡蛋很有营养。' },
+    { word: '奶', pinyin: 'nǎi', example: '牛奶很健康。' },
+    
+    // 动物
+    { word: '鼠', pinyin: 'shǔ', example: '小老鼠很机灵。' },
+    { word: '牛', pinyin: 'niú', example: '牛在吃草。' },
+    { word: '虎', pinyin: 'hǔ', example: '老虎很威武。' },
+    { word: '兔', pinyin: 'tù', example: '小兔子很可爱。' },
+    { word: '龙', pinyin: 'lóng', example: '龙在云中飞。' },
+    { word: '蛇', pinyin: 'shé', example: '蛇在爬行。' },
+    { word: '马', pinyin: 'mǎ', example: '马在奔跑。' },
+    { word: '羊', pinyin: 'yáng', example: '羊在吃草。' },
+    { word: '猴', pinyin: 'hóu', example: '猴子在爬树。' },
+    { word: '鸡', pinyin: 'jī', example: '公鸡在打鸣。' },
+    { word: '狗', pinyin: 'gǒu', example: '小狗在跑。' },
+    { word: '猪', pinyin: 'zhū', example: '小猪在睡觉。' },
+    
+    // 其他常见动物
+    { word: '猫', pinyin: 'māo', example: '小猫很可爱。' },
+    { word: '鸭', pinyin: 'yā', example: '小鸭在游泳。' },
+    { word: '鹅', pinyin: 'é', example: '鹅在散步。' },
+    { word: '象', pinyin: 'xiàng', example: '大象很聪明。' },
+    { word: '熊', pinyin: 'xióng', example: '小熊在玩耍。' },
+    { word: '鹿', pinyin: 'lù', example: '小鹿在奔跑。' },
+    { word: '鸟', pinyin: 'niǎo', example: '小鸟在唱歌。' },
+    { word: '鱼', pinyin: 'yú', example: '鱼儿在水里游。' }
 ];
 
 /**
