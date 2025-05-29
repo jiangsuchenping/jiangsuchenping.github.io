@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <title>Elephant</title>
+  <ellipse cx="50" cy="60" rx="30" ry="25" fill="#aaaaaa"/>
+  <circle cx="40" cy="50" r="3" fill="#000"/>
+  <circle cx="60" cy="50" r="3" fill="#000"/>
+  <path d="M50 60 C45 65, 55 65, 50 60" stroke="#000" stroke-width="1" fill="none"/>
+  <path d="M20 50 C10 40, 5 20, 20 10" stroke="#aaaaaa" stroke-width="10" fill="none"/>
+  <path d="M80 50 C85 45, 85 40, 80 35" stroke="#aaaaaa" stroke-width="5" fill="none"/>
+  <path d="M35 85 L35 95" stroke="#aaaaaa" stroke-width="8" fill="none"/>
+  <path d="M65 85 L65 95" stroke="#aaaaaa" stroke-width="8" fill="none"/>
+</svg>

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <title>House</title>
+  <path d="M20 50 L50 20 L80 50" fill="none" stroke="#663300" stroke-width="3"/>
+  <rect x="25" y="50" width="50" height="40" fill="#cc9966" stroke="#663300" stroke-width="2"/>
+  <rect x="45" y="70" width="10" height="20" fill="#663300"/>
+  <rect x="30" y="60" width="10" height="10" fill="#99ccff" stroke="#663300" stroke-width="1"/>
+  <rect x="60" y="60" width="10" height="10" fill="#99ccff" stroke="#663300" stroke-width="1"/>
+  <path d="M50 20 L50 10" stroke="#663300" stroke-width="3" fill="none"/>
+</svg>

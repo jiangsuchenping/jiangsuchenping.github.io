@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <title>Kite</title>
+  <path d="M50 20 L70 50 L50 80 L30 50 Z" fill="#ff9999" stroke="#cc6666" stroke-width="1"/>
+  <path d="M50 20 L50 80" stroke="#cc6666" stroke-width="1" fill="none"/>
+  <path d="M30 50 L70 50" stroke="#cc6666" stroke-width="1" fill="none"/>
+  <path d="M50 80 L40 90" stroke="#cc6666" stroke-width="1" fill="none"/>
+  <path d="M50 80 L60 90" stroke="#cc6666" stroke-width="1" fill="none"/>
+  <path d="M50 20 L50 10" stroke="#000" stroke-width="1" fill="none"/>
+  <circle cx="50" cy="10" r="3" fill="#000"/>
+</svg>

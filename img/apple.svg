@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <title>Apple</title>
+  <circle cx="50" cy="50" r="40" fill="#ff6347"/>
+  <path d="M50 10 L50 25" stroke="#006400" stroke-width="3"/>
+  <path d="M50 25 C60 15, 70 25, 60 35" stroke="#006400" stroke-width="3" fill="none"/>
+</svg>

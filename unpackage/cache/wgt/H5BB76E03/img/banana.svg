@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <title>Banana</title>
+  <path d="M20 20 C40 10, 80 30, 80 60 C80 70, 70 80, 60 80 C40 80, 20 60, 20 20" fill="#ffff00" stroke="#996600" stroke-width="2"/>
+  <path d="M30 30 C40 25, 60 35, 70 60" stroke="#996600" stroke-width="1" fill="none"/>
+</svg>
