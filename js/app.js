@@ -461,15 +461,12 @@ function showNextWord() {
     
     if (!selectedWord) {
         // 如果没有需要学习的汉字，显示提示信息
-        const nextReviewTime = getNextEarliestReviewTime();
-        wordContainer.innerHTML = `
-            <div class="word-card">
-                <div class="word">休息一下</div>
-                <div class="pinyin">xiū xi yí xià</div>
-                <div class="example">所有汉字都已经学习完成！</div>
-                <div class="review-info">下次学习时间：${nextReviewTime}</div>
-            </div>
-        `;
+        showRestMessage('word-container', getNextEarliestReviewTime, '所有汉字都已经学习完成！', {
+            onResume: () => {
+                // 直接调用显示下一个汉字的函数
+                showNextWord();
+            }
+        });
         return;
     }
     
@@ -672,7 +669,6 @@ function initMathTestPage() {
     let currentStageCorrect = 0;
     let currentStageTotal = 0;
     let currentReviewStage = 0;
-    let timeUpdateInterval = null;
 
     // 显示历史记录
     showHistoryBtn.addEventListener('click', function() {
@@ -683,8 +679,16 @@ function initMathTestPage() {
     // 开始练习按钮点击事件
     if (startPracticeBtn) {
         startPracticeBtn.addEventListener('click', function() {
+            // 检查是否有需要复习的题目
             if (!hasReviewableProblems()) {
-                showRestMessage();
+                showRestMessage('math-problem-container', getNextEarliestMathReviewTime, '今天的数学练习已经完成！', {
+                    clearOptionsId: 'math-options-container',
+                    clearResultId: 'math-result',
+                    onResume: () => {
+                        // 直接生成新的题目
+                        generateNewProblem();
+                    }
+                });
             } else {
                 generateNewProblem();
             }
@@ -697,59 +701,18 @@ function initMathTestPage() {
         scoreContainer.innerHTML = `得分: ${percentage}分`;
     }
 
-    // 显示休息提示
-    function showRestMessage() {
-        const nextReviewTime = getNextEarliestMathReviewTime();
-        const restMessage = document.createElement('div');
-        restMessage.className = 'word-card';
-        restMessage.innerHTML = `
-            <div class="word">休息一下</div>
-            <div class="pinyin">xiū xi yí xià</div>
-            <div class="example">今天的数学练习已经完成！</div>
-            <div class="review-info">下次练习时间：<span class="next-review-time">${nextReviewTime}</span></div>
-        `;
-        
-        problemContainer.innerHTML = '';
-        problemContainer.appendChild(restMessage);
-        optionsContainer.innerHTML = '';
-        resultContainer.innerHTML = '';
-
-        // 清除之前的定时器（如果存在）
-        if (timeUpdateInterval) {
-            clearInterval(timeUpdateInterval);
-        }
-
-        // 添加定时器，每分钟更新一次时间
-        timeUpdateInterval = setInterval(() => {
-            const nextTime = getNextEarliestMathReviewTime();
-            const timeElement = restMessage.querySelector('.next-review-time');
-            if (timeElement) {
-                timeElement.textContent = nextTime;
-            }
-            
-            // 如果时间到了，自动刷新页面
-            if (nextTime === "现在") {
-                clearInterval(timeUpdateInterval);
-                // 延迟1秒后刷新，确保用户能看到"现在"的提示
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1000);
-            }
-        }, 60000); // 每分钟更新一次
-
-        // 当页面隐藏时清除定时器
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden) {
-                clearInterval(timeUpdateInterval);
-            }
-        });
-    }
-
     // 生成新的数学题目
     function generateNewProblem() {
         // 检查当前阶段的正确率是否达标
-        if (currentStageTotal >= 5 && isAccuracyMet(currentReviewStage, currentStageCorrect, currentStageTotal)) {
-            showRestMessage();
+        if (currentStageTotal >= 10 && isAccuracyMet(currentReviewStage, currentStageCorrect, currentStageTotal)) {
+            showRestMessage('math-problem-container', getNextEarliestMathReviewTime, '今天的数学练习已经完成！', {
+                clearOptionsId: 'math-options-container',
+                clearResultId: 'math-result',
+                onResume: () => {
+                    // 直接生成新的题目
+                    generateNewProblem();
+                }
+            });
             return;
         }
 
@@ -757,7 +720,14 @@ function initMathTestPage() {
         
         // 如果没有需要复习的题目，显示休息提示
         if (!currentProblem) {
-            showRestMessage();
+            showRestMessage('math-problem-container', getNextEarliestMathReviewTime, '今天的数学练习已经完成！', {
+                clearOptionsId: 'math-options-container',
+                clearResultId: 'math-result',
+                onResume: () => {
+                    // 直接生成新的题目
+                    generateNewProblem();
+                }
+            });
             return;
         }
         
@@ -831,10 +801,41 @@ function initMathTestPage() {
     };
 
     // 初始化显示
-    if (!hasReviewableProblems()) {
-        showRestMessage();
+    const nextReviewTime = getNextEarliestMathReviewTime();
+    if (nextReviewTime !== "现在") {
+        // 如果下次练习时间未到，显示休息提示
+        showRestMessage('math-problem-container', getNextEarliestMathReviewTime, '今天的数学练习已经完成！', {
+            clearOptionsId: 'math-options-container',
+            clearResultId: 'math-result',
+            onResume: () => {
+                // 直接生成新的题目
+                generateNewProblem();
+            }
+        });
+    } else if (!hasReviewableProblems()) {
+        // 如果没有需要复习的题目，显示休息提示
+        showRestMessage('math-problem-container', getNextEarliestMathReviewTime, '今天的数学练习已经完成！', {
+            clearOptionsId: 'math-options-container',
+            clearResultId: 'math-result',
+            onResume: () => {
+                // 直接生成新的题目
+                generateNewProblem();
+            }
+        });
     } else {
-        generateNewProblem();
+        // 检查当前阶段的正确率是否达标
+        if (currentStageTotal >= 10 && isAccuracyMet(currentReviewStage, currentStageCorrect, currentStageTotal)) {
+            showRestMessage('math-problem-container', getNextEarliestMathReviewTime, '今天的数学练习已经完成！', {
+                clearOptionsId: 'math-options-container',
+                clearResultId: 'math-result',
+                onResume: () => {
+                    // 直接生成新的题目
+                    generateNewProblem();
+                }
+            });
+        } else {
+            generateNewProblem();
+        }
     }
 }
 
@@ -1330,7 +1331,7 @@ function getNextEarliestEnglishReviewTime() {
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
     
     // 如果时间差小于1分钟，返回"现在"
-    if (diff < 60000) {
+    if (diff <= 60000) {
         return "现在";
     }
     
@@ -1430,6 +1431,134 @@ function closeEnglishHistoryDialog() {
 }
 
 /**
+ * 显示休息提示
+ * @param {string} containerId - 容器的ID
+ * @param {Function} getNextReviewTime - 获取下次复习时间的函数
+ * @param {string} message - 休息提示信息
+ * @param {Object} options - 额外选项
+ * @param {string} options.clearOptionsId - 需要清空的选项容器ID
+ * @param {string} options.clearResultId - 需要清空的结果容器ID
+ * @param {Function} options.onResume - 恢复学习的回调函数
+ */
+function showRestMessage(containerId, getNextReviewTime, message, options = {}) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    const nextReviewTime = getNextReviewTime();
+    const restMessage = document.createElement('div');
+    restMessage.className = 'word-card';
+    restMessage.innerHTML = `
+        <div class="word">休息一下</div>
+        <div class="pinyin">xiū xi yí xià</div>
+        <div class="example">${message}</div>
+        <div class="review-info">下次学习时间：<span class="next-review-time">${nextReviewTime}</span></div>
+    `;
+    
+    container.innerHTML = '';
+    container.appendChild(restMessage);
+
+    // 清空选项容器（如果指定）
+    if (options.clearOptionsId) {
+        const optionsContainer = document.getElementById(options.clearOptionsId);
+        if (optionsContainer) {
+            optionsContainer.innerHTML = '';
+        }
+    }
+
+    // 清空结果容器（如果指定）
+    if (options.clearResultId) {
+        const resultContainer = document.getElementById(options.clearResultId);
+        if (resultContainer) {
+            resultContainer.innerHTML = '';
+        }
+    }
+
+    // 清除之前的定时器（如果存在）
+    if (window.timeUpdateInterval) {
+        clearInterval(window.timeUpdateInterval);
+    }
+
+    // 如果时间已经到了，立即恢复学习
+    if (nextReviewTime === "现在" && options.onResume) {
+        options.onResume();
+        return;
+    }
+
+    // 获取下次复习时间的具体时间戳
+    function getNextReviewTimestamp() {
+        const now = new Date();
+        let earliestTime = null;
+        
+        // 遍历所有记录，找出最早的下次复习时间
+        Object.values(englishWordHistory).forEach(record => {
+            const nextReview = new Date(record.nextReviewTime);
+            if (nextReview > now && (!earliestTime || nextReview < earliestTime)) {
+                earliestTime = nextReview;
+            }
+        });
+        
+        return earliestTime;
+    }
+
+    // 更新显示的时间
+    function updateTimeDisplay() {
+        const nextReview = getNextReviewTimestamp();
+        if (!nextReview) {
+            if (options.onResume) {
+                options.onResume();
+            }
+            return;
+        }
+
+        const now = new Date();
+        const diff = nextReview - now;
+        
+        // 如果时间差小于等于0，恢复学习
+        if (diff <= 0) {
+            clearInterval(window.timeUpdateInterval);
+            if (options.onResume) {
+                options.onResume();
+            }
+            return;
+        }
+
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+        const timeElement = restMessage.querySelector('.next-review-time');
+        if (timeElement) {
+            if (hours > 0) {
+                timeElement.textContent = `${hours}小时${minutes}分钟后`;
+            } else if (minutes > 0) {
+                timeElement.textContent = `${minutes}分钟后`;
+            } else {
+                timeElement.textContent = `${seconds}秒后`;
+            }
+        }
+
+        // 如果剩余时间小于1分钟，使用1秒的更新间隔
+        if (diff < 60000) {
+            clearInterval(window.timeUpdateInterval);
+            window.timeUpdateInterval = setInterval(updateTimeDisplay, 1000);
+        }
+    }
+
+    // 初始更新显示
+    updateTimeDisplay();
+
+    // 添加定时器，每分钟更新一次时间
+    window.timeUpdateInterval = setInterval(updateTimeDisplay, 60000);
+
+    // 当页面隐藏时清除定时器
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            clearInterval(window.timeUpdateInterval);
+        }
+    });
+}
+
+/**
  * 初始化英语单词学习页面
  */
 function initEnglishWordPage() {
@@ -1451,15 +1580,12 @@ function initEnglishWordPage() {
     
     if (!selectedWord) {
         // 如果没有需要学习的单词，显示提示信息
-        const nextReviewTime = getNextEarliestEnglishReviewTime();
-        wordContainer.innerHTML = `
-            <div class="word-card">
-                <div class="word">休息一下</div>
-                <div class="pinyin">xiū xi yí xià</div>
-                <div class="example">所有单词都已经学习完成！</div>
-                <div class="review-info">下次学习时间：${nextReviewTime}</div>
-            </div>
-        `;
+        showRestMessage('english-word-container', getNextEarliestEnglishReviewTime, '所有单词都已经学习完成！', {
+            onResume: () => {
+                // 直接调用显示下一个单词的函数
+                showNextEnglishWord();
+            }
+        });
         return;
     }
     
@@ -1505,15 +1631,12 @@ function showNextEnglishWord() {
     
     if (!selectedWord) {
         // 如果没有需要学习的单词，显示提示信息
-        const nextReviewTime = getNextEarliestEnglishReviewTime();
-        wordContainer.innerHTML = `
-            <div class="word-card">
-                <div class="word">休息一下</div>
-                <div class="pinyin">xiū xi yí xià</div>
-                <div class="example">所有单词都已经学习完成！</div>
-                <div class="review-info">下次学习时间：${nextReviewTime}</div>
-            </div>
-        `;
+        showRestMessage('english-word-container', getNextEarliestEnglishReviewTime, '所有单词都已经学习完成！', {
+            onResume: () => {
+                // 直接调用显示下一个单词的函数
+                showNextEnglishWord();
+            }
+        });
         return;
     }
     

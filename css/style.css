@@ -48,12 +48,17 @@ h3 {
     display: flex;
     flex-direction: column;
     min-height: calc(100vh - 80px);
+    height: 100%;
 }
 
 #word-container, #english-word-container {
     flex: 1;
     overflow-y: auto;
     margin-bottom: 20px; /* 与底部按钮保持距离 */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 10px 0;
 }
 
 /* 底部按钮组样式 */
@@ -158,10 +163,11 @@ h3 {
     background-color: white;
     border-radius: 10px;
     padding: 20px;
-    margin: 20px auto;
+    margin: 10px auto;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     text-align: center;
     max-width: 300px;
+    width: 90%;
 }
 
 .word-card .word {
@@ -182,6 +188,13 @@ h3 {
     color: #666;
     margin-bottom: 20px;
     line-height: 1.5;
+}
+
+.word-card img {
+    max-width: 100%;
+    height: auto;
+    margin: 10px 0;
+    border-radius: 5px;
 }
 
 .word-buttons {
