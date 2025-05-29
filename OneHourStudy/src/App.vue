@@ -8,6 +8,7 @@
         <router-link to="/math" class="nav-item">算术</router-link>
         <router-link to="/english" class="nav-item">英语</router-link>
         <router-link to="/games" class="nav-item">游戏</router-link>
+        <router-link to="/check-in" class="nav-item">打卡</router-link>
       </nav>
     </header>
     <main class="main">

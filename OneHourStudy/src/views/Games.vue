@@ -60,6 +60,7 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
+import { addStudyRecord } from '../services/studyService'
 
 const games = [
   {
@@ -83,6 +84,7 @@ const ctx = ref(null)
 const isDrawing = ref(false)
 const currentColor = ref('#000000')
 const colors = ['#000000', '#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff']
+const startTime = ref(0)
 
 // 华容道游戏状态
 const klotskiPieces = ref([])
@@ -191,12 +193,24 @@ function startGame(gameId) {
   }
 }
 
+// 组件挂载时
+onMounted(() => {
+  startTime.value = Date.now()
+})
+
+// 组件卸载时
 onUnmounted(() => {
   if (rhythmInterval) {
     clearInterval(rhythmInterval)
   }
   if (klotskiTimer) {
     clearInterval(klotskiTimer)
+  }
+  
+  // 计算学习时长（秒）
+  const duration = Math.floor((Date.now() - startTime.value) / 1000)
+  if (duration > 0) {
+    addStudyRecord('games', duration)
   }
 })
 </script>

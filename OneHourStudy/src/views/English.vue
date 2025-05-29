@@ -47,51 +47,26 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { addStudyRecord } from '../services/studyService'
+import learningContent from '../data/learningContent.json'
 
-const categories = [
-  { id: 1, name: '动物' },
-  { id: 2, name: '水果' },
-  { id: 3, name: '颜色' },
-  { id: 4, name: '数字' }
-]
+// 学习类型定义
+const categories = ref(learningContent.english.categories)
 
-const words = {
-  1: [
-    { english: 'cat', phonetic: 'kæt', chinese: '猫', example: 'I have a cat.' },
-    { english: 'dog', phonetic: 'dɒɡ', chinese: '狗', example: 'The dog is running.' },
-    { english: 'bird', phonetic: 'bɜːd', chinese: '鸟', example: 'The bird is flying.' },
-    { english: 'fish', phonetic: 'fɪʃ', chinese: '鱼', example: 'The fish is swimming.' },
-    { english: 'rabbit', phonetic: 'ˈræbɪt', chinese: '兔子', example: 'The rabbit is jumping.' }
-  ],
-  2: [
-    { english: 'apple', phonetic: 'ˈæpl', chinese: '苹果', example: 'I eat an apple.' },
-    { english: 'banana', phonetic: 'bəˈnɑːnə', chinese: '香蕉', example: 'The banana is yellow.' },
-    { english: 'orange', phonetic: 'ˈɒrɪndʒ', chinese: '橙子', example: 'The orange is sweet.' },
-    { english: 'grape', phonetic: 'ɡreɪp', chinese: '葡萄', example: 'I like grapes.' },
-    { english: 'strawberry', phonetic: 'ˈstrɔːbəri', chinese: '草莓', example: 'The strawberry is red.' }
-  ],
-  3: [
-    { english: 'red', phonetic: 'red', chinese: '红色', example: 'The apple is red.' },
-    { english: 'blue', phonetic: 'bluː', chinese: '蓝色', example: 'The sky is blue.' },
-    { english: 'green', phonetic: 'ɡriːn', chinese: '绿色', example: 'The grass is green.' },
-    { english: 'yellow', phonetic: 'ˈjeləʊ', chinese: '黄色', example: 'The sun is yellow.' },
-    { english: 'purple', phonetic: 'ˈpɜːpl', chinese: '紫色', example: 'The grape is purple.' }
-  ],
-  4: [
-    { english: 'one', phonetic: 'wʌn', chinese: '一', example: 'I have one apple.' },
-    { english: 'two', phonetic: 'tuː', chinese: '二', example: 'I have two hands.' },
-    { english: 'three', phonetic: 'θriː', chinese: '三', example: 'I have three books.' },
-    { english: 'four', phonetic: 'fɔː', chinese: '四', example: 'I have four pencils.' },
-    { english: 'five', phonetic: 'faɪv', chinese: '五', example: 'I have five fingers.' }
-  ]
-}
-
+// 当前分类
 const currentCategory = ref(1)
 const currentIndex = ref(0)
 const isAnimating = ref(false)
+const startTime = ref(0)
 
-const currentCategoryWords = computed(() => words[currentCategory.value])
+// 获取当前分类的单词
+const currentCategoryWords = computed(() => {
+  const category = categories.value.find(c => c.id === currentCategory.value)
+  return category ? category.words : []
+})
+
+// 当前单词
 const currentWord = computed(() => currentCategoryWords.value[currentIndex.value])
 
 function selectCategory(categoryId) {
@@ -130,6 +105,20 @@ function playSound() {
   // 这里可以添加播放发音的功能
   playAnimation()
 }
+
+// 组件挂载时
+onMounted(() => {
+  startTime.value = Date.now()
+})
+
+// 组件卸载时
+onUnmounted(() => {
+  // 计算学习时长（秒）
+  const duration = Math.floor((Date.now() - startTime.value) / 1000)
+  if (duration > 0) {
+    addStudyRecord('english', duration)
+  }
+})
 </script>
 
 <style scoped>

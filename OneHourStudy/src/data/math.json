@@ -1,0 +1,54 @@
+{
+  "categories": [
+    {
+      "id": 1,
+      "name": "加法",
+      "operations": [
+        { "type": "addition", "min": 1, "max": 10, "count": 2 },
+        { "type": "addition", "min": 1, "max": 20, "count": 2 },
+        { "type": "addition", "min": 1, "max": 50, "count": 2 }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "减法",
+      "operations": [
+        { "type": "subtraction", "min": 1, "max": 10, "count": 2 },
+        { "type": "subtraction", "min": 1, "max": 20, "count": 2 },
+        { "type": "subtraction", "min": 1, "max": 50, "count": 2 }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "乘法",
+      "operations": [
+        { "type": "multiplication", "min": 1, "max": 5, "count": 2 },
+        { "type": "multiplication", "min": 1, "max": 10, "count": 2 },
+        { "type": "multiplication", "min": 1, "max": 20, "count": 2 }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "除法",
+      "operations": [
+        { "type": "division", "min": 1, "max": 10, "count": 2 },
+        { "type": "division", "min": 1, "max": 20, "count": 2 },
+        { "type": "division", "min": 1, "max": 50, "count": 2 }
+      ]
+    }
+  ],
+  "difficultyLevels": {
+    "easy": {
+      "timeLimit": 10,
+      "scoreMultiplier": 1
+    },
+    "medium": {
+      "timeLimit": 8,
+      "scoreMultiplier": 1.5
+    },
+    "hard": {
+      "timeLimit": 5,
+      "scoreMultiplier": 2
+    }
+  }
+} 

@@ -48,7 +48,8 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { addStudyRecord } from '../services/studyService'
 
 const levels = [
   { id: 1, name: '简单', maxNum: 10, operators: ['+', '-'] },
@@ -69,6 +70,7 @@ const isCorrect = ref(false)
 const isAnimating = ref(false)
 const score = ref(0)
 const streak = ref(0)
+const startTime = ref(0)
 
 function selectLevel(levelId) {
   currentLevel.value = levelId
@@ -131,6 +133,20 @@ function playAnimation() {
 const resultMessage = computed(() => {
   if (!showResult.value) return ''
   return isCorrect.value ? '答对了！' : `答错了，正确答案是 ${currentProblem.value.answer}`
+})
+
+// 组件挂载时
+onMounted(() => {
+  startTime.value = Date.now()
+})
+
+// 组件卸载时
+onUnmounted(() => {
+  // 计算学习时长（秒）
+  const duration = Math.floor((Date.now() - startTime.value) / 1000)
+  if (duration > 0) {
+    addStudyRecord('math', duration)
+  }
 })
 
 // 初始化第一道题目

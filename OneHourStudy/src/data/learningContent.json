@@ -1,0 +1,64 @@
+{
+  "chinese": {
+    "characters": [
+      { "char": "人", "pinyin": "rén", "meaning": "人", "example": "大人、小人" },
+      { "char": "口", "pinyin": "kǒu", "meaning": "口", "example": "人口、出口" },
+      { "char": "日", "pinyin": "rì", "meaning": "日", "example": "日子、生日" },
+      { "char": "月", "pinyin": "yuè", "meaning": "月", "example": "月亮、月份" },
+      { "char": "水", "pinyin": "shuǐ", "meaning": "水", "example": "喝水、水果" },
+      { "char": "火", "pinyin": "huǒ", "meaning": "火", "example": "大火、火山" },
+      { "char": "木", "pinyin": "mù", "meaning": "木", "example": "树木、木头" },
+      { "char": "土", "pinyin": "tǔ", "meaning": "土", "example": "土地、泥土" },
+      { "char": "山", "pinyin": "shān", "meaning": "山", "example": "大山、上山" },
+      { "char": "石", "pinyin": "shí", "meaning": "石", "example": "石头、石子" }
+    ]
+  },
+  "english": {
+    "categories": [
+      {
+        "id": 1,
+        "name": "动物",
+        "words": [
+          { "english": "cat", "phonetic": "kæt", "chinese": "猫", "example": "I have a cat." },
+          { "english": "dog", "phonetic": "dɒɡ", "chinese": "狗", "example": "The dog is running." },
+          { "english": "bird", "phonetic": "bɜːd", "chinese": "鸟", "example": "The bird is flying." },
+          { "english": "fish", "phonetic": "fɪʃ", "chinese": "鱼", "example": "The fish is swimming." },
+          { "english": "rabbit", "phonetic": "ˈræbɪt", "chinese": "兔子", "example": "The rabbit is jumping." }
+        ]
+      },
+      {
+        "id": 2,
+        "name": "水果",
+        "words": [
+          { "english": "apple", "phonetic": "ˈæpl", "chinese": "苹果", "example": "I eat an apple." },
+          { "english": "banana", "phonetic": "bəˈnɑːnə", "chinese": "香蕉", "example": "The banana is yellow." },
+          { "english": "orange", "phonetic": "ˈɒrɪndʒ", "chinese": "橙子", "example": "The orange is sweet." },
+          { "english": "grape", "phonetic": "ɡreɪp", "chinese": "葡萄", "example": "I like grapes." },
+          { "english": "strawberry", "phonetic": "ˈstrɔːbəri", "chinese": "草莓", "example": "The strawberry is red." }
+        ]
+      },
+      {
+        "id": 3,
+        "name": "颜色",
+        "words": [
+          { "english": "red", "phonetic": "red", "chinese": "红色", "example": "The apple is red." },
+          { "english": "blue", "phonetic": "bluː", "chinese": "蓝色", "example": "The sky is blue." },
+          { "english": "green", "phonetic": "ɡriːn", "chinese": "绿色", "example": "The grass is green." },
+          { "english": "yellow", "phonetic": "ˈjeləʊ", "chinese": "黄色", "example": "The sun is yellow." },
+          { "english": "purple", "phonetic": "ˈpɜːpl", "chinese": "紫色", "example": "The grape is purple." }
+        ]
+      },
+      {
+        "id": 4,
+        "name": "数字",
+        "words": [
+          { "english": "one", "phonetic": "wʌn", "chinese": "一", "example": "I have one apple." },
+          { "english": "two", "phonetic": "tuː", "chinese": "二", "example": "I have two hands." },
+          { "english": "three", "phonetic": "θriː", "chinese": "三", "example": "I have three books." },
+          { "english": "four", "phonetic": "fɔː", "chinese": "四", "example": "I have four pencils." },
+          { "english": "five", "phonetic": "faɪv", "chinese": "五", "example": "I have five fingers." }
+        ]
+      }
+    ]
+  }
+} 
