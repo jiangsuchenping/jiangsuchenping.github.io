@@ -1,0 +1,126 @@
+:root {
+  /* 主色调：温和的绿色 */
+  --primary-color: #7FB069;
+  /* 次要色调：柔和的蓝色 */
+  --secondary-color: #6B8F71;
+  /* 背景色：米白色 */
+  --background-color: #F5F5F0;
+  /* 文字颜色：深灰色 */
+  --text-color: #4A4A4A;
+  /* 强调色：温暖的橙色 */
+  --accent-color: #E6A57E;
+  /* 边框圆角 */
+  --border-radius: 12px;
+  /* 阴影效果 */
+  --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* 重置样式 */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Microsoft YaHei', '微软雅黑', sans-serif;
+  background-color: var(--background-color);
+  color: var(--text-color);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* 标题样式 */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--secondary-color);
+  margin-bottom: 1rem;
+}
+
+/* 按钮样式 */
+button {
+  font-family: inherit;
+  cursor: pointer;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: var(--border-radius);
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  background-color: var(--secondary-color);
+  transform: translateY(-2px);
+}
+
+/* 链接样式 */
+a {
+  color: var(--primary-color);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+a:hover {
+  color: var(--secondary-color);
+}
+
+/* 卡片样式 */
+.card {
+  background-color: white;
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  box-shadow: var(--box-shadow);
+  transition: transform 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+/* 动画效果 */
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  :root {
+    --border-radius: 8px;
+  }
+  
+  body {
+    font-size: 14px;
+  }
+}
+
+/* 无障碍支持 */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* 高对比度模式 */
+@media (prefers-contrast: high) {
+  :root {
+    --primary-color: #2E7D32;
+    --secondary-color: #1B5E20;
+    --text-color: #000000;
+    --background-color: #FFFFFF;
+  }
+} 
