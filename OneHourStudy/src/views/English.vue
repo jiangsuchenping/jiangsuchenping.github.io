@@ -49,10 +49,10 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { addStudyRecord } from '../services/studyService'
-import learningContent from '../data/learningContent.json'
+import englishData from '../data/english.json'
 
 // 学习类型定义
-const categories = ref(learningContent.english.categories)
+const categories = ref(englishData.categories)
 
 // 当前分类
 const currentCategory = ref(1)
@@ -265,4 +265,4 @@ onUnmounted(() => {
     grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
   }
 }
-</style> 
+</style>

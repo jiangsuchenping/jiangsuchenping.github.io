@@ -14,9 +14,6 @@
           <button @click="recordStatus('known')" class="status-btn known">
             <span class="icon">😊</span> 认识
           </button>
-          <button @click="recordStatus('fuzzy')" class="status-btn fuzzy">
-            <span class="icon">🤔</span> 模糊
-          </button>
           <button @click="recordStatus('unknown')" class="status-btn unknown">
             <span class="icon">😢</span> 忘记
           </button>
@@ -37,16 +34,16 @@
             <div class="history-info">
               <div class="history-pinyin">{{ record.pinyin }}</div>
               <div class="history-meaning">{{ record.meaning }}</div>
-              <div class="history-counts">
-                <span class="count known">{{ record.knownCount }}</span>
-                <span class="count fuzzy">{{ record.fuzzyCount }}</span>
-                <span class="count unknown">{{ record.unknownCount }}</span>
+              <div class="history-stats">
+                <span class="stat total">总次数: {{ record.totalCount }}</span>
+                <span class="stat known">认识: {{ record.knownCount }}</span>
+                <span class="stat unknown">忘记: {{ record.unknownCount }}</span>
+                <span class="stat accuracy" :class="getAccuracyClass(record.accuracy)">
+                  正确率: {{ record.accuracy }}%
+                </span>
               </div>
             </div>
             <div class="history-status">
-              <span class="status-tag" :class="record.status">
-                {{ getStatusText(record.status) }}
-              </span>
               <div class="history-time">{{ formatTime(record.timestamp) }}</div>
             </div>
           </div>
@@ -103,24 +100,27 @@ const learningHistory = ref({}) // 改为对象，以汉字为键
 // 计算属性：历史记录
 const filteredHistory = computed(() => {
   return Object.entries(learningHistory.value)
-    .map(([char, record]) => ({
-      char,
-      ...record
-    }))
-    .sort((a, b) => {
-      // 计算掌握程度得分（0-100）
-      const getMasteryScore = (record) => {
-        const total = record.knownCount + record.fuzzyCount + record.unknownCount
-        if (total === 0) return 0
-        // 认识得3分，模糊得1分，忘记得0分
-        return (record.knownCount * 3 + record.fuzzyCount * 1) / (total * 3) * 100
+    .map(([char, record]) => {
+      // 确保数据完整性
+      const completeRecord = {
+        char,
+        pinyin: record.pinyin || '',
+        meaning: record.meaning || '',
+        totalCount: record.totalCount || 0,
+        knownCount: record.knownCount || 0,
+        unknownCount: record.unknownCount || 0,
+        status: record.status || 'unknown',
+        timestamp: record.timestamp || Date.now()
       }
       
-      const scoreA = getMasteryScore(a)
-      const scoreB = getMasteryScore(b)
+      // 计算正确率
+      completeRecord.accuracy = calculateAccuracy(completeRecord)
       
-      // 得分低的排在前面（最需要强化学习的）
-      return scoreA - scoreB
+      return completeRecord
+    })
+    .sort((a, b) => {
+      // 根据权重排序
+      return calculateWeight(b) - calculateWeight(a)
     })
 })
 
@@ -136,11 +136,47 @@ const masteryRate = computed(() => {
   return Math.round((knownCount / totalLearningCount.value) * 100)
 })
 
+// 计算正确率
+function calculateAccuracy(record) {
+  if (!record.totalCount || record.totalCount === 0) return 0
+  const accuracy = (record.knownCount / record.totalCount) * 100
+  return Math.round(accuracy)
+}
+
+// 计算权重
+function calculateWeight(record) {
+  const now = Date.now()
+  let weight = 0
+
+  // 1. 基础权重：正确率（0-100）
+  weight += record.accuracy
+
+  // 2. 时间权重：距离上次学习的时间
+  if (record.timestamp) {
+    const hoursSinceLastReview = (now - record.timestamp) / (60 * 60 * 1000)
+    // 使用艾宾浩斯遗忘曲线计算时间权重
+    const timeWeight = Math.min(100, hoursSinceLastReview / 24 * 30)
+    weight += timeWeight
+  }
+
+  // 3. 学习次数权重：学习次数越多，权重越低
+  if (record.totalCount > 0) {
+    const countWeight = Math.max(0, 50 - record.totalCount * 5)
+    weight += countWeight
+  }
+
+  // 4. 最近状态权重
+  if (record.status === 'unknown') {
+    weight += 30 // 最近一次是"忘记"的，提高权重
+  }
+
+  return weight
+}
+
 // 获取状态文本
 function getStatusText(status) {
   const statusMap = {
     known: '已掌握',
-    fuzzy: '模糊',
     unknown: '未掌握'
   }
   return statusMap[status] || status
@@ -470,31 +506,33 @@ function calculateLearningPace(record) {
   return Math.max(0.5, 1 - (statusChanges / recentStatuses.length) * 0.5)
 }
 
-// 修改智能推荐函数，添加随机因子
+// 修改智能推荐函数
 function recommendNextWord() {
   const now = Date.now()
   const wordScores = new Map()
   
-  // 使用 Map 优化查找性能
+  // 计算每个汉字的推荐分数
   chineseChars.value.forEach((word, index) => {
     const record = learningHistory.value[word.char]
+    
+    // 基础分数
+    let score = 0
+    
     if (!record) {
-      wordScores.set(index, -1000 + Math.random() * 100)
-      return
+      // 未学习过的汉字给予最高优先级
+      score = -3000
+    } else {
+      // 计算权重
+      score = -calculateWeight(record)
     }
     
-    // 简化评分计算
-    const daysSinceLastReview = (now - record.timestamp) / (24 * 60 * 60 * 1000)
-    const timeWeight = Math.log(daysSinceLastReview + 1) * 15
+    // 添加少量随机因子（±5分）增加变化性
+    score += (Math.random() * 10 - 5)
     
-    const totalCount = record.knownCount + record.fuzzyCount + record.unknownCount
-    const masteryWeight = (record.unknownCount * 4 + record.fuzzyCount * 2 - record.knownCount) / totalCount * 60
-    
-    const score = timeWeight + masteryWeight + (Math.random() * 20 - 10)
     wordScores.set(index, score)
   })
   
-  // 找到分数最低的索引
+  // 找到得分最低的索引（优先级最高的）
   let minScore = Infinity
   let minIndex = 0
   
@@ -505,10 +543,24 @@ function recommendNextWord() {
     }
   })
   
+  // 如果当前字就是推荐的字，且还有其他可选字，则随机选择另一个
+  if (currentIndex.value === minIndex && chineseChars.value.length > 1) {
+    const otherScores = Array.from(wordScores.entries())
+      .filter(([idx]) => idx !== minIndex)
+      .sort((a, b) => a[1] - b[1])
+    
+    if (otherScores.length > 0) {
+      // 从得分最低的前3个中随机选择一个
+      const topThree = otherScores.slice(0, Math.min(3, otherScores.length))
+      const randomIndex = Math.floor(Math.random() * topThree.length)
+      minIndex = topThree[randomIndex][0]
+    }
+  }
+  
   currentIndex.value = minIndex
 }
 
-// 修改记录状态函数，添加最近状态记录
+// 修改记录状态函数
 function recordStatus(status) {
   if (!currentWord.value || !currentWord.value.char) {
     console.error('当前汉字无效')
@@ -528,39 +580,35 @@ function recordStatus(status) {
       char: char,
       pinyin: currentWord.value.pinyin,
       meaning: currentWord.value.meaning,
+      totalCount: 0,
       knownCount: 0,
-      fuzzyCount: 0,
       unknownCount: 0,
-      recentStatuses: [],
+      status: status,
       timestamp: now
     }
     
-    // 更新状态计数
-    existingRecord[status + 'Count']++
+    // 更新计数
+    existingRecord.totalCount = (existingRecord.totalCount || 0) + 1
+    existingRecord[status + 'Count'] = (existingRecord[status + 'Count'] || 0) + 1
     existingRecord.status = status
     existingRecord.timestamp = now
     
-    // 优化最近状态记录更新
-    if (!existingRecord.recentStatuses) {
-      existingRecord.recentStatuses = []
-    }
-    existingRecord.recentStatuses.unshift(status)
-    if (existingRecord.recentStatuses.length > 5) {
-      existingRecord.recentStatuses.length = 5
-    }
+    // 确保数据完整性
+    existingRecord.knownCount = existingRecord.knownCount || 0
+    existingRecord.unknownCount = existingRecord.unknownCount || 0
     
     learningHistory.value[char] = existingRecord
     
+    // 保存到本地存储
+    saveLearningHistory()
+    
+    // 立即推荐下一个字
+    recommendNextWord()
+    
     // 使用 requestAnimationFrame 延迟执行非关键操作
     requestAnimationFrame(() => {
-      // 保存到本地存储
-      saveLearningHistory()
-      
       // 检查是否需要获取更多汉字
       checkNeedMoreWords()
-      
-      // 智能推荐下一个字
-      recommendNextWord()
     })
   })
 }
@@ -568,8 +616,19 @@ function recordStatus(status) {
 // 修改保存历史记录函数
 function saveLearningHistory() {
   try {
-    const historyString = JSON.stringify(learningHistory.value)
-    localStorage.setItem('learningHistory', historyString)
+    // 确保数据完整性后再保存
+    const historyToSave = {}
+    Object.entries(learningHistory.value).forEach(([char, record]) => {
+      historyToSave[char] = {
+        ...record,
+        totalCount: record.totalCount || 0,
+        knownCount: record.knownCount || 0,
+        unknownCount: record.unknownCount || 0,
+        status: record.status || 'unknown',
+        timestamp: record.timestamp || Date.now()
+      }
+    })
+    localStorage.setItem('learningHistory', JSON.stringify(historyToSave))
   } catch (error) {
     console.error('保存历史记录失败:', error)
   }
@@ -581,6 +640,17 @@ function loadLearningHistory() {
     const saved = localStorage.getItem('learningHistory')
     if (saved) {
       const parsed = JSON.parse(saved)
+      // 确保加载的数据完整性
+      Object.entries(parsed).forEach(([char, record]) => {
+        parsed[char] = {
+          ...record,
+          totalCount: record.totalCount || 0,
+          knownCount: record.knownCount || 0,
+          unknownCount: record.unknownCount || 0,
+          status: record.status || 'unknown',
+          timestamp: record.timestamp || Date.now()
+        }
+      })
       learningHistory.value = parsed
     } else {
       learningHistory.value = {}
@@ -621,6 +691,13 @@ const nextReviewTime = computed(() => {
   if (hours > 0) return `${hours}小时后`
   return `${minutes}分钟后`
 })
+
+// 添加准确率类名计算
+function getAccuracyClass(accuracy) {
+  if (accuracy < 50) return 'low-accuracy'
+  if (accuracy < 75) return 'medium-accuracy'
+  return 'high-accuracy'
+}
 </script>
 
 <style scoped>
@@ -801,13 +878,13 @@ const nextReviewTime = computed(() => {
   margin-bottom: 0.5rem;
 }
 
-.history-counts {
+.history-stats {
   display: flex;
   gap: 1rem;
   flex-wrap: wrap;
 }
 
-.count {
+.stat {
   padding: 0.2rem 0.5rem;
   border-radius: 1rem;
   font-size: 0.9rem;
@@ -815,18 +892,41 @@ const nextReviewTime = computed(() => {
   text-align: center;
 }
 
-.count.known {
+.stat.total {
   background-color: #4CAF50;
   color: white;
 }
 
-.count.fuzzy {
+.stat.known {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.stat.unknown {
+  background-color: #F44336;
+  color: white;
+}
+
+.stat.accuracy {
+  padding: 0.2rem 0.5rem;
+  border-radius: 1rem;
+  font-size: 0.9rem;
+  min-width: 2rem;
+  text-align: center;
+}
+
+.stat.accuracy.low-accuracy {
   background-color: #FFC107;
   color: black;
 }
 
-.count.unknown {
-  background-color: #F44336;
+.stat.accuracy.medium-accuracy {
+  background-color: #FFC107;
+  color: black;
+}
+
+.stat.accuracy.high-accuracy {
+  background-color: #4CAF50;
   color: white;
 }
 
@@ -834,29 +934,6 @@ const nextReviewTime = computed(() => {
   text-align: right;
   margin-left: 1rem;
   min-width: 120px;
-}
-
-.status-tag {
-  display: inline-block;
-  padding: 0.3rem 0.8rem;
-  border-radius: 1rem;
-  font-size: 0.9rem;
-  margin-bottom: 0.5rem;
-}
-
-.status-tag.known {
-  background-color: #4CAF50;
-  color: white;
-}
-
-.status-tag.fuzzy {
-  background-color: #FFC107;
-  color: black;
-}
-
-.status-tag.unknown {
-  background-color: #F44336;
-  color: white;
 }
 
 .history-time {
@@ -948,7 +1025,7 @@ const nextReviewTime = computed(() => {
     text-align: center;
   }
 
-  .history-counts {
+  .history-stats {
     justify-content: center;
   }
 }
