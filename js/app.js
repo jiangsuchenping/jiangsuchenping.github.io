@@ -33,6 +33,39 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 每小时检查一次时间
     setInterval(showTimeNotification, 60 * 60 * 1000);
+
+    // 添加游戏标签切换事件
+    const gameTabs = document.querySelectorAll('.game-tab');
+    gameTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            // 移除所有标签的活跃状态
+            gameTabs.forEach(t => t.classList.remove('active'));
+            // 设置当前标签为活跃状态
+            this.classList.add('active');
+            
+            // 隐藏所有游戏区域
+            document.querySelectorAll('.game-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // 显示对应的游戏区域
+            const gameId = this.dataset.game;
+            document.getElementById(`${gameId}-game`).classList.add('active');
+            
+            // 初始化对应的游戏
+            switch (gameId) {
+                case 'klotski':
+                    initKlotskiGame();
+                    break;
+                case 'memory':
+                    initMemoryGame();
+                    break;
+                case 'sudoku':
+                    initSudokuGame();
+                    break;
+            }
+        });
+    });
 });
 
 /**
@@ -1088,16 +1121,6 @@ function showHistoryDialog() {
             closeHistoryDialog();
         }
     });
-    
-    // 检查是否已存在关闭按钮
-    if (!dialog.querySelector('.close-button')) {
-        // 添加关闭按钮
-        const closeButton = document.createElement('div');
-        closeButton.className = 'close-button';
-        closeButton.innerHTML = '×';
-        closeButton.onclick = closeHistoryDialog;
-        dialog.querySelector('.dialog-content').appendChild(closeButton);
-    }
 }
 
 /**
@@ -1105,10 +1128,6 @@ function showHistoryDialog() {
  */
 function closeHistoryDialog() {
     const dialog = document.getElementById('history-dialog');
-    const closeButton = dialog.querySelector('.close-button');
-    if (closeButton) {
-        closeButton.remove();
-    }
     dialog.style.display = 'none';
     isHistoryDialogOpen = false;
 }
@@ -1172,16 +1191,6 @@ function showChineseHistoryDialog() {
             closeChineseHistoryDialog();
         }
     });
-    
-    // 检查是否已存在关闭按钮
-    if (!dialog.querySelector('.close-button')) {
-        // 添加关闭按钮
-        const closeButton = document.createElement('div');
-        closeButton.className = 'close-button';
-        closeButton.innerHTML = '×';
-        closeButton.onclick = closeChineseHistoryDialog;
-        dialog.querySelector('.dialog-content').appendChild(closeButton);
-    }
 }
 
 /**
@@ -1189,10 +1198,6 @@ function showChineseHistoryDialog() {
  */
 function closeChineseHistoryDialog() {
     const dialog = document.getElementById('chinese-history-dialog');
-    const closeButton = dialog.querySelector('.close-button');
-    if (closeButton) {
-        closeButton.remove();
-    }
     dialog.style.display = 'none';
 }
 
@@ -1491,16 +1496,6 @@ function showEnglishHistoryDialog() {
             closeEnglishHistoryDialog();
         }
     });
-    
-    // 检查是否已存在关闭按钮
-    if (!dialog.querySelector('.close-button')) {
-        // 添加关闭按钮
-        const closeButton = document.createElement('div');
-        closeButton.className = 'close-button';
-        closeButton.innerHTML = '×';
-        closeButton.onclick = closeEnglishHistoryDialog;
-        dialog.querySelector('.dialog-content').appendChild(closeButton);
-    }
 }
 
 /**
@@ -1508,10 +1503,6 @@ function showEnglishHistoryDialog() {
  */
 function closeEnglishHistoryDialog() {
     const dialog = document.getElementById('english-history-dialog');
-    const closeButton = dialog.querySelector('.close-button');
-    if (closeButton) {
-        closeButton.remove();
-    }
     dialog.style.display = 'none';
 }
 
@@ -1808,14 +1799,51 @@ let gameTimeHistory = JSON.parse(localStorage.getItem('gameTimeHistory')) || {
  * @param {number} minutes - 本次游戏时长（分钟）
  */
 function recordGameTime(minutes) {
-    // 不再记录游戏时间
+    gameTimeHistory.totalTime += minutes;
+    gameTimeHistory.lastPlayTime = new Date().toISOString();
+    
+    // 计算下次可游戏时间
+    calculateNextGameTime();
+    
+    // 保存到本地存储
+    localStorage.setItem('gameTimeHistory', JSON.stringify(gameTimeHistory));
 }
 
 /**
  * 计算下次可游戏时间
  */
 function calculateNextGameTime() {
-    // 不再计算下次游戏时间
+    const now = new Date();
+    
+    // 获取各模块的学习情况
+    const chineseProgress = getModuleProgress(chineseWordHistory);
+    const mathProgress = getModuleProgress(mathProblemHistory);
+    const englishProgress = getModuleProgress(englishWordHistory);
+    
+    // 计算总体学习进度（0-100）
+    const totalProgress = (chineseProgress + mathProgress + englishProgress) / 3;
+    
+    // 根据学习进度和游戏时间计算下次可游戏时间
+    let nextInterval;
+    if (totalProgress >= 80) {
+        // 学习进度很好，1小时后可以再玩
+        nextInterval = 60;
+    } else if (totalProgress >= 60) {
+        // 学习进度一般，2小时后可以再玩
+        nextInterval = 120;
+    } else {
+        // 学习进度较差，4小时后可以再玩
+        nextInterval = 240;
+    }
+    
+    // 如果今天游戏时间超过2小时，增加等待时间
+    const todayGameTime = getTodayGameTime();
+    if (todayGameTime >= 120) {
+        nextInterval = Math.max(nextInterval, 240); // 至少4小时
+    }
+    
+    // 设置下次可游戏时间
+    gameTimeHistory.nextPlayTime = new Date(now.getTime() + nextInterval * 60 * 1000).toISOString();
 }
 
 /**
@@ -1824,8 +1852,21 @@ function calculateNextGameTime() {
  * @returns {number} - 学习进度（0-100）
  */
 function getModuleProgress(history) {
-    // 不再计算学习进度
-    return 100;
+    if (!history || Object.keys(history).length === 0) return 0;
+    
+    let totalProgress = 0;
+    let count = 0;
+    
+    Object.values(history).forEach(record => {
+        if (record.totalAttempts > 0) {
+            const accuracy = record.correctAttempts / record.totalAttempts;
+            const stageProgress = (record.reviewStage + 1) / EBBINGHAUS_INTERVALS.length;
+            totalProgress += (accuracy * 0.7 + stageProgress * 0.3) * 100;
+            count++;
+        }
+    });
+    
+    return count > 0 ? totalProgress / count : 0;
 }
 
 /**
@@ -1833,8 +1874,15 @@ function getModuleProgress(history) {
  * @returns {number} - 今天的游戏时间
  */
 function getTodayGameTime() {
-    // 不再获取今日游戏时间
-    return 0;
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    
+    if (!gameTimeHistory.lastPlayTime) return 0;
+    
+    const lastPlay = new Date(gameTimeHistory.lastPlayTime);
+    if (lastPlay < today) return 0;
+    
+    return gameTimeHistory.totalTime;
 }
 
 /**
@@ -1842,7 +1890,6 @@ function getTodayGameTime() {
  * @returns {boolean} - 是否可以开始游戏
  */
 function canStartGame() {
-    // 始终允许开始游戏
     return true;
 }
 
@@ -1851,8 +1898,25 @@ function canStartGame() {
  * @returns {string} - 下次可游戏时间描述
  */
 function getNextGameTime() {
-    // 始终返回"现在"
-    return "现在";
+    const now = new Date();
+    if (!gameTimeHistory.nextPlayTime) {
+        calculateNextGameTime();
+    }
+    
+    const nextPlay = new Date(gameTimeHistory.nextPlayTime);
+    if (now >= nextPlay) {
+        return "现在";
+    }
+    
+    const diff = nextPlay - now;
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    
+    if (hours > 0) {
+        return `${hours}小时${minutes}分钟后`;
+    } else {
+        return `${minutes}分钟后`;
+    }
 }
 
 /**
@@ -1865,6 +1929,12 @@ function initKlotskiGame() {
     const timeDisplay = document.getElementById('klotski-time');
     
     if (!container) return;
+    
+    // 取消游戏时间限制
+    // if (!canStartGame()) {
+    //     ...
+    //     return;
+    // }
     
     // 重置游戏状态
     klotskiMoves = 0;
@@ -1967,6 +2037,10 @@ function moveKlotskiPiece() {
         // 检查是否完成
         if (isKlotskiComplete()) {
             clearInterval(klotskiTimerInterval);
+            // 记录游戏时间
+            const elapsedMinutes = Math.ceil((Date.now() - klotskiStartTime) / (1000 * 60));
+            recordGameTime(elapsedMinutes);
+            
             setTimeout(() => {
                 alert(`恭喜你完成了华容道！\n用时：${document.getElementById('klotski-time').textContent}\n移动次数：${klotskiMoves}`);
             }, 500);
@@ -2017,6 +2091,11 @@ function updateKlotskiTimer() {
     const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
     const seconds = (elapsed % 60).toString().padStart(2, '0');
     timeDisplay.textContent = `${minutes}:${seconds}`;
+    
+    // 每完成一分钟记录一次游戏时间
+    if (elapsed % 60 === 0) {
+        recordGameTime(1);
+    }
 }
 
 /**
@@ -2160,319 +2239,6 @@ function updateMemoryTimer() {
     const seconds = (elapsed % 60).toString().padStart(2, '0');
     timeDisplay.textContent = `${minutes}:${seconds}`;
 }
-
-/**
- * 游戏模块 - 拼图游戏
- */
-let puzzleMoves = 0;
-let puzzleStartTime = null;
-let puzzleTimerInterval = null;
-let puzzlePieces = [];
-let emptyPieceIndex = 8;
-
-// 拼图游戏图片
-const puzzleImage = 'img/puzzle.jpg';
-
-/**
- * 初始化拼图游戏
- */
-function initPuzzleGame() {
-    const container = document.getElementById('puzzle-container');
-    const restartBtn = document.getElementById('restart-puzzle-btn');
-    const movesDisplay = document.getElementById('puzzle-moves');
-    const timeDisplay = document.getElementById('puzzle-time');
-    
-    if (!container) return;
-    
-    // 重置游戏状态
-    puzzleMoves = 0;
-    puzzleStartTime = null;
-    if (puzzleTimerInterval) {
-        clearInterval(puzzleTimerInterval);
-    }
-    puzzlePieces = [0, 1, 2, 3, 4, 5, 6, 7, null];
-    emptyPieceIndex = 8;
-    
-    movesDisplay.textContent = '0';
-    timeDisplay.textContent = '00:00';
-    
-    // 清空容器
-    container.innerHTML = '';
-    
-    // 打乱拼图
-    shufflePuzzle();
-    
-    // 添加拼图块
-    puzzlePieces.forEach((piece, index) => {
-        if (piece !== null) {
-            const pieceElement = document.createElement('div');
-            pieceElement.className = 'puzzle-piece';
-            pieceElement.dataset.index = index;
-            
-            // 设置拼图块背景图片位置
-            const row = Math.floor(piece / 3);
-            const col = piece % 3;
-            pieceElement.style.backgroundImage = `url(${puzzleImage})`;
-            pieceElement.style.backgroundPosition = `${-col * 100}% ${-row * 100}%`;
-            
-            pieceElement.addEventListener('click', movePuzzlePiece);
-            container.appendChild(pieceElement);
-        }
-    });
-    
-    // 重新开始按钮事件
-    if (restartBtn) {
-        restartBtn.addEventListener('click', initPuzzleGame);
-    }
-}
-
-/**
- * 打乱拼图
- */
-function shufflePuzzle() {
-    // 随机移动空白格子100次
-    for (let i = 0; i < 100; i++) {
-        const possibleMoves = getPossibleMoves(emptyPieceIndex);
-        const randomMove = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
-        [puzzlePieces[emptyPieceIndex], puzzlePieces[randomMove]] = 
-        [puzzlePieces[randomMove], puzzlePieces[emptyPieceIndex]];
-        emptyPieceIndex = randomMove;
-    }
-}
-
-/**
- * 移动拼图块
- */
-function movePuzzlePiece() {
-    // 开始计时
-    if (!puzzleStartTime) {
-        puzzleStartTime = Date.now();
-        puzzleTimerInterval = setInterval(updatePuzzleTimer, 1000);
-    }
-    
-    const clickedIndex = parseInt(this.dataset.index);
-    const possibleMoves = getPossibleMoves(emptyPieceIndex);
-    
-    if (possibleMoves.includes(clickedIndex)) {
-        // 移动拼图块
-        [puzzlePieces[clickedIndex], puzzlePieces[emptyPieceIndex]] = 
-        [puzzlePieces[emptyPieceIndex], puzzlePieces[clickedIndex]];
-        
-        // 更新显示
-        updatePuzzleDisplay();
-        
-        // 更新移动次数
-        puzzleMoves++;
-        document.getElementById('puzzle-moves').textContent = puzzleMoves;
-        
-        // 检查是否完成
-        if (isPuzzleComplete()) {
-            clearInterval(puzzleTimerInterval);
-            setTimeout(() => {
-                alert(`恭喜你完成了拼图游戏！\n用时：${document.getElementById('puzzle-time').textContent}\n移动次数：${puzzleMoves}`);
-            }, 500);
-        }
-    }
-}
-
-/**
- * 更新拼图显示
- */
-function updatePuzzleDisplay() {
-    const container = document.getElementById('puzzle-container');
-    container.innerHTML = '';
-    
-    puzzlePieces.forEach((piece, index) => {
-        if (piece !== null) {
-            const pieceElement = document.createElement('div');
-            pieceElement.className = 'puzzle-piece';
-            pieceElement.dataset.index = index;
-            
-            // 设置拼图块背景图片位置
-            const row = Math.floor(piece / 3);
-            const col = piece % 3;
-            pieceElement.style.backgroundImage = `url(${puzzleImage})`;
-            pieceElement.style.backgroundPosition = `${-col * 100}% ${-row * 100}%`;
-            
-            pieceElement.addEventListener('click', movePuzzlePiece);
-            container.appendChild(pieceElement);
-        } else {
-            emptyPieceIndex = index;
-        }
-    });
-}
-
-/**
- * 检查拼图是否完成
- */
-function isPuzzleComplete() {
-    return puzzlePieces.every((piece, index) => {
-        if (index === puzzlePieces.length - 1) {
-            return piece === null;
-        }
-        return piece === index;
-    });
-}
-
-/**
- * 更新拼图游戏计时器
- */
-function updatePuzzleTimer() {
-    const timeDisplay = document.getElementById('puzzle-time');
-    const elapsed = Math.floor((Date.now() - puzzleStartTime) / 1000);
-    const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
-    const seconds = (elapsed % 60).toString().padStart(2, '0');
-    timeDisplay.textContent = `${minutes}:${seconds}`;
-}
-
-/**
- * 游戏模块 - 找不同游戏
- */
-let spotDifferenceStartTime = null;
-let spotDifferenceTimerInterval = null;
-let differencesFound = 0;
-
-// 找不同游戏的差异点坐标
-const differenceSpots = [
-    { x: 100, y: 150 },
-    { x: 250, y: 200 },
-    { x: 400, y: 300 },
-    { x: 550, y: 250 },
-    { x: 700, y: 350 }
-];
-
-/**
- * 初始化找不同游戏
- */
-function initSpotDifferenceGame() {
-    const container = document.getElementById('spot-difference-container');
-    const restartBtn = document.getElementById('restart-spot-difference-btn');
-    const foundDisplay = document.getElementById('differences-found');
-    const timeDisplay = document.getElementById('spot-difference-time');
-    
-    if (!container) return;
-    
-    // 重置游戏状态
-    spotDifferenceStartTime = null;
-    if (spotDifferenceTimerInterval) {
-        clearInterval(spotDifferenceTimerInterval);
-    }
-    differencesFound = 0;
-    
-    foundDisplay.textContent = '0';
-    timeDisplay.textContent = '00:00';
-    
-    // 清空容器
-    container.innerHTML = `
-        <div class="image-container">
-            <img src="img/spot-difference-1.png" alt="图片1" class="difference-image">
-            <img src="img/spot-difference-2.png" alt="图片2" class="difference-image">
-        </div>
-    `;
-    
-    // 添加点击事件
-    const images = container.getElementsByClassName('difference-image');
-    Array.from(images).forEach(image => {
-        image.addEventListener('click', checkDifference);
-    });
-    
-    // 重新开始按钮事件
-    if (restartBtn) {
-        restartBtn.addEventListener('click', initSpotDifferenceGame);
-    }
-}
-
-/**
- * 检查点击位置是否在差异点上
- */
-function checkDifference(e) {
-    // 开始计时
-    if (!spotDifferenceStartTime) {
-        spotDifferenceStartTime = Date.now();
-        spotDifferenceTimerInterval = setInterval(updateSpotDifferenceTimer, 1000);
-    }
-    
-    const rect = e.target.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    
-    // 检查是否点击到差异点
-    const spot = differenceSpots.find(spot => {
-        const dx = Math.abs(spot.x - x);
-        const dy = Math.abs(spot.y - y);
-        return dx < 20 && dy < 20;
-    });
-    
-    if (spot) {
-        // 标记已找到的差异点
-        const spotElement = document.createElement('div');
-        spotElement.className = 'difference-spot';
-        spotElement.style.left = `${spot.x - 10}px`;
-        spotElement.style.top = `${spot.y - 10}px`;
-        e.target.parentElement.appendChild(spotElement);
-        
-        // 更新找到的差异点数量
-        differencesFound++;
-        document.getElementById('differences-found').textContent = differencesFound;
-        
-        // 检查是否完成游戏
-        if (differencesFound === differenceSpots.length) {
-            clearInterval(spotDifferenceTimerInterval);
-            setTimeout(() => {
-                alert(`恭喜你找到了所有不同！\n用时：${document.getElementById('spot-difference-time').textContent}`);
-            }, 500);
-        }
-    }
-}
-
-/**
- * 更新找不同游戏计时器
- */
-function updateSpotDifferenceTimer() {
-    const timeDisplay = document.getElementById('spot-difference-time');
-    const elapsed = Math.floor((Date.now() - spotDifferenceStartTime) / 1000);
-    const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
-    const seconds = (elapsed % 60).toString().padStart(2, '0');
-    timeDisplay.textContent = `${minutes}:${seconds}`;
-}
-
-// 添加游戏标签切换事件
-document.addEventListener('DOMContentLoaded', function() {
-    const gameTabs = document.querySelectorAll('.game-tab');
-    gameTabs.forEach(tab => {
-        tab.addEventListener('click', function() {
-            // 移除所有标签的活跃状态
-            gameTabs.forEach(t => t.classList.remove('active'));
-            // 设置当前标签为活跃状态
-            this.classList.add('active');
-            
-            // 隐藏所有游戏区域
-            document.querySelectorAll('.game-section').forEach(section => {
-                section.classList.remove('active');
-            });
-            
-            // 显示对应的游戏区域
-            const gameId = this.dataset.game;
-            document.getElementById(`${gameId}-game`).classList.add('active');
-            
-            // 初始化对应的游戏
-            switch (gameId) {
-                case 'klotski':
-                    initKlotskiGame();
-                    break;
-                case 'memory':
-                    initMemoryGame();
-                    break;
-                case 'puzzle':
-                    initPuzzleGame();
-                    break;
-                case 'spot-difference':
-                    initSpotDifferenceGame();
-                    break;
-            }
-        });
-    });
-});
 
 /**
  * 检查当前时间是否合适
@@ -2714,4 +2480,751 @@ function enableLearningFeatures() {
         tab.style.pointerEvents = 'auto';
         tab.style.opacity = '1';
     });
+}
+
+// 数独游戏相关变量
+let sudokuPuzzle = [];
+let sudokuSolution = [];
+let currentDifficulty = 'medium'; // 默认难度为中等
+
+/**
+ * 初始化数独游戏
+ */
+function initSudokuGame() {
+    const board = document.getElementById('sudoku-board');
+    if (!board) return;
+
+    // 生成数独谜题
+    const puzzle = generateSudokuPuzzle(currentDifficulty);
+    
+    // 渲染数独棋盘
+    renderSudokuBoard(puzzle);
+}
+
+/**
+ * 生成数独谜题
+ * @param {string} difficulty - 难度级别：'easy', 'medium', 'hard'
+ */
+function generateSudokuPuzzle(difficulty) {
+    // 基础数独模板
+    const templates = [
+        [
+            [1, 2, 3, 4],
+            [3, 4, 1, 2],
+            [2, 1, 4, 3],
+            [4, 3, 2, 1]
+        ],
+        [
+            [2, 1, 4, 3],
+            [4, 3, 2, 1],
+            [1, 2, 3, 4],
+            [3, 4, 1, 2]
+        ],
+        [
+            [3, 4, 1, 2],
+            [1, 2, 3, 4],
+            [4, 3, 2, 1],
+            [2, 1, 4, 3]
+        ]
+    ];
+
+    // 随机选择一个模板
+    const template = templates[Math.floor(Math.random() * templates.length)];
+    
+    // 创建谜题副本
+    const puzzle = template.map(row => [...row]);
+    
+    // 根据难度设置空格数量
+    let emptyCount;
+    switch(difficulty) {
+        case 'easy':
+            emptyCount = 6; // 简单：6个空格
+            break;
+        case 'medium':
+            emptyCount = 8; // 中等：8个空格
+            break;
+        case 'hard':
+            emptyCount = 10; // 困难：10个空格
+            break;
+        default:
+            emptyCount = 8;
+    }
+    
+    const positions = [];
+    
+    // 确保空格分布均匀
+    for (let i = 0; i < 4; i++) {
+        for (let j = 0; j < 4; j++) {
+            positions.push([i, j]);
+        }
+    }
+    
+    // 打乱位置顺序
+    for (let i = positions.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [positions[i], positions[j]] = [positions[j], positions[i]];
+    }
+    
+    // 挖空格子
+    for (let i = 0; i < emptyCount; i++) {
+        const [row, col] = positions[i];
+        puzzle[row][col] = 0;
+    }
+    
+    return puzzle;
+}
+
+/**
+ * 设置数独难度
+ * @param {string} difficulty - 难度级别：'easy', 'medium', 'hard'
+ */
+function setSudokuDifficulty(difficulty) {
+    currentDifficulty = difficulty;
+    initSudokuGame();
+}
+
+/**
+ * 渲染数独棋盘
+ */
+function renderSudokuBoard(puzzle) {
+    const board = document.getElementById('sudoku-board');
+    board.innerHTML = '';
+    
+    for (let r = 0; r < 4; r++) {
+        for (let c = 0; c < 4; c++) {
+            const cell = document.createElement('input');
+            cell.type = 'number';
+            cell.min = 1;
+            cell.max = 4;
+            cell.className = 'sudoku-cell';
+            cell.style.width = '40px';
+            cell.style.height = '40px';
+            cell.style.textAlign = 'center';
+            cell.style.fontSize = '20px';
+            cell.style.border = '2px solid #4CAF50';
+            cell.style.background = puzzle[r][c] ? '#e0ffe0' : 'white';
+            cell.value = puzzle[r][c] ? puzzle[r][c] : '';
+            cell.disabled = !!puzzle[r][c];
+            cell.dataset.row = r;
+            cell.dataset.col = c;
+            
+            // 添加输入验证
+            cell.addEventListener('input', function() {
+                const value = parseInt(this.value);
+                if (value < 1 || value > 4) {
+                    this.value = '';
+                }
+            });
+            
+            board.appendChild(cell);
+        }
+    }
+}
+
+/**
+ * 检查数独答案
+ */
+function checkSudokuAnswer() {
+    const board = document.getElementById('sudoku-board');
+    if (!board) return;
+
+    const cells = board.querySelectorAll('.sudoku-cell');
+    let hasEmpty = false;
+    let hasError = false;
+
+    // 检查是否有空格
+    cells.forEach(cell => {
+        const value = cell.value.trim();
+        if (!value) {
+            hasEmpty = true;
+            cell.style.backgroundColor = '#fff3cd';
+        } else {
+            cell.style.backgroundColor = '';
+        }
+    });
+
+    if (hasEmpty) {
+        alert('请先填完所有空格！');
+        return;
+    }
+
+    // 检查行
+    for (let i = 0; i < 4; i++) {
+        const row = new Set();
+        for (let j = 0; j < 4; j++) {
+            const value = cells[i * 4 + j].value.trim();
+            if (row.has(value)) {
+                hasError = true;
+                cells[i * 4 + j].style.backgroundColor = '#f8d7da';
+            }
+            row.add(value);
+        }
+    }
+
+    // 检查列
+    for (let j = 0; j < 4; j++) {
+        const col = new Set();
+        for (let i = 0; i < 4; i++) {
+            const value = cells[i * 4 + j].value.trim();
+            if (col.has(value)) {
+                hasError = true;
+                cells[i * 4 + j].style.backgroundColor = '#f8d7da';
+            }
+            col.add(value);
+        }
+    }
+
+    // 检查2x2方格
+    for (let block = 0; block < 4; block++) {
+        const blockSet = new Set();
+        const startRow = Math.floor(block / 2) * 2;
+        const startCol = (block % 2) * 2;
+        
+        for (let i = 0; i < 2; i++) {
+            for (let j = 0; j < 2; j++) {
+                const value = cells[(startRow + i) * 4 + (startCol + j)].value.trim();
+                if (blockSet.has(value)) {
+                    hasError = true;
+                    cells[(startRow + i) * 4 + (startCol + j)].style.backgroundColor = '#f8d7da';
+                }
+                blockSet.add(value);
+            }
+        }
+    }
+
+    if (hasError) {
+        alert('答案有误，请检查！');
+    } else {
+        alert('恭喜你，答案正确！');
+        cells.forEach(cell => {
+            cell.style.backgroundColor = '#d4edda';
+            cell.disabled = true;
+        });
+    }
+}
+
+// 找规律游戏相关变量
+let currentPatternType = 'number';
+let currentPatternDifficulty = 'easy';
+let patternSequence = [];
+let patternAnswer = null;
+let selectedOption = null;
+
+// 初始化找规律游戏
+function initPatternGame() {
+    generatePatternSequence();
+    updatePatternDisplay();
+    document.getElementById('pattern-result').textContent = '';
+    selectedOption = null;
+    updateOptionSelection();
+}
+
+// 生成规律序列
+function generatePatternSequence() {
+    patternSequence = [];
+    const types = ['number', 'shape', 'color'];
+    currentPatternType = types[Math.floor(Math.random() * types.length)];
+    
+    switch(currentPatternType) {
+        case 'number':
+            generateNumberPattern();
+            break;
+        case 'shape':
+            generateShapePattern();
+            break;
+        case 'color':
+            generateColorPattern();
+            break;
+    }
+}
+
+// 生成数字规律
+function generateNumberPattern() {
+    const patterns = [
+        // 等差数列
+        () => {
+            const start = Math.floor(Math.random() * 5) + 1;
+            const diff = Math.floor(Math.random() * 3) + 1;
+            for(let i = 0; i < 4; i++) {
+                patternSequence.push(start + i * diff);
+            }
+            patternAnswer = start + 4 * diff;
+        },
+        // 倍数关系
+        () => {
+            const start = Math.floor(Math.random() * 3) + 1;
+            const multiplier = Math.floor(Math.random() * 2) + 2;
+            for(let i = 0; i < 4; i++) {
+                patternSequence.push(start * Math.pow(multiplier, i));
+            }
+            patternAnswer = start * Math.pow(multiplier, 4);
+        },
+        // 交替加减
+        () => {
+            const start = Math.floor(Math.random() * 5) + 1;
+            const add = Math.floor(Math.random() * 2) + 1;
+            const subtract = Math.floor(Math.random() * 2) + 1;
+            let current = start;
+            for(let i = 0; i < 4; i++) {
+                patternSequence.push(current);
+                current = i % 2 === 0 ? current + add : current - subtract;
+            }
+            patternAnswer = current;
+        }
+    ];
+    
+    patterns[Math.floor(Math.random() * patterns.length)]();
+}
+
+// 生成形状规律
+function generateShapePattern() {
+    const shapes = ['★', '●', '■', '▲', '◆'];
+    const patterns = [
+        // 循环序列
+        () => {
+            const sequence = shapes.slice(0, 3);
+            for(let i = 0; i < 4; i++) {
+                patternSequence.push(sequence[i % 3]);
+            }
+            patternAnswer = sequence[0];
+        },
+        // 交替序列
+        () => {
+            const shape1 = shapes[Math.floor(Math.random() * shapes.length)];
+            const shape2 = shapes[Math.floor(Math.random() * shapes.length)];
+            for(let i = 0; i < 4; i++) {
+                patternSequence.push(i % 2 === 0 ? shape1 : shape2);
+            }
+            patternAnswer = shape1;
+        }
+    ];
+    
+    patterns[Math.floor(Math.random() * patterns.length)]();
+}
+
+// 生成颜色规律
+function generateColorPattern() {
+    const colors = ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF'];
+    const patterns = [
+        // 循环序列
+        () => {
+            const sequence = colors.slice(0, 3);
+            for(let i = 0; i < 4; i++) {
+                patternSequence.push(sequence[i % 3]);
+            }
+            patternAnswer = sequence[0];
+        },
+        // 交替序列
+        () => {
+            const color1 = colors[Math.floor(Math.random() * colors.length)];
+            const color2 = colors[Math.floor(Math.random() * colors.length)];
+            for(let i = 0; i < 4; i++) {
+                patternSequence.push(i % 2 === 0 ? color1 : color2);
+            }
+            patternAnswer = color1;
+        }
+    ];
+    
+    patterns[Math.floor(Math.random() * patterns.length)]();
+}
+
+// 更新规律显示
+function updatePatternDisplay() {
+    const sequenceContainer = document.querySelector('.pattern-sequence');
+    const optionsContainer = document.querySelector('.pattern-options');
+    
+    // 清空容器
+    sequenceContainer.innerHTML = '';
+    optionsContainer.innerHTML = '';
+    
+    // 显示序列
+    patternSequence.forEach(item => {
+        const element = document.createElement('div');
+        element.className = `pattern-item ${currentPatternType}`;
+        if(currentPatternType === 'color') {
+            element.style.backgroundColor = item;
+        } else {
+            element.textContent = item;
+        }
+        sequenceContainer.appendChild(element);
+    });
+    
+    // 生成选项
+    const options = generateOptions();
+    options.forEach(option => {
+        const element = document.createElement('div');
+        element.className = `pattern-item ${currentPatternType}`;
+        if(currentPatternType === 'color') {
+            element.style.backgroundColor = option;
+        } else {
+            element.textContent = option;
+        }
+        element.onclick = () => selectOption(option);
+        optionsContainer.appendChild(element);
+    });
+}
+
+// 生成选项
+function generateOptions() {
+    const options = [patternAnswer];
+    const count = currentPatternDifficulty === 'easy' ? 3 : 
+                 currentPatternDifficulty === 'medium' ? 4 : 5;
+    
+    while(options.length < count) {
+        let option;
+        if(currentPatternType === 'number') {
+            option = Math.floor(Math.random() * 10) + 1;
+        } else if(currentPatternType === 'shape') {
+            option = ['★', '●', '■', '▲', '◆'][Math.floor(Math.random() * 5)];
+        } else {
+            option = ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF'][Math.floor(Math.random() * 5)];
+        }
+        if(!options.includes(option)) {
+            options.push(option);
+        }
+    }
+    
+    return shuffleArray(options);
+}
+
+// 选择选项
+function selectOption(option) {
+    selectedOption = option;
+    updateOptionSelection();
+}
+
+// 更新选项选择状态
+function updateOptionSelection() {
+    const options = document.querySelectorAll('.pattern-options .pattern-item');
+    options.forEach(option => {
+        option.classList.remove('selected');
+        const value = currentPatternType === 'color' ? 
+                     option.style.backgroundColor : 
+                     option.textContent;
+        if(value === selectedOption) {
+            option.classList.add('selected');
+        }
+    });
+}
+
+// 检查答案
+function checkPatternAnswer() {
+    const resultElement = document.getElementById('pattern-result');
+    if(!selectedOption) {
+        resultElement.textContent = '请选择一个答案！';
+        resultElement.className = 'pattern-result error';
+        return;
+    }
+    
+    if(selectedOption === patternAnswer) {
+        resultElement.textContent = '太棒了！答对了！';
+        resultElement.className = 'pattern-result success';
+        setTimeout(() => {
+            initPatternGame();
+        }, 1500);
+    } else {
+        resultElement.textContent = '再试一次吧！';
+        resultElement.className = 'pattern-result error';
+    }
+}
+
+// 设置难度
+function setPatternDifficulty(difficulty) {
+    currentPatternDifficulty = difficulty;
+    initPatternGame();
+}
+
+// 数组洗牌函数
+function shuffleArray(array) {
+    for(let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+// 分成练习相关变量
+let currentDivisionNumber = 0;
+let selectedOptions = [];
+let divisionHistory = JSON.parse(localStorage.getItem('divisionHistory')) || {};
+
+// 艾宾浩斯复习时间点（分钟）
+const REVIEW_INTERVALS = [5, 30, 60, 180, 360, 720, 1440, 2880, 4320, 7200];
+
+// 记录分成练习答案
+function recordDivisionAnswer(isCorrect) {
+    const now = new Date();
+    const record = {
+        timestamp: now.getTime(),
+        isCorrect: isCorrect,
+        options: [...selectedOptions]
+    };
+
+    if (!divisionHistory[currentDivisionNumber]) {
+        divisionHistory[currentDivisionNumber] = {
+            records: [],
+            reviewStage: 0,
+            nextReviewTime: now.getTime() + REVIEW_INTERVALS[0] * 60 * 1000
+        };
+    }
+
+    divisionHistory[currentDivisionNumber].records.push(record);
+    
+    // 更新复习阶段
+    if (isCorrect) {
+        const currentStage = divisionHistory[currentDivisionNumber].reviewStage;
+        if (currentStage < REVIEW_INTERVALS.length - 1) {
+            divisionHistory[currentDivisionNumber].reviewStage++;
+            divisionHistory[currentDivisionNumber].nextReviewTime = 
+                now.getTime() + REVIEW_INTERVALS[currentStage + 1] * 60 * 1000;
+        }
+    } else {
+        // 答错时重置复习阶段
+        divisionHistory[currentDivisionNumber].reviewStage = 0;
+        divisionHistory[currentDivisionNumber].nextReviewTime = 
+            now.getTime() + REVIEW_INTERVALS[0] * 60 * 1000;
+    }
+
+    localStorage.setItem('divisionHistory', JSON.stringify(divisionHistory));
+}
+
+// 获取需要复习的数字
+function getNumbersNeedingReview() {
+    const now = new Date().getTime();
+    return Object.entries(divisionHistory)
+        .filter(([_, data]) => data.nextReviewTime <= now)
+        .map(([number, _]) => parseInt(number));
+}
+
+// 获取数字的练习准确率
+function getNumberAccuracy(number) {
+    const records = divisionHistory[number]?.records || [];
+    if (records.length === 0) return 0;
+    
+    const correctCount = records.filter(r => r.isCorrect).length;
+    return (correctCount / records.length) * 100;
+}
+
+// 初始化分成练习页面
+function initDivisionPage() {
+    currentDivisionNumber = 0;
+    selectedOptions = [];
+    
+    // 获取需要复习的数字
+    const numbersNeedingReview = getNumbersNeedingReview();
+    
+    // 如果有需要复习的数字，优先选择准确率最低的
+    if (numbersNeedingReview.length > 0) {
+        numbersNeedingReview.sort((a, b) => 
+            getNumberAccuracy(a) - getNumberAccuracy(b)
+        );
+        currentDivisionNumber = numbersNeedingReview[0];
+    } else {
+        // 如果没有需要复习的数字，随机生成一个新的
+        currentDivisionNumber = Math.floor(Math.random() * 9) + 2; // 2-10之间的数字
+    }
+    
+    updateDivisionDisplay();
+}
+
+// 显示分成练习历史记录
+function showDivisionHistoryDialog() {
+    const dialog = document.getElementById('division-history-dialog');
+    const historyList = document.getElementById('division-history-list');
+    
+    // 清空历史记录列表
+    historyList.innerHTML = '';
+    
+    // 按最后练习时间排序
+    const sortedNumbers = Object.entries(divisionHistory)
+        .sort(([_, a], [__, b]) => {
+            const aLastRecord = a.records[a.records.length - 1];
+            const bLastRecord = b.records[b.records.length - 1];
+            return bLastRecord.timestamp - aLastRecord.timestamp;
+        });
+    
+    sortedNumbers.forEach(([number, data]) => {
+        const item = document.createElement('div');
+        item.className = 'division-history-item';
+        
+        const accuracy = getNumberAccuracy(number);
+        const lastRecord = data.records[data.records.length - 1];
+        const lastAttempt = new Date(lastRecord.timestamp);
+        const needsReview = data.nextReviewTime <= new Date().getTime();
+        
+        if (needsReview) {
+            item.classList.add('needs-review');
+        }
+        
+        item.innerHTML = `
+            <div class="problem">数字 ${number} 的分解练习</div>
+            <div class="stats">
+                <span>练习次数: ${data.records.length}</span>
+                <span class="accuracy">正确率: ${accuracy.toFixed(1)}%</span>
+            </div>
+            <div class="last-attempt">上次练习: ${lastAttempt.toLocaleString()}</div>
+            ${needsReview ? '<div class="review-tag">需要复习</div>' : ''}
+        `;
+        
+        historyList.appendChild(item);
+    });
+    
+    dialog.style.display = 'flex';
+}
+
+// 更新分成练习显示
+function updateDivisionDisplay() {
+    const numberDisplay = document.getElementById('division-number');
+    const optionsContainer = document.getElementById('division-options');
+    
+    // 显示数字
+    numberDisplay.textContent = currentDivisionNumber;
+    
+    // 清空选项容器
+    optionsContainer.innerHTML = '';
+    
+    // 生成选项
+    const options = generateDivisionOptions(currentDivisionNumber);
+    
+    // 创建选项元素
+    options.forEach(option => {
+        const element = document.createElement('div');
+        element.className = 'division-option';
+        element.textContent = option;
+        element.onclick = () => selectDivisionOption(option);
+        optionsContainer.appendChild(element);
+    });
+}
+
+// 选择分成选项
+function selectDivisionOption(option) {
+    const resultElement = document.getElementById('division-result');
+    
+    // 如果已经选中了这个选项，则取消选中
+    if (selectedOptions.includes(option)) {
+        selectedOptions = selectedOptions.filter(item => item !== option);
+        resultElement.textContent = '';
+        resultElement.className = 'division-result';
+    } else {
+        // 如果已经选中了两个选项，则不允许继续选择
+        if (selectedOptions.length >= 2) {
+            return;
+        }
+        selectedOptions.push(option);
+    }
+    
+    updateOptionSelection();
+    
+    // 只有当选中两个选项时才检查答案
+    if (selectedOptions.length === 2) {
+        checkDivisionAnswer();
+    }
+}
+
+// 更新选项选择状态
+function updateOptionSelection() {
+    const options = document.querySelectorAll('.division-option');
+    options.forEach(option => {
+        option.classList.remove('selected');
+        const value = parseInt(option.textContent);
+        if (selectedOptions.includes(value)) {
+            option.classList.add('selected');
+        }
+    });
+}
+
+// 检查分成答案
+function checkDivisionAnswer() {
+    if (selectedOptions.length !== 2) return;
+    
+    const resultElement = document.getElementById('division-result');
+    const sum = selectedOptions[0] + selectedOptions[1];
+    
+    if (sum === currentDivisionNumber) {
+        resultElement.textContent = `太棒了！${currentDivisionNumber} = ${selectedOptions[0]} + ${selectedOptions[1]}`;
+        resultElement.className = 'division-result success';
+        recordDivisionAnswer(true);
+        
+        // 使用 requestAnimationFrame 优化动画过渡
+        requestAnimationFrame(() => {
+            setTimeout(() => {
+                // 预先生成下一个数字
+                const nextNumber = getNextDivisionNumber();
+                // 预先生成选项
+                const nextOptions = generateDivisionOptions(nextNumber);
+                
+                // 更新显示
+                currentDivisionNumber = nextNumber;
+                selectedOptions = [];
+                
+                // 更新数字显示
+                document.getElementById('division-number').textContent = currentDivisionNumber;
+                
+                // 更新选项显示
+                const optionsContainer = document.getElementById('division-options');
+                optionsContainer.innerHTML = '';
+                nextOptions.forEach(option => {
+                    const element = document.createElement('div');
+                    element.className = 'division-option';
+                    element.textContent = option;
+                    element.onclick = () => selectDivisionOption(option);
+                    optionsContainer.appendChild(element);
+                });
+                
+                // 清除结果提示
+                resultElement.textContent = '';
+                resultElement.className = 'division-result';
+            }, 1000); // 减少等待时间到1秒
+        });
+    } else {
+        resultElement.textContent = `再试一次吧！${selectedOptions[0]} + ${selectedOptions[1]} = ${sum}，不等于 ${currentDivisionNumber}`;
+        resultElement.className = 'division-result error';
+        recordDivisionAnswer(false);
+        // 答错时清空选择，让用户重新选择
+        selectedOptions.length = 0;
+        updateOptionSelection();
+    }
+}
+
+// 获取下一个分成练习数字
+function getNextDivisionNumber() {
+    // 获取需要复习的数字
+    const numbersNeedingReview = getNumbersNeedingReview();
+    
+    // 如果有需要复习的数字，优先选择准确率最低的
+    if (numbersNeedingReview.length > 0) {
+        numbersNeedingReview.sort((a, b) => 
+            getNumberAccuracy(a) - getNumberAccuracy(b)
+        );
+        return numbersNeedingReview[0];
+    }
+    
+    // 如果没有需要复习的数字，随机生成一个新的
+    return Math.floor(Math.random() * 9) + 2; // 2-10之间的数字
+}
+
+// 生成分成练习选项
+function generateDivisionOptions(number) {
+    // 确保至少有一组正确答案
+    const correctOption1 = Math.floor(Math.random() * (number - 1)) + 1;
+    const correctOption2 = number - correctOption1;
+    
+    // 创建选项集合
+    const options = new Set([correctOption1, correctOption2]);
+    
+    // 添加更多随机选项，直到有6个选项
+    while (options.size < 6) {
+        const randomOption = Math.floor(Math.random() * (number - 1)) + 1;
+        if (randomOption !== correctOption1 && randomOption !== correctOption2) {
+            options.add(randomOption);
+        }
+    }
+    
+    // 将选项转换为数组并打乱顺序
+    return shuffleArray([...options]);
+}
+
+// 关闭分成练习记录
+function closeDivisionHistoryDialog() {
+    document.getElementById('division-history-dialog').style.display = 'none';
 }

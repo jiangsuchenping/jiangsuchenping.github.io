@@ -84,12 +84,47 @@
         <div id="math-page" class="page" style="display: none;">
             <h1>数学王国</h1>
             <div class="module-card">
+                <h3>分成练习</h3>
+                <p>学习数字的分解与组合</p>
+                <button class="btn" onclick="navigateTo('math-division')">开始练习</button>
+            </div>
+            <div class="module-card">
                 <h3>趣味计算</h3>
                 <p>20以内加减法，快乐练习</p>
                 <button class="btn" onclick="navigateTo('math-test')">开始练习</button>
             </div>
 
             <button class="btn" onclick="navigateTo('home')">返回首页</button>
+        </div>
+
+        <!-- 数学分成练习页面 -->
+        <div id="math-division-page" class="page" style="display: none;">
+            <h1>分成练习</h1>
+            <div class="division-container">
+                <div class="division-problem">
+                    <div class="number-display" id="division-number">?</div>
+                    <div class="division-hint">这个数可以分成：</div>
+                </div>
+                <div class="division-options" id="division-options">
+                    <!-- 选项将通过JavaScript动态生成 -->
+                </div>
+                <div class="division-result" id="division-result"></div>
+            </div>
+            <div class="button-group">
+                <button id="show-division-history-btn" class="btn">查看练习记录</button>
+                <button class="btn" onclick="navigateTo('math')">返回</button>
+            </div>
+        </div>
+
+        <!-- 分成练习记录弹窗 -->
+        <div id="division-history-dialog" class="dialog" style="display: none;">
+            <div class="dialog-content">
+                <h3>分成练习记录</h3>
+                <div id="division-history-list"></div>
+                <div class="dialog-buttons">
+                    <button class="btn" onclick="closeDivisionHistoryDialog()">关闭</button>
+                </div>
+            </div>
         </div>
 
         <!-- 数学20以内加减法测试页面 -->
@@ -139,55 +174,70 @@
             </div>
             <div class="game-container">
                 <div class="game-tabs">
-                    <button class="game-tab active" data-game="klotski">华容道</button>
-                    <button class="game-tab" data-game="memory">记忆配对</button>
-                    <button class="game-tab" data-game="puzzle">拼图游戏</button>
-                    <button class="game-tab" data-game="spot-difference">找不同</button>
+                    <div class="game-tab active" data-game="klotski">华容道</div>
+                    <div class="game-tab" data-game="memory">记忆配对</div>
+                    <div class="game-tab" data-game="sudoku">数独</div>
+                    <div class="game-tab" data-game="pattern">找规律</div>
                 </div>
                 
-                <!-- 华容道游戏 -->
-                <div id="klotski-game" class="game-section active">
-                    <div class="game-info">
-                        <div class="moves">移动次数: <span id="klotski-moves">0</span></div>
-                        <div class="time">用时: <span id="klotski-time">00:00</span></div>
+                <div class="game-sections">
+                    <div id="klotski-game" class="game-section active">
+                        <div class="game-info">
+                            <div class="moves">移动次数: <span id="klotski-moves">0</span></div>
+                            <div class="time">用时: <span id="klotski-time">00:00</span></div>
+                        </div>
+                        <div id="klotski-container" class="klotski-container"></div>
+                        <button id="restart-klotski-btn" class="btn">重新开始</button>
                     </div>
-                    <div id="klotski-container" class="klotski-container"></div>
-                    <button id="restart-klotski-btn" class="btn">重新开始</button>
-                </div>
-
-                <!-- 记忆配对游戏 -->
-                <div id="memory-game" class="game-section">
-                    <div class="game-info">
-                        <div class="moves">翻牌次数: <span id="memory-moves">0</span></div>
-                        <div class="pairs">配对成功: <span id="memory-pairs">0</span></div>
+                    
+                    <div id="memory-game" class="game-section">
+                        <div class="game-info">
+                            <div class="moves">翻牌次数: <span id="memory-moves">0</span></div>
+                            <div class="pairs">配对成功: <span id="memory-pairs">0</span></div>
+                        </div>
+                        <div id="memory-container" class="memory-container"></div>
+                        <button id="restart-memory-btn" class="btn">重新开始</button>
                     </div>
-                    <div id="memory-container" class="memory-container"></div>
-                    <button id="restart-memory-btn" class="btn">重新开始</button>
-                </div>
-
-                <!-- 拼图游戏 -->
-                <div id="puzzle-game" class="game-section">
-                    <div class="game-info">
-                        <div class="moves">移动次数: <span id="puzzle-moves">0</span></div>
-                        <div class="time">用时: <span id="puzzle-time">00:00</span></div>
-                    </div>
-                    <div id="puzzle-container" class="puzzle-container"></div>
-                    <button id="restart-puzzle-btn" class="btn">重新开始</button>
-                </div>
-
-                <!-- 找不同游戏 -->
-                <div id="spot-difference-game" class="game-section">
-                    <div class="game-info">
-                        <div class="differences">找到: <span id="differences-found">0</span>/5</div>
-                        <div class="time">用时: <span id="spot-difference-time">00:00</span></div>
-                    </div>
-                    <div id="spot-difference-container" class="spot-difference-container">
-                        <div class="image-container">
-                            <img src="img/spot-difference-1.png" alt="图片1" class="difference-image">
-                            <img src="img/spot-difference-2.png" alt="图片2" class="difference-image">
+                    
+                    <div id="sudoku-game" class="game-section">
+                        <div class="game-header">
+                            <h2>数独游戏</h2>
+                            <div class="difficulty-buttons">
+                                <button onclick="setSudokuDifficulty('easy')" class="difficulty-btn">简单</button>
+                                <button onclick="setSudokuDifficulty('medium')" class="difficulty-btn">中等</button>
+                                <button onclick="setSudokuDifficulty('hard')" class="difficulty-btn">困难</button>
+                            </div>
+                        </div>
+                        <div id="sudoku-board" class="sudoku-board"></div>
+                        <div class="game-controls">
+                            <button onclick="checkSudokuAnswer()">检查答案</button>
+                            <button onclick="initSudokuGame()">重新开始</button>
                         </div>
                     </div>
-                    <button id="restart-spot-difference-btn" class="btn">重新开始</button>
+                    
+                    <div id="pattern-game" class="game-section">
+                        <div class="game-header">
+                            <h2>找规律游戏</h2>
+                            <div class="game-instructions">
+                                <p>观察上面的图案，找出规律，选择正确的答案！</p>
+                                <p>规律可能是：数字的加减、形状的循环、颜色的交替等。</p>
+                            </div>
+                            <div class="difficulty-buttons">
+                                <button onclick="setPatternDifficulty('easy')" class="difficulty-btn">简单</button>
+                                <button onclick="setPatternDifficulty('medium')" class="difficulty-btn">中等</button>
+                                <button onclick="setPatternDifficulty('hard')" class="difficulty-btn">困难</button>
+                            </div>
+                        </div>
+                        <div class="pattern-container">
+                            <div class="pattern-sequence"></div>
+                            <div class="pattern-options"></div>
+                            <div class="game-controls">
+                                <button onclick="checkPatternAnswer()">检查答案</button>
+                                <button onclick="initPatternGame()">重新开始</button>
+                            </div>
+                            <div id="pattern-result" class="pattern-result"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -264,6 +314,8 @@
             initEnglishWordPage();
             // 初始化华容道游戏
             initKlotskiGame();
+            // 初始化分成练习页面
+            initDivisionPage();
         });
     </script>
 </body>
