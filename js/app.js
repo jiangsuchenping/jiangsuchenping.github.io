@@ -1089,12 +1089,15 @@ function showHistoryDialog() {
         }
     });
     
-    // 添加关闭按钮
-    const closeButton = document.createElement('div');
-    closeButton.className = 'close-button';
-    closeButton.innerHTML = '×';
-    closeButton.onclick = closeHistoryDialog;
-    dialog.querySelector('.dialog-content').appendChild(closeButton);
+    // 检查是否已存在关闭按钮
+    if (!dialog.querySelector('.close-button')) {
+        // 添加关闭按钮
+        const closeButton = document.createElement('div');
+        closeButton.className = 'close-button';
+        closeButton.innerHTML = '×';
+        closeButton.onclick = closeHistoryDialog;
+        dialog.querySelector('.dialog-content').appendChild(closeButton);
+    }
 }
 
 /**
@@ -1102,6 +1105,10 @@ function showHistoryDialog() {
  */
 function closeHistoryDialog() {
     const dialog = document.getElementById('history-dialog');
+    const closeButton = dialog.querySelector('.close-button');
+    if (closeButton) {
+        closeButton.remove();
+    }
     dialog.style.display = 'none';
     isHistoryDialogOpen = false;
 }
@@ -1166,12 +1173,15 @@ function showChineseHistoryDialog() {
         }
     });
     
-    // 添加关闭按钮
-    const closeButton = document.createElement('div');
-    closeButton.className = 'close-button';
-    closeButton.innerHTML = '×';
-    closeButton.onclick = closeChineseHistoryDialog;
-    dialog.querySelector('.dialog-content').appendChild(closeButton);
+    // 检查是否已存在关闭按钮
+    if (!dialog.querySelector('.close-button')) {
+        // 添加关闭按钮
+        const closeButton = document.createElement('div');
+        closeButton.className = 'close-button';
+        closeButton.innerHTML = '×';
+        closeButton.onclick = closeChineseHistoryDialog;
+        dialog.querySelector('.dialog-content').appendChild(closeButton);
+    }
 }
 
 /**
@@ -1179,6 +1189,10 @@ function showChineseHistoryDialog() {
  */
 function closeChineseHistoryDialog() {
     const dialog = document.getElementById('chinese-history-dialog');
+    const closeButton = dialog.querySelector('.close-button');
+    if (closeButton) {
+        closeButton.remove();
+    }
     dialog.style.display = 'none';
 }
 
@@ -1478,12 +1492,15 @@ function showEnglishHistoryDialog() {
         }
     });
     
-    // 添加关闭按钮
-    const closeButton = document.createElement('div');
-    closeButton.className = 'close-button';
-    closeButton.innerHTML = '×';
-    closeButton.onclick = closeEnglishHistoryDialog;
-    dialog.querySelector('.dialog-content').appendChild(closeButton);
+    // 检查是否已存在关闭按钮
+    if (!dialog.querySelector('.close-button')) {
+        // 添加关闭按钮
+        const closeButton = document.createElement('div');
+        closeButton.className = 'close-button';
+        closeButton.innerHTML = '×';
+        closeButton.onclick = closeEnglishHistoryDialog;
+        dialog.querySelector('.dialog-content').appendChild(closeButton);
+    }
 }
 
 /**
@@ -1491,6 +1508,10 @@ function showEnglishHistoryDialog() {
  */
 function closeEnglishHistoryDialog() {
     const dialog = document.getElementById('english-history-dialog');
+    const closeButton = dialog.querySelector('.close-button');
+    if (closeButton) {
+        closeButton.remove();
+    }
     dialog.style.display = 'none';
 }
 
@@ -1787,51 +1808,14 @@ let gameTimeHistory = JSON.parse(localStorage.getItem('gameTimeHistory')) || {
  * @param {number} minutes - 本次游戏时长（分钟）
  */
 function recordGameTime(minutes) {
-    gameTimeHistory.totalTime += minutes;
-    gameTimeHistory.lastPlayTime = new Date().toISOString();
-    
-    // 计算下次可游戏时间
-    calculateNextGameTime();
-    
-    // 保存到本地存储
-    localStorage.setItem('gameTimeHistory', JSON.stringify(gameTimeHistory));
+    // 不再记录游戏时间
 }
 
 /**
  * 计算下次可游戏时间
  */
 function calculateNextGameTime() {
-    const now = new Date();
-    
-    // 获取各模块的学习情况
-    const chineseProgress = getModuleProgress(chineseWordHistory);
-    const mathProgress = getModuleProgress(mathProblemHistory);
-    const englishProgress = getModuleProgress(englishWordHistory);
-    
-    // 计算总体学习进度（0-100）
-    const totalProgress = (chineseProgress + mathProgress + englishProgress) / 3;
-    
-    // 根据学习进度和游戏时间计算下次可游戏时间
-    let nextInterval;
-    if (totalProgress >= 80) {
-        // 学习进度很好，1小时后可以再玩
-        nextInterval = 60;
-    } else if (totalProgress >= 60) {
-        // 学习进度一般，2小时后可以再玩
-        nextInterval = 120;
-    } else {
-        // 学习进度较差，4小时后可以再玩
-        nextInterval = 240;
-    }
-    
-    // 如果今天游戏时间超过2小时，增加等待时间
-    const todayGameTime = getTodayGameTime();
-    if (todayGameTime >= 120) {
-        nextInterval = Math.max(nextInterval, 240); // 至少4小时
-    }
-    
-    // 设置下次可游戏时间
-    gameTimeHistory.nextPlayTime = new Date(now.getTime() + nextInterval * 60 * 1000).toISOString();
+    // 不再计算下次游戏时间
 }
 
 /**
@@ -1840,21 +1824,8 @@ function calculateNextGameTime() {
  * @returns {number} - 学习进度（0-100）
  */
 function getModuleProgress(history) {
-    if (!history || Object.keys(history).length === 0) return 0;
-    
-    let totalProgress = 0;
-    let count = 0;
-    
-    Object.values(history).forEach(record => {
-        if (record.totalAttempts > 0) {
-            const accuracy = record.correctAttempts / record.totalAttempts;
-            const stageProgress = (record.reviewStage + 1) / EBBINGHAUS_INTERVALS.length;
-            totalProgress += (accuracy * 0.7 + stageProgress * 0.3) * 100;
-            count++;
-        }
-    });
-    
-    return count > 0 ? totalProgress / count : 0;
+    // 不再计算学习进度
+    return 100;
 }
 
 /**
@@ -1862,15 +1833,8 @@ function getModuleProgress(history) {
  * @returns {number} - 今天的游戏时间
  */
 function getTodayGameTime() {
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    
-    if (!gameTimeHistory.lastPlayTime) return 0;
-    
-    const lastPlay = new Date(gameTimeHistory.lastPlayTime);
-    if (lastPlay < today) return 0;
-    
-    return gameTimeHistory.totalTime;
+    // 不再获取今日游戏时间
+    return 0;
 }
 
 /**
@@ -1878,13 +1842,8 @@ function getTodayGameTime() {
  * @returns {boolean} - 是否可以开始游戏
  */
 function canStartGame() {
-    const now = new Date();
-    if (!gameTimeHistory.nextPlayTime) {
-        calculateNextGameTime();
-    }
-    
-    const nextPlay = new Date(gameTimeHistory.nextPlayTime);
-    return now >= nextPlay;
+    // 始终允许开始游戏
+    return true;
 }
 
 /**
@@ -1892,25 +1851,8 @@ function canStartGame() {
  * @returns {string} - 下次可游戏时间描述
  */
 function getNextGameTime() {
-    const now = new Date();
-    if (!gameTimeHistory.nextPlayTime) {
-        calculateNextGameTime();
-    }
-    
-    const nextPlay = new Date(gameTimeHistory.nextPlayTime);
-    if (now >= nextPlay) {
-        return "现在";
-    }
-    
-    const diff = nextPlay - now;
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    
-    if (hours > 0) {
-        return `${hours}小时${minutes}分钟后`;
-    } else {
-        return `${minutes}分钟后`;
-    }
+    // 始终返回"现在"
+    return "现在";
 }
 
 /**
@@ -1923,88 +1865,6 @@ function initKlotskiGame() {
     const timeDisplay = document.getElementById('klotski-time');
     
     if (!container) return;
-    
-    // 检查是否可以开始游戏
-    if (!canStartGame()) {
-        const gameContainer = document.querySelector('.game-container');
-        if (gameContainer) {
-            gameContainer.innerHTML = '';
-            const restMessage = document.createElement('div');
-            restMessage.className = 'word-card';
-            restMessage.innerHTML = `
-                <div class="word">休息一下</div>
-                <div class="pinyin">xiū xi yí xià</div>
-                <div class="example">游戏时间已用完，请先完成学习任务！</div>
-                <div class="review-info">下次游戏时间：<span class="next-review-time">${getNextGameTime()}</span></div>
-            `;
-            gameContainer.appendChild(restMessage);
-            
-            // 清除之前的定时器
-            if (window.timeUpdateInterval) {
-                clearInterval(window.timeUpdateInterval);
-            }
-            
-            // 更新显示的时间
-            function updateTimeDisplay() {
-                const nextPlay = new Date(gameTimeHistory.nextPlayTime);
-                const now = new Date();
-                const diff = nextPlay - now;
-                
-                // 如果时间差小于等于0，恢复游戏
-                if (diff <= 0) {
-                    clearInterval(window.timeUpdateInterval);
-                    initKlotskiGame();
-                    return;
-                }
-                
-                const hours = Math.floor(diff / (1000 * 60 * 60));
-                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-                
-                const timeElement = restMessage.querySelector('.next-review-time');
-                if (timeElement) {
-                    if (hours > 0) {
-                        timeElement.textContent = `${hours}小时${minutes}分钟后`;
-                    } else if (minutes > 0) {
-                        timeElement.textContent = `${minutes}分钟后`;
-                    } else {
-                        timeElement.textContent = `${seconds}秒后`;
-                    }
-                }
-                
-                // 如果剩余时间小于1分钟，使用1秒的更新间隔
-                if (diff < 60000) {
-                    clearInterval(window.timeUpdateInterval);
-                    window.timeUpdateInterval = setInterval(updateTimeDisplay, 1000);
-                }
-            }
-            
-            // 初始更新显示
-            updateTimeDisplay();
-            
-            // 添加定时器，每分钟更新一次时间
-            window.timeUpdateInterval = setInterval(updateTimeDisplay, 60000);
-            
-            // 当页面隐藏时清除定时器
-            document.addEventListener('visibilitychange', () => {
-                if (document.hidden) {
-                    clearInterval(window.timeUpdateInterval);
-                } else {
-                    // 页面重新显示时，立即更新一次时间
-                    updateTimeDisplay();
-                    // 重新设置定时器
-                    const nextPlay = new Date(gameTimeHistory.nextPlayTime);
-                    const diff = nextPlay - new Date();
-                    if (diff < 60000) {
-                        window.timeUpdateInterval = setInterval(updateTimeDisplay, 1000);
-                    } else {
-                        window.timeUpdateInterval = setInterval(updateTimeDisplay, 60000);
-                    }
-                }
-            });
-        }
-        return;
-    }
     
     // 重置游戏状态
     klotskiMoves = 0;
@@ -2107,10 +1967,6 @@ function moveKlotskiPiece() {
         // 检查是否完成
         if (isKlotskiComplete()) {
             clearInterval(klotskiTimerInterval);
-            // 记录游戏时间
-            const elapsedMinutes = Math.ceil((Date.now() - klotskiStartTime) / (1000 * 60));
-            recordGameTime(elapsedMinutes);
-            
             setTimeout(() => {
                 alert(`恭喜你完成了华容道！\n用时：${document.getElementById('klotski-time').textContent}\n移动次数：${klotskiMoves}`);
             }, 500);
@@ -2161,11 +2017,6 @@ function updateKlotskiTimer() {
     const minutes = Math.floor(elapsed / 60).toString().padStart(2, '0');
     const seconds = (elapsed % 60).toString().padStart(2, '0');
     timeDisplay.textContent = `${minutes}:${seconds}`;
-    
-    // 每完成一分钟记录一次游戏时间
-    if (elapsed % 60 === 0) {
-        recordGameTime(1);
-    }
 }
 
 /**
