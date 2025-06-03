@@ -89,9 +89,13 @@ header, footer {
   grid-template-columns: repeat(2, 1fr);
   gap: 1em;
   margin: 2em 0;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
 }
-.option-btn {
-  background: #fff9c4;
+.options button {
+  background: #6ec6ff;
+  color: white;
   border: none;
   border-radius: 0.5em;
   padding: 1em;
@@ -99,8 +103,8 @@ header, footer {
   cursor: pointer;
   transition: background 0.2s;
 }
-.option-btn:hover {
-  background: #fff176;
+.options button:hover {
+  background: #4fc3f7;
 }
 .score {
   text-align: center;
@@ -314,4 +318,64 @@ header, footer {
     font-size: 1em;
     padding: 0.6em 1em;
   }
+}
+
+.history-section {
+  margin: 20px 0;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.history-section h3 {
+  color: #2c3e50;
+  margin-bottom: 15px;
+  font-size: 1.2em;
+  text-align: center;
+}
+
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  font-size: 0.9em;
+}
+
+.history-table th,
+.history-table td {
+  padding: 8px;
+  text-align: center;
+  border: 1px solid #dee2e6;
+}
+
+.history-table th {
+  background-color: #e9ecef;
+  color: #495057;
+  font-weight: bold;
+}
+
+.history-table tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.history-table tr:hover {
+  background-color: #e9ecef;
+}
+
+.no-history {
+  text-align: center;
+  color: #6c757d;
+  font-style: italic;
+  padding: 20px;
+}
+
+.problem-display {
+  text-align: center;
+  font-size: 2.5em;
+  margin: 1.5em 0;
+  padding: 1em;
+  background: #fff9c4;
+  border-radius: 1em;
+  box-shadow: 0 2px 8px #eee;
 } 
