@@ -446,11 +446,20 @@
         }
         .history-list {
           margin-top: 10px;
+          max-height: 300px;
+          overflow-y: auto;
+          position: relative;
         }
         .history-table {
           width: 100%;
           border-collapse: collapse;
           margin-top: 10px;
+        }
+        .history-table thead {
+          position: sticky;
+          top: 0;
+          z-index: 1;
+          background: #f0f0f0;
         }
         .history-table th,
         .history-table td {
@@ -467,6 +476,25 @@
         }
         .history-table tr:hover {
           background-color: #f0f0f0;
+        }
+        .history-table th.sortable {
+          cursor: pointer;
+          user-select: none;
+          position: relative;
+          padding-right: 20px;
+        }
+        .history-table th.sortable:hover {
+          background-color: #e0e0e0;
+        }
+        .history-table th.ascending::after {
+          content: " ↑";
+          position: absolute;
+          right: 5px;
+        }
+        .history-table th.descending::after {
+          content: " ↓";
+          position: absolute;
+          right: 5px;
         }
         .rest-message {
           text-align: center;
@@ -493,6 +521,21 @@
         }
         .return-btn:hover {
           background: #1976D2;
+        }
+        /* 自定义滚动条样式 */
+        .history-list::-webkit-scrollbar {
+          width: 8px;
+        }
+        .history-list::-webkit-scrollbar-track {
+          background: #f1f1f1;
+          border-radius: 4px;
+        }
+        .history-list::-webkit-scrollbar-thumb {
+          background: #888;
+          border-radius: 4px;
+        }
+        .history-list::-webkit-scrollbar-thumb:hover {
+          background: #555;
         }
       `;
       document.head.appendChild(style);
