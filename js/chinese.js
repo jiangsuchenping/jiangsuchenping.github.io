@@ -128,6 +128,26 @@
     }
   }
 
+  // 从本地存储加载排序设置
+  function loadSortSettings() {
+    try {
+      const settings = localStorage.getItem('chineseSortSettings');
+      return settings ? JSON.parse(settings) : { field: 'lastTestTime', direction: 'desc' };
+    } catch (error) {
+      console.error('加载排序设置失败:', error);
+      return { field: 'lastTestTime', direction: 'desc' };
+    }
+  }
+
+  // 保存排序设置到本地存储
+  function saveSortSettings(field, direction) {
+    try {
+      localStorage.setItem('chineseSortSettings', JSON.stringify({ field, direction }));
+    } catch (error) {
+      console.error('保存排序设置失败:', error);
+    }
+  }
+
   // 获取下一个复习时间
   function getNextReviewTime(round) {
     const now = new Date();
@@ -521,15 +541,18 @@
             .sort((a, b) => new Date(b.lastTestTime) - new Date(a.lastTestTime));
           
           if (history.length > 0) {
+            // 获取上次的排序设置
+            const sortSettings = loadSortSettings();
+            
             historyList.innerHTML = `
               <table class="history-table">
                 <thead>
                   <tr>
-                    <th class="sortable" data-sort="character" title="点击按汉字排序">汉字 ↕</th>
-                    <th class="sortable" data-sort="totalTests" title="点击按练习次数排序">练习次数 ↕</th>
-                    <th class="sortable" data-sort="accuracy" title="点击按正确率排序">正确率 ↕</th>
-                    <th class="sortable ascending" data-sort="lastTestTime" title="点击按上次练习时间排序">上次练习 ↓</th>
-                    <th class="sortable" data-sort="nextReviewTime" title="点击按下次复习时间排序">下次复习 ↕</th>
+                    <th class="sortable" data-sort="character" title="点击按汉字排序">汉字</th>
+                    <th class="sortable" data-sort="totalTests" title="点击按练习次数排序">练习次数</th>
+                    <th class="sortable" data-sort="accuracy" title="点击按正确率排序">正确率</th>
+                    <th class="sortable" data-sort="lastTestTime" title="点击按上次练习时间排序">上次练习</th>
+                    <th class="sortable" data-sort="nextReviewTime" title="点击按下次复习时间排序">下次复习</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -546,6 +569,45 @@
               </table>
             `;
 
+            // 应用上次的排序设置
+            const lastSortHeader = historyList.querySelector(`th[data-sort="${sortSettings.field}"]`);
+            if (lastSortHeader) {
+              // 设置初始排序状态
+              lastSortHeader.classList.add(sortSettings.direction === 'asc' ? 'ascending' : 'descending');
+              
+              // 直接排序数据，而不是触发点击事件
+              const sortedHistory = [...history].sort((a, b) => {
+                let valueA = a[sortSettings.field];
+                let valueB = b[sortSettings.field];
+                
+                if (sortSettings.field === 'lastTestTime' || sortSettings.field === 'nextReviewTime') {
+                  valueA = new Date(valueA).getTime();
+                  valueB = new Date(valueB).getTime();
+                } else if (sortSettings.field === 'totalTests' || sortSettings.field === 'accuracy') {
+                  valueA = Number(valueA);
+                  valueB = Number(valueB);
+                }
+                
+                if (sortSettings.direction === 'asc') {
+                  return valueA > valueB ? 1 : -1;
+                } else {
+                  return valueA < valueB ? 1 : -1;
+                }
+              });
+              
+              // 更新表格内容
+              const tbody = historyList.querySelector('tbody');
+              tbody.innerHTML = sortedHistory.map(item => `
+                <tr>
+                  <td>${item.character}</td>
+                  <td>${item.totalTests}</td>
+                  <td>${item.accuracy}%</td>
+                  <td>${item.lastTestTime}</td>
+                  <td>${item.nextReviewTime}</td>
+                </tr>
+              `).join('');
+            }
+
             // 添加表头排序事件监听
             const headers = historyList.querySelectorAll('th.sortable');
             headers.forEach(header => {
@@ -553,15 +615,16 @@
                 const field = header.dataset.sort;
                 const currentDirection = header.classList.contains('ascending') ? 'desc' : 'asc';
                 
+                // 保存排序设置
+                saveSortSettings(field, currentDirection);
+                
                 // 移除所有表头的排序状态
                 headers.forEach(h => {
                   h.classList.remove('ascending', 'descending');
-                  h.textContent = h.textContent.replace(/ [↑↓]/, '') + ' ↕';
                 });
                 
                 // 添加当前排序状态
                 header.classList.add(currentDirection === 'asc' ? 'ascending' : 'descending');
-                header.textContent = header.textContent.replace(/ [↑↓]/, '') + (currentDirection === 'asc' ? ' ↑' : ' ↓');
                 
                 // 重新排序数据
                 const sortedHistory = [...history].sort((a, b) => {
@@ -596,12 +659,6 @@
                 `).join('');
               });
             });
-
-            // 默认触发"上次练习"列的排序
-            const lastTestTimeHeader = historyList.querySelector('th[data-sort="lastTestTime"]');
-            if (lastTestTimeHeader) {
-              lastTestTimeHeader.click();
-            }
           } else {
             historyList.innerHTML = '<p class="no-history">还没有练习记录哦，开始练习吧！</p>';
           }
@@ -736,4 +793,4 @@ function showCharacterCard(char) {
 
   container.querySelector('.learn-btn').addEventListener('click', () => window.handleChineseAnswer(true));
   container.querySelector('.forget-btn').addEventListener('click', () => window.handleChineseAnswer(false));
-} 
+}
