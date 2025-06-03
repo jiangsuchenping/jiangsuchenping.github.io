@@ -148,6 +148,40 @@
     }
   }
 
+  // 从本地存储加载每日学习量设置
+  function loadDailyLimit() {
+    try {
+      const limit = localStorage.getItem('chineseDailyLimit');
+      return limit ? parseInt(limit) : 20; // 默认20个
+    } catch (error) {
+      console.error('加载每日学习量设置失败:', error);
+      return 20;
+    }
+  }
+
+  // 保存每日学习量设置到本地存储
+  function saveDailyLimit(limit) {
+    try {
+      localStorage.setItem('chineseDailyLimit', limit.toString());
+    } catch (error) {
+      console.error('保存每日学习量设置失败:', error);
+    }
+  }
+
+  // 获取今日已学习的汉字数量
+  function getTodayLearnedCount() {
+    try {
+      const data = loadPracticeData();
+      const today = new Date().toDateString();
+      return Object.values(data).filter(item => 
+        new Date(item.lastTestTime).toDateString() === today
+      ).length;
+    } catch (error) {
+      console.error('获取今日学习数量失败:', error);
+      return 0;
+    }
+  }
+
   // 获取下一个复习时间
   function getNextReviewTime(round) {
     const now = new Date();
@@ -204,6 +238,13 @@
     try {
       const data = loadPracticeData();
       const now = new Date();
+      const dailyLimit = loadDailyLimit();
+      const todayLearned = getTodayLearnedCount();
+      const remainingToday = Math.max(0, dailyLimit - todayLearned);
+      
+      if (remainingToday === 0) {
+        return []; // 今日已达到学习上限
+      }
       
       // 首先获取所有需要复习的汉字（根据艾宾浩斯记忆法计算的时间）
       const reviewCharacters = Object.entries(data)
@@ -225,7 +266,7 @@
       if (reviewCharacters.length > 0) {
         // 按照正确率从低到高排序，优先练习正确率低的汉字
         reviewCharacters.sort((a, b) => a.accuracy - b.accuracy);
-        return reviewCharacters.slice(0, 10); // 最多返回10个汉字
+        return reviewCharacters.slice(0, remainingToday);
       }
       
       // 如果没有需要复习的汉字，从字库中找出未学习的汉字
@@ -234,9 +275,9 @@
         .filter(char => !learnedCharacters.has(char));
       
       if (unlearnedCharacters.length > 0) {
-        // 随机选择10个未学习的汉字
+        // 随机选择未学习的汉字
         const selectedCharacters = [];
-        const maxChars = Math.min(10, unlearnedCharacters.length);
+        const maxChars = Math.min(remainingToday, unlearnedCharacters.length);
         
         for (let i = 0; i < maxChars; i++) {
           const randomIndex = Math.floor(Math.random() * unlearnedCharacters.length);
@@ -251,11 +292,11 @@
         return selectedCharacters;
       }
       
-      // 如果所有汉字都学习过了，随机返回10个已学习的汉字
+      // 如果所有汉字都学习过了，随机返回已学习的汉字
       const allCharacters = Object.keys(data);
       if (allCharacters.length === 0) {
         // 如果没有学习记录，返回一些基础汉字
-        return COMMON_CHARACTERS.split('').slice(0, 10).map(char => ({
+        return COMMON_CHARACTERS.split('').slice(0, remainingToday).map(char => ({
           character: char,
           round: 0,
           accuracy: 0
@@ -263,7 +304,7 @@
       }
       
       const randomCharacters = [];
-      const maxChars = Math.min(10, allCharacters.length);
+      const maxChars = Math.min(remainingToday, allCharacters.length);
       
       for (let i = 0; i < maxChars; i++) {
         const randomIndex = Math.floor(Math.random() * allCharacters.length);
@@ -315,215 +356,12 @@
       }
 
       const characters = getCharactersToPractice();
-      if (!characters || characters.length === 0) {
-        container.innerHTML = `
-          <h2>语文乐园</h2>
-          <p>加载失败，请刷新页面重试。</p>
-          <button class="return-btn" onclick="window.showModule('')">返回首页</button>
-        `;
-        return;
-      }
+      const dailyLimit = loadDailyLimit();
+      const todayLearned = getTodayLearnedCount();
+      const remainingToday = Math.max(0, dailyLimit - todayLearned);
 
-      // 随机选择一个汉字
-      const randomIndex = Math.floor(Math.random() * characters.length);
-      currentCharacter = characters[randomIndex];
-      
-      if (!currentCharacter || !currentCharacter.character) {
-        container.innerHTML = `
-          <h2>语文乐园</h2>
-          <p>加载失败，请刷新页面重试。</p>
-          <button class="return-btn" onclick="window.showModule('')">返回首页</button>
-        `;
-        return;
-      }
-
-      container.innerHTML = `
-        <h2>语文乐园</h2>
-        <div class="character-display">
-          <div class="character">${currentCharacter.character}</div>
-          <div class="pinyin">${getPinyin(currentCharacter.character)}</div>
-        </div>
-        <div class="options">
-          <button class="learn-btn" onclick="window.handleChineseAnswer(true)">认识</button>
-          <button class="forget-btn" onclick="window.handleChineseAnswer(false)">不认识</button>
-        </div>
-        <div class="feedback"></div>
-        <div class="history-section">
-          <h3>练习历史（点击表头可排序）</h3>
-          <div class="history-list"></div>
-        </div>
-        <button class="return-btn" onclick="window.showModule('')">返回首页</button>
-      `;
-
-      // 添加样式
-      const style = document.createElement('style');
-      style.textContent = `
-        .character-display {
-          text-align: center;
-          margin: 30px 0;
-          padding: 20px;
-          background: #fff;
-          border-radius: 10px;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 10px;
-        }
-        .character {
-          font-size: 72px;
-          color: #333;
-          line-height: 1;
-          margin-bottom: 5px;
-        }
-        .pinyin {
-          font-size: 24px;
-          color: #666;
-          margin-top: 5px;
-          font-weight: 500;
-        }
-        .options {
-          display: flex;
-          justify-content: center;
-          gap: 20px;
-          margin: 20px auto;
-          max-width: 400px;
-        }
-        .options button {
-          padding: 15px 40px;
-          font-size: 20px;
-          border: none;
-          border-radius: 5px;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          flex: 1;
-          max-width: 180px;
-        }
-        .learn-btn {
-          background: #4CAF50;
-          color: white;
-        }
-        .learn-btn:hover {
-          background: #45a049;
-          transform: translateY(-2px);
-        }
-        .forget-btn {
-          background: #f44336;
-          color: white;
-        }
-        .forget-btn:hover {
-          background: #d32f2f;
-          transform: translateY(-2px);
-        }
-        .feedback {
-          text-align: center;
-          margin: 20px 0;
-          min-height: 30px;
-          font-size: 24px;
-          font-weight: bold;
-        }
-        .feedback.correct {
-          color: #4CAF50;
-        }
-        .feedback.wrong {
-          color: #f44336;
-        }
-        .history-section {
-          margin-top: 30px;
-          padding: 20px;
-          background: #f5f5f5;
-          border-radius: 10px;
-        }
-        .history-list {
-          margin-top: 10px;
-          max-height: 300px;
-          overflow-y: auto;
-          position: relative;
-        }
-        .history-table {
-          width: 100%;
-          border-collapse: collapse;
-          margin-top: 10px;
-        }
-        .history-table thead {
-          position: sticky;
-          top: 0;
-          z-index: 1;
-          background: #f0f0f0;
-        }
-        .history-table th,
-        .history-table td {
-          padding: 10px;
-          text-align: center;
-          border: 1px solid #ddd;
-        }
-        .history-table th {
-          background-color: #f0f0f0;
-          font-weight: bold;
-        }
-        .history-table tr:nth-child(even) {
-          background-color: #f9f9f9;
-        }
-        .history-table tr:hover {
-          background-color: #f0f0f0;
-        }
-        .history-table th.sortable {
-          cursor: pointer;
-          user-select: none;
-          position: relative;
-          padding-right: 20px;
-        }
-        .history-table th.sortable:hover {
-          background-color: #e0e0e0;
-        }
-        .history-table th.ascending::after {
-          content: " ↑";
-          position: absolute;
-          right: 5px;
-        }
-        .history-table th.descending::after {
-          content: " ↓";
-          position: absolute;
-          right: 5px;
-        }
-        .rest-message {
-          text-align: center;
-          margin: 30px 0;
-          padding: 20px;
-          background: #e3f2fd;
-          border-radius: 10px;
-        }
-        .rest-message p {
-          margin: 10px 0;
-          font-size: 18px;
-        }
-        .countdown {
-          text-align: center;
-          margin: 1em 0;
-          color: #4caf50;
-          font-size: 1.2em;
-          font-weight: bold;
-        }
-        /* 自定义滚动条样式 */
-        .history-list::-webkit-scrollbar {
-          width: 8px;
-        }
-        .history-list::-webkit-scrollbar-track {
-          background: #f1f1f1;
-          border-radius: 4px;
-        }
-        .history-list::-webkit-scrollbar-thumb {
-          background: #888;
-          border-radius: 4px;
-        }
-        .history-list::-webkit-scrollbar-thumb:hover {
-          background: #555;
-        }
-      `;
-      document.head.appendChild(style);
-
-      // 异步加载历史记录
-      requestAnimationFrame(() => {
+      // 加载历史记录
+      const loadHistory = () => {
         try {
           const historyList = container.querySelector('.history-list');
           if (!historyList) return;
@@ -575,7 +413,7 @@
               // 设置初始排序状态
               lastSortHeader.classList.add(sortSettings.direction === 'asc' ? 'ascending' : 'descending');
               
-              // 直接排序数据，而不是触发点击事件
+              // 直接排序数据
               const sortedHistory = [...history].sort((a, b) => {
                 let valueA = a[sortSettings.field];
                 let valueB = b[sortSettings.field];
@@ -669,18 +507,376 @@
             historyList.innerHTML = '<p class="error-message">加载历史记录失败，请刷新页面重试。</p>';
           }
         }
-      });
-
-      // 在组件卸载时清理定时器
-      const cleanup = () => {
-        if (countdownTimer) {
-          clearInterval(countdownTimer);
-          countdownTimer = null;
-        }
       };
 
-      // 添加清理函数到window对象
-      window.cleanupChinese = cleanup;
+      if (!characters || characters.length === 0) {
+        container.innerHTML = `
+          <h2>语文乐园</h2>
+          <div class="daily-progress">
+            <p>今日学习进度：${todayLearned}/${dailyLimit}</p>
+            ${remainingToday === 0 ? '<p class="limit-reached">今日学习目标已完成，明天再来吧！</p>' : ''}
+          </div>
+          <div class="settings-section">
+            <h3>学习设置</h3>
+            <div class="setting-item">
+              <label for="dailyLimit">每日学习量：</label>
+              <input type="number" id="dailyLimit" min="1" max="100" value="${dailyLimit}">
+              <button onclick="window.updateDailyLimit()">保存设置</button>
+            </div>
+          </div>
+          <div class="history-section">
+            <h3>练习历史（点击表头可排序）</h3>
+            <div class="history-list"></div>
+          </div>
+          <button class="return-btn" onclick="window.showModule('')">返回首页</button>
+        `;
+
+        // 添加样式
+        const style = document.createElement('style');
+        style.textContent = `
+          .daily-progress {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 8px;
+          }
+          .limit-reached {
+            color: #4CAF50;
+            font-weight: bold;
+            margin-top: 10px;
+          }
+          .settings-section {
+            margin: 20px 0;
+            padding: 15px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          }
+          .setting-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+          }
+          .setting-item input {
+            width: 80px;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+          }
+          .setting-item button {
+            padding: 5px 15px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+          }
+          .setting-item button:hover {
+            background: #45a049;
+          }
+          .history-section {
+            margin: 20px 0;
+            padding: 15px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          }
+          .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+          }
+          .history-table thead {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            background: #f0f0f0;
+          }
+          .history-table th,
+          .history-table td {
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #ddd;
+          }
+          .history-table th {
+            background-color: #f0f0f0;
+            font-weight: bold;
+          }
+          .history-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+          }
+          .history-table tr:hover {
+            background-color: #f0f0f0;
+          }
+          .history-table th.sortable {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+            padding-right: 20px;
+          }
+          .history-table th.sortable:hover {
+            background-color: #e0e0e0;
+          }
+          .history-table th.ascending::after {
+            content: " ↑";
+            position: absolute;
+            right: 5px;
+          }
+          .history-table th.descending::after {
+            content: " ↓";
+            position: absolute;
+            right: 5px;
+          }
+          .history-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 10px;
+          }
+          .no-history {
+            text-align: center;
+            color: #666;
+            padding: 20px;
+          }
+          .error-message {
+            text-align: center;
+            color: #f44336;
+            padding: 20px;
+          }
+        `;
+        document.head.appendChild(style);
+
+        // 加载历史记录
+        requestAnimationFrame(loadHistory);
+        return;
+      }
+
+      // 随机选择一个汉字
+      const randomIndex = Math.floor(Math.random() * characters.length);
+      currentCharacter = characters[randomIndex];
+      
+      if (!currentCharacter || !currentCharacter.character) {
+        container.innerHTML = `
+          <h2>语文乐园</h2>
+          <p>加载失败，请刷新页面重试。</p>
+          <button class="return-btn" onclick="window.showModule('')">返回首页</button>
+        `;
+        return;
+      }
+
+      container.innerHTML = `
+        <h2>语文乐园</h2>
+        <div class="daily-progress">
+          <p>今日学习进度：${todayLearned}/${dailyLimit}</p>
+        </div>
+        <div class="character-display">
+          <div class="character">${currentCharacter.character}</div>
+          <div class="pinyin">${getPinyin(currentCharacter.character)}</div>
+        </div>
+        <div class="options">
+          <button class="learn-btn" onclick="window.handleChineseAnswer(true)">认识</button>
+          <button class="forget-btn" onclick="window.handleChineseAnswer(false)">不认识</button>
+        </div>
+        <div class="feedback"></div>
+        <div class="settings-section">
+          <h3>学习设置</h3>
+          <div class="setting-item">
+            <label for="dailyLimit">每日学习量：</label>
+            <input type="number" id="dailyLimit" min="1" max="100" value="${dailyLimit}">
+            <button onclick="window.updateDailyLimit()">保存设置</button>
+          </div>
+        </div>
+        <div class="history-section">
+          <h3>练习历史（点击表头可排序）</h3>
+          <div class="history-list"></div>
+        </div>
+        <button class="return-btn" onclick="window.showModule('')">返回首页</button>
+      `;
+
+      // 添加样式
+      const style = document.createElement('style');
+      style.textContent = `
+        .character-display {
+          text-align: center;
+          margin: 30px 0;
+          padding: 20px;
+          background: #fff;
+          border-radius: 10px;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 10px;
+        }
+        .character {
+          font-size: 72px;
+          color: #333;
+          line-height: 1;
+          margin-bottom: 5px;
+        }
+        .pinyin {
+          font-size: 24px;
+          color: #666;
+          margin-top: 5px;
+          font-weight: 500;
+        }
+        .options {
+          display: flex;
+          justify-content: center;
+          gap: 20px;
+          margin: 20px auto;
+          max-width: 400px;
+        }
+        .options button {
+          padding: 15px 40px;
+          font-size: 20px;
+          border: none;
+          border-radius: 5px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          flex: 1;
+          max-width: 180px;
+        }
+        .learn-btn {
+          background: #4CAF50;
+          color: white;
+        }
+        .learn-btn:hover {
+          background: #45a049;
+          transform: translateY(-2px);
+        }
+        .forget-btn {
+          background: #f44336;
+          color: white;
+        }
+        .forget-btn:hover {
+          background: #d32f2f;
+          transform: translateY(-2px);
+        }
+        .feedback {
+          text-align: center;
+          margin: 20px 0;
+          min-height: 30px;
+          font-size: 24px;
+          font-weight: bold;
+        }
+        .feedback.correct {
+          color: #4CAF50;
+        }
+        .feedback.wrong {
+          color: #f44336;
+        }
+        .daily-progress {
+          text-align: center;
+          margin: 20px 0;
+          padding: 15px;
+          background: #f5f5f5;
+          border-radius: 8px;
+        }
+        .settings-section {
+          margin: 20px 0;
+          padding: 15px;
+          background: #fff;
+          border-radius: 8px;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .setting-item {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          margin: 10px 0;
+        }
+        .setting-item input {
+          width: 80px;
+          padding: 5px;
+          border: 1px solid #ddd;
+          border-radius: 4px;
+        }
+        .setting-item button {
+          padding: 5px 15px;
+          background: #4CAF50;
+          color: white;
+          border: none;
+          border-radius: 4px;
+          cursor: pointer;
+        }
+        .setting-item button:hover {
+          background: #45a049;
+        }
+        .history-section {
+          margin: 20px 0;
+          padding: 15px;
+          background: #fff;
+          border-radius: 8px;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .history-table {
+          width: 100%;
+          border-collapse: collapse;
+          margin-top: 10px;
+        }
+        .history-table thead {
+          position: sticky;
+          top: 0;
+          z-index: 1;
+          background: #f0f0f0;
+        }
+        .history-table th,
+        .history-table td {
+          padding: 10px;
+          text-align: center;
+          border: 1px solid #ddd;
+        }
+        .history-table th {
+          background-color: #f0f0f0;
+          font-weight: bold;
+        }
+        .history-table tr:nth-child(even) {
+          background-color: #f9f9f9;
+        }
+        .history-table tr:hover {
+          background-color: #f0f0f0;
+        }
+        .history-table th.sortable {
+          cursor: pointer;
+          user-select: none;
+          position: relative;
+          padding-right: 20px;
+        }
+        .history-table th.sortable:hover {
+          background-color: #e0e0e0;
+        }
+        .history-table th.ascending::after {
+          content: " ↑";
+          position: absolute;
+          right: 5px;
+        }
+        .history-table th.descending::after {
+          content: " ↓";
+          position: absolute;
+          right: 5px;
+        }
+        .history-list {
+          max-height: 300px;
+          overflow-y: auto;
+          margin-top: 10px;
+        }
+        .no-history {
+          text-align: center;
+          color: #666;
+          padding: 20px;
+        }
+        .error-message {
+          text-align: center;
+          color: #f44336;
+          padding: 20px;
+        }
+      `;
+      document.head.appendChild(style);
+
+      // 加载历史记录
+      requestAnimationFrame(loadHistory);
     } catch (error) {
       console.error('加载语文模块失败:', error);
       container.innerHTML = `
@@ -759,6 +955,21 @@
       window.cleanupChinese();
     }
   });
+
+  // 更新每日学习量设置
+  window.updateDailyLimit = function() {
+    const input = document.getElementById('dailyLimit');
+    if (input) {
+      const newLimit = parseInt(input.value);
+      if (newLimit >= 1 && newLimit <= 100) {
+        saveDailyLimit(newLimit);
+        // 重新加载页面以应用新设置
+        window.loadChinese(document.getElementById('module-content'));
+      } else {
+        alert('请输入1-100之间的数字');
+      }
+    }
+  };
 })();
 
 // 分页功能
