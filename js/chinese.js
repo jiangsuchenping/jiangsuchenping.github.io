@@ -528,7 +528,7 @@
                     <th class="sortable" data-sort="character" title="点击按汉字排序">汉字 ↕</th>
                     <th class="sortable" data-sort="totalTests" title="点击按练习次数排序">练习次数 ↕</th>
                     <th class="sortable" data-sort="accuracy" title="点击按正确率排序">正确率 ↕</th>
-                    <th class="sortable" data-sort="lastTestTime" title="点击按上次练习时间排序">上次练习 ↕</th>
+                    <th class="sortable ascending" data-sort="lastTestTime" title="点击按上次练习时间排序">上次练习 ↓</th>
                     <th class="sortable" data-sort="nextReviewTime" title="点击按下次复习时间排序">下次复习 ↕</th>
                   </tr>
                 </thead>
@@ -556,10 +556,12 @@
                 // 移除所有表头的排序状态
                 headers.forEach(h => {
                   h.classList.remove('ascending', 'descending');
+                  h.textContent = h.textContent.replace(/ [↑↓]/, '') + ' ↕';
                 });
                 
                 // 添加当前排序状态
                 header.classList.add(currentDirection === 'asc' ? 'ascending' : 'descending');
+                header.textContent = header.textContent.replace(/ [↑↓]/, '') + (currentDirection === 'asc' ? ' ↑' : ' ↓');
                 
                 // 重新排序数据
                 const sortedHistory = [...history].sort((a, b) => {
@@ -594,6 +596,12 @@
                 `).join('');
               });
             });
+
+            // 默认触发"上次练习"列的排序
+            const lastTestTimeHeader = historyList.querySelector('th[data-sort="lastTestTime"]');
+            if (lastTestTimeHeader) {
+              lastTestTimeHeader.click();
+            }
           } else {
             historyList.innerHTML = '<p class="no-history">还没有练习记录哦，开始练习吧！</p>';
           }
