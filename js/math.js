@@ -322,11 +322,11 @@
             <table class="history-table">
               <thead>
                 <tr>
-                  <th onclick="window.sortHistoryTable('problem')" class="sortable ${lastSortField === 'problem' ? (lastSortAscending ? 'ascending' : 'descending') : ''}">题目 ↕</th>
-                  <th onclick="window.sortHistoryTable('totalTests')" class="sortable ${lastSortField === 'totalTests' ? (lastSortAscending ? 'ascending' : 'descending') : ''}">练习次数 ↕</th>
-                  <th onclick="window.sortHistoryTable('accuracy')" class="sortable ${lastSortField === 'accuracy' ? (lastSortAscending ? 'ascending' : 'descending') : ''}">正确率 ↕</th>
-                  <th onclick="window.sortHistoryTable('lastTestTime')" class="sortable ${lastSortField === 'lastTestTime' ? (lastSortAscending ? 'ascending' : 'descending') : ''}">上次练习 ↕</th>
-                  <th onclick="window.sortHistoryTable('nextReviewTime')" class="sortable ${lastSortField === 'nextReviewTime' ? (lastSortAscending ? 'ascending' : 'descending') : ''}">下次复习 ↕</th>
+                  <th onclick="window.sortHistoryTable('problem')" class="sortable ${lastSortField === 'problem' ? (lastSortAscending ? 'ascending' : 'descending') : ''}">题目</th>
+                  <th onclick="window.sortHistoryTable('totalTests')" class="sortable ${lastSortField === 'totalTests' ? (lastSortAscending ? 'ascending' : 'descending') : ''}">练习次数</th>
+                  <th onclick="window.sortHistoryTable('accuracy')" class="sortable ${lastSortField === 'accuracy' ? (lastSortAscending ? 'ascending' : 'descending') : ''}">正确率</th>
+                  <th onclick="window.sortHistoryTable('lastTestTime')" class="sortable ${lastSortField === 'lastTestTime' ? (lastSortAscending ? 'ascending' : 'descending') : ''}">上次练习</th>
+                  <th onclick="window.sortHistoryTable('nextReviewTime')" class="sortable ${lastSortField === 'nextReviewTime' ? (lastSortAscending ? 'ascending' : 'descending') : ''}">下次复习</th>
                 </tr>
               </thead>
               <tbody>
@@ -555,11 +555,11 @@
               <table class="history-table">
                 <thead>
                   <tr>
-                    <th onclick="window.sortHistoryTable('problem')" class="sortable ${lastSortField === 'problem' ? (lastSortAscending ? 'ascending' : 'descending') : ''}">题目 ↕</th>
-                    <th onclick="window.sortHistoryTable('totalTests')" class="sortable ${lastSortField === 'totalTests' ? (lastSortAscending ? 'ascending' : 'descending') : ''}">练习次数 ↕</th>
-                    <th onclick="window.sortHistoryTable('accuracy')" class="sortable ${lastSortField === 'accuracy' ? (lastSortAscending ? 'ascending' : 'descending') : ''}">正确率 ↕</th>
-                    <th onclick="window.sortHistoryTable('lastTestTime')" class="sortable ${lastSortField === 'lastTestTime' ? (lastSortAscending ? 'ascending' : 'descending') : ''}">上次练习 ↕</th>
-                    <th onclick="window.sortHistoryTable('nextReviewTime')" class="sortable ${lastSortField === 'nextReviewTime' ? (lastSortAscending ? 'ascending' : 'descending') : ''}">下次复习 ↕</th>
+                    <th onclick="window.sortHistoryTable('problem')" class="sortable ${lastSortField === 'problem' ? (lastSortAscending ? 'ascending' : 'descending') : ''}">题目</th>
+                    <th onclick="window.sortHistoryTable('totalTests')" class="sortable ${lastSortField === 'totalTests' ? (lastSortAscending ? 'ascending' : 'descending') : ''}">练习次数</th>
+                    <th onclick="window.sortHistoryTable('accuracy')" class="sortable ${lastSortField === 'accuracy' ? (lastSortAscending ? 'ascending' : 'descending') : ''}">正确率</th>
+                    <th onclick="window.sortHistoryTable('lastTestTime')" class="sortable ${lastSortField === 'lastTestTime' ? (lastSortAscending ? 'ascending' : 'descending') : ''}">上次练习</th>
+                    <th onclick="window.sortHistoryTable('nextReviewTime')" class="sortable ${lastSortField === 'nextReviewTime' ? (lastSortAscending ? 'ascending' : 'descending') : ''}">下次复习</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -740,4 +740,4 @@
       window.cleanupMath();
     }
   });
-})(); 
+})();
