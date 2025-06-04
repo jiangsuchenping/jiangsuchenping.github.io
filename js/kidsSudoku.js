@@ -17,10 +17,10 @@ class KidsSudokuGame {
     this.startTime = null;
     this.timer = null;
     this.isCompleted = false;
-    
+
     // 使用可爱的图形符号
     this.symbols = ['🐱', '🐶', '🐰', '🐸'];
-    
+
     this.initializeGame();
   }
 
@@ -47,7 +47,7 @@ class KidsSudokuGame {
       [1, 0, 3, 2],
       [3, 2, 1, 0]
     ];
-    
+
     // 随机打乱行和列
     this.shuffleSolution();
   }
@@ -62,14 +62,14 @@ class KidsSudokuGame {
       const row2 = Math.floor(Math.random() * 4);
       [this.solution[row1], this.solution[row2]] = [this.solution[row2], this.solution[row1]];
     }
-    
+
     // 随机交换列
     for (let i = 0; i < 10; i++) {
       const col1 = Math.floor(Math.random() * 4);
       const col2 = Math.floor(Math.random() * 4);
       for (let row = 0; row < 4; row++) {
-        [this.solution[row][col1], this.solution[row][col2]] = 
-        [this.solution[row][col2], this.solution[row][col1]];
+        [this.solution[row][col1], this.solution[row][col2]] =
+          [this.solution[row][col2], this.solution[row][col1]];
       }
     }
   }
@@ -80,18 +80,18 @@ class KidsSudokuGame {
   createPuzzle() {
     // 复制解答到游戏板
     this.board = this.solution.map(row => [...row]);
-    
+
     // 随机移除8个数字（保留8个，适合幼儿难度）
     const cellsToRemove = 8;
     const positions = [];
-    
+
     // 生成所有位置
     for (let i = 0; i < 4; i++) {
       for (let j = 0; j < 4; j++) {
-        positions.push({row: i, col: j});
+        positions.push({ row: i, col: j });
       }
     }
-    
+
     // 随机选择要移除的位置
     for (let i = 0; i < cellsToRemove; i++) {
       const randomIndex = Math.floor(Math.random() * positions.length);
@@ -106,7 +106,7 @@ class KidsSudokuGame {
   render() {
     const gameContainer = document.createElement('div');
     gameContainer.className = 'kids-sudoku-container';
-    
+
     // 创建游戏标题和信息
     const header = document.createElement('div');
     header.className = 'kids-sudoku-header';
@@ -123,7 +123,7 @@ class KidsSudokuGame {
     const symbolSelector = document.createElement('div');
     symbolSelector.className = 'symbol-selector';
     symbolSelector.innerHTML = '<p>选择一个图形：</p>';
-    
+
     this.symbols.forEach((symbol, index) => {
       const symbolBtn = document.createElement('button');
       symbolBtn.className = 'symbol-btn';
@@ -131,18 +131,18 @@ class KidsSudokuGame {
       symbolBtn.onclick = () => this.selectSymbol(index);
       symbolSelector.appendChild(symbolBtn);
     });
-    
+
     gameContainer.appendChild(symbolSelector);
 
     // 创建游戏板
     const board = document.createElement('div');
     board.className = 'kids-sudoku-board';
-    
+
     for (let i = 0; i < 4; i++) {
       for (let j = 0; j < 4; j++) {
         const cell = document.createElement('div');
         cell.className = 'kids-sudoku-cell';
-        
+
         if (this.board[i][j] !== null) {
           cell.textContent = this.symbols[this.board[i][j]];
           cell.classList.add('filled');
@@ -150,32 +150,32 @@ class KidsSudokuGame {
           cell.classList.add('empty');
           cell.onclick = () => this.selectCell(i, j);
         }
-        
+
         if (this.selectedCell && this.selectedCell.row === i && this.selectedCell.col === j) {
           cell.classList.add('selected');
         }
-        
+
         cell.dataset.row = i;
         cell.dataset.col = j;
         board.appendChild(cell);
       }
     }
-    
+
     gameContainer.appendChild(board);
 
     // 添加控制按钮
     const controls = document.createElement('div');
     controls.className = 'kids-sudoku-controls';
     controls.innerHTML = `
-      <button onclick="this.parentElement.parentElement.querySelector('.kids-sudoku-game').resetGame()">🔄 重新开始</button>
-      <button onclick="this.parentElement.parentElement.querySelector('.kids-sudoku-game').showHint()">💡 提示</button>
-      <button onclick="loadGame(document.getElementById('module-content'))">🏠 返回游戏列表</button>
+      <button onclick="this.closest('.kids-sudoku-game').resetGame()">🔄 重新开始</button>
+      <button onclick="this.closest('.kids-sudoku-game').showHint()">💡 提示</button>
+      <button onclick="loadGame(this.closest('#module-content'))">🏠 返回游戏列表</button>
     `;
     gameContainer.appendChild(controls);
 
     // 添加样式
     this.addStyles(gameContainer);
-    
+
     // 保存游戏实例引用
     gameContainer.classList.add('kids-sudoku-game');
     gameContainer.resetGame = () => this.resetGame();
@@ -272,6 +272,9 @@ class KidsSudokuGame {
         cursor: pointer;
         transition: all 0.3s ease;
         user-select: none;
+        aspect-ratio: 1;
+        min-height: 70px;
+        height: 100%;
       }
       
       .kids-sudoku-cell.filled {
@@ -279,9 +282,10 @@ class KidsSudokuGame {
         cursor: default;
       }
       
-      .kids-sudoku-cell.empty:hover {
-        background: #fff3cd;
-        transform: scale(0.95);
+      .kids-sudoku-cell.empty {
+        background: white;
+        min-height: 70px;
+        height: 100%;
       }
       
       .kids-sudoku-cell.selected {
@@ -370,8 +374,8 @@ class KidsSudokuGame {
    */
   selectCell(row, col) {
     if (this.board[row][col] !== null || this.isCompleted) return;
-    
-    this.selectedCell = {row, col};
+
+    this.selectedCell = { row, col };
     this.render();
   }
 
@@ -381,15 +385,15 @@ class KidsSudokuGame {
    */
   selectSymbol(symbolIndex) {
     if (!this.selectedCell || this.isCompleted) return;
-    
-    const {row, col} = this.selectedCell;
-    
+
+    const { row, col } = this.selectedCell;
+
     // 检查是否正确
     if (this.solution[row][col] === symbolIndex) {
       this.board[row][col] = symbolIndex;
       this.moves++;
       this.selectedCell = null;
-      
+
       // 检查是否完成
       if (this.checkCompletion()) {
         this.gameCompleted();
@@ -399,7 +403,7 @@ class KidsSudokuGame {
     } else {
       this.showFeedback(row, col, false);
     }
-    
+
     this.render();
   }
 
@@ -442,12 +446,12 @@ class KidsSudokuGame {
   gameCompleted() {
     this.isCompleted = true;
     if (this.timer) clearInterval(this.timer);
-    
+
     const endTime = new Date();
     const totalTime = Math.floor((endTime - this.startTime) / 1000);
     const minutes = Math.floor(totalTime / 60);
     const seconds = totalTime % 60;
-    
+
     setTimeout(() => {
       this.showCompletionMessage(minutes, seconds);
     }, 500);
@@ -461,7 +465,7 @@ class KidsSudokuGame {
   showCompletionMessage(minutes, seconds) {
     const overlay = document.createElement('div');
     overlay.className = 'overlay';
-    
+
     const message = document.createElement('div');
     message.className = 'completion-message';
     message.innerHTML = `
@@ -472,10 +476,10 @@ class KidsSudokuGame {
       <button onclick="this.parentElement.parentElement.remove(); this.closest('.kids-sudoku-game').resetGame()">再玩一次</button>
       <button onclick="this.parentElement.parentElement.remove(); loadGame(document.getElementById('module-content'))">返回游戏列表</button>
     `;
-    
+
     overlay.appendChild(message);
     document.body.appendChild(overlay);
-    
+
     overlay.onclick = (e) => {
       if (e.target === overlay) {
         overlay.remove();
@@ -488,7 +492,7 @@ class KidsSudokuGame {
    */
   updateTimer() {
     if (this.isCompleted) return;
-    
+
     const now = new Date();
     const diff = Math.floor((now - this.startTime) / 1000);
     const minutes = Math.floor(diff / 60).toString().padStart(2, '0');
@@ -504,18 +508,18 @@ class KidsSudokuGame {
    */
   showHint() {
     if (this.isCompleted) return;
-    
+
     // 找到第一个空单元格并显示正确答案
     for (let i = 0; i < 4; i++) {
       for (let j = 0; j < 4; j++) {
         if (this.board[i][j] === null) {
           this.board[i][j] = this.solution[i][j];
           this.moves++;
-          
+
           if (this.checkCompletion()) {
             this.gameCompleted();
           }
-          
+
           this.render();
           return;
         }
@@ -531,11 +535,11 @@ class KidsSudokuGame {
     this.selectedCell = null;
     this.isCompleted = false;
     if (this.timer) clearInterval(this.timer);
-    
+
     // 移除完成消息
     const overlay = document.querySelector('.overlay');
     if (overlay) overlay.remove();
-    
+
     this.initializeGame();
   }
 }
