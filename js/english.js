@@ -8,6 +8,6 @@ function loadEnglish(container) {
       <div>Cat 🐱</div>
       <div>Dog 🐶</div>
     </div>
-    <button onclick="showModule('')">返回首页</button>
+    <button class="return-btn" onclick="window.showModule('')">返回首页</button>
   `;
 } 

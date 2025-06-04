@@ -112,11 +112,31 @@ class KlotskiGame {
 
     gameContainer.appendChild(board);
 
+    // 创建按钮容器
+    const buttonContainer = document.createElement('div');
+    buttonContainer.style.cssText = `
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin: 20px 0;
+    `;
+
     // 添加重置按钮
     const resetButton = document.createElement('button');
     resetButton.textContent = '重新开始';
+    resetButton.className = 'return-btn';
+    resetButton.style.background = '#4CAF50';
     resetButton.addEventListener('click', () => this.resetGame());
-    gameContainer.appendChild(resetButton);
+    buttonContainer.appendChild(resetButton);
+
+    // 添加返回游戏列表按钮
+    const returnButton = document.createElement('button');
+    returnButton.textContent = '返回游戏列表';
+    returnButton.className = 'return-btn';
+    returnButton.addEventListener('click', () => window.showModule('game'));
+    buttonContainer.appendChild(returnButton);
+
+    gameContainer.appendChild(buttonContainer);
 
     // 添加历史记录容器
     this.historyContainer = document.createElement('div');
