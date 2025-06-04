@@ -126,19 +126,28 @@ class KlotskiGame {
     const row = parseInt(cell.dataset.row);
     const col = parseInt(cell.dataset.col);
 
-    // 直接查找相邻的空白块位置
+    // 如果点击的是空格，不做任何操作
+    if (this.board[row][col] === '') return;
+
+    // 查找相邻的空白块位置
     const blankPos = this.findBlankPosition();
     if (!blankPos) return;
 
     // 检查当前点击块是否与空白块相邻
     if (this.isAdjacent(row, col, blankPos.row, blankPos.col)) {
-      // 直接交换位置
-      this.movePiece(row, col, blankPos.row, blankPos.col);
+      // 交换位置
+      [this.board[row][col], this.board[blankPos.row][blankPos.col]] =
+        [this.board[blankPos.row][blankPos.col], this.board[row][col]];
+
       this.moves++;
       this.render();
 
       if (this.checkWin()) {
-        alert(`恭喜你赢了！总共移动了 ${this.moves} 步。`);
+        const now = new Date();
+        const timeSpent = Math.floor((now - this.startTime) / 1000);
+        const minutes = Math.floor(timeSpent / 60).toString().padStart(2, '0');
+        const seconds = (timeSpent % 60).toString().padStart(2, '0');
+        alert(`恭喜你赢了！\n总共移动了 ${this.moves} 步\n用时：${minutes}:${seconds}`);
         this.resetGame();
       }
     }
@@ -161,12 +170,6 @@ class KlotskiGame {
     return (rowDiff === 1 && colDiff === 0) || (rowDiff === 0 && colDiff === 1);
   }
 
-  movePiece(fromRow, fromCol, toRow, toCol) {
-    const temp = this.board[fromRow][fromCol];
-    this.board[fromRow][fromCol] = '';
-    this.board[toRow][toCol] = temp;
-  }
-
   checkWin() {
     // 检查数字是否按顺序排列
     let expected = 1;
@@ -177,13 +180,13 @@ class KlotskiGame {
           if (this.board[i][j] !== '') {
             return false;
           }
-        } else {
-          // 其他位置应该按顺序排列1-8
-          if (this.board[i][j] !== expected) {
-            return false;
-          }
-          expected++;
+          continue;
         }
+        // 其他位置应该按顺序排列1-8
+        if (this.board[i][j] !== expected) {
+          return false;
+        }
+        expected++;
       }
     }
     return true;
@@ -228,11 +231,11 @@ class KlotskiGame {
       if (emptyRow !== -1) break;
     }
 
-    // 根据空格位置和逆序数判断是否可解
-    // 当空格在偶数行时，逆序数必须为奇数
-    // 当空格在奇数行时，逆序数必须为偶数
-    return (emptyRow % 2 === 0 && inversions % 2 === 1) ||
-      (emptyRow % 2 === 1 && inversions % 2 === 0);
+    // 修改可解性判断规则
+    // 当空格在偶数行时，逆序数必须为偶数
+    // 当空格在奇数行时，逆序数必须为奇数
+    return (emptyRow % 2 === 0 && inversions % 2 === 0) ||
+      (emptyRow % 2 === 1 && inversions % 2 === 1);
   }
 
   resetGame() {
