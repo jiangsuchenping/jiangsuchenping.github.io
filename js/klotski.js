@@ -5,6 +5,7 @@ class KlotskiGame {
     this.moves = 0;
     this.startTime = null;
     this.timer = null;
+    this.historyContainer = null;
     this.initializeGame();
   }
 
@@ -118,16 +119,19 @@ class KlotskiGame {
     gameContainer.appendChild(resetButton);
 
     // 添加历史记录容器
-    const historyContainer = document.createElement('div');
-    historyContainer.className = 'klotski-history';
-    historyContainer.style.cssText = `
+    this.historyContainer = document.createElement('div');
+    this.historyContainer.className = 'klotski-history';
+    this.historyContainer.style.cssText = `
       margin-top: 20px;
-      padding: 10px;
+      padding: 15px;
       background: #f8f8f8;
       border-radius: 8px;
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
     `;
-    gameContainer.appendChild(historyContainer);
+    gameContainer.appendChild(this.historyContainer);
 
     // 初始化历史记录显示
     this.updateHistoryDisplay();
@@ -167,7 +171,11 @@ class KlotskiGame {
         this.saveGameRecord(timeSpent);
 
         alert(`恭喜你赢了！\n总共移动了 ${this.moves} 步\n用时：${minutes}:${seconds}`);
-        this.resetGame();
+
+        // 延迟重置游戏，确保历史记录已更新
+        setTimeout(() => {
+          this.resetGame();
+        }, 100);
       }
     }
   }
@@ -264,70 +272,154 @@ class KlotskiGame {
   }
 
   saveGameRecord(timeSpent) {
-    // 获取现有记录
-    let records = JSON.parse(localStorage.getItem('klotskiRecords') || '[]');
+    try {
+      // 验证游戏数据
+      if (!this.isValidGameRecord(timeSpent)) {
+        console.warn('无效的游戏记录，已跳过保存');
+        return;
+      }
 
-    // 添加新记录
-    records.push({
-      date: new Date().toLocaleString(),
-      moves: this.moves,
-      time: timeSpent,
-      timeFormatted: `${Math.floor(timeSpent / 60).toString().padStart(2, '0')}:${(timeSpent % 60).toString().padStart(2, '0')}`
+      // 获取现有记录
+      let records = JSON.parse(localStorage.getItem('klotskiRecords') || '[]');
+
+      // 清理无效记录
+      records = this.cleanInvalidRecords(records);
+
+      // 创建新记录
+      const newRecord = {
+        date: new Date().toLocaleString(),
+        moves: this.moves,
+        time: timeSpent,
+        timeFormatted: `${Math.floor(timeSpent / 60).toString().padStart(2, '0')}:${(timeSpent % 60).toString().padStart(2, '0')}`,
+        timestamp: new Date().getTime()
+      };
+
+      // 添加新记录到数组开头
+      records.unshift(newRecord);
+
+      // 只保留最近的10条记录
+      records = records.slice(0, 10);
+
+      // 保存到本地存储
+      localStorage.setItem('klotskiRecords', JSON.stringify(records));
+
+      // 更新历史记录显示
+      this.updateHistoryDisplay();
+    } catch (error) {
+      console.error('保存游戏记录失败:', error);
+    }
+  }
+
+  isValidGameRecord(timeSpent) {
+    // 验证游戏数据是否有效
+    return (
+      typeof timeSpent === 'number' &&
+      !isNaN(timeSpent) &&
+      timeSpent >= 0 &&
+      this.moves > 0
+    );
+  }
+
+  cleanInvalidRecords(records) {
+    // 清理无效记录
+    return records.filter(record => {
+      // 检查必要字段是否存在
+      if (!record.time || !record.moves || !record.date) {
+        return false;
+      }
+
+      // 检查数据类型是否正确
+      if (
+        typeof record.time !== 'number' ||
+        typeof record.moves !== 'number' ||
+        isNaN(record.time) ||
+        isNaN(record.moves)
+      ) {
+        return false;
+      }
+
+      // 检查数值是否合理
+      if (record.time < 0 || record.moves <= 0) {
+        return false;
+      }
+
+      return true;
     });
-
-    // 按时间倒序排序
-    records.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-    // 只保留最近的10条记录
-    records = records.slice(0, 10);
-
-    // 保存到本地存储
-    localStorage.setItem('klotskiRecords', JSON.stringify(records));
-
-    // 更新历史记录显示
-    this.updateHistoryDisplay();
   }
 
   updateHistoryDisplay() {
-    const records = JSON.parse(localStorage.getItem('klotskiRecords') || '[]');
-    const historyContainer = document.querySelector('.klotski-history');
+    try {
+      if (!this.historyContainer) {
+        console.warn('历史记录容器未初始化');
+        return;
+      }
 
-    if (!historyContainer) return;
+      // 获取并清理记录
+      let records = JSON.parse(localStorage.getItem('klotskiRecords') || '[]');
+      records = this.cleanInvalidRecords(records);
 
-    if (records.length === 0) {
-      historyContainer.innerHTML = '<p class="no-records" style="text-align: center; color: #666;">暂无历史记录</p>';
-      return;
-    }
+      // 如果清理后有变化，更新存储
+      if (records.length !== JSON.parse(localStorage.getItem('klotskiRecords') || '[]').length) {
+        localStorage.setItem('klotskiRecords', JSON.stringify(records));
+      }
 
-    const table = document.createElement('table');
-    table.style.cssText = `
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-      font-size: 14px;
-    `;
+      if (records.length === 0) {
+        this.historyContainer.innerHTML = '<p class="no-records" style="text-align: center; color: #666;">暂无历史记录</p>';
+        return;
+      }
 
-    table.innerHTML = `
-      <thead>
-        <tr>
-          <th style="padding: 8px; text-align: left; border-bottom: 2px solid #ddd;">日期</th>
-          <th style="padding: 8px; text-align: center; border-bottom: 2px solid #ddd;">步数</th>
-          <th style="padding: 8px; text-align: center; border-bottom: 2px solid #ddd;">用时</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${records.map(record => `
+      // 找出最佳记录
+      const minMoves = Math.min(...records.map(r => r.moves));
+      const minTime = Math.min(...records.map(r => r.time));
+
+      const table = document.createElement('table');
+      table.style.cssText = `
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+        font-size: 14px;
+        background: white;
+        border-radius: 4px;
+        overflow: hidden;
+      `;
+
+      table.innerHTML = `
+        <thead>
           <tr>
-            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${record.date}</td>
-            <td style="padding: 8px; text-align: center; border-bottom: 1px solid #ddd;">${record.moves}步</td>
-            <td style="padding: 8px; text-align: center; border-bottom: 1px solid #ddd;">${record.timeFormatted}</td>
+            <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd; background: #f5f5f5;">日期</th>
+            <th style="padding: 12px; text-align: center; border-bottom: 2px solid #ddd; background: #f5f5f5;">步数</th>
+            <th style="padding: 12px; text-align: center; border-bottom: 2px solid #ddd; background: #f5f5f5;">用时</th>
           </tr>
-        `).join('')}
-      </tbody>
-    `;
+        </thead>
+        <tbody>
+          ${records.map(record => {
+        const isMinMoves = record.moves === minMoves;
+        const isMinTime = record.time === minTime;
+        return `
+              <tr>
+                <td style="padding: 12px; border-bottom: 1px solid #eee;">${record.date}</td>
+                <td style="padding: 12px; text-align: center; border-bottom: 1px solid #eee; ${isMinMoves ? 'color: #ff0000; font-weight: bold;' : ''}">${record.moves}步</td>
+                <td style="padding: 12px; text-align: center; border-bottom: 1px solid #eee; ${isMinTime ? 'color: #ff0000; font-weight: bold;' : ''}">${record.timeFormatted}</td>
+              </tr>
+            `;
+      }).join('')}
+        </tbody>
+      `;
 
-    historyContainer.innerHTML = '<h4 style="margin: 0 0 10px 0; color: #333;">历史记录</h4>';
-    historyContainer.appendChild(table);
+      // 使用文档片段来减少重绘
+      const fragment = document.createDocumentFragment();
+      const title = document.createElement('h4');
+      title.style.cssText = 'margin: 0 0 15px 0; color: #333; font-size: 16px; text-align: center;';
+      title.textContent = '历史记录';
+      fragment.appendChild(title);
+      fragment.appendChild(table);
+
+      // 一次性更新DOM
+      this.historyContainer.innerHTML = '';
+      this.historyContainer.appendChild(fragment);
+    } catch (error) {
+      console.error('更新历史记录显示失败:', error);
+    }
   }
 }
 
