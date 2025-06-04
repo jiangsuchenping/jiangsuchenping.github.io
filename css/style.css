@@ -330,38 +330,58 @@ footer {
   }
 }
 
-/* 趣味游戏列表样式 */
+/* 游戏模块样式 */
+#game-module {
+  text-align: center;
+}
+
+/* 游戏列表样式 */
 .game-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 2em;
   justify-content: center;
-  margin: 2em 0;
+  gap: 20px;
+  margin: 20px 0;
 }
 
 .game-item {
-  background: #fff3e0;
-  border-radius: 1em;
-  padding: 2em;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s, box-shadow 0.2s;
-  text-align: center;
   width: 250px;
+  padding: 15px;
+  border-radius: 10px;
+  background-color: #f8f9fa;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
 }
 
 .game-item:hover {
   transform: translateY(-5px);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
 .game-item h3 {
-  color: #ff6d00;
-  margin-bottom: 1em;
+  color: #3498db;
+  margin-bottom: 10px;
 }
 
 .game-item p {
   color: #666;
   font-size: 0.9em;
+}
+
+.game-return-btn {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.game-return-btn:hover {
+  background-color: #2980b9;
 }
 
 /* 趣味游戏标题样式 */
@@ -443,50 +463,4 @@ footer {
 
 .klotski-container button:hover {
   background-color: #45a049;
-}
-
-.sudoku-modal-button {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.8rem;
-  font-size: 1.1rem;
-  padding: 1rem 2rem;
-  border-radius: 50px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  background: linear-gradient(135deg, #6ec6ff 0%, #4dd0e1 100%);
-  box-shadow: 0 4px 6px rgba(110,198,255,0.2);
-  overflow: hidden;
-}
-
-.sudoku-modal-button::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(255,255,255,0.1);
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-
-.sudoku-modal-button:hover {
-  transform: translateY(-2px) scale(1.05);
-  box-shadow: 0 6px 12px rgba(110,198,255,0.3);
-}
-
-.sudoku-modal-button:hover::before {
-  opacity: 1;
-}
-
-.sudoku-modal-button svg {
-  width: 1.2rem;
-  height: 1.2rem;
-  fill: currentColor;
-}
-
-.secondary-btn {
-  background: linear-gradient(135deg, #ffd54f 0%, #ffb74d 100%);
-  box-shadow: 0 4px 6px rgba(255,213,79,0.2);
 }
