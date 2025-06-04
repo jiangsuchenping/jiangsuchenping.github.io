@@ -19,13 +19,13 @@ class NumberSudokuGame {
     this.timer = null;
     this.isCompleted = false;
     this.difficulty = 'easy'; // 默认难度：简单
-    
+
     // 数独尺寸 (6x6)
     this.size = 6;
     // 宫格尺寸 (2x3)
     this.boxWidth = 2;
     this.boxHeight = 3;
-    
+
     this.initializeGame();
   }
 
@@ -47,7 +47,7 @@ class NumberSudokuGame {
   generateSolution() {
     // 初始化空解答
     this.solution = Array(this.size).fill().map(() => Array(this.size).fill(null));
-    
+
     // 使用回溯算法填充解答
     this.solveSudoku(this.solution);
   }
@@ -61,26 +61,26 @@ class NumberSudokuGame {
     // 找到一个空单元格
     let emptyCell = this.findEmptyCell(grid);
     if (!emptyCell) return true; // 没有空单元格，解答完成
-    
+
     const [row, col] = emptyCell;
-    
+
     // 创建1到size的数字数组并随机打乱
-    const numbers = Array.from({length: this.size}, (_, i) => i + 1);
+    const numbers = Array.from({ length: this.size }, (_, i) => i + 1);
     this.shuffleArray(numbers);
-    
+
     // 尝试每个数字
     for (let num of numbers) {
       if (this.isSafe(grid, row, col, num)) {
         grid[row][col] = num;
-        
+
         if (this.solveSudoku(grid)) {
           return true;
         }
-        
+
         grid[row][col] = null; // 回溯
       }
     }
-    
+
     return false; // 触发回溯
   }
 
@@ -113,22 +113,22 @@ class NumberSudokuGame {
     for (let x = 0; x < this.size; x++) {
       if (grid[row][x] === num) return false;
     }
-    
+
     // 检查列
     for (let y = 0; y < this.size; y++) {
       if (grid[y][col] === num) return false;
     }
-    
+
     // 检查宫格
     const boxRow = Math.floor(row / this.boxHeight) * this.boxHeight;
     const boxCol = Math.floor(col / this.boxWidth) * this.boxWidth;
-    
+
     for (let i = 0; i < this.boxHeight; i++) {
       for (let j = 0; j < this.boxWidth; j++) {
         if (grid[boxRow + i][boxCol + j] === num) return false;
       }
     }
-    
+
     return true;
   }
 
@@ -149,7 +149,7 @@ class NumberSudokuGame {
   createPuzzle() {
     // 复制解答到游戏板
     this.board = this.solution.map(row => [...row]);
-    
+
     // 根据难度确定要移除的单元格数量
     let cellsToRemove;
     switch (this.difficulty) {
@@ -165,15 +165,15 @@ class NumberSudokuGame {
       default:
         cellsToRemove = Math.floor(this.size * this.size * 0.4);
     }
-    
+
     // 生成所有位置
     const positions = [];
     for (let i = 0; i < this.size; i++) {
       for (let j = 0; j < this.size; j++) {
-        positions.push({row: i, col: j});
+        positions.push({ row: i, col: j });
       }
     }
-    
+
     // 随机选择要移除的位置
     this.shuffleArray(positions);
     for (let i = 0; i < cellsToRemove; i++) {
@@ -188,7 +188,7 @@ class NumberSudokuGame {
   render() {
     const gameContainer = document.createElement('div');
     gameContainer.className = 'number-sudoku-container';
-    
+
     // 创建游戏标题和信息
     const header = document.createElement('div');
     header.className = 'number-sudoku-header';
@@ -218,10 +218,10 @@ class NumberSudokuGame {
     const numberSelector = document.createElement('div');
     numberSelector.className = 'number-selector';
     numberSelector.innerHTML = '<p>选择一个数字：</p>';
-    
+
     const numberButtons = document.createElement('div');
     numberButtons.className = 'number-buttons';
-    
+
     for (let i = 1; i <= this.size; i++) {
       const numberBtn = document.createElement('button');
       numberBtn.className = `number-btn ${this.selectedNumber === i ? 'selected' : ''}`;
@@ -229,14 +229,14 @@ class NumberSudokuGame {
       numberBtn.onclick = () => this.selectNumber(i);
       numberButtons.appendChild(numberBtn);
     }
-    
+
     // 添加擦除按钮
     const eraseBtn = document.createElement('button');
     eraseBtn.className = 'number-btn erase-btn';
     eraseBtn.innerHTML = '🧹';
     eraseBtn.onclick = () => this.selectNumber(null);
     numberButtons.appendChild(eraseBtn);
-    
+
     numberSelector.appendChild(numberButtons);
     gameContainer.appendChild(numberSelector);
 
@@ -244,12 +244,12 @@ class NumberSudokuGame {
     const board = document.createElement('div');
     board.className = 'number-sudoku-board';
     board.style.gridTemplateColumns = `repeat(${this.size}, 1fr)`;
-    
+
     for (let i = 0; i < this.size; i++) {
       for (let j = 0; j < this.size; j++) {
         const cell = document.createElement('div');
         cell.className = 'number-sudoku-cell';
-        
+
         // 添加边框样式以显示宫格
         if (i % this.boxHeight === 0 && i !== 0) {
           cell.classList.add('border-top');
@@ -257,7 +257,7 @@ class NumberSudokuGame {
         if (j % this.boxWidth === 0 && j !== 0) {
           cell.classList.add('border-left');
         }
-        
+
         if (this.board[i][j] !== null) {
           cell.textContent = this.board[i][j];
           cell.classList.add('filled');
@@ -265,22 +265,22 @@ class NumberSudokuGame {
           cell.classList.add('empty');
           cell.onclick = () => this.placeNumber(i, j);
         }
-        
+
         if (this.selectedCell && this.selectedCell.row === i && this.selectedCell.col === j) {
           cell.classList.add('selected');
         }
-        
+
         // 高亮显示相同数字
         if (this.selectedNumber && this.board[i][j] === this.selectedNumber) {
           cell.classList.add('highlighted');
         }
-        
+
         cell.dataset.row = i;
         cell.dataset.col = j;
         board.appendChild(cell);
       }
     }
-    
+
     gameContainer.appendChild(board);
 
     // 添加控制按钮
@@ -296,7 +296,7 @@ class NumberSudokuGame {
 
     // 添加样式
     this.addStyles(gameContainer);
-    
+
     // 保存游戏实例引用
     gameContainer.classList.add('number-sudoku-game');
     gameContainer.resetGame = () => this.resetGame();
@@ -306,7 +306,7 @@ class NumberSudokuGame {
 
     this.container.innerHTML = '';
     this.container.appendChild(gameContainer);
-    
+
     // 更新计时器显示
     this.updateTimer();
   }
@@ -532,16 +532,70 @@ class NumberSudokuGame {
         left: 50%;
         transform: translate(-50%, -50%);
         background: white;
-        padding: 30px;
+        padding: 40px;
         border-radius: 20px;
         box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         text-align: center;
         z-index: 1000;
+        min-width: 300px;
+        animation: popIn 0.5s ease-out;
       }
       
       .completion-message h2 {
-        color: #2ecc71;
-        margin-bottom: 15px;
+        color: #3498db;
+        margin-bottom: 20px;
+        font-size: 2em;
+      }
+      
+      .completion-message p {
+        color: #666;
+        margin: 10px 0;
+        font-size: 1.2em;
+      }
+      
+      .completion-buttons {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        gap: 15px;
+        margin-top: 25px;
+        width: 100%;
+      }
+      
+      .completion-buttons button {
+        padding: 12px 25px;
+        border: none;
+        border-radius: 25px;
+        font-size: 1.1em;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        height: 48px;
+        min-width: 120px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 1 auto;
+      }
+      
+      .play-again-btn {
+        background: #3498db;
+        color: white;
+      }
+      
+      .play-again-btn:hover {
+        background: #2980b9;
+        transform: translateY(-2px);
+      }
+      
+      .return-btn {
+        background: #e74c3c;
+        color: white;
+      }
+      
+      .return-btn:hover {
+        background: #c0392b;
+        transform: translateY(-2px);
       }
       
       .overlay {
@@ -552,15 +606,23 @@ class NumberSudokuGame {
         height: 100%;
         background: rgba(0,0,0,0.5);
         z-index: 999;
+        animation: fadeIn 0.3s ease-out;
       }
       
-      /* 错误提示样式 */
-      .error-note {
-        position: absolute;
-        font-size: 0.4em;
-        color: #e74c3c;
-        top: 2px;
-        right: 2px;
+      @keyframes popIn {
+        0% {
+          transform: translate(-50%, -50%) scale(0.8);
+          opacity: 0;
+        }
+        100% {
+          transform: translate(-50%, -50%) scale(1);
+          opacity: 1;
+        }
+      }
+      
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
       }
     `;
     container.appendChild(style);
@@ -588,20 +650,20 @@ class NumberSudokuGame {
       this.render();
       return;
     }
-    
+
     this.board[row][col] = this.selectedNumber;
     this.moves++;
-    
+
     // 检查是否正确
     const isCorrect = this.board[row][col] === this.solution[row][col];
-    
+
     // 检查是否完成
     if (this.checkCompletion()) {
       this.gameCompleted();
     } else {
       this.showFeedback(row, col, isCorrect);
     }
-    
+
     this.render();
   }
 
@@ -616,7 +678,7 @@ class NumberSudokuGame {
       const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
       if (cell) {
         cell.classList.add(isCorrect ? 'correct' : 'wrong');
-        
+
         // 如果错误，添加错误标记
         if (!isCorrect) {
           const errorNote = document.createElement('span');
@@ -624,7 +686,7 @@ class NumberSudokuGame {
           errorNote.textContent = '✗';
           cell.appendChild(errorNote);
         }
-        
+
         setTimeout(() => {
           cell.classList.remove('correct', 'wrong');
           // 如果错误，移除错误标记
@@ -658,7 +720,7 @@ class NumberSudokuGame {
   checkProgress() {
     let correct = 0;
     let total = 0;
-    
+
     for (let i = 0; i < this.size; i++) {
       for (let j = 0; j < this.size; j++) {
         if (this.board[i][j] !== null) {
@@ -669,9 +731,9 @@ class NumberSudokuGame {
         }
       }
     }
-    
+
     const percentage = total > 0 ? Math.round((correct / total) * 100) : 0;
-    
+
     alert(`当前进度：${correct}/${total} 正确 (${percentage}%)`);
   }
 
@@ -681,12 +743,12 @@ class NumberSudokuGame {
   gameCompleted() {
     this.isCompleted = true;
     if (this.timer) clearInterval(this.timer);
-    
+
     const endTime = new Date();
     const totalTime = Math.floor((endTime - this.startTime) / 1000);
     const minutes = Math.floor(totalTime / 60);
     const seconds = totalTime % 60;
-    
+
     setTimeout(() => {
       this.showCompletionMessage(minutes, seconds);
     }, 500);
@@ -700,7 +762,7 @@ class NumberSudokuGame {
   showCompletionMessage(minutes, seconds) {
     const overlay = document.createElement('div');
     overlay.className = 'overlay';
-    
+
     const message = document.createElement('div');
     message.className = 'completion-message';
     message.innerHTML = `
@@ -709,13 +771,29 @@ class NumberSudokuGame {
       <p>难度：${this.getDifficultyName()}</p>
       <p>用时：${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}</p>
       <p>移动次数：${this.moves}</p>
-      <button onclick="this.parentElement.parentElement.remove(); this.closest('.number-sudoku-game').resetGame()">再玩一次</button>
-      <button onclick="this.parentElement.parentElement.remove(); loadGame(document.getElementById('module-content'))">返回游戏列表</button>
+      <div class="completion-buttons">
+        <button class="play-again-btn">再玩一次</button>
+        <button class="return-btn">返回游戏列表</button>
+      </div>
     `;
-    
+
+    // 添加按钮点击事件
+    const playAgainBtn = message.querySelector('.play-again-btn');
+    const returnBtn = message.querySelector('.return-btn');
+
+    playAgainBtn.addEventListener('click', () => {
+      overlay.remove();
+      this.resetGame();
+    });
+
+    returnBtn.addEventListener('click', () => {
+      overlay.remove();
+      loadGame(document.getElementById('module-content'));
+    });
+
     overlay.appendChild(message);
     document.body.appendChild(overlay);
-    
+
     overlay.onclick = (e) => {
       if (e.target === overlay) {
         overlay.remove();
@@ -752,7 +830,7 @@ class NumberSudokuGame {
    */
   updateTimer() {
     if (this.isCompleted) return;
-    
+
     const now = new Date();
     const diff = Math.floor((now - this.startTime) / 1000);
     const minutes = Math.floor(diff / 60).toString().padStart(2, '0');
@@ -768,18 +846,18 @@ class NumberSudokuGame {
    */
   showHint() {
     if (this.isCompleted) return;
-    
+
     // 找到第一个错误或空单元格并显示正确答案
     for (let i = 0; i < this.size; i++) {
       for (let j = 0; j < this.size; j++) {
         if (this.board[i][j] === null || this.board[i][j] !== this.solution[i][j]) {
           this.board[i][j] = this.solution[i][j];
           this.moves++;
-          
+
           if (this.checkCompletion()) {
             this.gameCompleted();
           }
-          
+
           this.render();
           return;
         }
@@ -798,11 +876,11 @@ class NumberSudokuGame {
     this.moves = 0;
     this.isCompleted = false;
     if (this.timer) clearInterval(this.timer);
-    
+
     // 移除完成消息
     const overlay = document.querySelector('.overlay');
     if (overlay) overlay.remove();
-    
+
     this.initializeGame();
   }
 }

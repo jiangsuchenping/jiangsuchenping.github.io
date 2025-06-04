@@ -464,3 +464,12 @@ footer {
 .klotski-container button:hover {
   background-color: #45a049;
 }
+
+/* 确保选择器权重一致 */
+button.sudoku-modal-button.primary { 
+  /* 原有样式 */
+}
+
+button.sudoku-modal-button.secondary-btn {
+  /* 原有样式 */
+}
