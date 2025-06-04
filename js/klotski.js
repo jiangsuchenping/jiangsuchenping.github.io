@@ -117,6 +117,21 @@ class KlotskiGame {
     resetButton.addEventListener('click', () => this.resetGame());
     gameContainer.appendChild(resetButton);
 
+    // 添加历史记录容器
+    const historyContainer = document.createElement('div');
+    historyContainer.className = 'klotski-history';
+    historyContainer.style.cssText = `
+      margin-top: 20px;
+      padding: 10px;
+      background: #f8f8f8;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    `;
+    gameContainer.appendChild(historyContainer);
+
+    // 初始化历史记录显示
+    this.updateHistoryDisplay();
+
     this.container.innerHTML = '';
     this.container.appendChild(gameContainer);
   }
@@ -147,6 +162,10 @@ class KlotskiGame {
         const timeSpent = Math.floor((now - this.startTime) / 1000);
         const minutes = Math.floor(timeSpent / 60).toString().padStart(2, '0');
         const seconds = (timeSpent % 60).toString().padStart(2, '0');
+
+        // 保存游戏记录
+        this.saveGameRecord(timeSpent);
+
         alert(`恭喜你赢了！\n总共移动了 ${this.moves} 步\n用时：${minutes}:${seconds}`);
         this.resetGame();
       }
@@ -242,6 +261,73 @@ class KlotskiGame {
     this.moves = 0;
     if (this.timer) clearInterval(this.timer);
     this.initializeGame();
+  }
+
+  saveGameRecord(timeSpent) {
+    // 获取现有记录
+    let records = JSON.parse(localStorage.getItem('klotskiRecords') || '[]');
+
+    // 添加新记录
+    records.push({
+      date: new Date().toLocaleString(),
+      moves: this.moves,
+      time: timeSpent,
+      timeFormatted: `${Math.floor(timeSpent / 60).toString().padStart(2, '0')}:${(timeSpent % 60).toString().padStart(2, '0')}`
+    });
+
+    // 按时间倒序排序
+    records.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    // 只保留最近的10条记录
+    records = records.slice(0, 10);
+
+    // 保存到本地存储
+    localStorage.setItem('klotskiRecords', JSON.stringify(records));
+
+    // 更新历史记录显示
+    this.updateHistoryDisplay();
+  }
+
+  updateHistoryDisplay() {
+    const records = JSON.parse(localStorage.getItem('klotskiRecords') || '[]');
+    const historyContainer = document.querySelector('.klotski-history');
+
+    if (!historyContainer) return;
+
+    if (records.length === 0) {
+      historyContainer.innerHTML = '<p class="no-records" style="text-align: center; color: #666;">暂无历史记录</p>';
+      return;
+    }
+
+    const table = document.createElement('table');
+    table.style.cssText = `
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 14px;
+    `;
+
+    table.innerHTML = `
+      <thead>
+        <tr>
+          <th style="padding: 8px; text-align: left; border-bottom: 2px solid #ddd;">日期</th>
+          <th style="padding: 8px; text-align: center; border-bottom: 2px solid #ddd;">步数</th>
+          <th style="padding: 8px; text-align: center; border-bottom: 2px solid #ddd;">用时</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${records.map(record => `
+          <tr>
+            <td style="padding: 8px; border-bottom: 1px solid #ddd;">${record.date}</td>
+            <td style="padding: 8px; text-align: center; border-bottom: 1px solid #ddd;">${record.moves}步</td>
+            <td style="padding: 8px; text-align: center; border-bottom: 1px solid #ddd;">${record.timeFormatted}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    `;
+
+    historyContainer.innerHTML = '<h4 style="margin: 0 0 10px 0; color: #333;">历史记录</h4>';
+    historyContainer.appendChild(table);
   }
 }
 
