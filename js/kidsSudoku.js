@@ -473,12 +473,29 @@ class KidsSudokuGame {
       <p>你成功完成了数独游戏！</p>
       <p>用时: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}</p>
       <p>移动次数: ${this.moves}</p>
-      <button onclick="this.parentElement.parentElement.remove(); this.closest('.kids-sudoku-game').resetGame()">再玩一次</button>
-      <button onclick="this.parentElement.parentElement.remove(); loadGame(document.getElementById('module-content'))">返回游戏列表</button>
+      <button class='sudoku-modal-button primary' id='kids-retry-btn'>
+  <svg viewBox='0 0 24 24'><path d='M12 5V1L7 6l5 5V7c3.3 0 6 2.7 6 6s-2.7 6-6 6-6-2.7-6-6H4c0 4.4 3.6 8 8 8s8-3.6 8-8-3.6-8-8-8z'/></svg>
+  再玩一次
+</button>
+<button class='sudoku-modal-button secondary-btn' id='kids-back-btn'>
+  <svg viewBox='0 0 24 24'><path d='M11.67 3.87L9 9h12l-2.07 4.77L11.67 3.87zm-4.3 5.8l-4.38 11.46c-.37.96.55 1.87 1.47 1.43l16.01-8.05c.93-.47.93-1.83 0-2.3L8.74 2.03c-.92-.44-1.84.47-1.47 1.44l2.76 7.2z'/></svg>
+  返回列表
+</button>
     `;
 
     overlay.appendChild(message);
     document.body.appendChild(overlay);
+
+    // 绑定按钮事件
+    message.querySelector('#kids-retry-btn').addEventListener('click', () => {
+      this.resetGame();
+      overlay.remove();
+    });
+
+    message.querySelector('#kids-back-btn').addEventListener('click', () => {
+      overlay.remove();
+      loadGame(document.getElementById('module-content'));
+    });
 
     overlay.onclick = (e) => {
       if (e.target === overlay) {
