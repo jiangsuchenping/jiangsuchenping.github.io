@@ -6,6 +6,19 @@ class SudokuGame {
         this.startTime = null;
         this.timer = null;
         this.historyContainer = null;
+        this.history = [];
+
+        // 从本地存储加载历史记录
+        try {
+            const savedHistory = localStorage.getItem('sudokuHistory');
+            if (savedHistory) {
+                this.history = JSON.parse(savedHistory);
+            }
+        } catch (error) {
+            console.error('加载历史记录失败:', error);
+            this.history = [];
+        }
+
         this.initializeGame();
     }
 
@@ -254,33 +267,18 @@ class SudokuGame {
 
         gameContainer.appendChild(buttonContainer);
 
-        // 添加历史记录容器
-        this.historyContainer = document.createElement('div');
-        this.historyContainer.className = 'sudoku-history';
-        this.historyContainer.style.cssText = `
-            margin-top: 20px;
-            padding: 15px;
-            background: #f8f8f8;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-        `;
-
-        // 添加历史记录标题
-        const historyTitle = document.createElement('h4');
-        historyTitle.style.cssText = 'margin: 0 0 15px 0; color: #333; font-size: 16px; text-align: center;';
-        historyTitle.textContent = '历史记录';
-        this.historyContainer.appendChild(historyTitle);
-
-        gameContainer.appendChild(this.historyContainer);
-
-        // 初始化历史记录显示
-        this.updateHistoryDisplay();
+        // 创建历史记录容器
+        const historyContainer = document.createElement('div');
+        historyContainer.className = 'sudoku-history-container';
+        historyContainer.style.cssText = 'margin:20px 0; padding-top:15px; border-top:2px solid #eee;';
+        gameContainer.appendChild(historyContainer);
+        this.historyContainer = historyContainer;
 
         this.container.innerHTML = '';
         this.container.appendChild(gameContainer);
+
+        // 渲染历史记录
+        this.renderHistory();
     }
 
     handleCellClick(cell, row, col) {
@@ -329,214 +327,192 @@ class SudokuGame {
     }
 
     checkWin() {
-        let isWin = true;
-        // 检查每一行
+        // 检查是否所有单元格都已填写
+        for (let i = 0; i < 9; i++) {
+            for (let j = 0; j < 9; j++) {
+                if (this.board[i][j] === 0) return false;
+            }
+        }
+
+        // 检查行
         for (let i = 0; i < 9; i++) {
             const row = new Set();
             for (let j = 0; j < 9; j++) {
-                if (this.board[i][j] === 0 || row.has(this.board[i][j])) {
-                    isWin = false;
-                    break;
-                }
                 row.add(this.board[i][j]);
             }
-            if (!isWin) break;
+            if (row.size !== 9) return false;
         }
 
-        // 检查每一列
-        if (isWin) {
-            for (let j = 0; j < 9; j++) {
-                const col = new Set();
-                for (let i = 0; i < 9; i++) {
-                    if (this.board[i][j] === 0 || col.has(this.board[i][j])) {
-                        isWin = false;
-                        break;
-                    }
-                    col.add(this.board[i][j]);
-                }
-                if (!isWin) break;
+        // 检查列
+        for (let j = 0; j < 9; j++) {
+            const col = new Set();
+            for (let i = 0; i < 9; i++) {
+                col.add(this.board[i][j]);
             }
+            if (col.size !== 9) return false;
         }
 
-        // 检查每个3x3方格
-        if (isWin) {
-            for (let block = 0; block < 9; block++) {
+        // 检查3x3方格
+        for (let boxRow = 0; boxRow < 3; boxRow++) {
+            for (let boxCol = 0; boxCol < 3; boxCol++) {
                 const box = new Set();
-                const startRow = Math.floor(block / 3) * 3;
-                const startCol = (block % 3) * 3;
                 for (let i = 0; i < 3; i++) {
                     for (let j = 0; j < 3; j++) {
-                        const num = this.board[startRow + i][startCol + j];
-                        if (num === 0 || box.has(num)) {
-                            isWin = false;
-                            break;
-                        }
-                        box.add(num);
+                        box.add(this.board[boxRow * 3 + i][boxCol * 3 + j]);
                     }
-                    if (!isWin) break;
                 }
-                if (!isWin) break;
+                if (box.size !== 9) return false;
             }
         }
 
-        if (isWin) {
-            const now = new Date();
-            const timeSpent = Math.floor((now - this.startTime) / 1000);
-            const minutes = Math.floor(timeSpent / 60).toString().padStart(2, '0');
-            const seconds = (timeSpent % 60).toString().padStart(2, '0');
+        // 游戏胜利，保存记录
+        const endTime = new Date();
+        const totalTime = Math.floor((endTime - this.startTime) / 1000);
+        const minutes = Math.floor(totalTime / 60);
+        const seconds = totalTime % 60;
+        const duration = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 
-            // 保存游戏记录
-            this.saveGameRecord(timeSpent);
-
-            alert(`恭喜你赢了！\n用时：${minutes}:${seconds}`);
-
-            // 延迟重置游戏，确保历史记录已更新
-            setTimeout(() => {
-                this.resetGame();
-            }, 100);
-        }
-        return isWin;
-    }
-
-    saveGameRecord(timeSpent) {
         try {
-            // 验证游戏数据
-            if (!this.isValidGameRecord(timeSpent)) {
-                console.warn('无效的游戏记录，已跳过保存');
-                return;
-            }
-
-            // 获取现有记录
-            let records = JSON.parse(localStorage.getItem('sudokuRecords') || '[]');
-
-            // 清理无效记录
-            records = this.cleanInvalidRecords(records);
-
-            // 创建新记录
+            // 添加新记录
             const newRecord = {
-                date: new Date().toLocaleString(),
-                time: timeSpent,
-                timeFormatted: `${Math.floor(timeSpent / 60).toString().padStart(2, '0')}:${(timeSpent % 60).toString().padStart(2, '0')}`,
-                timestamp: new Date().getTime()
+                time: new Date().toISOString(),
+                duration: duration,
+                moves: this.moves
             };
 
-            // 添加新记录到数组开头
-            records.unshift(newRecord);
+            // 将新记录添加到历史记录开头
+            this.history.unshift(newRecord);
 
             // 只保留最近的10条记录
-            records = records.slice(0, 10);
+            this.history = this.history.slice(0, 10);
 
-            // 保存到本地存储
-            localStorage.setItem('sudokuRecords', JSON.stringify(records));
+            // 保存历史记录到本地存储
+            localStorage.setItem('sudokuHistory', JSON.stringify(this.history));
 
             // 更新历史记录显示
-            this.updateHistoryDisplay();
+            this.renderHistory();
         } catch (error) {
             console.error('保存游戏记录失败:', error);
         }
+
+        return true;
     }
 
-    isValidGameRecord(timeSpent) {
-        return (
-            typeof timeSpent === 'number' &&
-            !isNaN(timeSpent) &&
-            timeSpent >= 0
-        );
-    }
-
-    cleanInvalidRecords(records) {
-        return records.filter(record => {
-            if (!record.time || !record.date) {
-                return false;
-            }
-
-            if (
-                typeof record.time !== 'number' ||
-                isNaN(record.time)
-            ) {
-                return false;
-            }
-
-            if (record.time < 0) {
-                return false;
-            }
-
-            return true;
-        });
-    }
-
-    updateHistoryDisplay() {
+    /**
+     * 渲染历史记录
+     */
+    renderHistory() {
         try {
-            if (!this.historyContainer) {
-                console.warn('历史记录容器未初始化');
-                return;
-            }
-
-            // 获取并清理记录
-            let records = JSON.parse(localStorage.getItem('sudokuRecords') || '[]');
-            records = this.cleanInvalidRecords(records);
-
-            // 如果清理后有变化，更新存储
-            if (records.length !== JSON.parse(localStorage.getItem('sudokuRecords') || '[]').length) {
-                localStorage.setItem('sudokuRecords', JSON.stringify(records));
-            }
-
-            // 保留标题
-            const title = this.historyContainer.querySelector('h4');
+            // 获取并排序历史记录（按时间倒序）
+            const records = [...this.history].sort((a, b) => new Date(b.time) - new Date(a.time));
             this.historyContainer.innerHTML = '';
-            if (title) {
-                this.historyContainer.appendChild(title);
-            }
+
+            // 添加历史记录标题
+            const historyTitle = document.createElement('h4');
+            historyTitle.textContent = '📖 游戏历史';
+            historyTitle.style.cssText = 'color:#666; margin-bottom:15px; font-size:1.2em;';
+            this.historyContainer.appendChild(historyTitle);
 
             if (records.length === 0) {
-                const noRecords = document.createElement('p');
-                noRecords.style.cssText = 'text-align: center; color: #666; padding: 20px;';
-                noRecords.textContent = '暂无历史记录';
-                this.historyContainer.appendChild(noRecords);
+                const emptyMsg = document.createElement('p');
+                emptyMsg.textContent = '暂无游戏记录，快完成一局吧~';
+                emptyMsg.style.cssText = 'text-align:center; color:#999;';
+                this.historyContainer.appendChild(emptyMsg);
                 return;
             }
 
             // 找出最佳记录
-            const minTime = Math.min(...records.map(r => r.time));
+            let bestTimeRecord = null;
+            let bestMovesRecord = null;
+            let minTime = Infinity;
+            let minMoves = Infinity;
+            let earliestTime = null;
+            let earliestMoves = null;
+
+            // 第一次遍历：找出最佳用时和步数
+            records.forEach(record => {
+                // 解析用时（格式：MM:SS）
+                const [minutes, seconds] = record.duration.split(':').map(Number);
+                const totalSeconds = minutes * 60 + seconds;
+
+                // 检查是否是最佳用时
+                if (totalSeconds < minTime) {
+                    minTime = totalSeconds;
+                }
+
+                // 检查是否是最佳步数
+                if (record.moves < minMoves) {
+                    minMoves = record.moves;
+                }
+            });
+
+            // 第二次遍历：找出最早达到最佳记录的游戏
+            records.forEach(record => {
+                const [minutes, seconds] = record.duration.split(':').map(Number);
+                const totalSeconds = minutes * 60 + seconds;
+                const recordTime = new Date(record.time);
+
+                // 检查是否是最佳用时，且是最早达到的
+                if (totalSeconds === minTime && (!earliestTime || recordTime < earliestTime)) {
+                    earliestTime = recordTime;
+                    bestTimeRecord = record;
+                }
+
+                // 检查是否是最佳步数，且是最早达到的
+                if (record.moves === minMoves && (!earliestMoves || recordTime < earliestMoves)) {
+                    earliestMoves = recordTime;
+                    bestMovesRecord = record;
+                }
+            });
 
             const table = document.createElement('table');
+            table.className = 'history-table';
             table.style.cssText = `
                 width: 100%;
                 border-collapse: collapse;
                 margin-top: 10px;
-                font-size: 14px;
+                font-size: 16px;
                 background: white;
                 border-radius: 4px;
                 overflow: hidden;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             `;
 
             table.innerHTML = `
                 <thead>
                     <tr>
-                        <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd; background: #f5f5f5;">日期</th>
-                        <th style="padding: 12px; text-align: center; border-bottom: 2px solid #ddd; background: #f5f5f5;">用时</th>
+                        <th style="padding: 15px; text-align: left; border-bottom: 2px solid #ddd; background: #f5f5f5;">日期</th>
+                        <th style="padding: 15px; text-align: center; border-bottom: 2px solid #ddd; background: #f5f5f5;">用时</th>
+                        <th style="padding: 15px; text-align: center; border-bottom: 2px solid #ddd; background: #f5f5f5;">步数</th>
                     </tr>
                 </thead>
                 <tbody>
-                    ${records.map(record => {
-                const isMinTime = record.time === minTime;
+                    ${records.map(r => {
+                const isBestTime = r === bestTimeRecord;
+                const isBestMoves = r === bestMovesRecord;
                 return `
                             <tr>
-                                <td style="padding: 12px; border-bottom: 1px solid #eee;">${record.date}</td>
-                                <td style="padding: 12px; text-align: center; border-bottom: 1px solid #eee; ${isMinTime ? 'color: #ff0000; font-weight: bold;' : ''}">${record.timeFormatted}</td>
+                                <td style="padding: 15px; border-bottom: 1px solid #eee;">${new Date(r.time).toLocaleString()}</td>
+                                <td style="padding: 15px; text-align: center; border-bottom: 1px solid #eee; ${isBestTime ? 'color: #ff0000; font-weight: bold;' : ''}">${r.duration}</td>
+                                <td style="padding: 15px; text-align: center; border-bottom: 1px solid #eee; ${isBestMoves ? 'color: #ff0000; font-weight: bold;' : ''}">${r.moves}</td>
                             </tr>
                         `;
             }).join('')}
                 </tbody>
             `;
-
             this.historyContainer.appendChild(table);
+
+            // 添加说明文字
+            const note = document.createElement('p');
+            note.style.cssText = 'text-align: center; color: #666; margin-top: 10px; font-size: 0.9em;';
+            note.textContent = '注：红色表示最佳记录（用时最短或步数最少，相同时取最早记录）';
+            this.historyContainer.appendChild(note);
         } catch (error) {
-            console.error('更新历史记录显示失败:', error);
-            const errorMessage = document.createElement('p');
-            errorMessage.style.cssText = 'text-align: center; color: #f44336; padding: 20px;';
-            errorMessage.textContent = '加载历史记录失败，请刷新页面重试';
-            this.historyContainer.appendChild(errorMessage);
+            console.error('历史记录加载失败:', error);
+            const errorMsg = document.createElement('p');
+            errorMsg.textContent = '历史记录加载失败，请刷新页面重试';
+            errorMsg.style.cssText = 'text-align:center; color:#f44336;';
+            this.historyContainer.appendChild(errorMsg);
         }
     }
 } 

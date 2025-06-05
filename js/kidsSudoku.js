@@ -10,35 +10,31 @@ class KidsSudokuGame {
    */
   constructor(container) {
     this.container = container;
-    // Load saved game state
-    const savedData = localStorage.getItem('kidsSudokuData');
-    if (savedData) {
-      const {board, moves, startTime} = JSON.parse(savedData);
-      this.board = board;
-      this.moves = moves;
-      this.startTime = new Date(startTime);
-    } else {
-      this.board = [];
-      this.moves = 0;
-      this.startTime = null;
-    }
-    this.board = [];
     this.solution = [];
     this.selectedCell = null;
-    // Save game state
-    const gameData = {
-      board: this.board,
-      moves: this.moves,
-      startTime: this.startTime
-    };
-    localStorage.setItem('kidsSudokuData', JSON.stringify(gameData));
-    this.moves = 0;
-    this.startTime = null;
     this.timer = null;
     this.isCompleted = false;
+    this.historyContainer = null;
 
     // 使用可爱的图形符号
     this.symbols = ['🐱', '🐶', '🐰', '🐸'];
+
+    // 初始化游戏数据
+    this.board = [];
+    this.moves = 0;
+    this.startTime = null;
+    this.history = [];
+
+    // 从本地存储加载历史记录
+    try {
+      const savedHistory = localStorage.getItem('kidsSudokuHistory');
+      if (savedHistory) {
+        this.history = JSON.parse(savedHistory);
+      }
+    } catch (error) {
+      console.error('加载历史记录失败:', error);
+      this.history = [];
+    }
 
     this.initializeGame();
   }
@@ -196,8 +192,6 @@ class KidsSudokuGame {
     const historyContainer = document.createElement('div');
     historyContainer.className = 'kids-history-container';
     historyContainer.style.cssText = 'margin:20px 0; padding-top:15px; border-top:2px solid #eee;';
-    
-    // 添加容器到按钮下方
     gameContainer.appendChild(historyContainer);
     this.historyContainer = historyContainer;
 
@@ -209,23 +203,10 @@ class KidsSudokuGame {
     gameContainer.resetGame = () => this.resetGame();
     gameContainer.showHint = () => this.showHint();
 
-        // 创建历史记录容器
-    const historyContainer = document.createElement('div');
-    historyContainer.className = 'kids-history-container';
-    historyContainer.style.cssText = 'margin-top:20px; border-top:2px dashed #eee; padding-top:20px;';
-    
-    // 历史记录标题
-    const historyTitle = document.createElement('h4');
-    historyTitle.textContent = '📖 游戏历史';
-    historyTitle.style.cssText = 'color:#666; margin-bottom:15px; font-size:1.2em;';
-    historyContainer.appendChild(historyTitle);
-
-    // 添加容器到界面
-    gameContainer.appendChild(historyContainer);
-    this.historyContainer = historyContainer;
-
     this.container.innerHTML = '';
     this.container.appendChild(gameContainer);
+
+    // 渲染历史记录
     this.renderHistory();
   }
 
@@ -234,14 +215,15 @@ class KidsSudokuGame {
    */
   renderHistory() {
     try {
-      const records = JSON.parse(localStorage.getItem('kidsSudokuData'))?.history
-        ?.sort((a, b) => new Date(b.time) - new Date(a.time)) || [];
+      // 获取并排序历史记录（按时间倒序）
+      const records = [...this.history].sort((a, b) => new Date(b.time) - new Date(a.time));
       this.historyContainer.innerHTML = '';
-      
-      const title = document.createElement('h4');
-      title.textContent = '📖 游戏历史';
-      title.style.cssText = 'color:#666; margin-bottom:15px; font-size:1.2em;';
-      this.historyContainer.appendChild(title);
+
+      // 添加历史记录标题
+      const historyTitle = document.createElement('h4');
+      historyTitle.textContent = '📖 游戏历史';
+      historyTitle.style.cssText = 'color:#666; margin-bottom:15px; font-size:1.2em;';
+      this.historyContainer.appendChild(historyTitle);
 
       if (records.length === 0) {
         const emptyMsg = document.createElement('p');
@@ -251,25 +233,98 @@ class KidsSudokuGame {
         return;
       }
 
+      // 找出最佳记录
+      let bestTimeRecord = null;
+      let bestMovesRecord = null;
+      let minTime = Infinity;
+      let minMoves = Infinity;
+      let earliestTime = null;
+      let earliestMoves = null;
+
+      // 第一次遍历：找出最佳用时和步数
+      records.forEach(record => {
+        // 解析用时（格式：MM:SS）
+        const [minutes, seconds] = record.duration.split(':').map(Number);
+        const totalSeconds = minutes * 60 + seconds;
+
+        // 检查是否是最佳用时
+        if (totalSeconds < minTime) {
+          minTime = totalSeconds;
+        }
+
+        // 检查是否是最佳步数
+        if (record.moves < minMoves) {
+          minMoves = record.moves;
+        }
+      });
+
+      // 第二次遍历：找出最早达到最佳记录的游戏
+      records.forEach(record => {
+        const [minutes, seconds] = record.duration.split(':').map(Number);
+        const totalSeconds = minutes * 60 + seconds;
+        const recordTime = new Date(record.time);
+
+        // 检查是否是最佳用时，且是最早达到的
+        if (totalSeconds === minTime && (!earliestTime || recordTime < earliestTime)) {
+          earliestTime = recordTime;
+          bestTimeRecord = record;
+        }
+
+        // 检查是否是最佳步数，且是最早达到的
+        if (record.moves === minMoves && (!earliestMoves || recordTime < earliestMoves)) {
+          earliestMoves = recordTime;
+          bestMovesRecord = record;
+        }
+      });
+
       const table = document.createElement('table');
       table.className = 'history-table';
+      table.style.cssText = `
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+        font-size: 16px;
+        background: white;
+        border-radius: 4px;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      `;
+
       table.innerHTML = `
-        <tr>
-          <th>日期</th>
-          <th>用时</th>
-          <th>移动次数</th>
-        </tr>
-        ${records.map(r => `
+        <thead>
           <tr>
-            <td>${new Date(r.time).toLocaleDateString()}</td>
-            <td>${r.duration}</td>
-            <td>${r.moves}</td>
+            <th style="padding: 15px; text-align: left; border-bottom: 2px solid #ddd; background: #f5f5f5;">日期</th>
+            <th style="padding: 15px; text-align: center; border-bottom: 2px solid #ddd; background: #f5f5f5;">用时</th>
+            <th style="padding: 15px; text-align: center; border-bottom: 2px solid #ddd; background: #f5f5f5;">步数</th>
           </tr>
-        `).join('')}
+        </thead>
+        <tbody>
+          ${records.map(r => {
+        const isBestTime = r === bestTimeRecord;
+        const isBestMoves = r === bestMovesRecord;
+        return `
+              <tr>
+                <td style="padding: 15px; border-bottom: 1px solid #eee;">${new Date(r.time).toLocaleString()}</td>
+                <td style="padding: 15px; text-align: center; border-bottom: 1px solid #eee; ${isBestTime ? 'color: #ff0000; font-weight: bold;' : ''}">${r.duration}</td>
+                <td style="padding: 15px; text-align: center; border-bottom: 1px solid #eee; ${isBestMoves ? 'color: #ff0000; font-weight: bold;' : ''}">${r.moves}</td>
+              </tr>
+            `;
+      }).join('')}
+        </tbody>
       `;
       this.historyContainer.appendChild(table);
+
+      // 添加说明文字
+      const note = document.createElement('p');
+      note.style.cssText = 'text-align: center; color: #666; margin-top: 10px; font-size: 0.9em;';
+      note.textContent = '注：红色表示最佳记录（用时最短或步数最少，相同时取最早记录）';
+      this.historyContainer.appendChild(note);
     } catch (error) {
       console.error('历史记录加载失败:', error);
+      const errorMsg = document.createElement('p');
+      errorMsg.textContent = '历史记录加载失败，请刷新页面重试';
+      errorMsg.style.cssText = 'text-align:center; color:#f44336;';
+      this.historyContainer.appendChild(errorMsg);
     }
   }
 
@@ -550,13 +605,13 @@ class KidsSudokuGame {
       this.board[row][col] = symbolIndex;
       this.moves++;
       this.selectedCell = null;
-    // Save game state
-    const gameData = {
-      board: this.board,
-      moves: this.moves,
-      startTime: this.startTime
-    };
-    localStorage.setItem('kidsSudokuData', JSON.stringify(gameData));
+      // Save game state
+      const gameData = {
+        board: this.board,
+        moves: this.moves,
+        startTime: this.startTime
+      };
+      localStorage.setItem('kidsSudokuData', JSON.stringify(gameData));
 
       // 检查是否完成
       if (this.checkCompletion()) {
@@ -615,6 +670,30 @@ class KidsSudokuGame {
     const totalTime = Math.floor((endTime - this.startTime) / 1000);
     const minutes = Math.floor(totalTime / 60);
     const seconds = totalTime % 60;
+
+    // 保存游戏记录
+    try {
+      // 添加新记录
+      const newRecord = {
+        time: new Date().toISOString(),
+        duration: `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`,
+        moves: this.moves
+      };
+
+      // 将新记录添加到历史记录开头
+      this.history.unshift(newRecord);
+
+      // 只保留最近的10条记录
+      this.history = this.history.slice(0, 10);
+
+      // 保存历史记录到本地存储
+      localStorage.setItem('kidsSudokuHistory', JSON.stringify(this.history));
+
+      // 更新历史记录显示
+      this.renderHistory();
+    } catch (error) {
+      console.error('保存游戏记录失败:', error);
+    }
 
     setTimeout(() => {
       this.showCompletionMessage(minutes, seconds);
@@ -713,13 +792,6 @@ class KidsSudokuGame {
   resetGame() {
     this.moves = 0;
     this.selectedCell = null;
-    // Save game state
-    const gameData = {
-      board: this.board,
-      moves: this.moves,
-      startTime: this.startTime
-    };
-    localStorage.setItem('kidsSudokuData', JSON.stringify(gameData));
     this.isCompleted = false;
     if (this.timer) clearInterval(this.timer);
 
@@ -730,3 +802,6 @@ class KidsSudokuGame {
     this.initializeGame();
   }
 }
+
+// 导出类
+window.KidsSudokuGame = KidsSudokuGame;

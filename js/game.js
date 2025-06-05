@@ -33,7 +33,14 @@ function loadKidsSudoku(container) {
     const script = document.createElement('script');
     script.src = 'js/kidsSudoku.js';
     script.onload = () => {
-      new KidsSudokuGame(container);
+      // 确保脚本完全加载后再初始化游戏
+      setTimeout(() => {
+        if (typeof KidsSudokuGame !== 'undefined') {
+          new KidsSudokuGame(container);
+        } else {
+          console.error('KidsSudokuGame 类未定义');
+        }
+      }, 100);
     };
     document.head.appendChild(script);
   } else {
