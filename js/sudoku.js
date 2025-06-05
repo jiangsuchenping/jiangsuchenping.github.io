@@ -7,12 +7,14 @@ class SudokuGame {
         this.timer = null;
         this.historyContainer = null;
         this.history = [];
+        this.isCompleted = false;
 
         // 从本地存储加载历史记录
         try {
             const savedHistory = localStorage.getItem('sudokuHistory');
             if (savedHistory) {
                 this.history = JSON.parse(savedHistory);
+                console.log('加载历史记录:', this.history); // 调试日志
             }
         } catch (error) {
             console.error('加载历史记录失败:', error);
@@ -152,6 +154,7 @@ class SudokuGame {
         header.innerHTML = `
             <h3>数字数独</h3>
             <p>用时: <span id="timer">00:00</span></p>
+            <p>步数: ${this.moves}</p>
         `;
         gameContainer.appendChild(header);
 
@@ -270,14 +273,22 @@ class SudokuGame {
         // 创建历史记录容器
         const historyContainer = document.createElement('div');
         historyContainer.className = 'sudoku-history-container';
-        historyContainer.style.cssText = 'margin:20px 0; padding-top:15px; border-top:2px solid #eee;';
+        historyContainer.style.cssText = `
+            margin: 20px auto;
+            padding: 20px;
+            max-width: 800px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        `;
         gameContainer.appendChild(historyContainer);
         this.historyContainer = historyContainer;
 
+        // 清空容器并添加游戏界面
         this.container.innerHTML = '';
         this.container.appendChild(gameContainer);
 
-        // 渲染历史记录
+        // 立即渲染历史记录
         this.renderHistory();
     }
 
@@ -302,10 +313,12 @@ class SudokuGame {
                 this.board[row][col] = number;
                 element.textContent = number;
                 element.style.backgroundColor = '#e8f5e9';
+                this.moves++; // 增加移动次数
 
                 // 检查是否获胜
                 if (this.checkWin()) {
                     // 游戏胜利处理
+                    this.showWinMessage();
                 }
             } else {
                 // 显示错误提示
@@ -326,7 +339,106 @@ class SudokuGame {
         }
     }
 
+    /**
+     * 显示胜利消息
+     */
+    showWinMessage() {
+        const endTime = new Date();
+        const totalTime = Math.floor((endTime - this.startTime) / 1000);
+        const minutes = Math.floor(totalTime / 60);
+        const seconds = totalTime % 60;
+        const duration = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+        // 创建遮罩层
+        const overlay = document.createElement('div');
+        overlay.className = 'overlay';
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            animation: fadeIn 0.3s ease-out;
+        `;
+
+        // 创建胜利消息框
+        const message = document.createElement('div');
+        message.className = 'completion-message';
+        message.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            text-align: center;
+            z-index: 1000;
+            min-width: 300px;
+            animation: popIn 0.5s ease-out;
+        `;
+
+        message.innerHTML = `
+            <h2 style="color: #4CAF50; margin-bottom: 20px; font-size: 2em;">🎉 恭喜通关！</h2>
+            <p style="color: #666; margin: 10px 0; font-size: 1.2em;">用时: ${duration}</p>
+            <p style="color: #666; margin: 10px 0; font-size: 1.2em;">步数: ${this.moves}</p>
+            <div style="display: flex; justify-content: center; gap: 15px; margin-top: 25px;">
+                <button class="play-again-btn" style="padding: 12px 25px; border: none; border-radius: 25px; background: #4CAF50; color: white; cursor: pointer; font-size: 1.1em;">再玩一次</button>
+                <button class="return-btn" style="padding: 12px 25px; border: none; border-radius: 25px; background: #ff6b6b; color: white; cursor: pointer; font-size: 1.1em;">返回游戏列表</button>
+            </div>
+        `;
+
+        // 添加按钮点击事件
+        const playAgainBtn = message.querySelector('.play-again-btn');
+        const returnBtn = message.querySelector('.return-btn');
+
+        playAgainBtn.addEventListener('click', () => {
+            overlay.remove();
+            this.resetGame();
+        });
+
+        returnBtn.addEventListener('click', () => {
+            overlay.remove();
+            window.showModule('game');
+        });
+
+        overlay.appendChild(message);
+        document.body.appendChild(overlay);
+
+        // 点击遮罩层关闭
+        overlay.onclick = (e) => {
+            if (e.target === overlay) {
+                overlay.remove();
+            }
+        };
+
+        // 添加动画样式
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            @keyframes popIn {
+                0% {
+                    transform: translate(-50%, -50%) scale(0.8);
+                    opacity: 0;
+                }
+                100% {
+                    transform: translate(-50%, -50%) scale(1);
+                    opacity: 1;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
     checkWin() {
+        if (this.isCompleted) return false; // 防止重复触发
+
         // 检查是否所有单元格都已填写
         for (let i = 0; i < 9; i++) {
             for (let j = 0; j < 9; j++) {
@@ -365,6 +477,8 @@ class SudokuGame {
             }
         }
 
+        this.isCompleted = true; // 标记游戏已完成
+
         // 游戏胜利，保存记录
         const endTime = new Date();
         const totalTime = Math.floor((endTime - this.startTime) / 1000);
@@ -373,6 +487,7 @@ class SudokuGame {
         const duration = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 
         try {
+            console.log('保存游戏记录...'); // 调试日志
             // 添加新记录
             const newRecord = {
                 time: new Date().toISOString(),
@@ -388,6 +503,7 @@ class SudokuGame {
 
             // 保存历史记录到本地存储
             localStorage.setItem('sudokuHistory', JSON.stringify(this.history));
+            console.log('游戏记录已保存:', this.history); // 调试日志
 
             // 更新历史记录显示
             this.renderHistory();
@@ -403,6 +519,13 @@ class SudokuGame {
      */
     renderHistory() {
         try {
+            console.log('开始渲染历史记录:', this.history); // 调试日志
+
+            if (!this.historyContainer) {
+                console.error('历史记录容器不存在');
+                return;
+            }
+
             // 获取并排序历史记录（按时间倒序）
             const records = [...this.history].sort((a, b) => new Date(b.time) - new Date(a.time));
             this.historyContainer.innerHTML = '';
@@ -507,6 +630,8 @@ class SudokuGame {
             note.style.cssText = 'text-align: center; color: #666; margin-top: 10px; font-size: 0.9em;';
             note.textContent = '注：红色表示最佳记录（用时最短或步数最少，相同时取最早记录）';
             this.historyContainer.appendChild(note);
+
+            console.log('历史记录渲染完成'); // 调试日志
         } catch (error) {
             console.error('历史记录加载失败:', error);
             const errorMsg = document.createElement('p');
