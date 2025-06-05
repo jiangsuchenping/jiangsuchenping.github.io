@@ -130,28 +130,54 @@ class KidsSudokuGame {
     }
 
     render() {
-        const gameContainer = document.createElement('div');
-        gameContainer.className = 'kids-sudoku-container';
+        // 清空容器
+        this.container.innerHTML = '';
 
-        // 创建游戏标题和移动次数显示
+        // 创建主容器
+        const mainContainer = document.createElement('div');
+        mainContainer.style.cssText = `
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            gap: 30px;
+        `;
+
+        // 创建游戏区域容器
+        const gameContainer = document.createElement('div');
+        gameContainer.style.cssText = `
+            width: 100%;
+            max-width: 800px;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        `;
+
+        // 创建游戏标题和计时器
         const header = document.createElement('div');
-        header.className = 'kids-sudoku-header';
+        header.style.cssText = `
+            text-align: center;
+            margin-bottom: 20px;
+        `;
         header.innerHTML = `
-            <h3>幼儿数独</h3>
-            <p>用时: <span id="timer">00:00</span></p>
+            <h2 style="margin: 0 0 10px 0;">幼儿数独</h2>
+            <div style="font-size: 18px;">用时: <span id="timer">00:00</span></div>
+            <div style="font-size: 18px;">步数: <span id="moves">0</span></div>
         `;
         gameContainer.appendChild(header);
 
         // 创建游戏板
         const board = document.createElement('div');
-        board.className = 'kids-sudoku-board';
         board.style.cssText = `
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 1px;
+            gap: 2px;
             background: #000;
-            padding: 1px;
-            max-width: 300px;
+            padding: 2px;
+            max-width: 400px;
             margin: 20px auto;
         `;
 
@@ -159,7 +185,6 @@ class KidsSudokuGame {
         for (let i = 0; i < 4; i++) {
             for (let j = 0; j < 4; j++) {
                 const cell = document.createElement('div');
-                cell.className = 'kids-sudoku-cell';
                 cell.style.cssText = `
                     background: white;
                     aspect-ratio: 1;
@@ -186,12 +211,11 @@ class KidsSudokuGame {
 
         // 创建数字选择面板
         const numberPanel = document.createElement('div');
-        numberPanel.className = 'number-panel';
         numberPanel.style.cssText = `
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 10px;
-            max-width: 300px;
+            max-width: 400px;
             margin: 20px auto;
             padding: 10px;
         `;
@@ -255,38 +279,40 @@ class KidsSudokuGame {
 
         gameContainer.appendChild(buttonContainer);
 
-        // 添加历史记录容器
-        this.historyContainer = document.createElement('div');
-        this.historyContainer.className = 'kids-sudoku-history';
-        this.historyContainer.style.cssText = `
-            margin-top: 20px;
-            padding: 15px;
-            background: #f8f8f8;
+        // 创建历史记录容器
+        const historyContainer = document.createElement('div');
+        historyContainer.style.cssText = `
+            width: 100%;
+            max-width: 800px;
+            padding: 20px;
+            background: #fff;
             border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         `;
 
         // 添加历史记录标题
-        const historyTitle = document.createElement('h4');
-        historyTitle.style.cssText = 'margin: 0 0 15px 0; color: #333; font-size: 16px; text-align: center;';
+        const historyTitle = document.createElement('h3');
+        historyTitle.style.cssText = 'margin: 0 0 20px 0; color: #333; font-size: 18px; text-align: center;';
         historyTitle.textContent = '历史记录';
-        this.historyContainer.appendChild(historyTitle);
+        historyContainer.appendChild(historyTitle);
 
-        gameContainer.appendChild(this.historyContainer);
+        // 保存历史记录容器的引用
+        this.historyContainer = historyContainer;
+
+        // 将游戏区域和历史记录区域添加到主容器
+        mainContainer.appendChild(gameContainer);
+        mainContainer.appendChild(historyContainer);
+
+        // 将主容器添加到页面
+        this.container.appendChild(mainContainer);
 
         // 初始化历史记录显示
         this.updateHistoryDisplay();
-
-        this.container.innerHTML = '';
-        this.container.appendChild(gameContainer);
     }
 
     handleCellClick(cell, row, col) {
         // 移除其他单元格的选中状态
-        const cells = document.querySelectorAll('.kids-sudoku-cell');
+        const cells = document.querySelectorAll('.sudoku-cell');
         cells.forEach(c => c.classList.remove('selected'));
 
         // 添加选中状态
@@ -305,6 +331,7 @@ class KidsSudokuGame {
                 this.board[row][col] = number;
                 element.textContent = number;
                 element.style.backgroundColor = '#e8f5e9';
+                this.moves++; // 增加步数
 
                 // 检查是否获胜
                 if (this.checkWin()) {
@@ -389,7 +416,7 @@ class KidsSudokuGame {
             // 保存游戏记录
             this.saveGameRecord(timeSpent);
 
-            alert(`恭喜你赢了！\n用时：${minutes}:${seconds}`);
+            alert(`恭喜你赢了！\n用时：${minutes}:${seconds}\n步数：${this.moves}`);
 
             // 延迟重置游戏，确保历史记录已更新
             setTimeout(() => {
@@ -418,6 +445,7 @@ class KidsSudokuGame {
                 date: new Date().toLocaleString(),
                 time: timeSpent,
                 timeFormatted: `${Math.floor(timeSpent / 60).toString().padStart(2, '0')}:${(timeSpent % 60).toString().padStart(2, '0')}`,
+                moves: this.moves,
                 timestamp: new Date().getTime()
             };
 
@@ -483,7 +511,7 @@ class KidsSudokuGame {
             }
 
             // 保留标题
-            const title = this.historyContainer.querySelector('h4');
+            const title = this.historyContainer.querySelector('h3');
             this.historyContainer.innerHTML = '';
             if (title) {
                 this.historyContainer.appendChild(title);
@@ -491,13 +519,13 @@ class KidsSudokuGame {
 
             if (records.length === 0) {
                 const noRecords = document.createElement('p');
-                noRecords.style.cssText = 'text-align: center; color: #666; padding: 20px;';
+                noRecords.style.cssText = 'text-align: center; color: #666; padding: 20px; font-size: 16px;';
                 noRecords.textContent = '暂无历史记录';
                 this.historyContainer.appendChild(noRecords);
                 return;
             }
 
-            // 找出最佳记录
+            // 找出最佳记录（用时最短）
             const minTime = Math.min(...records.map(r => r.time));
 
             const table = document.createElement('table');
@@ -505,17 +533,19 @@ class KidsSudokuGame {
                 width: 100%;
                 border-collapse: collapse;
                 margin-top: 10px;
-                font-size: 14px;
+                font-size: 16px;
                 background: white;
                 border-radius: 4px;
                 overflow: hidden;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             `;
 
             table.innerHTML = `
                 <thead>
                     <tr>
-                        <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd; background: #f5f5f5;">日期</th>
-                        <th style="padding: 12px; text-align: center; border-bottom: 2px solid #ddd; background: #f5f5f5;">用时</th>
+                        <th style="padding: 15px; text-align: left; border-bottom: 2px solid #ddd; background: #f5f5f5;">日期</th>
+                        <th style="padding: 15px; text-align: center; border-bottom: 2px solid #ddd; background: #f5f5f5;">用时</th>
+                        <th style="padding: 15px; text-align: center; border-bottom: 2px solid #ddd; background: #f5f5f5;">步数</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -523,8 +553,9 @@ class KidsSudokuGame {
                 const isMinTime = record.time === minTime;
                 return `
                             <tr>
-                                <td style="padding: 12px; border-bottom: 1px solid #eee;">${record.date}</td>
-                                <td style="padding: 12px; text-align: center; border-bottom: 1px solid #eee; ${isMinTime ? 'color: #ff0000; font-weight: bold;' : ''}">${record.timeFormatted}</td>
+                                <td style="padding: 15px; border-bottom: 1px solid #eee;">${record.date}</td>
+                                <td style="padding: 15px; text-align: center; border-bottom: 1px solid #eee; ${isMinTime ? 'color: #ff0000; font-weight: bold;' : ''}">${record.timeFormatted}</td>
+                                <td style="padding: 15px; text-align: center; border-bottom: 1px solid #eee;">${record.moves}</td>
                             </tr>
                         `;
             }).join('')}
@@ -535,7 +566,7 @@ class KidsSudokuGame {
         } catch (error) {
             console.error('更新历史记录显示失败:', error);
             const errorMessage = document.createElement('p');
-            errorMessage.style.cssText = 'text-align: center; color: #f44336; padding: 20px;';
+            errorMessage.style.cssText = 'text-align: center; color: #f44336; padding: 20px; font-size: 16px;';
             errorMessage.textContent = '加载历史记录失败，请刷新页面重试';
             this.historyContainer.appendChild(errorMessage);
         }
