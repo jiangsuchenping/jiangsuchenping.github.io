@@ -19,6 +19,16 @@ function initializeNavigation() {
             showModule(module);
         });
     });
+
+    // 初始化CTA按钮
+    const ctaButtons = document.querySelectorAll('.cta-buttons a');
+    ctaButtons.forEach(button => {
+        button.addEventListener('click', (e) => {
+            e.preventDefault();
+            const module = button.getAttribute('data-module');
+            showModule(module);
+        });
+    });
 }
 
 // 初始化游戏列表
@@ -34,7 +44,7 @@ function initializeGameList() {
 }
 
 // 显示指定模块
-window.showModule = function (moduleName) {
+function showModule(moduleName) {
     // 隐藏所有模块
     const modules = document.querySelectorAll('.module');
     modules.forEach(module => {
@@ -53,7 +63,7 @@ window.showModule = function (moduleName) {
         const gameContainer = document.getElementById('game-container');
         gameContainer.innerHTML = '';
     }
-};
+}
 
 // 开始游戏
 function startGame(gameType) {

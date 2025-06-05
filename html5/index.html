@@ -4,87 +4,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>江苏晨平的个人网站</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/kids-sudoku.css">
+    <title>幼儿数独游戏</title>
+    <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="./css/kids-sudoku.css">
 </head>
 
 <body>
-    <div class="container">
-        <!-- 导航栏 -->
-        <nav class="nav-bar">
-            <div class="nav-logo">江苏晨平</div>
-            <ul class="nav-menu">
-                <li><a href="#home" class="active">首页</a></li>
-                <li><a href="#about">关于我</a></li>
-                <li><a href="#games">小游戏</a></li>
-                <li><a href="#contact">联系方式</a></li>
+    <nav class="navbar">
+        <div class="nav-brand">幼儿数独</div>
+        <ul class="nav-menu">
+            <li><a href="#" data-module="home">首页</a></li>
+            <li><a href="#" data-module="game">游戏</a></li>
+            <li><a href="#" data-module="about">关于</a></li>
+        </ul>
+    </nav>
+
+    <main class="container">
+        <section id="home" class="module active">
+            <h1>欢迎来到幼儿数独</h1>
+            <p>这是一个专为幼儿设计的数独游戏，帮助孩子们培养逻辑思维和专注力。</p>
+            <div class="cta-buttons">
+                <a href="#" class="btn primary" data-module="game">开始游戏</a>
+                <a href="#" class="btn secondary" data-module="about">了解更多</a>
+            </div>
+        </section>
+
+        <section id="game" class="module">
+            <div class="game-list">
+                <div class="game-card" data-game="kids-sudoku">
+                    <h3>幼儿数独</h3>
+                    <p>4x4数独游戏，适合幼儿入门</p>
+                    <button class="play-btn">开始游戏</button>
+                </div>
+            </div>
+            <div id="game-container"></div>
+        </section>
+
+        <section id="about" class="module">
+            <h2>关于幼儿数独</h2>
+            <p>幼儿数独是一个专为3-6岁儿童设计的数独游戏。通过简单的4x4数独游戏，帮助孩子们：</p>
+            <ul>
+                <li>培养逻辑思维能力</li>
+                <li>提高专注力和观察力</li>
+                <li>建立数字概念</li>
+                <li>培养耐心和毅力</li>
             </ul>
-        </nav>
-
-        <!-- 首页部分 -->
-        <section id="home" class="section active">
-            <div class="welcome">
-                <h1>欢迎来到我的个人网站</h1>
-                <p>这里是我展示个人作品和分享生活的地方</p>
-            </div>
         </section>
+    </main>
 
-        <!-- 关于我部分 -->
-        <section id="about" class="section">
-            <div class="about-content">
-                <h2>关于我</h2>
-                <div class="about-text">
-                    <p>大家好，我是江苏晨平。我热爱编程和游戏开发，这个网站是我用来展示作品和分享生活的地方。</p>
-                    <p>在这里，你可以找到我开发的一些有趣的小游戏，以及我的个人博客文章。</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- 小游戏部分 -->
-        <section id="games" class="section">
-            <div class="games-content">
-                <h2>小游戏</h2>
-                <div class="game-list">
-                    <div class="game-item" data-game="kids-sudoku">
-                        <img src="images/kids-sudoku.png" alt="幼儿数独">
-                        <h3>幼儿数独</h3>
-                        <p>适合幼儿的简单数独游戏</p>
-                    </div>
-                    <div class="game-item" data-game="sudoku">
-                        <img src="images/sudoku.png" alt="数字数独">
-                        <h3>数字数独</h3>
-                        <p>经典的数字数独游戏</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 联系方式部分 -->
-        <section id="contact" class="section">
-            <div class="contact-content">
-                <h2>联系方式</h2>
-                <div class="contact-info">
-                    <p>邮箱：example@email.com</p>
-                    <p>微信：your_wechat</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- 游戏容器 -->
-        <div id="game-container" class="game-container hidden">
-            <div class="game-header">
-                <button class="back-btn">返回</button>
-                <h2 class="game-title"></h2>
-            </div>
-            <div class="game-content"></div>
-        </div>
-    </div>
-
-    <!-- 脚本 -->
-    <script src="js/main.js"></script>
-    <script src="js/kids-sudoku.js"></script>
-    <script src="js/sudoku.js"></script>
+    <script src="./js/main.js"></script>
+    <script src="./js/kids-sudoku.js"></script>
 </body>
 
 </html>
