@@ -284,7 +284,13 @@ class NumberSudokuGame {
 
         if (this.board[i][j] !== null) {
           cell.textContent = this.board[i][j];
-          cell.classList.add('filled');
+          // 只有初始数字才添加filled类
+          if (this.solution[i][j] === this.board[i][j]) {
+            cell.classList.add('filled');
+          } else {
+            // 用户填写的数字可以点击修改
+            cell.onclick = () => this.placeNumber(i, j);
+          }
         } else {
           cell.classList.add('empty');
           cell.onclick = () => this.placeNumber(i, j);
@@ -340,7 +346,7 @@ class NumberSudokuGame {
 
     // 更新计时器显示
     this.updateTimer();
-    
+
     // 渲染历史记录
     this.renderHistory();
   }
@@ -677,12 +683,24 @@ class NumberSudokuGame {
    * @param {number} col - 列索引
    */
   placeNumber(row, col) {
-    if (this.board[row][col] !== null || this.isCompleted) return;
+    // 如果是已填充的初始数字，不允许修改
+    if (this.board[row][col] !== null && this.solution[row][col] === this.board[row][col]) return;
+    if (this.isCompleted) return;
+
     if (this.selectedNumber === null) {
       // 擦除模式
-      this.board[row][col] = null;
-      this.render();
+      if (this.board[row][col] !== null) {
+        this.board[row][col] = null;
+        this.moves++;
+        this.render();
+      }
       return;
+    }
+
+    // 如果点击的单元格已经有数字，先删除它
+    if (this.board[row][col] !== null) {
+      this.board[row][col] = null;
+      this.moves++;
     }
 
     this.board[row][col] = this.selectedNumber;
@@ -1038,10 +1056,10 @@ class NumberSudokuGame {
         </thead>
         <tbody>
           ${records.map(r => {
-            const isBestTime = r === bestTimeRecord;
-            const isBestMoves = r === bestMovesRecord;
-            const difficultyName = this.getDifficultyName(r.difficulty);
-            return `
+        const isBestTime = r === bestTimeRecord;
+        const isBestMoves = r === bestMovesRecord;
+        const difficultyName = this.getDifficultyName(r.difficulty);
+        return `
               <tr>
                 <td style="padding: 15px; border-bottom: 1px solid #eee;">${new Date(r.time).toLocaleString()}</td>
                 <td style="padding: 15px; text-align: center; border-bottom: 1px solid #eee;">${difficultyName}</td>
@@ -1049,7 +1067,7 @@ class NumberSudokuGame {
                 <td style="padding: 15px; text-align: center; border-bottom: 1px solid #eee; ${isBestMoves ? 'color: #ff0000; font-weight: bold;' : ''}">${r.moves}</td>
               </tr>
             `;
-          }).join('')}
+      }).join('')}
         </tbody>
       `;
       this.historyContainer.appendChild(table);
