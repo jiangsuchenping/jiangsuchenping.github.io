@@ -1,0 +1,226 @@
+/* 游戏容器样式 */
+.sudoku-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: 'Arial', sans-serif;
+}
+
+/* 游戏头部样式 */
+.sudoku-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.sudoku-header h3 {
+    color: #333;
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.sudoku-header p {
+    color: #666;
+    margin: 5px 0;
+    font-size: 16px;
+}
+
+/* 游戏板样式 */
+.sudoku-board {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: #000;
+    padding: 1px;
+    max-width: 300px;
+    margin: 20px auto;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 单元格样式 */
+.sudoku-cell {
+    background: white;
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.2s;
+}
+
+.sudoku-cell:hover {
+    background-color: #f5f5f5;
+}
+
+.sudoku-cell.selected {
+    background-color: #e3f2fd;
+}
+
+/* 数字选择面板样式 */
+.number-panel {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    max-width: 300px;
+    margin: 20px auto;
+    padding: 10px;
+}
+
+.number-panel button {
+    padding: 15px;
+    font-size: 24px;
+    border: 1px solid #ccc;
+    background: white;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.number-panel button:hover {
+    background: #f0f0f0;
+    transform: scale(1.05);
+}
+
+/* 按钮容器样式 */
+.button-container {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin: 20px 0;
+}
+
+.return-btn {
+    padding: 12px 25px;
+    border: none;
+    border-radius: 25px;
+    background: #4CAF50;
+    color: white;
+    cursor: pointer;
+    font-size: 1.1em;
+    transition: all 0.2s;
+}
+
+.return-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* 历史记录容器样式 */
+.sudoku-history-container {
+    margin: 20px auto;
+    padding: 20px;
+    max-width: 800px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 历史记录表格样式 */
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    font-size: 16px;
+    background: white;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.history-table th {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 2px solid #ddd;
+    background: #f5f5f5;
+}
+
+.history-table td {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.history-table tr:last-child td {
+    border-bottom: none;
+}
+
+/* 胜利消息弹窗样式 */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.completion-message {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    z-index: 1000;
+    min-width: 300px;
+    animation: popIn 0.5s ease-out;
+}
+
+/* 动画关键帧 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes popIn {
+    0% {
+        transform: translate(-50%, -50%) scale(0.8);
+        opacity: 0;
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+}
+
+/* 响应式设计 */
+@media (max-width: 600px) {
+    .sudoku-container {
+        padding: 10px;
+    }
+
+    .sudoku-board {
+        max-width: 280px;
+    }
+
+    .number-panel {
+        max-width: 280px;
+    }
+
+    .number-panel button {
+        padding: 12px;
+        font-size: 20px;
+    }
+
+    .history-table {
+        font-size: 14px;
+    }
+
+    .history-table th,
+    .history-table td {
+        padding: 10px;
+    }
+}

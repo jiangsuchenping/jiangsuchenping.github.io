@@ -1,0 +1,359 @@
+/* 全局样式 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #f5f5f5;
+}
+
+/* 导航栏样式 */
+.navbar {
+    background-color: #fff;
+    padding: 1rem 2rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+}
+
+.nav-brand {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #4CAF50;
+}
+
+.nav-menu {
+    display: flex;
+    list-style: none;
+    gap: 2rem;
+}
+
+.nav-menu a {
+    text-decoration: none;
+    color: #666;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+.nav-menu a:hover {
+    color: #4CAF50;
+}
+
+/* 主容器样式 */
+.container {
+    max-width: 1200px;
+    margin: 80px auto 0;
+    padding: 2rem;
+}
+
+/* 模块样式 */
+.module {
+    display: none;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.module.active {
+    display: block;
+}
+
+/* 首页样式 */
+#home {
+    text-align: center;
+    padding: 4rem 2rem;
+}
+
+#home h1 {
+    font-size: 2.5rem;
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+#home p {
+    font-size: 1.2rem;
+    color: #666;
+    max-width: 600px;
+    margin: 0 auto 2rem;
+}
+
+.cta-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.btn {
+    padding: 1rem 2rem;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+.btn.primary {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.btn.secondary {
+    background-color: #fff;
+    color: #4CAF50;
+    border: 2px solid #4CAF50;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 游戏列表样式 */
+.game-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    padding: 2rem 0;
+}
+
+.game-card {
+    background: white;
+    border-radius: 10px;
+    padding: 2rem;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s;
+}
+
+.game-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.game-card h3 {
+    color: #333;
+    margin-bottom: 1rem;
+}
+
+.game-card p {
+    color: #666;
+    margin-bottom: 1.5rem;
+}
+
+.play-btn {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+.play-btn:hover {
+    background-color: #45a049;
+    transform: scale(1.05);
+}
+
+/* 游戏容器样式 */
+#game-container {
+    display: none;
+    margin-top: 2rem;
+}
+
+/* 关于页面样式 */
+#about {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+#about h2 {
+    color: #333;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+#about p {
+    color: #666;
+    margin-bottom: 1.5rem;
+}
+
+#about ul {
+    list-style-position: inside;
+    color: #666;
+    margin-left: 1rem;
+}
+
+#about li {
+    margin-bottom: 0.5rem;
+}
+
+/* 动画 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .navbar {
+        padding: 1rem;
+    }
+
+    .nav-menu {
+        gap: 1rem;
+    }
+
+    .container {
+        padding: 1rem;
+    }
+
+    #home {
+        padding: 2rem 1rem;
+    }
+
+    #home h1 {
+        font-size: 2rem;
+    }
+
+    .cta-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .btn {
+        width: 100%;
+        max-width: 300px;
+        text-align: center;
+    }
+
+    .game-list {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* 数独游戏样式 */
+.sudoku-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.sudoku-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.sudoku-board {
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
+    gap: 1px;
+    background: #000;
+    padding: 1px;
+    margin: 20px auto;
+}
+
+.sudoku-cell {
+    background: white;
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.sudoku-cell.selected {
+    background-color: #e3f2fd;
+}
+
+.number-panel {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    margin: 20px auto;
+    max-width: 450px;
+}
+
+.number-panel button {
+    padding: 10px;
+    font-size: 20px;
+    border: 1px solid #ccc;
+    background: white;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+/* 历史记录样式 */
+.sudoku-history-container {
+    margin: 20px auto;
+    padding: 20px;
+    max-width: 800px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    font-size: 16px;
+    background: white;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.history-table th,
+.history-table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.history-table th {
+    background: #f5f5f5;
+    font-weight: bold;
+}
+
+/* 动画效果 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes popIn {
+    0% {
+        transform: translate(-50%, -50%) scale(0.8);
+        opacity: 0;
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+}
