@@ -10,9 +10,28 @@ class KidsSudokuGame {
    */
   constructor(container) {
     this.container = container;
+    // Load saved game state
+    const savedData = localStorage.getItem('kidsSudokuData');
+    if (savedData) {
+      const {board, moves, startTime} = JSON.parse(savedData);
+      this.board = board;
+      this.moves = moves;
+      this.startTime = new Date(startTime);
+    } else {
+      this.board = [];
+      this.moves = 0;
+      this.startTime = null;
+    }
     this.board = [];
     this.solution = [];
     this.selectedCell = null;
+    // Save game state
+    const gameData = {
+      board: this.board,
+      moves: this.moves,
+      startTime: this.startTime
+    };
+    localStorage.setItem('kidsSudokuData', JSON.stringify(gameData));
     this.moves = 0;
     this.startTime = null;
     this.timer = null;
@@ -173,6 +192,15 @@ class KidsSudokuGame {
     `;
     gameContainer.appendChild(controls);
 
+    // 创建历史记录容器
+    const historyContainer = document.createElement('div');
+    historyContainer.className = 'kids-history-container';
+    historyContainer.style.cssText = 'margin:20px 0; padding-top:15px; border-top:2px solid #eee;';
+    
+    // 添加容器到按钮下方
+    gameContainer.appendChild(historyContainer);
+    this.historyContainer = historyContainer;
+
     // 添加样式
     this.addStyles(gameContainer);
 
@@ -181,8 +209,68 @@ class KidsSudokuGame {
     gameContainer.resetGame = () => this.resetGame();
     gameContainer.showHint = () => this.showHint();
 
+        // 创建历史记录容器
+    const historyContainer = document.createElement('div');
+    historyContainer.className = 'kids-history-container';
+    historyContainer.style.cssText = 'margin-top:20px; border-top:2px dashed #eee; padding-top:20px;';
+    
+    // 历史记录标题
+    const historyTitle = document.createElement('h4');
+    historyTitle.textContent = '📖 游戏历史';
+    historyTitle.style.cssText = 'color:#666; margin-bottom:15px; font-size:1.2em;';
+    historyContainer.appendChild(historyTitle);
+
+    // 添加容器到界面
+    gameContainer.appendChild(historyContainer);
+    this.historyContainer = historyContainer;
+
     this.container.innerHTML = '';
     this.container.appendChild(gameContainer);
+    this.renderHistory();
+  }
+
+  /**
+   * 渲染历史记录
+   */
+  renderHistory() {
+    try {
+      const records = JSON.parse(localStorage.getItem('kidsSudokuData'))?.history
+        ?.sort((a, b) => new Date(b.time) - new Date(a.time)) || [];
+      this.historyContainer.innerHTML = '';
+      
+      const title = document.createElement('h4');
+      title.textContent = '📖 游戏历史';
+      title.style.cssText = 'color:#666; margin-bottom:15px; font-size:1.2em;';
+      this.historyContainer.appendChild(title);
+
+      if (records.length === 0) {
+        const emptyMsg = document.createElement('p');
+        emptyMsg.textContent = '暂无游戏记录，快完成一局吧~';
+        emptyMsg.style.cssText = 'text-align:center; color:#999;';
+        this.historyContainer.appendChild(emptyMsg);
+        return;
+      }
+
+      const table = document.createElement('table');
+      table.className = 'history-table';
+      table.innerHTML = `
+        <tr>
+          <th>日期</th>
+          <th>用时</th>
+          <th>移动次数</th>
+        </tr>
+        ${records.map(r => `
+          <tr>
+            <td>${new Date(r.time).toLocaleDateString()}</td>
+            <td>${r.duration}</td>
+            <td>${r.moves}</td>
+          </tr>
+        `).join('')}
+      `;
+      this.historyContainer.appendChild(table);
+    } catch (error) {
+      console.error('历史记录加载失败:', error);
+    }
   }
 
   /**
@@ -462,6 +550,13 @@ class KidsSudokuGame {
       this.board[row][col] = symbolIndex;
       this.moves++;
       this.selectedCell = null;
+    // Save game state
+    const gameData = {
+      board: this.board,
+      moves: this.moves,
+      startTime: this.startTime
+    };
+    localStorage.setItem('kidsSudokuData', JSON.stringify(gameData));
 
       // 检查是否完成
       if (this.checkCompletion()) {
@@ -618,6 +713,13 @@ class KidsSudokuGame {
   resetGame() {
     this.moves = 0;
     this.selectedCell = null;
+    // Save game state
+    const gameData = {
+      board: this.board,
+      moves: this.moves,
+      startTime: this.startTime
+    };
+    localStorage.setItem('kidsSudokuData', JSON.stringify(gameData));
     this.isCompleted = false;
     if (this.timer) clearInterval(this.timer);
 
