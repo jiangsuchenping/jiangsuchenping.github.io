@@ -10,16 +10,7 @@ class SudokuGame {
         this.isCompleted = false;
 
         // 从本地存储加载历史记录
-        try {
-            const savedHistory = localStorage.getItem('sudokuHistory');
-            if (savedHistory) {
-                this.history = JSON.parse(savedHistory);
-                console.log('加载历史记录:', this.history); // 调试日志
-            }
-        } catch (error) {
-            console.error('加载历史记录失败:', error);
-            this.history = [];
-        }
+        this.loadHistory();
 
         this.initializeGame();
     }
@@ -140,11 +131,15 @@ class SudokuGame {
 
     resetGame() {
         this.moves = 0;
+        this.isCompleted = false;
         if (this.timer) clearInterval(this.timer);
         this.initializeGame();
     }
 
     render() {
+        // 清空容器
+        this.container.innerHTML = '';
+
         const gameContainer = document.createElement('div');
         gameContainer.className = 'sudoku-container';
 
@@ -284,8 +279,7 @@ class SudokuGame {
         gameContainer.appendChild(historyContainer);
         this.historyContainer = historyContainer;
 
-        // 清空容器并添加游戏界面
-        this.container.innerHTML = '';
+        // 添加游戏界面到容器
         this.container.appendChild(gameContainer);
 
         // 立即渲染历史记录
@@ -340,6 +334,47 @@ class SudokuGame {
     }
 
     /**
+     * 加载历史记录
+     */
+    loadHistory() {
+        try {
+            const savedHistory = localStorage.getItem('sudokuHistory');
+            if (savedHistory) {
+                this.history = JSON.parse(savedHistory);
+                console.log('成功加载历史记录:', this.history);
+            } else {
+                console.log('没有找到历史记录');
+                this.history = [];
+            }
+        } catch (error) {
+            console.error('加载历史记录失败:', error);
+            this.history = [];
+        }
+    }
+
+    /**
+     * 保存历史记录
+     */
+    saveHistory(newRecord) {
+        try {
+            // 将新记录添加到历史记录开头
+            this.history.unshift(newRecord);
+
+            // 只保留最近的10条记录
+            this.history = this.history.slice(0, 10);
+
+            // 保存历史记录到本地存储
+            localStorage.setItem('sudokuHistory', JSON.stringify(this.history));
+            console.log('成功保存历史记录:', this.history);
+
+            // 更新历史记录显示
+            this.renderHistory();
+        } catch (error) {
+            console.error('保存历史记录失败:', error);
+        }
+    }
+
+    /**
      * 显示胜利消息
      */
     showWinMessage() {
@@ -348,6 +383,14 @@ class SudokuGame {
         const minutes = Math.floor(totalTime / 60);
         const seconds = totalTime % 60;
         const duration = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+        // 保存游戏记录
+        const newRecord = {
+            time: new Date().toISOString(),
+            duration: duration,
+            moves: this.moves
+        };
+        this.saveHistory(newRecord);
 
         // 创建遮罩层
         const overlay = document.createElement('div');
@@ -478,39 +521,6 @@ class SudokuGame {
         }
 
         this.isCompleted = true; // 标记游戏已完成
-
-        // 游戏胜利，保存记录
-        const endTime = new Date();
-        const totalTime = Math.floor((endTime - this.startTime) / 1000);
-        const minutes = Math.floor(totalTime / 60);
-        const seconds = totalTime % 60;
-        const duration = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-
-        try {
-            console.log('保存游戏记录...'); // 调试日志
-            // 添加新记录
-            const newRecord = {
-                time: new Date().toISOString(),
-                duration: duration,
-                moves: this.moves
-            };
-
-            // 将新记录添加到历史记录开头
-            this.history.unshift(newRecord);
-
-            // 只保留最近的10条记录
-            this.history = this.history.slice(0, 10);
-
-            // 保存历史记录到本地存储
-            localStorage.setItem('sudokuHistory', JSON.stringify(this.history));
-            console.log('游戏记录已保存:', this.history); // 调试日志
-
-            // 更新历史记录显示
-            this.renderHistory();
-        } catch (error) {
-            console.error('保存游戏记录失败:', error);
-        }
-
         return true;
     }
 
