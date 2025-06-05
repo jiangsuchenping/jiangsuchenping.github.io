@@ -3,6 +3,7 @@ body {
   background: #f7faff;
   margin: 0;
   color: #333;
+  box-sizing: border-box;
 }
 
 header,
@@ -18,6 +19,8 @@ footer {
   justify-content: center;
   gap: 2em;
   margin: 2em 0;
+  flex-wrap: wrap;
+  padding: 0 1em;
 }
 
 .modules button {
@@ -30,6 +33,7 @@ footer {
   cursor: pointer;
   box-shadow: 0 2px 8px #eee;
   transition: background 0.2s;
+  margin: 0.5em;
 }
 
 .modules button:hover {
@@ -44,6 +48,7 @@ footer {
   box-shadow: 0 2px 12px #e3e3e3;
   padding: 2em;
   min-height: 200px;
+  width: 90%;
 }
 
 .card-list {
@@ -51,6 +56,7 @@ footer {
   gap: 1.5em;
   justify-content: center;
   margin: 1.5em 0;
+  flex-wrap: wrap;
 }
 
 .card {
@@ -106,6 +112,7 @@ footer {
   max-width: 400px;
   margin-left: auto;
   margin-right: auto;
+  width: 90%;
 }
 
 .options button {
@@ -472,4 +479,141 @@ button.sudoku-modal-button.primary {
 
 button.sudoku-modal-button.secondary-btn {
   /* 原有样式 */
+}
+
+/* 响应式设计 - 媒体查询 */
+@media screen and (max-width: 768px) {
+  /* 平板电脑屏幕 */
+  .modules button {
+    padding: 1.2em 2em;
+    font-size: 1.3em;
+  }
+  
+  #module-content {
+    padding: 1.5em;
+  }
+  
+  .card {
+    font-size: 1.8em;
+  }
+  
+  .math-pair {
+    font-size: 1.3em;
+  }
+  
+  .english-list {
+    font-size: 1.3em;
+  }
+  
+  .problem {
+    font-size: 1.8em;
+  }
+  
+  .options button {
+    font-size: 1.3em;
+  }
+  
+  .char {
+    font-size: 3.5em;
+  }
+  
+  .pinyin {
+    font-size: 1.3em;
+  }
+  
+  .klotski-board {
+    width: 280px;
+    height: 280px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  /* 手机屏幕 */
+  header h1 {
+    font-size: 1.8em;
+  }
+  
+  header p {
+    font-size: 1em;
+  }
+  
+  .modules {
+    gap: 1em;
+  }
+  
+  .modules button {
+    padding: 1em 1.5em;
+    font-size: 1.2em;
+    width: 100%;
+    max-width: 200px;
+  }
+  
+  #module-content {
+    padding: 1em;
+  }
+  
+  .card {
+    font-size: 1.5em;
+    padding: 0.8em 1.2em;
+  }
+  
+  .math-pair {
+    font-size: 1.2em;
+    grid-template-columns: 1fr;
+  }
+  
+  .english-list {
+    font-size: 1.2em;
+  }
+  
+  .problem {
+    font-size: 1.5em;
+  }
+  
+  .options {
+    grid-template-columns: 1fr;
+  }
+  
+  .options button {
+    font-size: 1.2em;
+  }
+  
+  .controls {
+    flex-direction: column;
+    gap: 1em;
+  }
+  
+  .controls button {
+    width: 100%;
+  }
+  
+  .char {
+    font-size: 3em;
+  }
+  
+  .pinyin {
+    font-size: 1.2em;
+  }
+  
+  .word-card {
+    padding: 1.5em;
+  }
+  
+  .game-item {
+    width: 100%;
+    max-width: 250px;
+  }
+  
+  .klotski-board {
+    width: 250px;
+    height: 250px;
+  }
+  
+  .klotski-header h3 {
+    font-size: 1.8em;
+  }
+  
+  .klotski-header p {
+    font-size: 1em;
+  }
 }
