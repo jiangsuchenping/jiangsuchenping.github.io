@@ -999,6 +999,11 @@
         window.loadChinese(document.getElementById('module-content'));
       } else {
         alert('请输入1-100之间的数字');
+        // 聚焦并全选输入框内容
+        setTimeout(() => {
+          input.focus();
+          input.select();
+        }, 0);
       }
     }
   };

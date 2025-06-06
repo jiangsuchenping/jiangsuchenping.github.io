@@ -4,55 +4,181 @@
 
   // 常用英语单词库（初级）
   const COMMON_WORDS = [
-    { word: "hello", translation: "你好" },
-    { word: "goodbye", translation: "再见" },
-    { word: "thank you", translation: "谢谢" },
-    { word: "please", translation: "请" },
-    { word: "sorry", translation: "对不起" },
-    { word: "yes", translation: "是的" },
-    { word: "no", translation: "不是" },
-    { word: "morning", translation: "早上" },
-    { word: "afternoon", translation: "下午" },
-    { word: "evening", translation: "晚上" },
-    { word: "school", translation: "学校" },
-    { word: "teacher", translation: "老师" },
-    { word: "student", translation: "学生" },
-    { word: "book", translation: "书" },
-    { word: "pencil", translation: "铅笔" },
-    { word: "pen", translation: "钢笔" },
-    { word: "paper", translation: "纸" },
-    { word: "table", translation: "桌子" },
-    { word: "chair", translation: "椅子" },
-    { word: "classroom", translation: "教室" },
-    { word: "window", translation: "窗户" },
-    { word: "door", translation: "门" },
-    { word: "family", translation: "家庭" },
-    { word: "father", translation: "爸爸" },
-    { word: "mother", translation: "妈妈" },
-    { word: "brother", translation: "兄弟" },
-    { word: "sister", translation: "姐妹" },
-    { word: "water", translation: "水" },
-    { word: "food", translation: "食物" },
-    { word: "fruit", translation: "水果" },
-    { word: "apple", translation: "苹果" },
-    { word: "banana", translation: "香蕉" },
-    { word: "orange", translation: "橙子" },
-    { word: "red", translation: "红色" },
-    { word: "blue", translation: "蓝色" },
-    { word: "green", translation: "绿色" },
-    { word: "yellow", translation: "黄色" },
-    { word: "black", translation: "黑色" },
-    { word: "white", translation: "白色" },
-    { word: "one", translation: "一" },
-    { word: "two", translation: "二" },
-    { word: "three", translation: "三" },
-    { word: "four", translation: "四" },
-    { word: "five", translation: "五" },
-    { word: "six", translation: "六" },
-    { word: "seven", translation: "七" },
-    { word: "eight", translation: "八" },
-    { word: "nine", translation: "九" },
-    { word: "ten", translation: "十" }
+    { word: "hello", phonetic: "/həˈləʊ/", translation: "你好" },
+    { word: "goodbye", phonetic: "/ˌɡʊdˈbaɪ/", translation: "再见" },
+    { word: "thank you", phonetic: "/ˈθæŋk juː/", translation: "谢谢" },
+    { word: "please", phonetic: "/pliːz/", translation: "请" },
+    { word: "sorry", phonetic: "/ˈsɒri/", translation: "对不起" },
+    { word: "yes", phonetic: "/jes/", translation: "是的" },
+    { word: "no", phonetic: "/nəʊ/", translation: "不是" },
+    { word: "morning", phonetic: "/ˈmɔːnɪŋ/", translation: "早上" },
+    { word: "afternoon", phonetic: "/ˌɑːftəˈnuːn/", translation: "下午" },
+    { word: "evening", phonetic: "/ˈiːvnɪŋ/", translation: "晚上" },
+    { word: "school", phonetic: "/skuːl/", translation: "学校" },
+    { word: "teacher", phonetic: "/ˈtiːtʃə/", translation: "老师" },
+    { word: "student", phonetic: "/ˈstjuːdnt/", translation: "学生" },
+    { word: "book", phonetic: "/bʊk/", translation: "书" },
+    { word: "pencil", phonetic: "/ˈpensl/", translation: "铅笔" },
+    { word: "pen", phonetic: "/pen/", translation: "钢笔" },
+    { word: "paper", phonetic: "/ˈpeɪpə/", translation: "纸" },
+    { word: "table", phonetic: "/ˈteɪbl/", translation: "桌子" },
+    { word: "chair", phonetic: "/tʃeə/", translation: "椅子" },
+    { word: "classroom", phonetic: "/ˈklɑːsruːm/", translation: "教室" },
+    { word: "window", phonetic: "/ˈwɪndəʊ/", translation: "窗户" },
+    { word: "door", phonetic: "/dɔː/", translation: "门" },
+    { word: "family", phonetic: "/ˈfæməli/", translation: "家庭" },
+    { word: "father", phonetic: "/ˈfɑːðə/", translation: "爸爸" },
+    { word: "mother", phonetic: "/ˈmʌðə/", translation: "妈妈" },
+    { word: "brother", phonetic: "/ˈbrʌðə/", translation: "兄弟" },
+    { word: "sister", phonetic: "/ˈsɪstə/", translation: "姐妹" },
+    { word: "water", phonetic: "/ˈwɔːtə/", translation: "水" },
+    { word: "food", phonetic: "/fuːd/", translation: "食物" },
+    { word: "fruit", phonetic: "/fruːt/", translation: "水果" },
+    { word: "apple", phonetic: "/ˈæpl/", translation: "苹果" },
+    { word: "banana", phonetic: "/bəˈnɑːnə/", translation: "香蕉" },
+    { word: "orange", phonetic: "/ˈɒrɪndʒ/", translation: "橙子" },
+    { word: "red", phonetic: "/red/", translation: "红色" },
+    { word: "blue", phonetic: "/bluː/", translation: "蓝色" },
+    { word: "green", phonetic: "/ɡriːn/", translation: "绿色" },
+    { word: "yellow", phonetic: "/ˈjeləʊ/", translation: "黄色" },
+    { word: "black", phonetic: "/blæk/", translation: "黑色" },
+    { word: "white", phonetic: "/waɪt/", translation: "白色" },
+    { word: "one", phonetic: "/wʌn/", translation: "一" },
+    { word: "two", phonetic: "/tuː/", translation: "二" },
+    { word: "three", phonetic: "/θriː/", translation: "三" },
+    { word: "four", phonetic: "/fɔː/", translation: "四" },
+    { word: "five", phonetic: "/faɪv/", translation: "五" },
+    { word: "six", phonetic: "/sɪks/", translation: "六" },
+    { word: "seven", phonetic: "/ˈsevn/", translation: "七" },
+    { word: "eight", phonetic: "/eɪt/", translation: "八" },
+    { word: "nine", phonetic: "/naɪn/", translation: "九" },
+    { word: "ten", phonetic: "/ten/", translation: "十" },
+    // 扩充的单词
+    { word: "cat", phonetic: "/kæt/", translation: "猫" },
+    { word: "dog", phonetic: "/dɒɡ/", translation: "狗" },
+    { word: "bird", phonetic: "/bɜːd/", translation: "鸟" },
+    { word: "fish", phonetic: "/fɪʃ/", translation: "鱼" },
+    { word: "rabbit", phonetic: "/ˈræbɪt/", translation: "兔子" },
+    { word: "elephant", phonetic: "/ˈelɪfənt/", translation: "大象" },
+    { word: "pig", phonetic: "/pɪɡ/", translation: "猪" },
+    { word: "horse", phonetic: "/hɔːs/", translation: "马" },
+    { word: "duck", phonetic: "/dʌk/", translation: "鸭子" },
+    { word: "chicken", phonetic: "/ˈtʃɪkɪn/", translation: "鸡" },
+    { word: "cow", phonetic: "/kaʊ/", translation: "奶牛" },
+    { word: "sheep", phonetic: "/ʃiːp/", translation: "羊" },
+    { word: "tiger", phonetic: "/ˈtaɪɡə/", translation: "老虎" },
+    { word: "lion", phonetic: "/ˈlaɪən/", translation: "狮子" },
+    { word: "monkey", phonetic: "/ˈmʌŋki/", translation: "猴子" },
+    { word: "zebra", phonetic: "/ˈzebrə/", translation: "斑马" },
+    { word: "bear", phonetic: "/beə/", translation: "熊" },
+    { word: "panda", phonetic: "/ˈpændə/", translation: "熊猫" },
+    { word: "sun", phonetic: "/sʌn/", translation: "太阳" },
+    { word: "moon", phonetic: "/muːn/", translation: "月亮" },
+    { word: "star", phonetic: "/stɑː/", translation: "星星" },
+    { word: "sky", phonetic: "/skaɪ/", translation: "天空" },
+    { word: "cloud", phonetic: "/klaʊd/", translation: "云" },
+    { word: "rain", phonetic: "/reɪn/", translation: "雨" },
+    { word: "snow", phonetic: "/snəʊ/", translation: "雪" },
+    { word: "wind", phonetic: "/wɪnd/", translation: "风" },
+    { word: "flower", phonetic: "/ˈflaʊə/", translation: "花" },
+    { word: "tree", phonetic: "/triː/", translation: "树" },
+    { word: "grass", phonetic: "/ɡrɑːs/", translation: "草" },
+    { word: "leaf", phonetic: "/liːf/", translation: "叶子" },
+    { word: "house", phonetic: "/haʊs/", translation: "房子" },
+    { word: "room", phonetic: "/ruːm/", translation: "房间" },
+    { word: "bed", phonetic: "/bed/", translation: "床" },
+    { word: "toy", phonetic: "/tɔɪ/", translation: "玩具" },
+    { word: "ball", phonetic: "/bɔːl/", translation: "球" },
+    { word: "doll", phonetic: "/dɒl/", translation: "娃娃" },
+    { word: "car", phonetic: "/kɑː/", translation: "汽车" },
+    { word: "bus", phonetic: "/bʌs/", translation: "公共汽车" },
+    { word: "train", phonetic: "/treɪn/", translation: "火车" },
+    { word: "airplane", phonetic: "/ˈeəpleɪn/", translation: "飞机" },
+    { word: "boat", phonetic: "/bəʊt/", translation: "船" },
+    { word: "bicycle", phonetic: "/ˈbaɪsɪkl/", translation: "自行车" },
+    { word: "eye", phonetic: "/aɪ/", translation: "眼睛" },
+    { word: "ear", phonetic: "/ɪə/", translation: "耳朵" },
+    { word: "nose", phonetic: "/nəʊz/", translation: "鼻子" },
+    { word: "mouth", phonetic: "/maʊθ/", translation: "嘴巴" },
+    { word: "hand", phonetic: "/hænd/", translation: "手" },
+    { word: "foot", phonetic: "/fʊt/", translation: "脚" },
+    { word: "head", phonetic: "/hed/", translation: "头" },
+    { word: "face", phonetic: "/feɪs/", translation: "脸" },
+    { word: "hair", phonetic: "/heə/", translation: "头发" },
+    { word: "body", phonetic: "/ˈbɒdi/", translation: "身体" },
+    { word: "leg", phonetic: "/leɡ/", translation: "腿" },
+    { word: "arm", phonetic: "/ɑːm/", translation: "手臂" },
+    { word: "circle", phonetic: "/ˈsɜːkl/", translation: "圆形" },
+    { word: "triangle", phonetic: "/ˈtraɪæŋɡl/", translation: "三角形" },
+    { word: "square", phonetic: "/skweə/", translation: "正方形" },
+    { word: "rectangle", phonetic: "/ˈrektæŋɡl/", translation: "长方形" },
+    { word: "big", phonetic: "/bɪɡ/", translation: "大的" },
+    { word: "small", phonetic: "/smɔːl/", translation: "小的" },
+    { word: "long", phonetic: "/lɒŋ/", translation: "长的" },
+    { word: "short", phonetic: "/ʃɔːt/", translation: "短的" },
+    { word: "tall", phonetic: "/tɔːl/", translation: "高的" },
+    { word: "heavy", phonetic: "/ˈhevi/", translation: "重的" },
+    { word: "light", phonetic: "/laɪt/", translation: "轻的" },
+    { word: "hot", phonetic: "/hɒt/", translation: "热的" },
+    { word: "cold", phonetic: "/kəʊld/", translation: "冷的" },
+    { word: "new", phonetic: "/njuː/", translation: "新的" },
+    { word: "old", phonetic: "/əʊld/", translation: "旧的" },
+    { word: "happy", phonetic: "/ˈhæpi/", translation: "开心的" },
+    { word: "sad", phonetic: "/sæd/", translation: "伤心的" },
+    { word: "good", phonetic: "/ɡʊd/", translation: "好的" },
+    { word: "bad", phonetic: "/bæd/", translation: "坏的" },
+    { word: "fast", phonetic: "/fɑːst/", translation: "快的" },
+    { word: "slow", phonetic: "/sləʊ/", translation: "慢的" },
+    { word: "up", phonetic: "/ʌp/", translation: "上" },
+    { word: "down", phonetic: "/daʊn/", translation: "下" },
+    { word: "left", phonetic: "/left/", translation: "左边" },
+    { word: "right", phonetic: "/raɪt/", translation: "右边" },
+    { word: "in", phonetic: "/ɪn/", translation: "在里面" },
+    { word: "out", phonetic: "/aʊt/", translation: "在外面" },
+    { word: "on", phonetic: "/ɒn/", translation: "在上面" },
+    { word: "under", phonetic: "/ˈʌndə/", translation: "在下面" },
+    { word: "here", phonetic: "/hɪə/", translation: "这里" },
+    { word: "there", phonetic: "/ðeə/", translation: "那里" },
+    { word: "boy", phonetic: "/bɔɪ/", translation: "男孩" },
+    { word: "girl", phonetic: "/ɡɜːl/", translation: "女孩" },
+    { word: "friend", phonetic: "/frend/", translation: "朋友" },
+    { word: "baby", phonetic: "/ˈbeɪbi/", translation: "婴儿" },
+    { word: "man", phonetic: "/mæn/", translation: "男人" },
+    { word: "woman", phonetic: "/ˈwʊmən/", translation: "女人" },
+    { word: "eat", phonetic: "/iːt/", translation: "吃" },
+    { word: "drink", phonetic: "/drɪŋk/", translation: "喝" },
+    { word: "sleep", phonetic: "/sliːp/", translation: "睡觉" },
+    { word: "run", phonetic: "/rʌn/", translation: "跑" },
+    { word: "walk", phonetic: "/wɔːk/", translation: "走" },
+    { word: "jump", phonetic: "/dʒʌmp/", translation: "跳" },
+    { word: "sing", phonetic: "/sɪŋ/", translation: "唱歌" },
+    { word: "dance", phonetic: "/dɑːns/", translation: "跳舞" },
+    { word: "play", phonetic: "/pleɪ/", translation: "玩" },
+    { word: "read", phonetic: "/riːd/", translation: "读" },
+    { word: "write", phonetic: "/raɪt/", translation: "写" },
+    { word: "draw", phonetic: "/drɔː/", translation: "画" },
+    { word: "love", phonetic: "/lʌv/", translation: "爱" },
+    { word: "like", phonetic: "/laɪk/", translation: "喜欢" },
+    { word: "want", phonetic: "/wɒnt/", translation: "想要" },
+    { word: "give", phonetic: "/ɡɪv/", translation: "给" },
+    { word: "take", phonetic: "/teɪk/", translation: "拿" },
+    { word: "open", phonetic: "/ˈəʊpən/", translation: "打开" },
+    { word: "close", phonetic: "/kləʊz/", translation: "关闭" },
+    { word: "help", phonetic: "/help/", translation: "帮助" },
+    { word: "milk", phonetic: "/mɪlk/", translation: "牛奶" },
+    { word: "juice", phonetic: "/dʒuːs/", translation: "果汁" },
+    { word: "rice", phonetic: "/raɪs/", translation: "米饭" },
+    { word: "bread", phonetic: "/bred/", translation: "面包" },
+    { word: "egg", phonetic: "/eɡ/", translation: "鸡蛋" },
+    { word: "meat", phonetic: "/miːt/", translation: "肉" },
+    { word: "vegetable", phonetic: "/ˈvedʒtəbl/", translation: "蔬菜" },
+    { word: "potato", phonetic: "/pəˈteɪtəʊ/", translation: "土豆" },
+    { word: "tomato", phonetic: "/təˈmɑːtəʊ/", translation: "番茄" },
+    { word: "carrot", phonetic: "/ˈkærət/", translation: "胡萝卜" },
+    { word: "cookie", phonetic: "/ˈkʊki/", translation: "饼干" },
+    { word: "ice cream", phonetic: "/ˈaɪs kriːm/", translation: "冰淇淋" },
+    { word: "candy", phonetic: "/ˈkændi/", translation: "糖果" },
+    { word: "cake", phonetic: "/keɪk/", translation: "蛋糕" }
   ];
 
   let currentWord = null;
@@ -156,6 +282,7 @@
       if (!data[word.word]) {
         data[word.word] = {
           word: word.word,
+          phonetic: word.phonetic || "",
           translation: word.translation,
           totalTests: 0,
           correctCount: 0,
@@ -163,6 +290,9 @@
           lastTestTime: new Date().toISOString(),
           nextReviewTime: getNextReviewTime(0).toISOString()
         };
+      } else if (!data[word.word].phonetic && word.phonetic) {
+        // 确保旧数据也有音标信息
+        data[word.word].phonetic = word.phonetic;
       }
 
       data[word.word].totalTests++;
@@ -209,6 +339,7 @@
         })
         .map(([key, value]) => ({
           word: key,
+          phonetic: value.phonetic,
           translation: value.translation,
           round: value.round || 0,
           accuracy: value.totalTests > 0 ? Math.round((value.correctCount / value.totalTests) * 100) : 0
@@ -235,6 +366,7 @@
           const word = unlearnedWords[randomIndex];
           selectedWords.push({
             word: word.word,
+            phonetic: word.phonetic,
             translation: word.translation,
             round: 0,
             accuracy: 0
@@ -247,6 +379,7 @@
       // 如果所有单词都学习过了，随机返回已学习的单词
       const allWords = Object.entries(data).map(([key, value]) => ({
         word: key,
+        phonetic: value.phonetic,
         translation: value.translation,
         round: value.round || 0,
         accuracy: value.totalTests > 0 ? Math.round((value.correctCount / value.totalTests) * 100) : 0
@@ -298,6 +431,7 @@
           const history = Object.entries(data)
             .map(([word, value]) => ({
               word: word,
+              phonetic: value.phonetic || "",
               translation: value.translation,
               totalTests: value.totalTests,
               correctCount: value.correctCount,
@@ -316,6 +450,7 @@
                 <thead>
                   <tr>
                     <th class="sortable" data-sort="word" title="点击按单词排序">单词</th>
+                    <th class="sortable" data-sort="phonetic" title="点击按音标排序">音标</th>
                     <th class="sortable" data-sort="translation" title="点击按翻译排序">翻译</th>
                     <th class="sortable" data-sort="totalTests" title="点击按练习次数排序">练习次数</th>
                     <th class="sortable" data-sort="accuracy" title="点击按正确率排序">正确率</th>
@@ -327,6 +462,7 @@
                   ${history.map(item => `
                     <tr>
                       <td>${item.word}</td>
+                      <td>${item.phonetic || ""}</td>
                       <td>${item.translation}</td>
                       <td>${item.totalTests}</td>
                       <td>${item.accuracy}%</td>
@@ -369,6 +505,7 @@
               tbody.innerHTML = sortedHistory.map(item => `
                 <tr>
                   <td>${item.word}</td>
+                  <td>${item.phonetic || ""}</td>
                   <td>${item.translation}</td>
                   <td>${item.totalTests}</td>
                   <td>${item.accuracy}%</td>
@@ -421,6 +558,7 @@
                 tbody.innerHTML = sortedHistory.map(item => `
                   <tr>
                     <td>${item.word}</td>
+                    <td>${item.phonetic || ""}</td>
                     <td>${item.translation}</td>
                     <td>${item.totalTests}</td>
                     <td>${item.accuracy}%</td>
@@ -599,12 +737,13 @@
       }
 
       container.innerHTML = `
-        <h2>英语乐园</h2>
+    <h2>英语乐园</h2>
         <div class="daily-progress">
           <p>今日学习进度：${todayLearned}/${dailyLimit}</p>
         </div>
         <div class="word-display">
           <div class="word">${currentWord.word}</div>
+          <div class="phonetic">${currentWord.phonetic || ""}</div>
           <div class="translation">${currentWord.translation}</div>
         </div>
         <div class="options">
@@ -623,9 +762,9 @@
         <div class="history-section">
           <h3>练习历史（点击表头可排序）</h3>
           <div class="history-list"></div>
-        </div>
-        <button class="return-btn" onclick="window.showModule('')">返回首页</button>
-      `;
+    </div>
+    <button class="return-btn" onclick="window.showModule('')">返回首页</button>
+  `;
 
       // 添加样式
       const style = document.createElement('style');
@@ -640,13 +779,20 @@
           display: flex;
           flex-direction: column;
           align-items: center;
-          gap: 10px;
+          gap: 5px;
         }
         .word {
           font-size: 42px;
           color: #333;
           line-height: 1;
-          margin-bottom: 5px;
+          margin-bottom: 0;
+        }
+        .phonetic {
+          font-size: 20px;
+          color: #888;
+          font-style: italic;
+          margin: 5px 0;
+          display: block; /* 确保音标显示 */
         }
         .translation {
           font-size: 24px;
@@ -934,6 +1080,11 @@
         window.loadEnglish(document.getElementById('module-content'));
       } else {
         alert('请输入1-100之间的数字');
+        // 聚焦并全选输入框内容
+        setTimeout(() => {
+          input.focus();
+          input.select();
+        }, 0);
       }
     }
   };
