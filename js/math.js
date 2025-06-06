@@ -1,4 +1,4 @@
-(function() {
+(function () {
   // 艾宾浩斯记忆法复习间隔（分钟）
   const REVIEW_INTERVALS = [5, 30, 60, 180, 360, 720, 1440, 2880, 4320, 7200];
 
@@ -46,7 +46,7 @@
     try {
       const data = loadPracticeData();
       const problemKey = `${problem.num1}${problem.operator}${problem.num2}`;
-      
+
       if (!data[problemKey]) {
         data[problemKey] = {
           problem: `${problem.num1} ${problem.operator} ${problem.num2} = ?`,
@@ -57,7 +57,7 @@
           nextReviewTime: getNextReviewTime(0).toISOString()
         };
       }
-      
+
       data[problemKey].totalTests++;
       if (isCorrect) {
         data[problemKey].correctCount++;
@@ -65,10 +65,10 @@
       } else {
         data[problemKey].round = Math.max(data[problemKey].round - 1, 0);
       }
-      
+
       data[problemKey].lastTestTime = new Date().toISOString();
       data[problemKey].nextReviewTime = getNextReviewTime(data[problemKey].round).toISOString();
-      
+
       savePracticeData(data);
       return data[problemKey];
     } catch (error) {
@@ -83,7 +83,7 @@
       const data = loadPracticeData();
       const now = new Date();
       const problems = [];
-      
+
       // 首先获取所有需要复习的题目（根据艾宾浩斯记忆法计算的时间）
       const reviewProblems = Object.entries(data)
         .filter(([_, value]) => new Date(value.nextReviewTime) <= now)
@@ -105,14 +105,14 @@
           };
         })
         .filter(problem => problem !== null); // 过滤掉解析失败的题目
-      
+
       // 如果有需要复习的题目，优先返回这些题目
       if (reviewProblems.length > 0) {
         // 按照正确率从低到高排序，优先练习正确率低的题目
         reviewProblems.sort((a, b) => a.accuracy - b.accuracy);
         return reviewProblems;
       }
-      
+
       // 如果没有需要复习的题目，生成新的题目
       // 从历史记录中找出正确率最低的题目类型
       const accuracyByType = {};
@@ -122,23 +122,23 @@
         const [_, num1, operator, num2] = match;
         const type = `${operator}`;
         const accuracy = value.totalTests > 0 ? Math.round((value.correctCount / value.totalTests) * 100) : 0;
-        
+
         if (!accuracyByType[type]) {
           accuracyByType[type] = { total: 0, count: 0 };
         }
         accuracyByType[type].total += accuracy;
         accuracyByType[type].count += 1;
       });
-      
+
       // 计算每种题型的平均正确率
       const typeAccuracies = Object.entries(accuracyByType).map(([type, data]) => ({
         type,
         accuracy: data.total / data.count
       }));
-      
+
       // 按照正确率从低到高排序题型
       typeAccuracies.sort((a, b) => a.accuracy - b.accuracy);
-      
+
       // 生成新题目时，优先使用正确率低的题型
       for (let i = 0; i < 10; i++) {
         let operator;
@@ -148,10 +148,10 @@
         } else {
           operator = Math.random() < 0.5 ? '+' : '-';
         }
-        
+
         const num1 = Math.floor(Math.random() * 10) + 1;
         const num2 = Math.floor(Math.random() * 10) + 1;
-        
+
         // 如果是减法，确保第一个数大于等于第二个数
         const problem = {
           num1: operator === '-' ? Math.max(num1, num2) : num1,
@@ -163,7 +163,7 @@
         };
         problems.push(problem);
       }
-      
+
       return problems;
     } catch (error) {
       console.error('获取练习题目失败:', error);
@@ -176,7 +176,7 @@
     try {
       const data = loadPracticeData();
       const history = [];
-      
+
       for (const [key, value] of Object.entries(data)) {
         // 从key中解析题目信息
         const match = key.match(/(\d+)([+-])(\d+)/);
@@ -186,7 +186,7 @@
         }
         const [_, num1, operator, num2] = match;
         const problemStr = `${num1} ${operator} ${num2} = ?`;
-        
+
         history.push({
           problem: problemStr,
           totalTests: value.totalTests,
@@ -198,7 +198,7 @@
           nextReviewTimeValue: new Date(value.nextReviewTime)
         });
       }
-      
+
       // 默认按照下次复习时间从近到远排序
       return history.sort((a, b) => a.nextReviewTimeValue - b.nextReviewTimeValue);
     } catch (error) {
@@ -238,28 +238,28 @@
   function generateOptions(answer) {
     const options = [answer];
     const usedNumbers = new Set([answer]);
-    
+
     // 生成3个不同的错误选项
     while (options.length < 4) {
-      const offset = Math.random() < 0.5 ? 
-        Math.floor(Math.random() * 3) + 1 : 
+      const offset = Math.random() < 0.5 ?
+        Math.floor(Math.random() * 3) + 1 :
         -(Math.floor(Math.random() * 3) + 1);
-      
+
       const newOption = answer + offset;
-      
+
       // 确保选项在1-20之间且不重复
       if (newOption > 0 && newOption <= 20 && !usedNumbers.has(newOption)) {
         options.push(newOption);
         usedNumbers.add(newOption);
       }
     }
-    
+
     // 随机打乱选项顺序
     return options.sort(() => Math.random() - 0.5);
   }
 
   // 加载数学乐园
-  window.loadMath = function(container) {
+  window.loadMath = function (container) {
     try {
       if (!container) {
         console.error('容器元素不存在');
@@ -279,11 +279,11 @@
         const nextTimes = Object.values(data)
           .map(d => new Date(d.nextReviewTime))
           .filter(time => time > new Date()); // 只考虑未来的时间
-        
+
         if (nextTimes.length > 0) {
           nextReviewTime = new Date(Math.min(...nextTimes));
           const timeUntilNext = Math.ceil((nextReviewTime - new Date()) / 60000); // 转换为分钟
-          
+
           container.innerHTML = `
             <h2>数学乐园</h2>
             <div class="rest-message">
@@ -310,14 +310,14 @@
             <button class="return-btn" onclick="window.showModule('')">返回首页</button>
           `;
         }
-        
+
         // 显示历史记录
         const historyList = container.querySelector('.history-list');
         const history = getHistory();
         if (history.length > 0) {
           // 使用上次的排序方式
           const sortedHistory = sortHistory(history, lastSortField, lastSortAscending);
-          
+
           historyList.innerHTML = `
             <table class="history-table">
               <thead>
@@ -372,14 +372,14 @@
         }
         return;
       }
-      
+
       // 随机选择一个题目
       const randomIndex = Math.floor(Math.random() * problems.length);
       window.currentProblem = problems[randomIndex];
-      
+
       // 生成随机选项
       const options = generateOptions(window.currentProblem.answer);
-      
+
       // 先更新DOM
       container.innerHTML = `
         <h2>数学乐园</h2>
@@ -415,17 +415,27 @@
           margin: 0 auto;
         }
         .options button {
-          padding: 15px;
-          font-size: 24px;
-          border: none;
-          border-radius: 5px;
+          padding: 15px 20px;
+          margin: 10px;
+          font-size: 1.5em;
           background: #4CAF50;
           color: white;
+          border: none;
+          border-radius: 8px;
           cursor: pointer;
-          transition: background 0.2s;
+          transition: all 0.3s ease;
+          min-width: 60px;
         }
         .options button:hover {
           background: #45a049;
+          transform: translateY(-3px);
+        }
+        .options button:disabled {
+          background-color: #cccccc;
+          color: #999999;
+          cursor: not-allowed;
+          transform: none;
+          opacity: 0.7;
         }
         .feedback {
           text-align: center;
@@ -550,7 +560,7 @@
           if (history.length > 0) {
             // 使用上次的排序方式
             const sortedHistory = sortHistory(history, lastSortField, lastSortAscending);
-            
+
             historyList.innerHTML = `
               <table class="history-table">
                 <thead>
@@ -632,7 +642,7 @@
     }
   };
 
-  window.handleAnswer = function(answer) {
+  window.handleAnswer = function (answer) {
     try {
       if (!window.currentProblem) {
         console.error('当前没有题目');
@@ -644,20 +654,36 @@
         return;
       }
 
+      // 禁用所有选项按钮，避免重复答题
+      const optionButtons = document.querySelectorAll('.options button');
+      optionButtons.forEach(button => {
+        button.disabled = true;
+      });
+
       const isCorrect = answer === window.currentProblem.answer;
       const problemData = updatePracticeData(window.currentProblem, isCorrect);
-      
+
       const feedback = document.querySelector('.feedback');
       if (feedback) {
         feedback.className = `feedback ${isCorrect ? 'correct' : 'wrong'}`;
         feedback.textContent = isCorrect ? '太棒了！' : '继续加油！';
       }
-      
+
       // 延迟加载下一题，确保用户能看到反馈
       setTimeout(() => {
         const moduleContent = document.getElementById('module-content');
         if (moduleContent && typeof window.loadMath === 'function') {
           window.loadMath(moduleContent);
+        } else {
+          // 如果加载失败，恢复按钮状态
+          console.error('加载下一题失败');
+          if (feedback) {
+            feedback.className = 'feedback wrong';
+            feedback.textContent = '加载下一题失败，请刷新页面重试';
+          }
+          optionButtons.forEach(button => {
+            button.disabled = false;
+          });
         }
       }, 1000);
     } catch (error) {
@@ -667,11 +693,17 @@
         feedback.className = 'feedback wrong';
         feedback.textContent = '发生错误，请刷新页面重试';
       }
+
+      // 恢复按钮状态
+      const optionButtons = document.querySelectorAll('.options button');
+      optionButtons.forEach(button => {
+        button.disabled = false;
+      });
     }
   };
 
   // 添加排序功能到window对象
-  window.sortHistoryTable = function(sortBy) {
+  window.sortHistoryTable = function (sortBy) {
     try {
       const historyList = document.querySelector('.history-list');
       if (!historyList) return;
@@ -688,16 +720,16 @@
 
       // 如果点击的是当前排序字段，则切换排序方向
       const isAscending = sortBy === lastSortField ? !lastSortAscending : true;
-      
+
       // 更新排序状态
       lastSortField = sortBy;
       lastSortAscending = isAscending;
-      
+
       // 更新所有表头的排序状态
       table.querySelectorAll('th').forEach(header => {
         header.classList.remove('ascending', 'descending');
       });
-      
+
       // 设置当前表头的排序状态
       th.classList.add(isAscending ? 'ascending' : 'descending');
 

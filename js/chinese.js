@@ -1,4 +1,4 @@
-(function() {
+(function () {
   // 艾宾浩斯记忆法复习间隔（分钟）
   const REVIEW_INTERVALS = [5, 30, 60, 180, 360, 720, 1440, 2880, 4320, 7200];
 
@@ -173,7 +173,7 @@
     try {
       const data = loadPracticeData();
       const today = new Date().toDateString();
-      return Object.values(data).filter(item => 
+      return Object.values(data).filter(item =>
         new Date(item.lastTestTime).toDateString() === today
       ).length;
     } catch (error) {
@@ -202,7 +202,7 @@
         console.error('更新练习数据失败: 无法加载练习数据');
         return null;
       }
-      
+
       if (!data[character]) {
         data[character] = {
           character: character,
@@ -213,7 +213,7 @@
           nextReviewTime: getNextReviewTime(0).toISOString()
         };
       }
-      
+
       data[character].totalTests++;
       if (isCorrect) {
         data[character].correctCount++;
@@ -221,10 +221,10 @@
       } else {
         data[character].round = Math.max(data[character].round - 1, 0);
       }
-      
+
       data[character].lastTestTime = new Date().toISOString();
       data[character].nextReviewTime = getNextReviewTime(data[character].round).toISOString();
-      
+
       savePracticeData(data);
       return data[character];
     } catch (error) {
@@ -241,11 +241,11 @@
       const dailyLimit = loadDailyLimit();
       const todayLearned = getTodayLearnedCount();
       const remainingToday = Math.max(0, dailyLimit - todayLearned);
-      
+
       if (remainingToday === 0) {
         return []; // 今日已达到学习上限
       }
-      
+
       // 首先获取所有需要复习的汉字（根据艾宾浩斯记忆法计算的时间）
       const reviewCharacters = Object.entries(data)
         .filter(([_, value]) => {
@@ -261,24 +261,24 @@
           round: value.round || 0,
           accuracy: value.totalTests > 0 ? Math.round((value.correctCount / value.totalTests) * 100) : 0
         }));
-      
+
       // 如果有需要复习的汉字，优先返回这些汉字
       if (reviewCharacters.length > 0) {
         // 按照正确率从低到高排序，优先练习正确率低的汉字
         reviewCharacters.sort((a, b) => a.accuracy - b.accuracy);
         return reviewCharacters.slice(0, remainingToday);
       }
-      
+
       // 如果没有需要复习的汉字，从字库中找出未学习的汉字
       const learnedCharacters = new Set(Object.keys(data));
       const unlearnedCharacters = COMMON_CHARACTERS.split('')
         .filter(char => !learnedCharacters.has(char));
-      
+
       if (unlearnedCharacters.length > 0) {
         // 随机选择未学习的汉字
         const selectedCharacters = [];
         const maxChars = Math.min(remainingToday, unlearnedCharacters.length);
-        
+
         for (let i = 0; i < maxChars; i++) {
           const randomIndex = Math.floor(Math.random() * unlearnedCharacters.length);
           const char = unlearnedCharacters[randomIndex];
@@ -291,7 +291,7 @@
         }
         return selectedCharacters;
       }
-      
+
       // 如果所有汉字都学习过了，随机返回已学习的汉字
       const allCharacters = Object.keys(data);
       if (allCharacters.length === 0) {
@@ -302,10 +302,10 @@
           accuracy: 0
         }));
       }
-      
+
       const randomCharacters = [];
       const maxChars = Math.min(remainingToday, allCharacters.length);
-      
+
       for (let i = 0; i < maxChars; i++) {
         const randomIndex = Math.floor(Math.random() * allCharacters.length);
         const char = allCharacters[randomIndex];
@@ -316,7 +316,7 @@
         });
         allCharacters.splice(randomIndex, 1);
       }
-      
+
       return randomCharacters;
     } catch (error) {
       console.error('获取练习汉字失败:', error);
@@ -332,15 +332,15 @@
   // 更新倒计时显示
   function updateCountdown() {
     if (!nextReviewTime) return;
-    
+
     const now = new Date();
     const timeUntilNext = Math.ceil((nextReviewTime - now) / 60000); // 转换为分钟
-    
+
     const countdownElement = document.querySelector('.countdown');
     if (countdownElement) {
       countdownElement.textContent = `休息一下，${timeUntilNext}分钟后可以继续练习哦！`;
     }
-    
+
     // 如果时间到了，自动刷新页面
     if (timeUntilNext <= 0) {
       location.reload();
@@ -348,7 +348,7 @@
   }
 
   // 将函数绑定到window对象
-  window.loadChinese = function(container) {
+  window.loadChinese = function (container) {
     try {
       if (!container) {
         console.error('容器元素不存在');
@@ -377,11 +377,11 @@
               nextReviewTime: new Date(value.nextReviewTime).toLocaleString()
             }))
             .sort((a, b) => new Date(b.lastTestTime) - new Date(a.lastTestTime));
-          
+
           if (history.length > 0) {
             // 获取上次的排序设置
             const sortSettings = loadSortSettings();
-            
+
             historyList.innerHTML = `
               <table class="history-table">
                 <thead>
@@ -412,12 +412,12 @@
             if (lastSortHeader) {
               // 设置初始排序状态
               lastSortHeader.classList.add(sortSettings.direction === 'asc' ? 'ascending' : 'descending');
-              
+
               // 直接排序数据
               const sortedHistory = [...history].sort((a, b) => {
                 let valueA = a[sortSettings.field];
                 let valueB = b[sortSettings.field];
-                
+
                 if (sortSettings.field === 'lastTestTime' || sortSettings.field === 'nextReviewTime') {
                   valueA = new Date(valueA).getTime();
                   valueB = new Date(valueB).getTime();
@@ -425,14 +425,14 @@
                   valueA = Number(valueA);
                   valueB = Number(valueB);
                 }
-                
+
                 if (sortSettings.direction === 'asc') {
                   return valueA > valueB ? 1 : -1;
                 } else {
                   return valueA < valueB ? 1 : -1;
                 }
               });
-              
+
               // 更新表格内容
               const tbody = historyList.querySelector('tbody');
               tbody.innerHTML = sortedHistory.map(item => `
@@ -452,23 +452,23 @@
               header.addEventListener('click', () => {
                 const field = header.dataset.sort;
                 const currentDirection = header.classList.contains('ascending') ? 'desc' : 'asc';
-                
+
                 // 保存排序设置
                 saveSortSettings(field, currentDirection);
-                
+
                 // 移除所有表头的排序状态
                 headers.forEach(h => {
                   h.classList.remove('ascending', 'descending');
                 });
-                
+
                 // 添加当前排序状态
                 header.classList.add(currentDirection === 'asc' ? 'ascending' : 'descending');
-                
+
                 // 重新排序数据
                 const sortedHistory = [...history].sort((a, b) => {
                   let valueA = a[field];
                   let valueB = b[field];
-                  
+
                   if (field === 'lastTestTime' || field === 'nextReviewTime') {
                     valueA = new Date(valueA).getTime();
                     valueB = new Date(valueB).getTime();
@@ -476,14 +476,14 @@
                     valueA = Number(valueA);
                     valueB = Number(valueB);
                   }
-                  
+
                   if (currentDirection === 'asc') {
                     return valueA > valueB ? 1 : -1;
                   } else {
                     return valueA < valueB ? 1 : -1;
                   }
                 });
-                
+
                 // 更新表格内容
                 const tbody = historyList.querySelector('tbody');
                 tbody.innerHTML = sortedHistory.map(item => `
@@ -655,7 +655,7 @@
       // 随机选择一个汉字
       const randomIndex = Math.floor(Math.random() * characters.length);
       currentCharacter = characters[randomIndex];
-      
+
       if (!currentCharacter || !currentCharacter.character) {
         container.innerHTML = `
           <h2>语文乐园</h2>
@@ -743,16 +743,30 @@
           color: white;
         }
         .learn-btn:hover {
-          background: #45a049;
-          transform: translateY(-2px);
+          background: #4CAF50;
+          transform: translateY(-3px);
         }
         .forget-btn {
-          background: #f44336;
+          background-color: #f44336;
           color: white;
+          border: none;
+          padding: 12px 25px;
+          border-radius: 4px;
+          font-size: 1.1em;
+          cursor: pointer;
+          transition: all 0.3s ease;
         }
         .forget-btn:hover {
           background: #d32f2f;
-          transform: translateY(-2px);
+          transform: translateY(-3px);
+        }
+        .learn-btn:disabled,
+        .forget-btn:disabled {
+          background-color: #cccccc;
+          color: #999999;
+          cursor: not-allowed;
+          transform: none;
+          opacity: 0.7;
         }
         .feedback {
           text-align: center;
@@ -887,7 +901,7 @@
     }
   };
 
-  window.handleChineseAnswer = function(isCorrect) {
+  window.handleChineseAnswer = function (isCorrect) {
     try {
       if (!currentCharacter || !currentCharacter.character) {
         console.error('当前没有汉字');
@@ -899,6 +913,12 @@
         return;
       }
 
+      // 禁用按钮，避免重复答题
+      const learnBtn = document.querySelector('.learn-btn');
+      const forgetBtn = document.querySelector('.forget-btn');
+      if (learnBtn) learnBtn.disabled = true;
+      if (forgetBtn) forgetBtn.disabled = true;
+
       const characterData = updatePracticeData(currentCharacter.character, isCorrect);
       if (!characterData) {
         console.error('更新练习数据失败');
@@ -909,13 +929,13 @@
         }
         return;
       }
-      
+
       const feedback = document.querySelector('.feedback');
       if (feedback) {
         feedback.className = `feedback ${isCorrect ? 'correct' : 'wrong'}`;
         feedback.textContent = isCorrect ? '太棒了！' : '继续加油！';
       }
-      
+
       // 延迟加载下一题，确保用户能看到反馈
       setTimeout(() => {
         try {
@@ -936,6 +956,12 @@
           if (feedback) {
             feedback.className = 'feedback wrong';
             feedback.textContent = '加载下一题失败，请刷新页面重试';
+
+            // 恢复按钮状态
+            const learnBtn = document.querySelector('.learn-btn');
+            const forgetBtn = document.querySelector('.forget-btn');
+            if (learnBtn) learnBtn.disabled = false;
+            if (forgetBtn) forgetBtn.disabled = false;
           }
         }
       }, 1000);
@@ -946,6 +972,12 @@
         feedback.className = 'feedback wrong';
         feedback.textContent = '发生错误，请刷新页面重试';
       }
+
+      // 恢复按钮状态
+      const learnBtn = document.querySelector('.learn-btn');
+      const forgetBtn = document.querySelector('.forget-btn');
+      if (learnBtn) learnBtn.disabled = false;
+      if (forgetBtn) forgetBtn.disabled = false;
     }
   };
 
@@ -957,7 +989,7 @@
   });
 
   // 更新每日学习量设置
-  window.updateDailyLimit = function() {
+  window.updateDailyLimit = function () {
     const input = document.getElementById('dailyLimit');
     if (input) {
       const newLimit = parseInt(input.value);
