@@ -921,10 +921,12 @@ class NumberSudokuGame {
 
   /**
    * 获取难度名称
+   * @param {string} [difficulty] - 难度级别，如果不传则使用当前难度
    * @returns {string} 难度名称
    */
-  getDifficultyName() {
-    switch (this.difficulty) {
+  getDifficultyName(difficulty) {
+    const targetDifficulty = difficulty || this.difficulty;
+    switch (targetDifficulty) {
       case 'easy': return '简单';
       case 'medium': return '中等';
       case 'hard': return '困难';
