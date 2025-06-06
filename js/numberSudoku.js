@@ -12,6 +12,7 @@ class NumberSudokuGame {
     this.container = container;
     this.board = [];
     this.solution = [];
+    this.initialBoard = []; // 保存初始谜题状态
     this.selectedCell = null;
     this.selectedNumber = null;
     this.moves = 0;
@@ -204,6 +205,9 @@ class NumberSudokuGame {
       const pos = positions[i];
       this.board[pos.row][pos.col] = null;
     }
+
+    // 保存初始谜题状态（深拷贝）
+    this.initialBoard = this.board.map(row => [...row]);
   }
 
   /**
@@ -284,13 +288,14 @@ class NumberSudokuGame {
 
         if (this.board[i][j] !== null) {
           cell.textContent = this.board[i][j];
-          // 只有初始数字才添加filled类
-          if (this.solution[i][j] === this.board[i][j]) {
-            cell.classList.add('filled');
+          // 区分初始数字和用户输入的数字
+          if (this.isInitialCell(i, j)) {
+            cell.classList.add('filled'); // 初始数字样式
           } else {
-            // 用户填写的数字可以点击修改
-            cell.onclick = () => this.placeNumber(i, j);
+            cell.classList.add('user-filled'); // 用户输入数字样式
           }
+          // 所有已填入的单元格都可以点击，但在placeNumber中会判断是否允许修改
+          cell.onclick = () => this.placeNumber(i, j);
         } else {
           cell.classList.add('empty');
           cell.onclick = () => this.placeNumber(i, j);
@@ -494,6 +499,19 @@ class NumberSudokuGame {
       .number-sudoku-cell.filled {
         background: #f0f8ff;
         color: #333;
+        font-weight: bold;
+      }
+      
+      .number-sudoku-cell.user-filled {
+        background: #fff3e0;
+        color: #2196f3;
+        font-weight: normal;
+        cursor: pointer;
+      }
+      
+      .number-sudoku-cell.user-filled:hover {
+        background: #ffe0b2;
+        transform: scale(1.05);
       }
       
       .number-sudoku-cell.empty {
@@ -684,7 +702,7 @@ class NumberSudokuGame {
    */
   placeNumber(row, col) {
     // 如果是已填充的初始数字，不允许修改
-    if (this.board[row][col] !== null && this.solution[row][col] === this.board[row][col]) return;
+    if (this.isInitialCell(row, col)) return;
     if (this.isCompleted) return;
 
     if (this.selectedNumber === null) {
@@ -1087,11 +1105,24 @@ class NumberSudokuGame {
   }
 
   /**
+   * 判断是否为初始单元格（谜题的一部分）
+   * @param {number} row - 行索引
+   * @param {number} col - 列索引
+   * @returns {boolean} 是否为初始单元格
+   */
+  isInitialCell(row, col) {
+    // 通过比较初始谜题状态来判断是否为初始单元格
+    // 如果初始谜题中该位置有数字，则为初始单元格，不可删除
+    return this.initialBoard && this.initialBoard[row] && this.initialBoard[row][col] !== null;
+  }
+
+  /**
    * 重置游戏
    */
   resetGame() {
     this.board = [];
     this.solution = [];
+    this.initialBoard = [];
     this.selectedCell = null;
     this.selectedNumber = null;
     this.moves = 0;
