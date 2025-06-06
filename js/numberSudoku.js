@@ -272,6 +272,7 @@ class NumberSudokuGame {
     const board = document.createElement('div');
     board.className = 'number-sudoku-board';
     board.style.gridTemplateColumns = `repeat(${this.size}, 1fr)`;
+    board.style.gridTemplateRows = `repeat(${this.size}, 1fr)`;
 
     for (let i = 0; i < this.size; i++) {
       for (let j = 0; j < this.size; j++) {
@@ -481,6 +482,7 @@ class NumberSudokuGame {
         padding: 2px;
         border-radius: 5px;
         box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        grid-template-rows: repeat(${this.size}, 1fr);
       }
       
       .number-sudoku-cell {
@@ -494,6 +496,10 @@ class NumberSudokuGame {
         transition: all 0.2s ease;
         user-select: none;
         position: relative;
+        width: 100%;
+        height: 100%;
+        box-sizing: border-box;
+        min-height: 60px;
       }
       
       .number-sudoku-cell.filled {
@@ -511,7 +517,6 @@ class NumberSudokuGame {
       
       .number-sudoku-cell.user-filled:hover {
         background: #ffe0b2;
-        transform: scale(1.05);
       }
       
       .number-sudoku-cell.empty {
@@ -538,6 +543,11 @@ class NumberSudokuGame {
       .number-sudoku-cell.wrong {
         color: #e74c3c !important;
         animation: shake 0.5s ease;
+      }
+      
+      .number-sudoku-cell.user-filled:hover,
+      .number-sudoku-cell.empty:hover {
+        transform: none;
       }
       
       .number-sudoku-cell.border-top {
@@ -574,7 +584,7 @@ class NumberSudokuGame {
       
       @keyframes pulse {
         0% { transform: scale(1); }
-        50% { transform: scale(1.1); }
+        50% { transform: scale(1.05); }
         100% { transform: scale(1); }
       }
       
