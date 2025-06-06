@@ -456,7 +456,7 @@
         }
         .history-list {
           margin-top: 10px;
-          max-height: 300px;
+          max-height: 500px;
           overflow-y: auto;
           position: relative;
         }

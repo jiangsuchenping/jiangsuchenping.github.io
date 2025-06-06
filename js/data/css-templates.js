@@ -101,7 +101,7 @@ const CSS_TEMPLATES = {
       right: 5px;
     }
     .history-list {
-      max-height: 300px;
+      max-height: 500px;
       overflow-y: auto;
       margin-top: 10px;
     }
