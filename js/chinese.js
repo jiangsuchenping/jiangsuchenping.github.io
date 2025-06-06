@@ -1,97 +1,9 @@
 (function () {
   // 艾宾浩斯记忆法复习间隔（分钟）
-  const REVIEW_INTERVALS = [5, 30, 60, 180, 360, 720, 1440, 2880, 4320, 7200];
+  const REVIEW_INTERVALS = LearningUtil.REVIEW_INTERVALS;
 
-  // 常用汉字库（一级字库）
-  const COMMON_CHARACTERS = '的一是在不了有和人这中大为上个国我以要他时来用们生到作地于出就分对成会可主发年动同工也能下过子说产种面而方后多定行学法所民得经十三之进着等部度家电力里如水化高自二理起小物现实加量都两体制机当使点从业本去把性好应开它合还因由其些然前外天政四日那社义事平形相全表间样与关各重新线内数正心反你明看原又么利比或但质气第向道命此变条只没结解问意建月公无系军很情者最立代想已通并提直题党程展五果料象员革位入常文总次品式活设及管特件长求老头基资边流路级少图山统接知较将组见计别她手角期根论运农指几九区强放决西被干做必战先回则任取据处队南给色光门即保治北造百规热领七海口东导器压志世金增争济阶油思术极交受联什认六共权收证改清己美再采转更单风切打白教速花带安场身车例真务具万每目至达走积示议声报斗完类八离华名确才科张信马节话米整空元况今集温传土许步群广石记需段研界拉林律叫且究观越织装影算低持音众书布复容儿须际商非验连断深难近矿千周委素技备半办青省列习响约支般史感劳便团往酸历市克何除消构府称太准精值号率族维划选标写存候毛亲快效斯院查江型眼王按格养易置派层片始却专状育厂京识适属圆包火住调满县局照参红细引听该铁价严龙飞';
-
-  // 汉字拼音对照表
-  const PINYIN_MAP = {
-    '的': 'de', '一': 'yī', '是': 'shì', '在': 'zài', '不': 'bù', '了': 'le',
-    '有': 'yǒu', '和': 'hé', '人': 'rén', '这': 'zhè', '中': 'zhōng', '大': 'dà',
-    '为': 'wéi', '上': 'shàng', '个': 'gè', '国': 'guó', '我': 'wǒ', '以': 'yǐ',
-    '要': 'yào', '他': 'tā', '时': 'shí', '来': 'lái', '用': 'yòng', '们': 'men',
-    '生': 'shēng', '到': 'dào', '作': 'zuò', '地': 'dì', '于': 'yú', '出': 'chū',
-    '就': 'jiù', '分': 'fēn', '对': 'duì', '成': 'chéng', '会': 'huì', '可': 'kě',
-    '主': 'zhǔ', '发': 'fā', '年': 'nián', '动': 'dòng', '同': 'tóng', '工': 'gōng',
-    '也': 'yě', '能': 'néng', '下': 'xià', '过': 'guò', '子': 'zǐ', '说': 'shuō',
-    '产': 'chǎn', '种': 'zhǒng', '面': 'miàn', '而': 'ér', '方': 'fāng', '后': 'hòu',
-    '多': 'duō', '定': 'dìng', '行': 'xíng', '学': 'xué', '法': 'fǎ', '所': 'suǒ',
-    '民': 'mín', '得': 'dé', '经': 'jīng', '十': 'shí', '三': 'sān', '之': 'zhī',
-    '进': 'jìn', '着': 'zhe', '等': 'děng', '部': 'bù', '度': 'dù', '家': 'jiā',
-    '电': 'diàn', '力': 'lì', '里': 'lǐ', '如': 'rú', '水': 'shuǐ', '化': 'huà',
-    '高': 'gāo', '自': 'zì', '二': 'èr', '理': 'lǐ', '起': 'qǐ', '小': 'xiǎo',
-    '物': 'wù', '现': 'xiàn', '实': 'shí', '加': 'jiā', '量': 'liàng', '都': 'dōu',
-    '两': 'liǎng', '体': 'tǐ', '制': 'zhì', '机': 'jī', '当': 'dāng', '使': 'shǐ',
-    '点': 'diǎn', '从': 'cóng', '业': 'yè', '本': 'běn', '去': 'qù', '把': 'bǎ',
-    '性': 'xìng', '好': 'hǎo', '应': 'yīng', '开': 'kāi', '它': 'tā', '合': 'hé',
-    '还': 'hái', '因': 'yīn', '由': 'yóu', '其': 'qí', '些': 'xiē', '然': 'rán',
-    '前': 'qián', '外': 'wài', '天': 'tiān', '政': 'zhèng', '四': 'sì', '日': 'rì',
-    '那': 'nà', '社': 'shè', '义': 'yì', '事': 'shì', '平': 'píng', '形': 'xíng',
-    '相': 'xiāng', '全': 'quán', '表': 'biǎo', '间': 'jiān', '样': 'yàng', '与': 'yǔ',
-    '关': 'guān', '各': 'gè', '重': 'zhòng', '新': 'xīn', '线': 'xiàn', '内': 'nèi',
-    '数': 'shù', '正': 'zhèng', '心': 'xīn', '反': 'fǎn', '你': 'nǐ', '明': 'míng',
-    '看': 'kàn', '原': 'yuán', '又': 'yòu', '么': 'me', '利': 'lì', '比': 'bǐ',
-    '或': 'huò', '但': 'dàn', '质': 'zhì', '气': 'qì', '第': 'dì', '向': 'xiàng',
-    '道': 'dào', '命': 'mìng', '此': 'cǐ', '变': 'biàn', '条': 'tiáo', '只': 'zhǐ',
-    '没': 'méi', '结': 'jié', '解': 'jiě', '问': 'wèn', '意': 'yì', '建': 'jiàn',
-    '月': 'yuè', '公': 'gōng', '无': 'wú', '系': 'xì', '军': 'jūn', '很': 'hěn',
-    '情': 'qíng', '者': 'zhě', '最': 'zuì', '立': 'lì', '代': 'dài', '想': 'xiǎng',
-    '已': 'yǐ', '通': 'tōng', '并': 'bìng', '提': 'tí', '直': 'zhí', '题': 'tí',
-    '党': 'dǎng', '程': 'chéng', '展': 'zhǎn', '五': 'wǔ', '果': 'guǒ', '料': 'liào',
-    '象': 'xiàng', '员': 'yuán', '革': 'gé', '位': 'wèi', '入': 'rù', '常': 'cháng',
-    '文': 'wén', '总': 'zǒng', '次': 'cì', '品': 'pǐn', '式': 'shì', '活': 'huó',
-    '设': 'shè', '及': 'jí', '管': 'guǎn', '特': 'tè', '件': 'jiàn', '长': 'cháng',
-    '求': 'qiú', '老': 'lǎo', '头': 'tóu', '基': 'jī', '资': 'zī', '边': 'biān',
-    '流': 'liú', '路': 'lù', '级': 'jí', '少': 'shǎo', '图': 'tú', '山': 'shān',
-    '统': 'tǒng', '接': 'jiē', '知': 'zhī', '较': 'jiào', '将': 'jiāng', '组': 'zǔ',
-    '见': 'jiàn', '计': 'jì', '别': 'bié', '她': 'tā', '手': 'shǒu', '角': 'jiǎo',
-    '期': 'qī', '根': 'gēn', '论': 'lùn', '运': 'yùn', '农': 'nóng', '指': 'zhǐ',
-    '几': 'jǐ', '九': 'jiǔ', '区': 'qū', '强': 'qiáng', '放': 'fàng', '决': 'jué',
-    '西': 'xī', '被': 'bèi', '干': 'gàn', '做': 'zuò', '必': 'bì', '战': 'zhàn',
-    '先': 'xiān', '回': 'huí', '则': 'zé', '任': 'rèn', '取': 'qǔ', '据': 'jù',
-    '处': 'chù', '队': 'duì', '南': 'nán', '给': 'gěi', '色': 'sè', '光': 'guāng',
-    '门': 'mén', '即': 'jí', '保': 'bǎo', '治': 'zhì', '北': 'běi', '造': 'zào',
-    '百': 'bǎi', '规': 'guī', '热': 'rè', '领': 'lǐng', '七': 'qī', '海': 'hǎi',
-    '口': 'kǒu', '东': 'dōng', '导': 'dǎo', '器': 'qì', '压': 'yā', '志': 'zhì',
-    '世': 'shì', '金': 'jīn', '增': 'zēng', '争': 'zhēng', '济': 'jì', '阶': 'jiē',
-    '油': 'yóu', '思': 'sī', '术': 'shù', '极': 'jí', '交': 'jiāo', '受': 'shòu',
-    '联': 'lián', '什': 'shén', '认': 'rèn', '六': 'liù', '共': 'gòng', '权': 'quán',
-    '收': 'shōu', '证': 'zhèng', '改': 'gǎi', '清': 'qīng', '己': 'jǐ', '美': 'měi',
-    '再': 'zài', '采': 'cǎi', '转': 'zhuǎn', '更': 'gèng', '单': 'dān', '风': 'fēng',
-    '切': 'qiē', '打': 'dǎ', '白': 'bái', '教': 'jiào', '速': 'sù', '花': 'huā',
-    '带': 'dài', '安': 'ān', '场': 'chǎng', '身': 'shēn', '车': 'chē', '例': 'lì',
-    '真': 'zhēn', '务': 'wù', '具': 'jù', '万': 'wàn', '每': 'měi', '目': 'mù',
-    '至': 'zhì', '达': 'dá', '走': 'zǒu', '积': 'jī', '示': 'shì', '议': 'yì',
-    '声': 'shēng', '报': 'bào', '斗': 'dòu', '完': 'wán', '类': 'lèi', '八': 'bā',
-    '离': 'lí', '华': 'huá', '名': 'míng', '确': 'què', '才': 'cái', '科': 'kē',
-    '张': 'zhāng', '信': 'xìn', '马': 'mǎ', '节': 'jié', '话': 'huà', '米': 'mǐ',
-    '整': 'zhěng', '空': 'kōng', '元': 'yuán', '况': 'kuàng', '今': 'jīn', '集': 'jí',
-    '温': 'wēn', '传': 'chuán', '土': 'tǔ', '许': 'xǔ', '步': 'bù', '群': 'qún',
-    '广': 'guǎng', '石': 'shí', '记': 'jì', '需': 'xū', '段': 'duàn', '研': 'yán',
-    '界': 'jiè', '拉': 'lā', '林': 'lín', '律': 'lǜ', '叫': 'jiào', '且': 'qiě',
-    '究': 'jiū', '观': 'guān', '越': 'yuè', '织': 'zhī', '装': 'zhuāng', '影': 'yǐng',
-    '算': 'suàn', '低': 'dī', '持': 'chí', '音': 'yīn', '众': 'zhòng', '书': 'shū',
-    '布': 'bù', '复': 'fù', '容': 'róng', '儿': 'ér', '须': 'xū', '际': 'jì',
-    '商': 'shāng', '非': 'fēi', '验': 'yàn', '连': 'lián', '断': 'duàn', '深': 'shēn',
-    '难': 'nán', '近': 'jìn', '矿': 'kuàng', '千': 'qiān', '周': 'zhōu', '委': 'wěi',
-    '素': 'sù', '技': 'jì', '备': 'bèi', '半': 'bàn', '办': 'bàn', '青': 'qīng',
-    '省': 'shěng', '列': 'liè', '习': 'xí', '响': 'xiǎng', '约': 'yuē', '支': 'zhī',
-    '般': 'bān', '史': 'shǐ', '感': 'gǎn', '劳': 'láo', '便': 'biàn', '团': 'tuán',
-    '往': 'wǎng', '酸': 'suān', '历': 'lì', '市': 'shì', '克': 'kè', '何': 'hé',
-    '除': 'chú', '消': 'xiāo', '构': 'gòu', '府': 'fǔ', '称': 'chēng', '太': 'tài',
-    '准': 'zhǔn', '精': 'jīng', '值': 'zhí', '号': 'hào', '率': 'lǜ', '族': 'zú',
-    '维': 'wéi', '划': 'huà', '选': 'xuǎn', '标': 'biāo', '写': 'xiě', '存': 'cún',
-    '候': 'hòu', '毛': 'máo', '亲': 'qīn', '快': 'kuài', '效': 'xiào', '斯': 'sī',
-    '院': 'yuàn', '查': 'chá', '江': 'jiāng', '型': 'xíng', '眼': 'yǎn', '王': 'wáng',
-    '按': 'àn', '格': 'gé', '养': 'yǎng', '易': 'yì', '置': 'zhì', '派': 'pài',
-    '层': 'céng', '片': 'piàn', '始': 'shǐ', '却': 'què', '专': 'zhuān', '状': 'zhuàng',
-    '育': 'yù', '厂': 'chǎng', '京': 'jīng', '识': 'shí', '适': 'shì', '属': 'shǔ',
-    '圆': 'yuán', '包': 'bāo', '火': 'huǒ', '住': 'zhù', '调': 'diào', '满': 'mǎn',
-    '县': 'xiàn', '局': 'jú', '照': 'zhào', '参': 'cān', '红': 'hóng', '细': 'xì',
-    '引': 'yǐn', '听': 'tīng', '该': 'gāi', '铁': 'tiě', '价': 'jià', '严': 'yán',
-    '龙': 'lóng', '飞': 'fēi'
-  };
+  // 使用从数据文件加载的常量
+  // COMMON_CHARACTERS 和 PINYIN_MAP 从 chinese-chars.js 引入
 
   // 获取汉字拼音
   function getPinyin(char) {
@@ -110,223 +22,69 @@
 
   // 从本地存储加载练习数据
   function loadPracticeData() {
-    try {
-      const data = localStorage.getItem('chinesePracticeData');
-      return data ? JSON.parse(data) : {};
-    } catch (error) {
-      console.error('加载练习数据失败:', error);
-      return {};
-    }
+    return StorageUtil.load(STORAGE_KEYS.CHINESE_PRACTICE_DATA, {});
   }
 
   // 保存练习数据到本地存储
   function savePracticeData(data) {
-    try {
-      localStorage.setItem('chinesePracticeData', JSON.stringify(data));
-    } catch (error) {
-      console.error('保存练习数据失败:', error);
-    }
+    return StorageUtil.save(STORAGE_KEYS.CHINESE_PRACTICE_DATA, data);
   }
 
   // 从本地存储加载排序设置
   function loadSortSettings() {
-    try {
-      const settings = localStorage.getItem('chineseSortSettings');
-      return settings ? JSON.parse(settings) : { field: 'lastTestTime', direction: 'desc' };
-    } catch (error) {
-      console.error('加载排序设置失败:', error);
-      return { field: 'lastTestTime', direction: 'desc' };
-    }
+    return StorageUtil.load(STORAGE_KEYS.CHINESE_SORT_SETTINGS, { field: 'lastTestTime', direction: 'desc' });
   }
 
   // 保存排序设置到本地存储
   function saveSortSettings(field, direction) {
-    try {
-      localStorage.setItem('chineseSortSettings', JSON.stringify({ field, direction }));
-    } catch (error) {
-      console.error('保存排序设置失败:', error);
-    }
+    return StorageUtil.save(STORAGE_KEYS.CHINESE_SORT_SETTINGS, { field, direction });
   }
 
   // 从本地存储加载每日学习量设置
   function loadDailyLimit() {
-    try {
-      const limit = localStorage.getItem('chineseDailyLimit');
-      return limit ? parseInt(limit) : 20; // 默认20个
-    } catch (error) {
-      console.error('加载每日学习量设置失败:', error);
-      return 20;
-    }
+    return StorageUtil.loadNumber(STORAGE_KEYS.CHINESE_DAILY_LIMIT, LEARNING_CONSTANTS.DEFAULT_DAILY_LIMIT);
   }
 
   // 保存每日学习量设置到本地存储
   function saveDailyLimit(limit) {
-    try {
-      localStorage.setItem('chineseDailyLimit', limit.toString());
-    } catch (error) {
-      console.error('保存每日学习量设置失败:', error);
-    }
+    return StorageUtil.saveNumber(STORAGE_KEYS.CHINESE_DAILY_LIMIT, limit, LEARNING_CONSTANTS.DEFAULT_DAILY_LIMIT);
   }
 
   // 获取今日已学习的汉字数量
   function getTodayLearnedCount() {
-    try {
-      const data = loadPracticeData();
-      const today = new Date().toDateString();
-      return Object.values(data).filter(item =>
-        new Date(item.lastTestTime).toDateString() === today
-      ).length;
-    } catch (error) {
-      console.error('获取今日学习数量失败:', error);
-      return 0;
-    }
+    return LearningUtil.getTodayLearnedCount(STORAGE_KEYS.CHINESE_PRACTICE_DATA);
   }
 
   // 获取下一个复习时间
   function getNextReviewTime(round) {
-    const now = new Date();
-    const interval = REVIEW_INTERVALS[round] || REVIEW_INTERVALS[REVIEW_INTERVALS.length - 1];
-    return new Date(now.getTime() + interval * 60000);
+    return LearningUtil.getNextReviewTime(round);
   }
 
   // 更新练习数据
   function updatePracticeData(character, isCorrect) {
-    try {
-      if (!character) {
-        console.error('更新练习数据失败: 字符为空');
-        return null;
-      }
-
-      const data = loadPracticeData();
-      if (!data) {
-        console.error('更新练习数据失败: 无法加载练习数据');
-        return null;
-      }
-
-      if (!data[character]) {
-        data[character] = {
-          character: character,
-          totalTests: 0,
-          correctCount: 0,
-          round: 0,
-          lastTestTime: new Date().toISOString(),
-          nextReviewTime: getNextReviewTime(0).toISOString()
-        };
-      }
-
-      data[character].totalTests++;
-      if (isCorrect) {
-        data[character].correctCount++;
-        data[character].round = Math.min(data[character].round + 1, REVIEW_INTERVALS.length - 1);
-      } else {
-        data[character].round = Math.max(data[character].round - 1, 0);
-      }
-
-      data[character].lastTestTime = new Date().toISOString();
-      data[character].nextReviewTime = getNextReviewTime(data[character].round).toISOString();
-
-      savePracticeData(data);
-      return data[character];
-    } catch (error) {
-      console.error('更新练习数据失败:', error);
-      return null;
-    }
+    return LearningUtil.updateLearningItem(
+      STORAGE_KEYS.CHINESE_PRACTICE_DATA,
+      character,
+      { character: character },
+      isCorrect
+    );
   }
 
   // 获取需要练习的汉字
   function getCharactersToPractice() {
-    try {
-      const data = loadPracticeData();
-      const now = new Date();
-      const dailyLimit = loadDailyLimit();
-      const todayLearned = getTodayLearnedCount();
-      const remainingToday = Math.max(0, dailyLimit - todayLearned);
-
-      if (remainingToday === 0) {
-        return []; // 今日已达到学习上限
-      }
-
-      // 首先获取所有需要复习的汉字（根据艾宾浩斯记忆法计算的时间）
-      const reviewCharacters = Object.entries(data)
-        .filter(([_, value]) => {
-          try {
-            return new Date(value.nextReviewTime) <= now;
-          } catch (error) {
-            console.error('解析复习时间失败:', error);
-            return false;
-          }
-        })
-        .map(([key, value]) => ({
-          character: key,
-          round: value.round || 0,
-          accuracy: value.totalTests > 0 ? Math.round((value.correctCount / value.totalTests) * 100) : 0
-        }));
-
-      // 如果有需要复习的汉字，优先返回这些汉字
-      if (reviewCharacters.length > 0) {
-        // 按照正确率从低到高排序，优先练习正确率低的汉字
-        reviewCharacters.sort((a, b) => a.accuracy - b.accuracy);
-        return reviewCharacters.slice(0, remainingToday);
-      }
-
-      // 如果没有需要复习的汉字，从字库中找出未学习的汉字
-      const learnedCharacters = new Set(Object.keys(data));
-      const unlearnedCharacters = COMMON_CHARACTERS.split('')
-        .filter(char => !learnedCharacters.has(char));
-
-      if (unlearnedCharacters.length > 0) {
-        // 随机选择未学习的汉字
-        const selectedCharacters = [];
-        const maxChars = Math.min(remainingToday, unlearnedCharacters.length);
-
-        for (let i = 0; i < maxChars; i++) {
-          const randomIndex = Math.floor(Math.random() * unlearnedCharacters.length);
-          const char = unlearnedCharacters[randomIndex];
-          selectedCharacters.push({
-            character: char,
-            round: 0,
-            accuracy: 0
-          });
-          unlearnedCharacters.splice(randomIndex, 1);
+    return LearningUtil.getItemsToLearn(
+      STORAGE_KEYS.CHINESE_PRACTICE_DATA,
+      COMMON_CHARACTERS,
+      'character',
+      STORAGE_KEYS.CHINESE_DAILY_LIMIT,
+      (item) => {
+        // 添加拼音信息
+        if (item && item.character) {
+          item.pinyin = getPinyin(item.character);
         }
-        return selectedCharacters;
+        return item;
       }
-
-      // 如果所有汉字都学习过了，随机返回已学习的汉字
-      const allCharacters = Object.keys(data);
-      if (allCharacters.length === 0) {
-        // 如果没有学习记录，返回一些基础汉字
-        return COMMON_CHARACTERS.split('').slice(0, remainingToday).map(char => ({
-          character: char,
-          round: 0,
-          accuracy: 0
-        }));
-      }
-
-      const randomCharacters = [];
-      const maxChars = Math.min(remainingToday, allCharacters.length);
-
-      for (let i = 0; i < maxChars; i++) {
-        const randomIndex = Math.floor(Math.random() * allCharacters.length);
-        const char = allCharacters[randomIndex];
-        randomCharacters.push({
-          character: char,
-          round: data[char].round || 0,
-          accuracy: data[char].totalTests > 0 ? Math.round((data[char].correctCount / data[char].totalTests) * 100) : 0
-        });
-        allCharacters.splice(randomIndex, 1);
-      }
-
-      return randomCharacters;
-    } catch (error) {
-      console.error('获取练习汉字失败:', error);
-      // 发生错误时返回一些基础汉字
-      return COMMON_CHARACTERS.split('').slice(0, 10).map(char => ({
-        character: char,
-        round: 0,
-        accuracy: 0
-      }));
-    }
+    );
   }
 
   // 更新倒计时显示
