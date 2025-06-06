@@ -19,6 +19,66 @@ const UIUtil = {
     },
 
     /**
+     * 添加CSS样式到页面
+     * @param {string} css - CSS样式内容
+     */
+    addStyles: function (css) {
+        const style = document.createElement('style');
+        style.textContent = css;
+        document.head.appendChild(style);
+    },
+
+    /**
+     * 通过ID查找元素并聚焦且全选其内容
+     * @param {string} id - 元素ID
+     */
+    focusAndSelectInput: function (id) {
+        setTimeout(() => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.focus();
+                element.select();
+            }
+        }, 0);
+    },
+
+    /**
+     * 禁用指定的按钮
+     * @param {Array<string>} selectors - 按钮选择器数组
+     */
+    disableButtons: function (selectors) {
+        selectors.forEach(selector => {
+            const button = document.querySelector(selector);
+            if (button) button.disabled = true;
+        });
+    },
+
+    /**
+     * 启用指定的按钮
+     * @param {Array<string>} selectors - 按钮选择器数组
+     */
+    enableButtons: function (selectors) {
+        selectors.forEach(selector => {
+            const button = document.querySelector(selector);
+            if (button) button.disabled = false;
+        });
+    },
+
+    /**
+     * 显示错误信息
+     * @param {string} selector - 显示错误的元素选择器
+     * @param {string} message - 错误消息
+     * @param {string} className - 添加的CSS类名，默认为'wrong'
+     */
+    showError: function (selector, message, className = 'wrong') {
+        const element = document.querySelector(selector);
+        if (element) {
+            element.className = `feedback ${className}`;
+            element.textContent = message;
+        }
+    },
+
+    /**
      * 显示带有自动聚焦的确认框
      * @param {string} message - 提示信息
      * @param {Function} callback - 点击确认后的回调函数
@@ -144,6 +204,42 @@ const UIUtil = {
                 // 重新加载表格
                 this.createSortableTable(container, data, columns, sortSettingsKey, renderRow);
             });
+        });
+    },
+
+    /**
+     * 排序数据列表
+     * @param {Array} dataList - 要排序的数据列表
+     * @param {string} sortBy - 排序字段
+     * @param {boolean} ascending - 是否升序
+     * @param {Object} valueGetters - 特殊字段的值获取函数 {fieldName: function(item) {...}}
+     * @returns {Array} 排序后的数据列表
+     */
+    sortData: function (dataList, sortBy, ascending = true, valueGetters = {}) {
+        return [...dataList].sort((a, b) => {
+            let valueA, valueB;
+
+            // 使用自定义的值获取函数或直接获取属性
+            if (valueGetters[sortBy]) {
+                valueA = valueGetters[sortBy](a);
+                valueB = valueGetters[sortBy](b);
+            } else {
+                valueA = a[sortBy];
+                valueB = b[sortBy];
+
+                // 类型处理
+                if (typeof valueA === 'string' && typeof valueB === 'string') {
+                    return ascending ?
+                        valueA.localeCompare(valueB) :
+                        valueB.localeCompare(valueA);
+                }
+
+                // 数字类型转换
+                if (typeof valueA !== 'number') valueA = Number(valueA) || 0;
+                if (typeof valueB !== 'number') valueB = Number(valueB) || 0;
+            }
+
+            return ascending ? valueA - valueB : valueB - valueA;
         });
     },
 

@@ -303,54 +303,106 @@ const CSS_TEMPLATES = {
 
     // 数学模块样式
     MATH: `
-    .question-display {
+    .problem-display {
+      font-size: 36px;
+      margin: 20px 0;
       text-align: center;
-      margin: 30px auto;
-      padding: 20px;
-      background: #fff;
-      border-radius: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      max-width: 500px;
-    }
-    .question {
-      font-size: 32px;
-      color: #333;
-      margin-bottom: 20px;
     }
     .options {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 15px;
-      margin: 20px auto;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      max-width: 300px;
+      margin: 0 auto;
     }
-    .option-btn {
-      padding: 15px 25px;
-      font-size: 20px;
-      background: #2196F3;
+    .options button {
+      padding: 15px 20px;
+      margin: 10px;
+      font-size: 1.5em;
+      background: #4CAF50;
       color: white;
       border: none;
-      border-radius: 5px;
+      border-radius: 8px;
       cursor: pointer;
       transition: all 0.3s ease;
-      min-width: 80px;
+      min-width: 60px;
     }
-    .option-btn:hover {
-      background: #0b7dda;
+    .options button:hover {
+      background: #45a049;
       transform: translateY(-3px);
     }
-    .option-btn:disabled {
+    .options button:disabled {
       background-color: #cccccc;
       color: #999999;
       cursor: not-allowed;
       transform: none;
       opacity: 0.7;
     }
-    .option-btn.correct {
-      background-color: #4CAF50;
+    .options button.correct {
+      background-color: #4CAF50 !important;
+      color: white !important;
+      font-weight: bold;
+      box-shadow: 0 0 10px rgba(76, 175, 80, 0.7);
+      opacity: 1 !important;
+      border: 2px solid #2E7D32;
     }
-    .option-btn.wrong {
-      background-color: #f44336;
+    .options button.wrong {
+      background-color: #f44336 !important;
+      color: white !important;
+      font-weight: bold;
+      box-shadow: 0 0 10px rgba(244, 67, 54, 0.7);
+      opacity: 1 !important;
+      border: 2px solid #C62828;
+    }
+    .options button.processing {
+      animation: pulse 1s infinite;
+      position: relative;
+      pointer-events: none;
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    .locked-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.1);
+      z-index: 10;
+      cursor: not-allowed;
+      display: none;
+    }
+    .locked-overlay.active {
+      display: block;
+    }
+    .rest-message {
+      text-align: center;
+      margin: 30px 0;
+      padding: 20px;
+      background: #e3f2fd;
+      border-radius: 10px;
+    }
+    .rest-message p {
+      margin: 10px 0;
+      font-size: 18px;
+    }
+    /* 自定义滚动条样式 */
+    .history-list::-webkit-scrollbar {
+      width: 8px;
+    }
+    .history-list::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 4px;
+    }
+    .history-list::-webkit-scrollbar-thumb {
+      background: #888;
+      border-radius: 4px;
+    }
+    .history-list::-webkit-scrollbar-thumb:hover {
+      background: #555;
     }
   `
 };

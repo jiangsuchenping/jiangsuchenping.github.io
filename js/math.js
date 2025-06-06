@@ -1,6 +1,6 @@
 (function () {
   // 艾宾浩斯记忆法复习间隔（分钟）
-  const REVIEW_INTERVALS = [5, 30, 60, 180, 360, 720, 1440, 2880, 4320, 7200];
+  const REVIEW_INTERVALS = LearningUtil.REVIEW_INTERVALS;
 
   window.currentProblem = null;
   let nextReviewTime = null;
@@ -14,63 +14,37 @@
   let lastSortField = 'nextReviewTime';
   let lastSortAscending = true;
 
+  // 添加答题锁定状态，防止重复答题
+  let isAnswerLocked = false;
+
   // 从本地存储加载练习数据
   function loadPracticeData() {
-    try {
-      const data = localStorage.getItem('mathPracticeData');
-      return data ? JSON.parse(data) : {};
-    } catch (error) {
-      console.error('加载练习数据失败:', error);
-      return {};
-    }
+    return StorageUtil.load(STORAGE_KEYS.MATH_PRACTICE_DATA, {});
   }
 
   // 保存练习数据到本地存储
   function savePracticeData(data) {
-    try {
-      localStorage.setItem('mathPracticeData', JSON.stringify(data));
-    } catch (error) {
-      console.error('保存练习数据失败:', error);
-    }
+    return StorageUtil.save(STORAGE_KEYS.MATH_PRACTICE_DATA, data);
   }
 
   // 获取下一个复习时间
   function getNextReviewTime(round) {
-    const now = new Date();
-    const interval = REVIEW_INTERVALS[round] || REVIEW_INTERVALS[REVIEW_INTERVALS.length - 1];
-    return new Date(now.getTime() + interval * 60000);
+    return LearningUtil.getNextReviewTime(round);
   }
 
   // 更新练习数据
   function updatePracticeData(problem, isCorrect) {
     try {
-      const data = loadPracticeData();
       const problemKey = `${problem.num1}${problem.operator}${problem.num2}`;
 
-      if (!data[problemKey]) {
-        data[problemKey] = {
-          problem: `${problem.num1} ${problem.operator} ${problem.num2} = ?`,
-          totalTests: 0,
-          correctCount: 0,
-          round: 0,
-          lastTestTime: new Date().toISOString(),
-          nextReviewTime: getNextReviewTime(0).toISOString()
-        };
-      }
-
-      data[problemKey].totalTests++;
-      if (isCorrect) {
-        data[problemKey].correctCount++;
-        data[problemKey].round = Math.min(data[problemKey].round + 1, REVIEW_INTERVALS.length - 1);
-      } else {
-        data[problemKey].round = Math.max(data[problemKey].round - 1, 0);
-      }
-
-      data[problemKey].lastTestTime = new Date().toISOString();
-      data[problemKey].nextReviewTime = getNextReviewTime(data[problemKey].round).toISOString();
-
-      savePracticeData(data);
-      return data[problemKey];
+      return LearningUtil.updateLearningItem(
+        STORAGE_KEYS.MATH_PRACTICE_DATA,
+        problemKey,
+        {
+          problem: `${problem.num1} ${problem.operator} ${problem.num2} = ?`
+        },
+        isCorrect
+      );
     } catch (error) {
       console.error('更新练习数据失败:', error);
       return null;
@@ -209,28 +183,9 @@
 
   // 排序历史记录
   function sortHistory(history, sortBy, ascending = true) {
-    return [...history].sort((a, b) => {
-      let comparison = 0;
-      switch (sortBy) {
-        case 'problem':
-          comparison = a.problem.localeCompare(b.problem);
-          break;
-        case 'totalTests':
-          comparison = a.totalTests - b.totalTests;
-          break;
-        case 'accuracy':
-          comparison = a.accuracy - b.accuracy;
-          break;
-        case 'lastTestTime':
-          comparison = a.lastTestTimeValue - b.lastTestTimeValue;
-          break;
-        case 'nextReviewTime':
-          comparison = a.nextReviewTimeValue - b.nextReviewTimeValue;
-          break;
-        default:
-          comparison = 0;
-      }
-      return ascending ? comparison : -comparison;
+    return UIUtil.sortData(history, sortBy, ascending, {
+      'lastTestTime': item => item.lastTestTimeValue,
+      'nextReviewTime': item => item.nextReviewTimeValue
     });
   }
 
@@ -265,6 +220,9 @@
         console.error('容器元素不存在');
         return;
       }
+
+      // 重置答题锁定状态
+      isAnswerLocked = false;
 
       // 清除可能存在的定时器
       if (answerTimer) {
@@ -312,64 +270,7 @@
         }
 
         // 显示历史记录
-        const historyList = container.querySelector('.history-list');
-        const history = getHistory();
-        if (history.length > 0) {
-          // 使用上次的排序方式
-          const sortedHistory = sortHistory(history, lastSortField, lastSortAscending);
-
-          historyList.innerHTML = `
-            <table class="history-table">
-              <thead>
-                <tr>
-                  <th onclick="window.sortHistoryTable('problem')" class="sortable ${lastSortField === 'problem' ? (lastSortAscending ? 'ascending' : 'descending') : ''}">题目</th>
-                  <th onclick="window.sortHistoryTable('totalTests')" class="sortable ${lastSortField === 'totalTests' ? (lastSortAscending ? 'ascending' : 'descending') : ''}">练习次数</th>
-                  <th onclick="window.sortHistoryTable('accuracy')" class="sortable ${lastSortField === 'accuracy' ? (lastSortAscending ? 'ascending' : 'descending') : ''}">正确率</th>
-                  <th onclick="window.sortHistoryTable('lastTestTime')" class="sortable ${lastSortField === 'lastTestTime' ? (lastSortAscending ? 'ascending' : 'descending') : ''}">上次练习</th>
-                  <th onclick="window.sortHistoryTable('nextReviewTime')" class="sortable ${lastSortField === 'nextReviewTime' ? (lastSortAscending ? 'ascending' : 'descending') : ''}">下次复习</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${sortedHistory.map(item => `
-                  <tr>
-                    <td>${item.problem}</td>
-                    <td>${item.totalTests}</td>
-                    <td>${item.accuracy}%</td>
-                    <td>${item.lastTestTime}</td>
-                    <td>${item.nextReviewTime}</td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-          `;
-
-          // 添加表头样式
-          const style = document.createElement('style');
-          style.textContent = `
-            .history-table th.sortable {
-              cursor: pointer;
-              user-select: none;
-              position: relative;
-              padding-right: 20px;
-            }
-            .history-table th.sortable:hover {
-              background-color: #f0f0f0;
-            }
-            .history-table th.ascending::after {
-              content: " ↑";
-              position: absolute;
-              right: 5px;
-            }
-            .history-table th.descending::after {
-              content: " ↓";
-              position: absolute;
-              right: 5px;
-            }
-          `;
-          document.head.appendChild(style);
-        } else {
-          historyList.innerHTML = '<p class="no-history">还没有练习记录哦，开始练习吧！</p>';
-        }
+        displayHistory(container);
         return;
       }
 
@@ -399,227 +300,13 @@
         <button class="return-btn" onclick="window.showModule('')">返回首页</button>
       `;
 
-      // 添加样式
-      const style = document.createElement('style');
-      style.textContent = `
-        .problem-display {
-          font-size: 36px;
-          margin: 20px 0;
-          text-align: center;
-        }
-        .options {
-          display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          gap: 10px;
-          max-width: 300px;
-          margin: 0 auto;
-        }
-        .options button {
-          padding: 15px 20px;
-          margin: 10px;
-          font-size: 1.5em;
-          background: #4CAF50;
-          color: white;
-          border: none;
-          border-radius: 8px;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          min-width: 60px;
-        }
-        .options button:hover {
-          background: #45a049;
-          transform: translateY(-3px);
-        }
-        .options button:disabled {
-          background-color: #cccccc;
-          color: #999999;
-          cursor: not-allowed;
-          transform: none;
-          opacity: 0.7;
-        }
-        .feedback {
-          text-align: center;
-          margin: 20px 0;
-          font-size: 24px;
-        }
-        .feedback.correct {
-          color: #4CAF50;
-        }
-        .feedback.wrong {
-          color: #f44336;
-        }
-        .history-section {
-          margin-top: 30px;
-          padding: 20px;
-          background: #f5f5f5;
-          border-radius: 10px;
-        }
-        .history-list {
-          margin-top: 10px;
-          max-height: 500px;
-          overflow-y: auto;
-          position: relative;
-        }
-        .history-table {
-          width: 100%;
-          border-collapse: collapse;
-          margin-top: 10px;
-        }
-        .history-table thead {
-          position: sticky;
-          top: 0;
-          z-index: 1;
-          background: #f0f0f0;
-        }
-        .history-table th,
-        .history-table td {
-          padding: 10px;
-          text-align: center;
-          border: 1px solid #ddd;
-        }
-        .history-table th {
-          background-color: #f0f0f0;
-          font-weight: bold;
-        }
-        .history-table tr:nth-child(even) {
-          background-color: #f9f9f9;
-        }
-        .history-table tr:hover {
-          background-color: #f0f0f0;
-        }
-        .history-table th.sortable {
-          cursor: pointer;
-          user-select: none;
-          position: relative;
-          padding-right: 20px;
-        }
-        .history-table th.sortable:hover {
-          background-color: #e0e0e0;
-        }
-        .history-table th.ascending::after {
-          content: " ↑";
-          position: absolute;
-          right: 5px;
-        }
-        .history-table th.descending::after {
-          content: " ↓";
-          position: absolute;
-          right: 5px;
-        }
-        .rest-message {
-          text-align: center;
-          margin: 30px 0;
-          padding: 20px;
-          background: #e3f2fd;
-          border-radius: 10px;
-        }
-        .rest-message p {
-          margin: 10px 0;
-          font-size: 18px;
-        }
-        .return-btn {
-          display: block;
-          margin: 20px auto;
-          padding: 10px 20px;
-          font-size: 16px;
-          border: none;
-          border-radius: 5px;
-          background: #2196F3;
-          color: white;
-          cursor: pointer;
-          transition: background 0.2s;
-        }
-        .return-btn:hover {
-          background: #1976D2;
-        }
-        /* 自定义滚动条样式 */
-        .history-list::-webkit-scrollbar {
-          width: 8px;
-        }
-        .history-list::-webkit-scrollbar-track {
-          background: #f1f1f1;
-          border-radius: 4px;
-        }
-        .history-list::-webkit-scrollbar-thumb {
-          background: #888;
-          border-radius: 4px;
-        }
-        .history-list::-webkit-scrollbar-thumb:hover {
-          background: #555;
-        }
-      `;
-      document.head.appendChild(style);
+      // 添加样式 - 使用CSS模板
+      UIUtil.addStyles(CSS_TEMPLATES.COMMON);
+      UIUtil.addStyles(CSS_TEMPLATES.MATH);
 
       // 异步加载历史记录
       requestAnimationFrame(() => {
-        try {
-          const historyList = container.querySelector('.history-list');
-          if (!historyList) return;
-
-          const history = getHistory();
-          if (history.length > 0) {
-            // 使用上次的排序方式
-            const sortedHistory = sortHistory(history, lastSortField, lastSortAscending);
-
-            historyList.innerHTML = `
-              <table class="history-table">
-                <thead>
-                  <tr>
-                    <th onclick="window.sortHistoryTable('problem')" class="sortable ${lastSortField === 'problem' ? (lastSortAscending ? 'ascending' : 'descending') : ''}">题目</th>
-                    <th onclick="window.sortHistoryTable('totalTests')" class="sortable ${lastSortField === 'totalTests' ? (lastSortAscending ? 'ascending' : 'descending') : ''}">练习次数</th>
-                    <th onclick="window.sortHistoryTable('accuracy')" class="sortable ${lastSortField === 'accuracy' ? (lastSortAscending ? 'ascending' : 'descending') : ''}">正确率</th>
-                    <th onclick="window.sortHistoryTable('lastTestTime')" class="sortable ${lastSortField === 'lastTestTime' ? (lastSortAscending ? 'ascending' : 'descending') : ''}">上次练习</th>
-                    <th onclick="window.sortHistoryTable('nextReviewTime')" class="sortable ${lastSortField === 'nextReviewTime' ? (lastSortAscending ? 'ascending' : 'descending') : ''}">下次复习</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${sortedHistory.map(item => `
-                    <tr>
-                      <td>${item.problem}</td>
-                      <td>${item.totalTests}</td>
-                      <td>${item.accuracy}%</td>
-                      <td>${item.lastTestTime}</td>
-                      <td>${item.nextReviewTime}</td>
-                    </tr>
-                  `).join('')}
-                </tbody>
-              </table>
-            `;
-
-            // 添加表头样式
-            const style = document.createElement('style');
-            style.textContent = `
-              .history-table th.sortable {
-                cursor: pointer;
-                user-select: none;
-                position: relative;
-                padding-right: 20px;
-              }
-              .history-table th.sortable:hover {
-                background-color: #f0f0f0;
-              }
-              .history-table th.ascending::after {
-                content: " ↑";
-                position: absolute;
-                right: 5px;
-              }
-              .history-table th.descending::after {
-                content: " ↓";
-                position: absolute;
-                right: 5px;
-              }
-            `;
-            document.head.appendChild(style);
-          } else {
-            historyList.innerHTML = '<p class="no-history">还没有练习记录哦，开始练习吧！</p>';
-          }
-        } catch (error) {
-          console.error('显示历史记录失败:', error);
-          const historyList = container.querySelector('.history-list');
-          if (historyList) {
-            historyList.innerHTML = '<p class="error-message">加载历史记录失败，请刷新页面重试。</p>';
-          }
-        }
+        displayHistory(container);
       });
 
       // 在组件卸载时清理定时器
@@ -642,63 +329,152 @@
     }
   };
 
+  // 显示历史记录
+  function displayHistory(container) {
+    try {
+      const historyList = container.querySelector('.history-list');
+      if (!historyList) return;
+
+      const history = getHistory();
+      if (history.length > 0) {
+        // 使用上次的排序方式
+        const sortedHistory = sortHistory(history, lastSortField, lastSortAscending);
+
+        historyList.innerHTML = `
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th onclick="window.sortHistoryTable('problem')" class="sortable ${lastSortField === 'problem' ? (lastSortAscending ? 'ascending' : 'descending') : ''}">题目</th>
+                <th onclick="window.sortHistoryTable('totalTests')" class="sortable ${lastSortField === 'totalTests' ? (lastSortAscending ? 'ascending' : 'descending') : ''}">练习次数</th>
+                <th onclick="window.sortHistoryTable('accuracy')" class="sortable ${lastSortField === 'accuracy' ? (lastSortAscending ? 'ascending' : 'descending') : ''}">正确率</th>
+                <th onclick="window.sortHistoryTable('lastTestTime')" class="sortable ${lastSortField === 'lastTestTime' ? (lastSortAscending ? 'ascending' : 'descending') : ''}">上次练习</th>
+                <th onclick="window.sortHistoryTable('nextReviewTime')" class="sortable ${lastSortField === 'nextReviewTime' ? (lastSortAscending ? 'ascending' : 'descending') : ''}">下次复习</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${sortedHistory.map(item => `
+                <tr>
+                  <td>${item.problem}</td>
+                  <td>${item.totalTests}</td>
+                  <td>${item.accuracy}%</td>
+                  <td>${item.lastTestTime}</td>
+                  <td>${item.nextReviewTime}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+      } else {
+        historyList.innerHTML = '<p class="no-history">还没有练习记录哦，开始练习吧！</p>';
+      }
+    } catch (error) {
+      console.error('显示历史记录失败:', error);
+      const historyList = container.querySelector('.history-list');
+      if (historyList) {
+        historyList.innerHTML = '<p class="error-message">加载历史记录失败，请刷新页面重试。</p>';
+      }
+    }
+  }
+
+  // 处理答题
   window.handleAnswer = function (answer) {
     try {
-      if (!window.currentProblem) {
-        console.error('当前没有题目');
-        const feedback = document.querySelector('.feedback');
-        if (feedback) {
-          feedback.className = 'feedback wrong';
-          feedback.textContent = '题目加载失败，请刷新页面重试';
-        }
+      // 如果已锁定，忽略答题请求
+      if (isAnswerLocked) {
+        console.log('答题已锁定，请等待下一题');
         return;
       }
 
-      // 禁用所有选项按钮，避免重复答题
+      if (!window.currentProblem) {
+        console.error('当前没有题目');
+        UIUtil.showError('.feedback', '题目加载失败，请刷新页面重试');
+        return;
+      }
+
+      // 立即锁定，防止重复答题
+      isAnswerLocked = true;
+
+      // 获取所有选项按钮
       const optionButtons = document.querySelectorAll('.options button');
-      optionButtons.forEach(button => {
-        button.disabled = true;
-      });
+
+      // 找到当前点击的按钮
+      const clickedButton = Array.from(optionButtons).find(button =>
+        button.textContent === answer.toString());
+
+      // 添加"点击中"的过渡动画效果
+      if (clickedButton) {
+        clickedButton.classList.add('processing');
+      }
+
+      // 准备答题区域的遮罩层，防止任何交互
+      let overlay = document.querySelector('.locked-overlay');
+      if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.className = 'locked-overlay';
+        document.querySelector('.options').parentNode.appendChild(overlay);
+      }
+      overlay.classList.add('active');
 
       const isCorrect = answer === window.currentProblem.answer;
-      const problemData = updatePracticeData(window.currentProblem, isCorrect);
 
-      const feedback = document.querySelector('.feedback');
-      if (feedback) {
-        feedback.className = `feedback ${isCorrect ? 'correct' : 'wrong'}`;
-        feedback.textContent = isCorrect ? '太棒了！' : '继续加油！';
-      }
-
-      // 延迟加载下一题，确保用户能看到反馈
+      // 短暂延迟后显示答题结果，给用户更好的视觉反馈
       setTimeout(() => {
-        const moduleContent = document.getElementById('module-content');
-        if (moduleContent && typeof window.loadMath === 'function') {
-          window.loadMath(moduleContent);
-        } else {
-          // 如果加载失败，恢复按钮状态
-          console.error('加载下一题失败');
-          if (feedback) {
-            feedback.className = 'feedback wrong';
-            feedback.textContent = '加载下一题失败，请刷新页面重试';
+        // 禁用除了当前选择之外的所有按钮
+        optionButtons.forEach(button => {
+          if (button !== clickedButton) {
+            button.disabled = true;
           }
-          optionButtons.forEach(button => {
-            button.disabled = false;
-          });
+        });
+
+        // 移除处理中的动画效果
+        if (clickedButton) {
+          clickedButton.classList.remove('processing');
+          clickedButton.classList.add(isCorrect ? 'correct' : 'wrong');
         }
-      }, 1000);
+
+        // 如果答案错误，显示正确答案
+        if (!isCorrect) {
+          const correctButton = Array.from(optionButtons).find(button =>
+            button.textContent === window.currentProblem.answer.toString());
+          if (correctButton) {
+            correctButton.classList.add('correct');
+            correctButton.disabled = false;
+          }
+        }
+
+        const problemData = updatePracticeData(window.currentProblem, isCorrect);
+
+        const feedback = document.querySelector('.feedback');
+        if (feedback) {
+          feedback.className = `feedback ${isCorrect ? 'correct' : 'wrong'}`;
+          feedback.textContent = isCorrect ? '太棒了！' : '继续加油！';
+        }
+
+        // 延迟加载下一题，确保用户能看到反馈
+        setTimeout(() => {
+          const moduleContent = document.getElementById('module-content');
+          if (moduleContent && typeof window.loadMath === 'function') {
+            window.loadMath(moduleContent);
+          } else {
+            // 如果加载失败，恢复按钮状态
+            console.error('加载下一题失败');
+            UIUtil.showError('.feedback', '加载下一题失败，请刷新页面重试');
+            UIUtil.enableButtons(['.options button']);
+            overlay.classList.remove('active');
+            // 如果加载失败，重置锁定状态
+            isAnswerLocked = false;
+          }
+        }, 1500);  // 延长反馈时间到1.5秒，让用户有更多时间看到结果
+      }, 300);  // 300毫秒的动画过渡效果
     } catch (error) {
       console.error('处理答案失败:', error);
-      const feedback = document.querySelector('.feedback');
-      if (feedback) {
-        feedback.className = 'feedback wrong';
-        feedback.textContent = '发生错误，请刷新页面重试';
-      }
-
-      // 恢复按钮状态
-      const optionButtons = document.querySelectorAll('.options button');
-      optionButtons.forEach(button => {
-        button.disabled = false;
-      });
+      UIUtil.showError('.feedback', '发生错误，请刷新页面重试');
+      UIUtil.enableButtons(['.options button']);
+      // 移除可能存在的遮罩层
+      const overlay = document.querySelector('.locked-overlay');
+      if (overlay) overlay.classList.remove('active');
+      // 发生错误时，重置锁定状态
+      isAnswerLocked = false;
     }
   };
 
@@ -708,16 +484,6 @@
       const historyList = document.querySelector('.history-list');
       if (!historyList) return;
 
-      const table = historyList.querySelector('table');
-      if (!table) return;
-
-      const tbody = table.querySelector('tbody');
-      if (!tbody) return;
-
-      // 获取当前排序方向
-      const th = table.querySelector(`th[onclick="window.sortHistoryTable('${sortBy}')"]`);
-      if (!th) return;
-
       // 如果点击的是当前排序字段，则切换排序方向
       const isAscending = sortBy === lastSortField ? !lastSortAscending : true;
 
@@ -725,42 +491,11 @@
       lastSortField = sortBy;
       lastSortAscending = isAscending;
 
-      // 更新所有表头的排序状态
-      table.querySelectorAll('th').forEach(header => {
-        header.classList.remove('ascending', 'descending');
-      });
-
-      // 设置当前表头的排序状态
-      th.classList.add(isAscending ? 'ascending' : 'descending');
-
-      // 获取所有行数据
-      const rows = Array.from(tbody.querySelectorAll('tr'));
-      const history = rows.map(row => {
-        const cells = row.querySelectorAll('td');
-        return {
-          problem: cells[0].textContent,
-          totalTests: parseInt(cells[1].textContent),
-          accuracy: parseInt(cells[2].textContent),
-          lastTestTime: cells[3].textContent,
-          nextReviewTime: cells[4].textContent,
-          lastTestTimeValue: new Date(cells[3].textContent),
-          nextReviewTimeValue: new Date(cells[4].textContent)
-        };
-      });
-
-      // 排序数据
-      const sortedHistory = sortHistory(history, sortBy, isAscending);
-
-      // 更新表格内容
-      tbody.innerHTML = sortedHistory.map(item => `
-        <tr>
-          <td>${item.problem}</td>
-          <td>${item.totalTests}</td>
-          <td>${item.accuracy}%</td>
-          <td>${item.lastTestTime}</td>
-          <td>${item.nextReviewTime}</td>
-        </tr>
-      `).join('');
+      // 更新显示
+      const container = historyList.closest('.history-section');
+      if (container) {
+        displayHistory(container);
+      }
     } catch (error) {
       console.error('排序历史记录失败:', error);
     }
