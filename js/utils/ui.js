@@ -244,6 +244,143 @@ const UIUtil = {
     },
 
     /**
+     * 防抖函数 - 限制函数在一定时间内只能执行一次
+     * @param {Function} func - 要执行的函数
+     * @param {number} wait - 等待时间(ms)
+     * @param {boolean} immediate - 是否在开始时立即执行
+     * @returns {Function} - 返回防抖后的函数
+     */
+    debounce: function (func, wait = 300, immediate = false) {
+        let timeout;
+        return function (...args) {
+            const context = this;
+            const later = function () {
+                timeout = null;
+                if (!immediate) func.apply(context, args);
+            };
+            const callNow = immediate && !timeout;
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+            if (callNow) func.apply(context, args);
+        };
+    },
+
+    /**
+     * 渲染带排序功能的历史记录表格
+     * @param {Element} container - 容器元素
+     * @param {Array} history - 历史数据数组
+     * @param {Array} columns - 列定义 [{field, title, sortable}]
+     * @param {Function} rowRenderer - 行渲染函数
+     * @param {Object} options - 额外选项 {sortSettingsKey, defaultSort}
+     */
+    renderHistoryTable: function (container, history, columns, rowRenderer, options = {}) {
+        if (!container || !history || !columns) return;
+
+        const { sortSettingsKey, defaultSort = { field: 'lastTestTime', direction: 'desc' } } = options;
+
+        // 获取排序设置
+        let sortSettings;
+        if (sortSettingsKey) {
+            sortSettings = StorageUtil.load(sortSettingsKey, defaultSort);
+        } else {
+            sortSettings = defaultSort;
+        }
+
+        // 创建表头
+        let tableHTML = '<table class="history-table"><thead><tr>';
+        columns.forEach(col => {
+            const sortableClass = col.sortable ? 'sortable' : '';
+            tableHTML += `<th class="${sortableClass}" data-sort="${col.field}" title="${col.title}">${col.title}</th>`;
+        });
+        tableHTML += '</tr></thead><tbody>';
+
+        // 排序数据
+        const sortedHistory = this.sortData(
+            history,
+            sortSettings.field,
+            sortSettings.direction === 'asc',
+            {
+                'lastTestTime': item => new Date(item.lastTestTime).getTime(),
+                'nextReviewTime': item => new Date(item.nextReviewTime).getTime()
+            }
+        );
+
+        // 添加表格内容
+        sortedHistory.forEach(item => {
+            tableHTML += rowRenderer(item);
+        });
+
+        tableHTML += '</tbody></table>';
+        container.innerHTML = tableHTML;
+
+        // 添加表头排序事件监听
+        const headers = container.querySelectorAll('th.sortable');
+        headers.forEach(header => {
+            // 设置初始排序样式
+            if (header.dataset.sort === sortSettings.field) {
+                header.classList.add(sortSettings.direction === 'asc' ? 'ascending' : 'descending');
+            }
+
+            header.addEventListener('click', () => {
+                const field = header.dataset.sort;
+                let currentDirection = header.classList.contains('ascending') ? 'desc' : 'asc';
+
+                // 移除所有表头的排序状态
+                headers.forEach(h => {
+                    h.classList.remove('ascending', 'descending');
+                });
+
+                // 添加当前排序状态
+                header.classList.add(currentDirection === 'asc' ? 'ascending' : 'descending');
+
+                // 保存排序设置
+                if (sortSettingsKey) {
+                    StorageUtil.save(sortSettingsKey, { field, direction: currentDirection });
+                }
+
+                // 重新渲染表格
+                this.renderHistoryTable(container, history, columns, rowRenderer, {
+                    sortSettingsKey,
+                    defaultSort: { field, direction: currentDirection }
+                });
+            });
+        });
+    },
+
+    /**
+     * 添加过渡动画元素
+     * @param {string} elementId - 元素ID
+     * @param {string} message - 显示信息
+     * @param {string} className - CSS类名
+     * @param {number} duration - 持续时间(ms)
+     */
+    showAnimatedFeedback: function (elementId, message, className = 'success', duration = 1000) {
+        const element = document.getElementById(elementId);
+        if (!element) return;
+
+        // 创建动画元素
+        const feedback = document.createElement('div');
+        feedback.className = `animated-feedback ${className}`;
+        feedback.textContent = message;
+
+        // 添加到容器
+        element.appendChild(feedback);
+
+        // 设置动画
+        setTimeout(() => {
+            feedback.classList.add('show');
+
+            // 动画结束后移除
+            setTimeout(() => {
+                feedback.classList.remove('show');
+                setTimeout(() => {
+                    feedback.remove();
+                }, 300);
+            }, duration);
+        }, 10);
+    },
+
+    /**
      * 为输入框绑定验证和提交事件
      * @param {Element} inputElement - 输入框元素
      * @param {Element} submitButton - 提交按钮元素

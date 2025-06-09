@@ -213,6 +213,61 @@
     return options.sort(() => Math.random() - 0.5);
   }
 
+  // 使用防抖处理选项点击事件
+  const handleOptionClick = UIUtil.debounce((optionElement, isCorrect) => {
+    if (isAnswerLocked) return;
+
+    // 设置答题锁定状态，防止重复点击
+    isAnswerLocked = true;
+
+    // 清除答题计时器
+    if (answerTimer) {
+      clearInterval(answerTimer);
+      answerTimer = null;
+    }
+
+    // 添加按钮点击效果
+    optionElement.classList.add('button-clicked');
+    setTimeout(() => {
+      optionElement.classList.remove('button-clicked');
+    }, 200);
+
+    // 显示动画反馈
+    UIUtil.showAnimatedFeedback(
+      'math-problem-container',
+      isCorrect ? '答对了！' : '答错了',
+      isCorrect ? 'success' : 'error'
+    );
+
+    // 给选项添加正确/错误状态标记
+    const optionButtons = document.querySelectorAll('.option-btn');
+    optionButtons.forEach(btn => {
+      const option = parseInt(btn.textContent);
+      if (option === window.currentProblem.answer) {
+        btn.classList.add('correct');
+      } else if (btn === optionElement && !isCorrect) {
+        btn.classList.add('wrong');
+      }
+      // 禁用所有按钮
+      btn.disabled = true;
+    });
+
+    // 更新练习数据
+    const updatedData = updatePracticeData(window.currentProblem, isCorrect);
+
+    // 延迟显示下一题
+    setTimeout(() => {
+      // 重置答题锁定状态
+      isAnswerLocked = false;
+
+      // 如果在主容器中，加载下一题
+      const moduleContent = document.getElementById('module-content');
+      if (moduleContent) {
+        window.loadMath(moduleContent);
+      }
+    }, 1500); // 延长一点时间，让用户能看清正确答案
+  }, 300);
+
   // 加载数学乐园
   window.loadMath = function (container) {
     try {
@@ -269,8 +324,12 @@
           `;
         }
 
+        // 添加样式
+        UIUtil.addStyles(CSS_TEMPLATES.COMMON);
+        UIUtil.addStyles(CSS_TEMPLATES.MATH);
+
         // 显示历史记录
-        displayHistory(container);
+        setTimeout(() => displayHistory(container), 100);
         return;
       }
 
@@ -284,12 +343,12 @@
       // 先更新DOM
       container.innerHTML = `
         <h2>数学乐园</h2>
-        <div class="problem-display">
+        <div class="problem-display" id="math-problem-container">
           ${window.currentProblem.num1} ${window.currentProblem.operator} ${window.currentProblem.num2} = ?
         </div>
         <div class="options">
           ${options.map(option => `
-            <button onclick="window.handleAnswer(${option})">${option}</button>
+            <button class="option-btn">${option}</button>
           `).join('')}
         </div>
         <div class="feedback"></div>
@@ -304,10 +363,27 @@
       UIUtil.addStyles(CSS_TEMPLATES.COMMON);
       UIUtil.addStyles(CSS_TEMPLATES.MATH);
 
-      // 异步加载历史记录
-      requestAnimationFrame(() => {
-        displayHistory(container);
+      // 添加选项点击事件
+      const optionButtons = container.querySelectorAll('.option-btn');
+      optionButtons.forEach(button => {
+        const option = parseInt(button.textContent);
+        button.addEventListener('click', () => {
+          handleOptionClick(button, option === window.currentProblem.answer);
+        });
       });
+
+      // 异步加载历史记录
+      setTimeout(() => {
+        try {
+          displayHistory(container);
+        } catch (error) {
+          console.error('加载历史记录失败:', error);
+          const historyList = container.querySelector('.history-list');
+          if (historyList) {
+            historyList.innerHTML = '<div class="error-message">加载历史记录失败，请刷新页面重试</div>';
+          }
+        }
+      }, 100);
 
       // 在组件卸载时清理定时器
       const cleanup = () => {
@@ -329,154 +405,183 @@
     }
   };
 
-  // 显示历史记录
+  function startPractice(container) {
+    // 清除所有计时器
+    if (answerTimer) {
+      clearInterval(answerTimer);
+      answerTimer = null;
+    }
+
+    // 重置答题锁定状态
+    isAnswerLocked = false;
+
+    try {
+      const problems = getProblemsToPractice();
+
+      // 重置容器内容，设置好所有需要的元素
+      container.innerHTML = `
+        <h2>数学乐园</h2>
+        <div class="problem-display" id="problem-display"></div>
+        <div id="options"></div>
+        <div id="feedback" class="feedback"></div>
+        <div id="countdown-display" class="countdown-timer"></div>
+        <div class="history-section">
+          <h3>练习历史（点击表头可排序）</h3>
+          <div class="history-list"></div>
+        </div>
+        <button class="return-btn" onclick="window.showModule('')">返回首页</button>
+      `;
+
+      const problemDisplay = document.getElementById('problem-display');
+      const optionsContainer = document.getElementById('options');
+      const feedback = document.getElementById('feedback');
+      const countdownDisplay = document.getElementById('countdown-display');
+
+      if (!problemDisplay || !optionsContainer || !feedback) {
+        console.error('获取元素失败');
+        return;
+      }
+
+      // 清空反馈和倒计时
+      feedback.textContent = '';
+      if (countdownDisplay) countdownDisplay.textContent = '';
+
+      if (problems.length === 0) {
+        window.loadMath(container);
+        return;
+      }
+
+      // 随机选择一个问题
+      const randomIndex = Math.floor(Math.random() * problems.length);
+      window.currentProblem = problems[randomIndex];
+      const problem = window.currentProblem;
+
+      // 设置问题容器ID用于动画反馈
+      problemDisplay.id = 'math-problem-container';
+      problemDisplay.innerHTML = `<div class="problem">${problem.num1} ${problem.operator} ${problem.num2} = ?</div>`;
+
+      // 生成随机选项
+      const options = generateOptions(problem.answer);
+
+      // 显示选项
+      optionsContainer.innerHTML = `<div class="options">
+        ${options.map(option => `<button class="option-btn">${option}</button>`).join('')}
+      </div>`;
+
+      // 添加选项点击事件
+      const optionButtons = optionsContainer.querySelectorAll('.option-btn');
+      optionButtons.forEach(button => {
+        const option = parseInt(button.textContent);
+        button.addEventListener('click', () => {
+          handleOptionClick(button, option === problem.answer);
+        });
+      });
+
+      // 启动倒计时
+      let timeLeft = ANSWER_TIMEOUT;
+      countdownDisplay.textContent = `${timeLeft}秒`;
+
+      answerTimer = setInterval(() => {
+        timeLeft--;
+        if (countdownDisplay) countdownDisplay.textContent = `${timeLeft}秒`;
+
+        // 最后3秒警告效果
+        if (timeLeft <= 3) {
+          if (countdownDisplay) {
+            countdownDisplay.className = 'countdown-timer warning';
+          }
+        }
+
+        if (timeLeft <= 0) {
+          clearInterval(answerTimer);
+          answerTimer = null;
+
+          // 显示动画反馈
+          UIUtil.showAnimatedFeedback(
+            'math-problem-container',
+            '时间到了',
+            'neutral'
+          );
+
+          // 禁用所有选项
+          optionButtons.forEach(btn => {
+            btn.disabled = true;
+          });
+
+          // 延迟显示下一题
+          setTimeout(() => {
+            startPractice(container);
+          }, 1000);
+        }
+      }, 1000);
+    } catch (error) {
+      console.error('开始练习失败:', error);
+      container.innerHTML = `
+        <h2>数学乐园</h2>
+        <p>加载失败，请刷新页面重试。错误: ${error.message}</p>
+        <button class="return-btn" onclick="window.showModule('')">返回首页</button>
+      `;
+    }
+  }
+
   function displayHistory(container) {
     try {
-      const historyList = container.querySelector('.history-list');
-      if (!historyList) return;
+      // 清除可能存在的定时器
+      if (answerTimer) {
+        clearInterval(answerTimer);
+        answerTimer = null;
+      }
 
       const history = getHistory();
-      if (history.length > 0) {
-        // 使用上次的排序方式
-        const sortedHistory = sortHistory(history, lastSortField, lastSortAscending);
 
-        historyList.innerHTML = `
-          <table class="history-table">
-            <thead>
-              <tr>
-                <th onclick="window.sortHistoryTable('problem')" class="sortable ${lastSortField === 'problem' ? (lastSortAscending ? 'ascending' : 'descending') : ''}">题目</th>
-                <th onclick="window.sortHistoryTable('totalTests')" class="sortable ${lastSortField === 'totalTests' ? (lastSortAscending ? 'ascending' : 'descending') : ''}">练习次数</th>
-                <th onclick="window.sortHistoryTable('accuracy')" class="sortable ${lastSortField === 'accuracy' ? (lastSortAscending ? 'ascending' : 'descending') : ''}">正确率</th>
-                <th onclick="window.sortHistoryTable('lastTestTime')" class="sortable ${lastSortField === 'lastTestTime' ? (lastSortAscending ? 'ascending' : 'descending') : ''}">上次练习</th>
-                <th onclick="window.sortHistoryTable('nextReviewTime')" class="sortable ${lastSortField === 'nextReviewTime' ? (lastSortAscending ? 'ascending' : 'descending') : ''}">下次复习</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${sortedHistory.map(item => `
-                <tr>
-                  <td>${item.problem}</td>
-                  <td>${item.totalTests}</td>
-                  <td>${item.accuracy}%</td>
-                  <td>${item.lastTestTime}</td>
-                  <td>${item.nextReviewTime}</td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        `;
-      } else {
-        historyList.innerHTML = '<p class="no-history">还没有练习记录哦，开始练习吧！</p>';
+      // 直接使用容器中的历史记录列表区域
+      const historyList = container.querySelector('.history-list');
+      if (!historyList) {
+        console.error('找不到历史记录列表容器');
+        return;
       }
+
+      // 清空之前的内容
+      historyList.innerHTML = '';
+
+      if (history.length === 0) {
+        historyList.innerHTML = '<div class="no-history">暂无练习历史</div>';
+        return;
+      }
+
+      // 定义表格列
+      const columns = [
+        { field: 'problem', title: '题目', sortable: true },
+        { field: 'totalTests', title: '练习次数', sortable: true },
+        { field: 'accuracy', title: '正确率', sortable: true },
+        { field: 'lastTestTime', title: '上次练习', sortable: true },
+        { field: 'nextReviewTime', title: '下次复习', sortable: true }
+      ];
+
+      // 定义行渲染函数
+      const rowRenderer = (item) => `
+        <tr>
+          <td>${item.problem}</td>
+          <td>${item.totalTests}</td>
+          <td>${item.accuracy}%</td>
+          <td>${item.lastTestTime}</td>
+          <td>${item.nextReviewTime}</td>
+        </tr>
+      `;
+
+      // 使用UIUtil.renderHistoryTable渲染历史表格
+      UIUtil.renderHistoryTable(historyList, history, columns, rowRenderer, {
+        sortSettingsKey: STORAGE_KEYS.MATH_SORT_SETTINGS,
+        defaultSort: { field: 'nextReviewTime', direction: 'asc' }
+      });
     } catch (error) {
       console.error('显示历史记录失败:', error);
       const historyList = container.querySelector('.history-list');
       if (historyList) {
-        historyList.innerHTML = '<p class="error-message">加载历史记录失败，请刷新页面重试。</p>';
+        historyList.innerHTML = '<div class="error-message">加载历史记录失败，请刷新页面重试</div>';
       }
     }
   }
-
-  // 处理答题
-  window.handleAnswer = function (answer) {
-    try {
-      // 如果已锁定，忽略答题请求
-      if (isAnswerLocked) {
-        console.log('答题已锁定，请等待下一题');
-        return;
-      }
-
-      if (!window.currentProblem) {
-        console.error('当前没有题目');
-        UIUtil.showError('.feedback', '题目加载失败，请刷新页面重试');
-        return;
-      }
-
-      // 立即锁定，防止重复答题
-      isAnswerLocked = true;
-
-      // 获取所有选项按钮
-      const optionButtons = document.querySelectorAll('.options button');
-
-      // 找到当前点击的按钮
-      const clickedButton = Array.from(optionButtons).find(button =>
-        button.textContent === answer.toString());
-
-      // 添加"点击中"的过渡动画效果
-      if (clickedButton) {
-        clickedButton.classList.add('processing');
-      }
-
-      // 准备答题区域的遮罩层，防止任何交互
-      let overlay = document.querySelector('.locked-overlay');
-      if (!overlay) {
-        overlay = document.createElement('div');
-        overlay.className = 'locked-overlay';
-        document.querySelector('.options').parentNode.appendChild(overlay);
-      }
-      overlay.classList.add('active');
-
-      const isCorrect = answer === window.currentProblem.answer;
-
-      // 短暂延迟后显示答题结果，给用户更好的视觉反馈
-      setTimeout(() => {
-        // 禁用除了当前选择之外的所有按钮
-        optionButtons.forEach(button => {
-          if (button !== clickedButton) {
-            button.disabled = true;
-          }
-        });
-
-        // 移除处理中的动画效果
-        if (clickedButton) {
-          clickedButton.classList.remove('processing');
-          clickedButton.classList.add(isCorrect ? 'correct' : 'wrong');
-        }
-
-        // 如果答案错误，显示正确答案
-        if (!isCorrect) {
-          const correctButton = Array.from(optionButtons).find(button =>
-            button.textContent === window.currentProblem.answer.toString());
-          if (correctButton) {
-            correctButton.classList.add('correct');
-            correctButton.disabled = false;
-          }
-        }
-
-        const problemData = updatePracticeData(window.currentProblem, isCorrect);
-
-        const feedback = document.querySelector('.feedback');
-        if (feedback) {
-          feedback.className = `feedback ${isCorrect ? 'correct' : 'wrong'}`;
-          feedback.textContent = isCorrect ? '太棒了！' : '继续加油！';
-        }
-
-        // 延迟加载下一题，确保用户能看到反馈
-        setTimeout(() => {
-          const moduleContent = document.getElementById('module-content');
-          if (moduleContent && typeof window.loadMath === 'function') {
-            window.loadMath(moduleContent);
-          } else {
-            // 如果加载失败，恢复按钮状态
-            console.error('加载下一题失败');
-            UIUtil.showError('.feedback', '加载下一题失败，请刷新页面重试');
-            UIUtil.enableButtons(['.options button']);
-            overlay.classList.remove('active');
-            // 如果加载失败，重置锁定状态
-            isAnswerLocked = false;
-          }
-        }, 1500);  // 延长反馈时间到1.5秒，让用户有更多时间看到结果
-      }, 300);  // 300毫秒的动画过渡效果
-    } catch (error) {
-      console.error('处理答案失败:', error);
-      UIUtil.showError('.feedback', '发生错误，请刷新页面重试');
-      UIUtil.enableButtons(['.options button']);
-      // 移除可能存在的遮罩层
-      const overlay = document.querySelector('.locked-overlay');
-      if (overlay) overlay.classList.remove('active');
-      // 发生错误时，重置锁定状态
-      isAnswerLocked = false;
-    }
-  };
 
   // 添加排序功能到window对象
   window.sortHistoryTable = function (sortBy) {

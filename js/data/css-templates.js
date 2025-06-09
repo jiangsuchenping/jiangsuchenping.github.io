@@ -142,6 +142,57 @@ const CSS_TEMPLATES = {
     .feedback.wrong {
       color: #f44336;
     }
+    
+    /* 动画反馈 */
+    .animated-feedback {
+      position: absolute;
+      font-size: 28px;
+      font-weight: bold;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.3s, transform 0.3s;
+      pointer-events: none;
+      z-index: 100;
+      text-align: center;
+      left: 0;
+      right: 0;
+      margin: 0 auto;
+    }
+    .animated-feedback.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .animated-feedback.success {
+      color: #4CAF50;
+    }
+    .animated-feedback.error {
+      color: #f44336;
+    }
+    .animated-feedback.neutral {
+      color: #2196F3;
+    }
+    
+    /* 防止重复点击效果 */
+    .options button:active {
+      transform: scale(0.95);
+    }
+    .button-clicked {
+      transform: scale(0.95) !important;
+      opacity: 0.8;
+      transition: transform 0.1s;
+    }
+    
+    /* 倒计时动画 */
+    .countdown-timer {
+      font-size: 20px;
+      font-weight: bold;
+      text-align: center;
+      margin: 10px 0;
+      transition: color 0.3s;
+    }
+    .countdown-timer.warning {
+      color: #f44336;
+    }
   `,
 
     // 英语模块样式
