@@ -466,6 +466,144 @@ const COMMON_IDIOMS = [
     pinyin: "kuā fù zhuī rì",
     meaning: "比喻人有大志，也比喻不自量力。",
     example: "他的梦想虽然像夸父追日一样困难，但他依然坚持。"
+  },
+  {
+    idiom: "叶公好龙",
+    pinyin: "yè gōng hào lóng",
+    meaning: "比喻口头上爱好某事物，实际上并不真爱好。",
+    example: "他口口声声说喜欢读书，其实只是叶公好龙，书架上的书都没翻过。"
+  },
+  {
+    idiom: "滥竽充数",
+    pinyin: "làn yú chōng shù",
+    meaning: "比喻无本领的冒充有本领，次货冒充好货。",
+    example: "这个乐团里有些人滥竽充数，影响了整体演奏水平。"
+  },
+  {
+    idiom: "买椟还珠",
+    pinyin: "mǎi dú huán zhū",
+    meaning: "比喻没有眼光，取舍不当。",
+    example: "他只看包装不看内容，真是买椟还珠。"
+  },
+  {
+    idiom: "塞翁失马",
+    pinyin: "sài wēng shī mǎ",
+    meaning: "比喻虽然暂时遭受损失，却可能因此得到好处，坏事也可能变成好事。",
+    example: "这次考试没考好，但塞翁失马，让我发现了学习中的问题。"
+  },
+  {
+    idiom: "杞人忧天",
+    pinyin: "qǐ rén yōu tiān",
+    meaning: "比喻不必要的忧虑。",
+    example: "别总是杞人忧天，事情没有你想象的那么糟糕。"
+  },
+  {
+    idiom: "夜郎自大",
+    pinyin: "yè láng zì dà",
+    meaning: "比喻人无知而又狂妄自大。",
+    example: "他刚取得一点成绩就夜郎自大，看不起别人。"
+  },
+  {
+    idiom: "邯郸学步",
+    pinyin: "hán dān xué bù",
+    meaning: "比喻模仿人不到家，反把原来自己会的东西忘了。",
+    example: "学习他人要取其精华，不能邯郸学步，连自己的特点都丢了。"
+  },
+  {
+    idiom: "东施效颦",
+    pinyin: "dōng shī xiào pín",
+    meaning: "比喻胡乱模仿，效果极坏。",
+    example: "她盲目模仿明星穿衣，结果东施效颦，反而更难看。"
+  },
+  {
+    idiom: "班门弄斧",
+    pinyin: "bān mén nòng fǔ",
+    meaning: "在鲁班门前舞弄斧子。比喻在行家面前卖弄本领，不自量力。",
+    example: "在专家面前班门弄斧，只会暴露自己的无知。"
+  },
+  {
+    idiom: "毛遂自荐",
+    pinyin: "máo suì zì jiàn",
+    meaning: "比喻自告奋勇，自己推荐自己担任某项工作。",
+    example: "他毛遂自荐担任班长，得到了同学们的支持。"
+  },
+  {
+    idiom: "纸上谈兵",
+    pinyin: "zhǐ shàng tán bīng",
+    meaning: "比喻空谈理论，不能解决实际问题。",
+    example: "只会纸上谈兵是不够的，还需要实践经验。"
+  },
+  {
+    idiom: "望梅止渴",
+    pinyin: "wàng méi zhǐ kě",
+    meaning: "比喻愿望无法实现，用空想安慰自己。",
+    example: "光靠望梅止渴解决不了实际问题，要采取实际行动。"
+  },
+  {
+    idiom: "指鹿为马",
+    pinyin: "zhǐ lù wéi mǎ",
+    meaning: "比喻故意颠倒黑白，混淆是非。",
+    example: "他这样指鹿为马，歪曲事实，实在令人气愤。"
+  },
+  {
+    idiom: "按图索骥",
+    pinyin: "àn tú suǒ jì",
+    meaning: "比喻办事机械死板，也比喻按照线索去寻找事物。",
+    example: "做事不能太死板，不能总是按图索骥，要学会变通。"
+  },
+  {
+    idiom: "唇亡齿寒",
+    pinyin: "chún wáng chǐ hán",
+    meaning: "比喻利害关系密切。",
+    example: "我们是一个团队，要互相帮助，唇亡齿寒的道理大家都懂。"
+  },
+  {
+    idiom: "鹤立鸡群",
+    pinyin: "hè lì jī qún",
+    meaning: "比喻一个人的才能或仪表在一群人里头显得很突出。",
+    example: "她在舞蹈队里鹤立鸡群，技艺远超其他人。"
+  },
+  {
+    idiom: "鱼目混珠",
+    pinyin: "yú mù hùn zhū",
+    meaning: "比喻用假的冒充真的。",
+    example: "市场上有些商品鱼目混珠，消费者要仔细辨别。"
+  },
+  {
+    idiom: "虎头蛇尾",
+    pinyin: "hǔ tóu shé wěi",
+    meaning: "比喻开始时声势很大，到后来劲头很小，有始无终。",
+    example: "他做事总是虎头蛇尾，开始时很积极，后来就懈怠了。"
+  },
+  {
+    idiom: "狗尾续貂",
+    pinyin: "gǒu wěi xù diāo",
+    meaning: "比喻拿不好的东西补接在好的东西后面，前后两部分非常不相称。",
+    example: "这部小说前半部分精彩，后半部分却狗尾续貂，令人失望。"
+  },
+  {
+    idiom: "凤毛麟角",
+    pinyin: "fèng máo lín jiǎo",
+    meaning: "比喻珍贵而稀少的人或物。",
+    example: "像他这样的人才真是凤毛麟角，不可多得。"
+  },
+  {
+    idiom: "惊弓之鸟",
+    pinyin: "jīng gōng zhī niǎo",
+    meaning: "比喻受过惊吓的人遇到一点动静就害怕。",
+    example: "他经历过那次事故后，变得像惊弓之鸟，稍有响动就紧张。"
+  },
+  {
+    idiom: "如鱼得水",
+    pinyin: "rú yú dé shuǐ",
+    meaning: "比喻得到跟自己非常投合的人或对自己很合适的环境。",
+    example: "他调到新部门后如鱼得水，工作起来得心应手。"
+  },
+  {
+    idiom: "画龙点睛",
+    pinyin: "huà lóng diǎn jīng",
+    meaning: "比喻写文章或讲话时，在关键处用几句话点明实质，使内容生动有力。",
+    example: "这篇文章最后一句画龙点睛，道出了全文的主题。"
   }
 ];
 
