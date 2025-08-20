@@ -8,7 +8,8 @@ const STORAGE_KEYS = {
     // 语文模块
     CHINESE_PRACTICE_DATA: 'chinesePracticeData',
     CHINESE_SORT_SETTINGS: 'chineseSortSettings',
-    CHINESE_DAILY_LIMIT: 'chineseDailyLimit',
+    CHINESE_CHARACTERS_DAILY_LIMIT: 'chineseCharactersDailyLimit',
+    CHINESE_IDIOMS_DAILY_LIMIT: 'chineseIdiomsDailyLimit',
 
     // 英语模块
     ENGLISH_PRACTICE_DATA: 'englishPracticeData',
@@ -78,4 +79,4 @@ window.STORAGE_KEYS = STORAGE_KEYS;
 window.LEARNING_CONSTANTS = LEARNING_CONSTANTS;
 window.UI_CONSTANTS = UI_CONSTANTS;
 window.MODULE_TYPES = MODULE_TYPES;
-window.ERROR_MESSAGES = ERROR_MESSAGES; 
+window.ERROR_MESSAGES = ERROR_MESSAGES;

@@ -16,6 +16,8 @@
   }
 
   let currentCharacter = null;
+  let currentIdiom = null; // 当前显示的成语
+  // 当前学习模式：'characters' 或 'idioms'
   let nextReviewTime = null;
   let reviewTimer = null;
   let countdownTimer = null;
@@ -40,19 +42,58 @@
     return StorageUtil.save(STORAGE_KEYS.CHINESE_SORT_SETTINGS, { field, direction });
   }
 
-  // 从本地存储加载每日学习量设置
-  function loadDailyLimit() {
-    return StorageUtil.loadNumber(STORAGE_KEYS.CHINESE_DAILY_LIMIT, LEARNING_CONSTANTS.DEFAULT_DAILY_LIMIT);
+  // 加载汉字学习每日学习量设置
+  function loadCharactersDailyLimit() {
+    return StorageUtil.loadNumber(STORAGE_KEYS.CHINESE_CHARACTERS_DAILY_LIMIT, LEARNING_CONSTANTS.DEFAULT_DAILY_LIMIT);
   }
 
-  // 保存每日学习量设置到本地存储
-  function saveDailyLimit(limit) {
-    return StorageUtil.saveNumber(STORAGE_KEYS.CHINESE_DAILY_LIMIT, limit, LEARNING_CONSTANTS.DEFAULT_DAILY_LIMIT);
+  // 保存汉字学习每日学习量设置
+  function saveCharactersDailyLimit(limit) {
+    return StorageUtil.saveNumber(STORAGE_KEYS.CHINESE_CHARACTERS_DAILY_LIMIT, limit, LEARNING_CONSTANTS.DEFAULT_DAILY_LIMIT);
   }
 
-  // 获取今日已学习的汉字数量
-  function getTodayLearnedCount() {
-    return LearningUtil.getTodayLearnedCount(STORAGE_KEYS.CHINESE_PRACTICE_DATA);
+  // 加载成语学习每日学习量设置
+  function loadIdiomsDailyLimit() {
+    return StorageUtil.loadNumber(STORAGE_KEYS.CHINESE_IDIOMS_DAILY_LIMIT, LEARNING_CONSTANTS.DEFAULT_DAILY_LIMIT);
+  }
+
+  // 保存成语学习每日学习量设置
+  function saveIdiomsDailyLimit(limit) {
+    return StorageUtil.saveNumber(STORAGE_KEYS.CHINESE_IDIOMS_DAILY_LIMIT, limit, LEARNING_CONSTANTS.DEFAULT_DAILY_LIMIT);
+  }
+
+  // 获取汉字学习今日已学习数量
+  function getCharactersTodayLearned() {
+    try {
+      const data = JSON.parse(localStorage.getItem(STORAGE_KEYS.CHINESE_PRACTICE_DATA) || '{}');
+      const today = new Date().toDateString();
+      // 只统计汉字学习记录
+      return Object.entries(data).filter(([key, item]) =>
+        new Date(item.lastTestTime).toDateString() === today &&
+        // 汉字学习记录的key是单个汉字
+        key.length === 1
+      ).length;
+    } catch (error) {
+      console.error('获取汉字学习今日学习数量失败:', error);
+      return 0;
+    }
+  }
+
+  // 获取成语学习今日已学习数量
+  function getIdiomsTodayLearned() {
+    try {
+      const data = JSON.parse(localStorage.getItem(STORAGE_KEYS.CHINESE_PRACTICE_DATA) || '{}');
+      const today = new Date().toDateString();
+      // 只统计成语学习记录
+      return Object.entries(data).filter(([key, item]) =>
+        new Date(item.lastTestTime).toDateString() === today &&
+        // 成语学习记录的key是成语
+        key.length > 1
+      ).length;
+    } catch (error) {
+      console.error('获取成语学习今日学习数量失败:', error);
+      return 0;
+    }
   }
 
   // 获取下一个复习时间
@@ -76,7 +117,7 @@
       STORAGE_KEYS.CHINESE_PRACTICE_DATA,
       COMMON_CHARACTERS,
       'character',
-      STORAGE_KEYS.CHINESE_DAILY_LIMIT,
+      STORAGE_KEYS.CHINESE_CHARACTERS_DAILY_LIMIT,
       (item) => {
         // 添加拼音信息
         if (item && item.character) {
@@ -84,6 +125,17 @@
         }
         return item;
       }
+    );
+  }
+
+  // 获取需要练习的成语
+  function getIdiomsToPractice() {
+    return LearningUtil.getItemsToLearn(
+      STORAGE_KEYS.CHINESE_PRACTICE_DATA,
+      window.COMMON_IDIOMS || [],
+      'idiom',
+      STORAGE_KEYS.CHINESE_IDIOMS_DAILY_LIMIT,
+      (item) => item
     );
   }
 
@@ -105,6 +157,9 @@
     }
   }
 
+  // 当前学习模式（'characters' 或 'idioms'）
+  let currentMode = 'characters';
+  
   // 将函数绑定到window对象
   window.loadChinese = function (container) {
     try {
@@ -113,10 +168,20 @@
         return;
       }
 
-      const characters = getCharactersToPractice();
-      const dailyLimit = loadDailyLimit();
-      const todayLearned = getTodayLearnedCount();
-      const remainingToday = Math.max(0, dailyLimit - todayLearned);
+      // 根据当前模式加载相应的数据
+      let characters, dailyLimit, todayLearned, remainingToday;
+      
+      if (currentMode === 'characters') {
+        characters = getCharactersToPractice();
+        dailyLimit = loadCharactersDailyLimit();
+        todayLearned = getCharactersTodayLearned();
+        remainingToday = Math.max(0, dailyLimit - todayLearned);
+      } else {
+        characters = getIdiomsToPractice();
+        dailyLimit = loadIdiomsDailyLimit();
+        todayLearned = getIdiomsTodayLearned();
+        remainingToday = Math.max(0, dailyLimit - todayLearned);
+      }
 
       // 加载历史记录
       const loadHistory = () => {
@@ -270,16 +335,24 @@
       if (!characters || characters.length === 0) {
         container.innerHTML = `
           <h2>语文乐园</h2>
-          <div class="daily-progress">
-            <p>今日学习进度：${todayLearned}/${dailyLimit}</p>
-            ${remainingToday === 0 ? '<p class="limit-reached">今日学习目标已完成，明天再来吧！</p>' : ''}
+          <div class="mode-toggle">
+            <button class="${currentMode === 'characters' ? 'active' : ''}" onclick="window.switchChineseMode('characters')">识字学习</button>
+            <button class="${currentMode === 'idioms' ? 'active' : ''}" onclick="window.switchChineseMode('idioms')">成语学习</button>
           </div>
+          <div class="daily-progress">
+              <h3>今日学习进度</h3>
+              <div>已学习: <span id="todayLearned">${todayLearned}</span>/<span id="dailyLimitDisplay">${currentMode === 'characters' ? loadCharactersDailyLimit() : loadIdiomsDailyLimit()}</span></div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: ${dailyLimit > 0 ? (todayLearned/dailyLimit)*100 : 0}%"></div>
+              </div>
+              ${remainingToday === 0 ? '<div id="limitReachedMessage" class="limit-reached">今日学习任务已完成！</div>' : ''}
+            </div>
           <div class="settings-section">
             <h3>学习设置</h3>
             <div class="setting-item">
-              <label for="dailyLimit">每日学习量：</label>
-              <input type="number" id="dailyLimit" min="1" max="100" value="${dailyLimit}">
-              <button onclick="window.updateDailyLimit()">保存设置</button>
+              <label>每日学习量:</label>
+              <input type="number" id="dailyLimitInput" value="${currentMode === 'characters' ? loadCharactersDailyLimit() : loadIdiomsDailyLimit()}" min="1" max="100">
+              <button onclick="window.updateDailyLimit()">保存</button>
             </div>
           </div>
           <div class="history-section">
@@ -410,28 +483,70 @@
         return;
       }
 
-      // 随机选择一个汉字
-      const randomIndex = Math.floor(Math.random() * characters.length);
-      currentCharacter = characters[randomIndex];
+      // 根据当前模式选择学习内容
+      let learningItem;
+      if (currentMode === 'characters') {
+        // 获取需要学习的汉字
+        const charactersToLearn = getCharactersToPractice();
+        if (charactersToLearn && charactersToLearn.length > 0) {
+          const randomIndex = Math.floor(Math.random() * charactersToLearn.length);
+          currentCharacter = charactersToLearn[randomIndex];
+          learningItem = currentCharacter;
+        }
+      } else {
+        // 获取需要学习的成语
+        const idiomsToLearn = getIdiomsToPractice();
+        if (idiomsToLearn && idiomsToLearn.length > 0) {
+          const randomIndex = Math.floor(Math.random() * idiomsToLearn.length);
+          currentIdiom = idiomsToLearn[randomIndex];
+          learningItem = currentIdiom;
+        }
+      }
 
-      if (!currentCharacter || !currentCharacter.character) {
+      if (!learningItem) {
         container.innerHTML = `
           <h2>语文乐园</h2>
+          <div class="mode-toggle">
+            <button class="${currentMode === 'characters' ? 'active' : ''}" onclick="window.switchChineseMode('characters')">识字学习</button>
+            <button class="${currentMode === 'idioms' ? 'active' : ''}" onclick="window.switchChineseMode('idioms')">成语学习</button>
+          </div>
           <p>加载失败，请刷新页面重试。</p>
           <button class="return-btn" onclick="window.showModule('')">返回首页</button>
         `;
         return;
       }
 
+      // 根据模式显示不同内容
+      let contentHTML;
+      if (currentMode === 'characters') {
+        contentHTML = `
+          <div class="character-display">
+            <div class="character">${learningItem.character}</div>
+            <div class="pinyin">${getPinyin(learningItem.character)}</div>
+          </div>
+        `;
+      } else {
+        contentHTML = `
+          <div class="idiom-display">
+            <div class="idiom">${learningItem.idiom}</div>
+            <div class="pinyin">${learningItem.pinyin}</div>
+            <div class="meaning">释义：${learningItem.meaning}</div>
+            <div class="example">例句：${learningItem.example}</div>
+          </div>
+        `;
+      }
+
       container.innerHTML = `
         <h2>语文乐园</h2>
+        <div class="mode-toggle">
+          <button class="${currentMode === 'characters' ? 'active' : ''}" onclick="window.switchChineseMode('characters')">识字学习</button>
+          <button class="${currentMode === 'idioms' ? 'active' : ''}" onclick="window.switchChineseMode('idioms')">成语学习</button>
+        </div>
         <div class="daily-progress">
-          <p>今日学习进度：${todayLearned}/${dailyLimit}</p>
+          <p>今日学习进度：${todayLearned}/${currentMode === 'characters' ? loadCharactersDailyLimit() : loadIdiomsDailyLimit()}</p>
+          ${remainingToday === 0 ? '<p class="limit-reached">今日学习目标已完成，明天再来吧！</p>' : ''}
         </div>
-        <div class="character-display">
-          <div class="character">${currentCharacter.character}</div>
-          <div class="pinyin">${getPinyin(currentCharacter.character)}</div>
-        </div>
+        ${contentHTML}
         <div class="options">
           <button class="learn-btn" onclick="window.handleChineseAnswer(true)">认识</button>
           <button class="forget-btn" onclick="window.handleChineseAnswer(false)">不认识</button>
@@ -546,6 +661,11 @@
           background: #f5f5f5;
           border-radius: 8px;
         }
+        .limit-reached {
+          color: #4CAF50;
+          font-weight: bold;
+          margin-top: 10px;
+        }
         .settings-section {
           margin: 20px 0;
           padding: 15px;
@@ -649,6 +769,18 @@
 
       // 加载历史记录
       requestAnimationFrame(loadHistory);
+
+      // 添加模式切换事件监听器
+      const modeToggle = container.querySelector('.mode-toggle');
+      if (modeToggle) {
+        const buttons = modeToggle.querySelectorAll('button');
+        buttons.forEach(button => {
+          button.addEventListener('click', () => {
+            const mode = button.textContent.includes('识字') ? 'characters' : 'idioms';
+            window.switchChineseMode(mode);
+          });
+        });
+      }
     } catch (error) {
       console.error('加载语文模块失败:', error);
       container.innerHTML = `
@@ -661,14 +793,31 @@
 
   window.handleChineseAnswer = function (isCorrect) {
     try {
-      if (!currentCharacter || !currentCharacter.character) {
-        console.error('当前没有汉字');
-        const feedback = document.querySelector('.feedback');
-        if (feedback) {
-          feedback.className = 'feedback wrong';
-          feedback.textContent = '题目加载失败，请刷新页面重试';
+      // 根据当前模式获取学习项目
+      let learningItem;
+      if (currentMode === 'characters') {
+        learningItem = currentCharacter;
+        if (!learningItem || !learningItem.character) {
+          console.error('当前没有汉字');
+          const feedback = document.querySelector('.feedback');
+          if (feedback) {
+            feedback.className = 'feedback wrong';
+            feedback.textContent = '题目加载失败，请刷新页面重试';
+          }
+          return;
         }
-        return;
+      } else {
+        // 对于成语模式，我们使用全局变量跟踪当前成语
+        learningItem = currentIdiom;
+        if (!learningItem || !learningItem.idiom) {
+          console.error('当前没有成语');
+          const feedback = document.querySelector('.feedback');
+          if (feedback) {
+            feedback.className = 'feedback wrong';
+            feedback.textContent = '题目加载失败，请刷新页面重试';
+          }
+          return;
+        }
       }
 
       // 禁用按钮，避免重复答题
@@ -677,7 +826,9 @@
       if (learnBtn) learnBtn.disabled = true;
       if (forgetBtn) forgetBtn.disabled = true;
 
-      const characterData = updatePracticeData(currentCharacter.character, isCorrect);
+      // 更新统计数据
+      const itemId = currentMode === 'characters' ? learningItem.character : learningItem.idiom;
+      const characterData = updatePracticeData(itemId, isCorrect);
       if (!characterData) {
         console.error('更新练习数据失败');
         const feedback = document.querySelector('.feedback');
@@ -691,7 +842,17 @@
       const feedback = document.querySelector('.feedback');
       if (feedback) {
         feedback.className = `feedback ${isCorrect ? 'correct' : 'wrong'}`;
-        feedback.textContent = isCorrect ? '太棒了！' : '继续加油！';
+        if (currentMode === 'characters') {
+          feedback.textContent = isCorrect ? '太棒了！' : '继续加油！';
+        } else {
+          feedback.innerHTML = `
+            <p>${isCorrect ? '太棒了！' : '继续加油！'}</p>
+            <p>这个成语是：${learningItem.idiom}</p>
+            <p>拼音：${learningItem.pinyin}</p>
+            <p>释义：${learningItem.meaning}</p>
+            <p>例句：${learningItem.example}</p>
+          `;
+        }
       }
 
       // 延迟加载下一题，确保用户能看到反馈
@@ -746,21 +907,68 @@
     }
   });
 
+  // 切换语文学习模式
+  window.switchChineseMode = function(mode) {
+    currentMode = mode;
+    // 重新加载界面
+    const container = document.getElementById('module-content');
+    if (container) {
+      window.loadChinese(container);
+    } else {
+      console.error('容器元素不存在');
+    }
+  };
+
   // 更新每日学习量设置
-  window.updateDailyLimit = function () {
-    const input = document.getElementById('dailyLimit');
-    if (input) {
+  window.updateDailyLimit = function() {
+    const input = document.getElementById('dailyLimitInput');
+    if (input && input instanceof HTMLInputElement) {
       const newLimit = parseInt(input.value);
       if (newLimit >= 1 && newLimit <= 100) {
-        saveDailyLimit(newLimit);
-        // 重新加载页面以应用新设置
-        window.loadChinese(document.getElementById('module-content'));
+        // 根据当前模式保存不同的每日学习量
+        if (currentMode === 'characters') {
+          saveCharactersDailyLimit(newLimit);
+        } else {
+          saveIdiomsDailyLimit(newLimit);
+        }
+        
+        // 更新界面上的显示
+        const dailyLimitDisplay = document.getElementById('dailyLimitDisplay');
+        if (dailyLimitDisplay) {
+          dailyLimitDisplay.textContent = newLimit;
+        }
+        
+        // 更新进度条
+        const todayLearnedSpan = document.getElementById('todayLearned');
+        if (todayLearnedSpan) {
+          const todayLearned = currentMode === 'characters' ? getCharactersTodayLearned() : getIdiomsTodayLearned();
+          const progressFill = document.querySelector('.progress-fill');
+          if (progressFill) {
+            progressFill.style.width = newLimit > 0 ? (todayLearned/newLimit)*100 + '%' : '0%';
+          }
+        }
+        
+        // 显示保存成功的提示
+        const feedback = document.querySelector('.feedback');
+        if (feedback) {
+          feedback.className = 'feedback correct';
+          feedback.textContent = '设置已保存';
+          
+          // 3秒后清除提示
+          setTimeout(() => {
+            if (feedback.textContent === '设置已保存') {
+              feedback.textContent = '';
+            }
+          }, 3000);
+        }
       } else {
         alert('请输入1-100之间的数字');
         // 聚焦并全选输入框内容
         setTimeout(() => {
           input.focus();
-          input.select();
+          if (typeof input.select === 'function') {
+            input.select();
+          }
         }, 0);
       }
     }

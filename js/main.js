@@ -37,6 +37,30 @@ window.showModule = function(module) {
         }
         moduleContent.style.display = 'block';
         break;
+      case 'science':
+        if (typeof window.loadScience === 'function') {
+          window.loadScience(moduleContent);
+        }
+        moduleContent.style.display = 'block';
+        break;
+      case 'art':
+        if (typeof window.loadArt === 'function') {
+          window.loadArt(moduleContent);
+        }
+        moduleContent.style.display = 'block';
+        break;
+      case 'music':
+        if (typeof window.loadMusic === 'function') {
+          window.loadMusic(moduleContent);
+        }
+        moduleContent.style.display = 'block';
+        break;
+      case 'sports':
+        if (typeof window.loadSports === 'function') {
+          window.loadSports(moduleContent);
+        }
+        moduleContent.style.display = 'block';
+        break;
       case 'game':
         if (typeof window.loadGame === 'function') {
           window.loadGame(moduleContent);
@@ -50,4 +74,4 @@ window.showModule = function(module) {
   } catch (error) {
     console.error('切换模块失败:', error);
   }
-}; 
+};

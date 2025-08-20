@@ -7,6 +7,11 @@
   <title>快乐成长乐园</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/common.css">
+  <link rel="stylesheet" href="css/science.css">
+  <link rel="stylesheet" href="css/art.css">
+  <link rel="stylesheet" href="css/music.css">
+  <link rel="stylesheet" href="css/sports.css">
+  <link rel="stylesheet" href="css/chinese.css">
   <link rel="icon" href="data:,">
   <!-- 引入工具模块 -->
   <script src="js/utils/constants.js"></script>
@@ -17,18 +22,23 @@
   <script src="js/data/css-templates.js"></script>
   <script src="js/data/english-words.js"></script>
   <script src="js/data/chinese-chars.js"></script>
+  <script src="js/data/chinese-idioms.js"></script>
 </head>
 
 <body>
   <header>
     <h1>快乐成长乐园</h1>
-    <p>欢迎来到幼儿园中班学习乐园！</p>
+    <p>欢迎来到幼儿园大班学习乐园！</p>
   </header>
   <main>
     <div class="modules">
       <button onclick="window.showModule('chinese')">语文乐园</button>
       <button onclick="window.showModule('math')">数学乐园</button>
       <button onclick="window.showModule('english')">英语乐园</button>
+      <button onclick="window.showModule('science')" style="display: none;">科学乐园</button>
+      <button onclick="window.showModule('art')" style="display: none;">艺术乐园</button>
+      <button onclick="window.showModule('music')" style="display: none;">音乐乐园</button>
+      <button onclick="window.showModule('sports')" style="display: none;">体育乐园</button>
       <button onclick="window.showModule('game')">趣味游戏</button>
     </div>
     <section id="module-content"></section>
@@ -41,6 +51,10 @@
   <script src="js/chinese.js"></script>
   <script src="js/math.js"></script>
   <script src="js/english.js"></script>
+  <script src="js/science.js"></script>
+  <script src="js/art.js"></script>
+  <script src="js/music.js"></script>
+  <script src="js/sports.js"></script>
   <script src="js/game.js"></script>
   <script src="js/klotski.js"></script>
 </body>
