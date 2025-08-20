@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>词汇学习 - 儿童学习乐园</title>
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/english.css">
+    <link rel="icon" type="image/png" href="favicon.png">
+</head>
+<body>
+    <header class="page-header">
+        <h1>📚 英语词汇</h1>
+        <p class="page-subtitle">趣味单词学习，轻松掌握英语</p>
+    </header>
+
+    <div class="page-container">
+        <div class="page-content">
+            <!-- 学习控制面板 -->
+            <div class="learning-panel">
+                <div class="panel-header">
+                    <h2>今日学习进度</h2>
+                    <div class="progress-display">
+                        <span id="today-progress">0</span> / <span id="daily-goal">10</span>
+                        <div class="progress">
+                            <div class="progress-bar" id="progress-fill"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="panel-controls">
+                    <div class="control-group">
+                        <label>学习类型：</label>
+                        <select id="learning-type">
+                            <option value="words">基础单词</option>
+                            <option value="animals">动物词汇</option>
+                            <option value="colors">颜色词汇</option>
+                            <option value="numbers">数字词汇</option>
+                            <option value="mixed" selected>混合词汇</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>学习模式：</label>
+                        <select id="learning-mode">
+                            <option value="recognition">认读模式</option>
+                            <option value="spelling" selected>拼写模式</option>
+                            <option value="translation">翻译模式</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>每日目标：</label>
+                        <select id="daily-goal-select">
+                            <option value="5">5个单词</option>
+                            <option value="10" selected>10个单词</option>
+                            <option value="15">15个单词</option>
+                            <option value="20">20个单词</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <button class="btn btn-primary" onclick="startLearning()">开始学习</button>
+                        <button class="btn btn-secondary" onclick="showHistory()">学习记录</button>
+                        <button class="btn btn-secondary" onclick="resetProgress()">重置进度</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 学习内容区域 -->
+            <div class="learning-content" id="learning-area" style="display: none;">
+                <div class="word-display">
+                    <div class="word-card">
+                        <div class="word-content">
+                            <div class="word-image" id="word-image">
+                                <!-- 动态加载图片 -->
+                            </div>
+                            <div class="word-info">
+                                <h3 id="english-word">Hello</h3>
+                                <p id="chinese-meaning">你好</p>
+                                <div class="phonetic" id="phonetic">/həˈloʊ/</div>
+                            </div>
+                        </div>
+                        
+                        <div class="learning-input" id="input-area">
+                            <input type="text" id="user-input" placeholder="请输入答案" />
+                            <button class="btn btn-secondary" onclick="playAudio()">🔊 发音</button>
+                        </div>
+                        
+                        <div class="answer-buttons">
+                            <button class="btn btn-primary" onclick="checkAnswer()">提交答案</button>
+                            <button class="btn btn-secondary" onclick="showHint()">提示</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="learning-feedback" id="feedback" style="display: none;">
+                    <div class="feedback-content" id="feedback-text"></div>
+                    <div class="feedback-details" id="feedback-details"></div>
+                    <button class="btn btn-primary" onclick="nextWord()">下一个</button>
+                </div>
+            </div>
+
+            <!-- 学习记录区域 -->
+            <div class="history-panel" id="history-panel" style="display: none;">
+                <div class="panel-header">
+                    <h2>学习记录</h2>
+                    <button class="btn btn-secondary" onclick="hideHistory()">返回</button>
+                </div>
+                
+                <div class="history-content">
+                    <div class="stats-summary">
+                        <div class="stat-item">
+                            <span class="stat-label">总学习：</span>
+                            <span class="stat-value" id="total-words">0</span> 个单词
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">掌握率：</span>
+                            <span class="stat-value" id="mastery-rate">0%</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">今日完成：</span>
+                            <span class="stat-value" id="today-completed">0</span> 个单词
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">连续学习：</span>
+                            <span class="stat-value" id="streak-days">0</span> 天
+                        </div>
+                    </div>
+                    
+                    <div class="mastery-overview">
+                        <h3>单词掌握情况</h3>
+                        <div class="mastery-grid" id="mastery-grid">
+                            <!-- 动态填充 -->
+                        </div>
+                    </div>
+                    
+                    <div class="history-table">
+                        <table id="history-table">
+                            <thead>
+                                <tr>
+                                    <th>日期</th>
+                                    <th>单词</th>
+                                    <th>结果</th>
+                                    <th>模式</th>
+                                    <th>用时</th>
+                                </tr>
+                            </thead>
+                            <tbody id="history-tbody">
+                                <!-- 动态填充 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <a href="index.html" class="return-btn">返回首页</a>
+
+    <!-- 音频元素 -->
+    <audio id="audio-player" preload="auto"></audio>
+
+    <!-- 工具脚本 -->
+    <script src="js/utils/constants.js"></script>
+    <script src="js/utils/storage.js"></script>
+    <script src="js/utils/learning.js"></script>
+    
+    <!-- 页面脚本 -->
+    <script src="js/english-vocabulary.js"></script>
+</body>
+</html>

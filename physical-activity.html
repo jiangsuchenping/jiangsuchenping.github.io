@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>体育锻炼 - 儿童学习乐园</title>
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/physical.css">
+    <link rel="icon" type="image/png" href="favicon.png">
+</head>
+<body>
+    <header class="page-header">
+        <h1>🏃‍♂️ 体育锻炼</h1>
+        <p class="page-subtitle">健康运动，快乐成长</p>
+    </header>
+
+    <div class="page-container">
+        <div class="page-content">
+            <div class="fitness-panel">
+                <div class="panel-header">
+                    <h2>每日运动挑战</h2>
+                    <div class="progress-display">
+                        <span>今日运动：</span>
+                        <span id="today-minutes">0</span> / <span id="daily-goal">30</span> 分钟
+                        <div class="progress">
+                            <div class="progress-bar" id="progress-fill"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="exercise-grid">
+                    <div class="exercise-card" onclick="startExercise('jumping-jacks')">
+                        <div class="exercise-icon">🤸‍♂️</div>
+                        <h3>开合跳</h3>
+                        <p>全身有氧运动</p>
+                        <div class="exercise-stats">
+                            <span>30秒 × 3组</span>
+                        </div>
+                        <button class="btn btn-primary">开始</button>
+                    </div>
+                    
+                    <div class="exercise-card" onclick="startExercise('squats')">
+                        <div class="exercise-icon">🦵</div>
+                        <h3>深蹲</h3>
+                        <p>腿部力量训练</p>
+                        <div class="exercise-stats">
+                            <span>15次 × 3组</span>
+                        </div>
+                        <button class="btn btn-primary">开始</button>
+                    </div>
+                    
+                    <div class="exercise-card" onclick="startExercise('plank')">
+                        <div class="exercise-icon">💪</div>
+                        <h3>平板支撑</h3>
+                        <p>核心力量训练</p>
+                        <div class="exercise-stats">
+                            <span>30秒 × 3组</span>
+                        </div>
+                        <button class="btn btn-primary">开始</button>
+                    </div>
+                    
+                    <div class="exercise-card" onclick="startExercise('yoga')">
+                        <div class="exercise-icon">🧘‍♀️</div>
+                        <h3>儿童瑜伽</h3>
+                        <p>柔韧性训练</p>
+                        <div class="exercise-stats">
+                            <span>5分钟 × 1组</span>
+                        </div>
+                        <button class="btn btn-primary">开始</button>
+                    </div>
+                </div>
+                
+                <div class="timer-section" id="timer-section" style="display: none;">
+                    <div class="timer-display">
+                        <div class="timer-circle">
+                            <span id="timer-display">00:30</span>
+                        </div>
+                        <div class="timer-controls">
+                            <button class="btn btn-primary" onclick="startTimer()">开始</button>
+                            <button class="btn btn-secondary" onclick="pauseTimer()">暂停</button>
+                            <button class="btn btn-secondary" onclick="resetTimer()">重置</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <a href="index.html" class="return-btn">返回首页</a>
+
+    <script src="js/physical-activity.js"></script>
+</body>
+</html>

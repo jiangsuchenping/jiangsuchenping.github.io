@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>成语学习 - 儿童学习乐园</title>
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/chinese.css">
+    <link rel="icon" type="image/png" href="favicon.png">
+</head>
+<body>
+    <header class="page-header">
+        <h1>📖 成语学习</h1>
+        <p class="page-subtitle">学习经典成语，丰富语言表达</p>
+    </header>
+
+    <div class="page-container">
+        <div class="page-content">
+            <!-- 学习控制面板 -->
+            <div class="learning-panel">
+                <div class="panel-header">
+                    <h2>今日学习进度</h2>
+                    <div class="progress-display">
+                        <span id="today-progress">0</span> / <span id="daily-goal">5</span>
+                        <div class="progress">
+                            <div class="progress-bar" id="progress-fill"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="panel-controls">
+                    <div class="control-group">
+                        <label>每日学习目标：</label>
+                        <select id="daily-goal-select">
+                            <option value="3">3个成语</option>
+                            <option value="5" selected>5个成语</option>
+                            <option value="8">8个成语</option>
+                            <option value="10">10个成语</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <button class="btn btn-primary" onclick="startLearning()">开始学习</button>
+                        <button class="btn btn-secondary" onclick="showHistory()">学习记录</button>
+                        <button class="btn btn-secondary" onclick="resetProgress()">重置进度</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 学习内容区域 -->
+            <div class="learning-content" id="learning-area" style="display: none;">
+                <div class="idiom-display">
+                    <div class="idiom" id="current-idiom">成语</div>
+                    <div class="idiom-info">
+                        <div class="pinyin" id="current-pinyin">pīn yīn</div>
+                        <div class="meaning" id="current-meaning">含义</div>
+                        <div class="example" id="current-example">例句</div>
+                    </div>
+                    
+                    <div class="answer-buttons">
+                        <button class="btn btn-success" onclick="handleAnswer(true)">我理解</button>
+                        <button class="btn btn-danger" onclick="handleAnswer(false)">不理解</button>
+                    </div>
+                </div>
+                
+                <div class="learning-feedback" id="feedback" style="display: none;">
+                    <div class="feedback-content" id="feedback-text"></div>
+                    <button class="btn btn-primary" onclick="nextIdiom()">下一个</button>
+                </div>
+            </div>
+
+            <!-- 学习记录区域 -->
+            <div class="history-panel" id="history-panel" style="display: none;">
+                <div class="panel-header">
+                    <h2>学习记录</h2>
+                    <button class="btn btn-secondary" onclick="hideHistory()">返回</button>
+                </div>
+                
+                <div class="history-content">
+                    <div class="stats-summary">
+                        <div class="stat-item">
+                            <span class="stat-label">总学习：</span>
+                            <span class="stat-value" id="total-learned">0</span> 个成语
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">正确率：</span>
+                            <span class="stat-value" id="accuracy-rate">0%</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">今日完成：</span>
+                            <span class="stat-value" id="today-completed">0</span> 个
+                        </div>
+                    </div>
+                    
+                    <div class="history-table">
+                        <table id="history-table">
+                            <thead>
+                                <tr>
+                                    <th>日期</th>
+                                    <th>成语</th>
+                                    <th>结果</th>
+                                    <th>次数</th>
+                                </tr>
+                            </thead>
+                            <tbody id="history-tbody">
+                                <!-- 动态填充 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <a href="index.html" class="return-btn">返回首页</a>
+
+    <!-- 数据文件 -->
+    <script src="js/data/chinese-idioms.js"></script>
+    
+    <!-- 工具脚本 -->
+    <script src="js/utils/constants.js"></script>
+    <script src="js/utils/storage.js"></script>
+    <script src="js/utils/learning.js"></script>
+    
+    <!-- 页面脚本 -->
+    <script src="js/chinese-idioms.js"></script>
+</body>
+</html>
