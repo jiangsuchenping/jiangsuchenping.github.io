@@ -5,11 +5,19 @@
 
 // 存储相关常量
 const STORAGE_KEYS = {
-    // 语文模块
+    // 语文模块 - 汉字学习
+    CHINESE_CHARACTERS_PRACTICE_DATA: 'chineseCharactersPracticeData',
+    CHINESE_CHARACTERS_SORT_SETTINGS: 'chineseCharactersSortSettings',
+    CHINESE_CHARACTERS_DAILY_LIMIT: 'chineseCharactersDailyLimit',
+    
+    // 语文模块 - 成语学习
+    CHINESE_IDIOMS_PRACTICE_DATA: 'chineseIdiomsPracticeData',
+    CHINESE_IDIOMS_SORT_SETTINGS: 'chineseIdiomsSortSettings',
+    CHINESE_IDIOMS_DAILY_LIMIT: 'chineseIdiomsDailyLimit',
+
+    // 语文模块 - 兼容旧版本（已废弃，用于数据迁移）
     CHINESE_PRACTICE_DATA: 'chinesePracticeData',
     CHINESE_SORT_SETTINGS: 'chineseSortSettings',
-    CHINESE_CHARACTERS_DAILY_LIMIT: 'chineseCharactersDailyLimit',
-    CHINESE_IDIOMS_DAILY_LIMIT: 'chineseIdiomsDailyLimit',
 
     // 英语模块
     ENGLISH_PRACTICE_DATA: 'englishPracticeData',

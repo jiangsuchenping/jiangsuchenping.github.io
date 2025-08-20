@@ -22,56 +22,120 @@
   let reviewTimer = null;
   let countdownTimer = null;
 
-  // 从本地存储加载练习数据
-  function loadPracticeData() {
-    return StorageUtil.load(STORAGE_KEYS.CHINESE_PRACTICE_DATA, {});
+  /**
+   * 数据迁移工具 - 将旧数据迁移到新的分离结构
+   */
+  function migrateOldData() {
+    const oldData = StorageUtil.load(STORAGE_KEYS.CHINESE_PRACTICE_DATA, {});
+    if (Object.keys(oldData).length === 0) return; // 没有旧数据
+
+    const charactersData = {};
+    const idiomsData = {};
+
+    Object.entries(oldData).forEach(([key, value]) => {
+      if (key.length === 1) {
+        // 汉字数据
+        charactersData[key] = value;
+      } else {
+        // 成语数据
+        idiomsData[key] = value;
+      }
+    });
+
+    // 保存到新结构
+    StorageUtil.save(STORAGE_KEYS.CHINESE_CHARACTERS_PRACTICE_DATA, charactersData);
+    StorageUtil.save(STORAGE_KEYS.CHINESE_IDIOMS_PRACTICE_DATA, idiomsData);
+
+    // 迁移排序设置
+    const oldSortSettings = StorageUtil.load(STORAGE_KEYS.CHINESE_SORT_SETTINGS, 
+      { field: 'lastTestTime', direction: 'desc' });
+    
+    StorageUtil.save(STORAGE_KEYS.CHINESE_CHARACTERS_SORT_SETTINGS, oldSortSettings);
+    StorageUtil.save(STORAGE_KEYS.CHINESE_IDIOMS_SORT_SETTINGS, oldSortSettings);
+
+    // 标记迁移完成，避免重复迁移
+    StorageUtil.save('chinese_data_migrated', true);
+    console.log('语文学习数据迁移完成');
   }
 
-  // 保存练习数据到本地存储
-  function savePracticeData(data) {
-    return StorageUtil.save(STORAGE_KEYS.CHINESE_PRACTICE_DATA, data);
+  // 执行数据迁移
+  if (!StorageUtil.load('chinese_data_migrated', false)) {
+    migrateOldData();
   }
 
-  // 从本地存储加载排序设置
-  function loadSortSettings() {
-    return StorageUtil.load(STORAGE_KEYS.CHINESE_SORT_SETTINGS, { field: 'lastTestTime', direction: 'desc' });
+  // 从本地存储加载汉字练习数据
+  function loadCharactersPracticeData() {
+    return StorageUtil.load(STORAGE_KEYS.CHINESE_CHARACTERS_PRACTICE_DATA, {});
   }
 
-  // 保存排序设置到本地存储
-  function saveSortSettings(field, direction) {
-    return StorageUtil.save(STORAGE_KEYS.CHINESE_SORT_SETTINGS, { field, direction });
+  // 保存汉字练习数据到本地存储
+  function saveCharactersPracticeData(data) {
+    return StorageUtil.save(STORAGE_KEYS.CHINESE_CHARACTERS_PRACTICE_DATA, data);
+  }
+
+  // 从本地存储加载成语练习数据
+  function loadIdiomsPracticeData() {
+    return StorageUtil.load(STORAGE_KEYS.CHINESE_IDIOMS_PRACTICE_DATA, {});
+  }
+
+  // 保存成语练习数据到本地存储
+  function saveIdiomsPracticeData(data) {
+    return StorageUtil.save(STORAGE_KEYS.CHINESE_IDIOMS_PRACTICE_DATA, data);
+  }
+
+  // 从本地存储加载汉字排序设置
+  function loadCharactersSortSettings() {
+    return StorageUtil.load(STORAGE_KEYS.CHINESE_CHARACTERS_SORT_SETTINGS, 
+      { field: 'lastTestTime', direction: 'desc' });
+  }
+
+  // 保存汉字排序设置到本地存储
+  function saveCharactersSortSettings(field, direction) {
+    return StorageUtil.save(STORAGE_KEYS.CHINESE_CHARACTERS_SORT_SETTINGS, { field, direction });
+  }
+
+  // 从本地存储加载成语排序设置
+  function loadIdiomsSortSettings() {
+    return StorageUtil.load(STORAGE_KEYS.CHINESE_IDIOMS_SORT_SETTINGS, 
+      { field: 'lastTestTime', direction: 'desc' });
+  }
+
+  // 保存成语排序设置到本地存储
+  function saveIdiomsSortSettings(field, direction) {
+    return StorageUtil.save(STORAGE_KEYS.CHINESE_IDIOMS_SORT_SETTINGS, { field, direction });
   }
 
   // 加载汉字学习每日学习量设置
   function loadCharactersDailyLimit() {
-    return StorageUtil.loadNumber(STORAGE_KEYS.CHINESE_CHARACTERS_DAILY_LIMIT, LEARNING_CONSTANTS.DEFAULT_DAILY_LIMIT);
+    return StorageUtil.loadNumber(STORAGE_KEYS.CHINESE_CHARACTERS_DAILY_LIMIT, 
+      LEARNING_CONSTANTS.DEFAULT_DAILY_LIMIT);
   }
 
   // 保存汉字学习每日学习量设置
   function saveCharactersDailyLimit(limit) {
-    return StorageUtil.saveNumber(STORAGE_KEYS.CHINESE_CHARACTERS_DAILY_LIMIT, limit, LEARNING_CONSTANTS.DEFAULT_DAILY_LIMIT);
+    return StorageUtil.loadNumber(STORAGE_KEYS.CHINESE_CHARACTERS_DAILY_LIMIT, 
+      limit, LEARNING_CONSTANTS.DEFAULT_DAILY_LIMIT);
   }
 
   // 加载成语学习每日学习量设置
   function loadIdiomsDailyLimit() {
-    return StorageUtil.loadNumber(STORAGE_KEYS.CHINESE_IDIOMS_DAILY_LIMIT, LEARNING_CONSTANTS.DEFAULT_DAILY_LIMIT);
+    return StorageUtil.loadNumber(STORAGE_KEYS.CHINESE_IDIOMS_DAILY_LIMIT, 
+      LEARNING_CONSTANTS.DEFAULT_DAILY_LIMIT);
   }
 
   // 保存成语学习每日学习量设置
   function saveIdiomsDailyLimit(limit) {
-    return StorageUtil.saveNumber(STORAGE_KEYS.CHINESE_IDIOMS_DAILY_LIMIT, limit, LEARNING_CONSTANTS.DEFAULT_DAILY_LIMIT);
+    return StorageUtil.loadNumber(STORAGE_KEYS.CHINESE_IDIOMS_DAILY_LIMIT, 
+      limit, LEARNING_CONSTANTS.DEFAULT_DAILY_LIMIT);
   }
 
   // 获取汉字学习今日已学习数量
   function getCharactersTodayLearned() {
     try {
-      const data = JSON.parse(localStorage.getItem(STORAGE_KEYS.CHINESE_PRACTICE_DATA) || '{}');
+      const data = loadCharactersPracticeData();
       const today = new Date().toDateString();
-      // 只统计汉字学习记录
-      return Object.entries(data).filter(([key, item]) =>
-        new Date(item.lastTestTime).toDateString() === today &&
-        // 汉字学习记录的key是单个汉字
-        key.length === 1
+      return Object.entries(data).filter(([_, item]) =>
+        new Date(item.lastTestTime).toDateString() === today
       ).length;
     } catch (error) {
       console.error('获取汉字学习今日学习数量失败:', error);
@@ -82,13 +146,10 @@
   // 获取成语学习今日已学习数量
   function getIdiomsTodayLearned() {
     try {
-      const data = JSON.parse(localStorage.getItem(STORAGE_KEYS.CHINESE_PRACTICE_DATA) || '{}');
+      const data = loadIdiomsPracticeData();
       const today = new Date().toDateString();
-      // 只统计成语学习记录
-      return Object.entries(data).filter(([key, item]) =>
-        new Date(item.lastTestTime).toDateString() === today &&
-        // 成语学习记录的key是成语
-        key.length > 1
+      return Object.entries(data).filter(([_, item]) =>
+        new Date(item.lastTestTime).toDateString() === today
       ).length;
     } catch (error) {
       console.error('获取成语学习今日学习数量失败:', error);
@@ -101,12 +162,30 @@
     return LearningUtil.getNextReviewTime(round);
   }
 
-  // 更新练习数据
-  function updatePracticeData(character, isCorrect) {
+  /**
+   * 更新汉字学习数据
+   * @param {string} character - 汉字
+   * @param {boolean} isCorrect - 是否正确
+   */
+  function updateCharactersPracticeData(character, isCorrect) {
     return LearningUtil.updateLearningItem(
-      STORAGE_KEYS.CHINESE_PRACTICE_DATA,
+      STORAGE_KEYS.CHINESE_CHARACTERS_PRACTICE_DATA,
       character,
       { character: character },
+      isCorrect
+    );
+  }
+
+  /**
+   * 更新成语学习数据
+   * @param {string} idiom - 成语
+   * @param {boolean} isCorrect - 是否正确
+   */
+  function updateIdiomsPracticeData(idiom, isCorrect) {
+    return LearningUtil.updateLearningItem(
+      STORAGE_KEYS.CHINESE_IDIOMS_PRACTICE_DATA,
+      idiom,
+      { idiom: idiom },
       isCorrect
     );
   }
@@ -114,7 +193,7 @@
   // 获取需要练习的汉字
   function getCharactersToPractice() {
     return LearningUtil.getItemsToLearn(
-      STORAGE_KEYS.CHINESE_PRACTICE_DATA,
+      STORAGE_KEYS.CHINESE_CHARACTERS_PRACTICE_DATA,
       COMMON_CHARACTERS,
       'character',
       STORAGE_KEYS.CHINESE_CHARACTERS_DAILY_LIMIT,
@@ -131,7 +210,7 @@
   // 获取需要练习的成语
   function getIdiomsToPractice() {
     return LearningUtil.getItemsToLearn(
-      STORAGE_KEYS.CHINESE_PRACTICE_DATA,
+      STORAGE_KEYS.CHINESE_IDIOMS_PRACTICE_DATA,
       window.COMMON_IDIOMS || [],
       'idiom',
       STORAGE_KEYS.CHINESE_IDIOMS_DAILY_LIMIT,
@@ -170,17 +249,24 @@
 
       // 根据当前模式加载相应的数据
       let characters, dailyLimit, todayLearned, remainingToday;
+      let sortSettings, loadDataFunc, saveSortFunc;
       
       if (currentMode === 'characters') {
         characters = getCharactersToPractice();
         dailyLimit = loadCharactersDailyLimit();
         todayLearned = getCharactersTodayLearned();
         remainingToday = Math.max(0, dailyLimit - todayLearned);
+        sortSettings = loadCharactersSortSettings();
+        loadDataFunc = loadCharactersPracticeData;
+        saveSortFunc = saveCharactersSortSettings;
       } else {
         characters = getIdiomsToPractice();
         dailyLimit = loadIdiomsDailyLimit();
         todayLearned = getIdiomsTodayLearned();
         remainingToday = Math.max(0, dailyLimit - todayLearned);
+        sortSettings = loadIdiomsSortSettings();
+        loadDataFunc = loadIdiomsPracticeData;
+        saveSortFunc = saveIdiomsSortSettings;
       }
 
       // 加载历史记录
@@ -189,7 +275,7 @@
           const historyList = container.querySelector('.history-list');
           if (!historyList) return;
 
-          const data = loadPracticeData();
+          const data = loadDataFunc();
           const history = Object.entries(data)
             .map(([char, value]) => ({
               character: char,
@@ -202,14 +288,11 @@
             .sort((a, b) => new Date(b.lastTestTime) - new Date(a.lastTestTime));
 
           if (history.length > 0) {
-            // 获取上次的排序设置
-            const sortSettings = loadSortSettings();
-
             historyList.innerHTML = `
               <table class="history-table">
                 <thead>
                   <tr>
-                    <th class="sortable" data-sort="character" title="点击按汉字排序">汉字</th>
+                    <th class="sortable" data-sort="character" title="点击按${currentMode === 'characters' ? '汉字' : '成语'}排序">${currentMode === 'characters' ? '汉字' : '成语'}</th>
                     <th class="sortable" data-sort="totalTests" title="点击按练习次数排序">练习次数</th>
                     <th class="sortable" data-sort="accuracy" title="点击按正确率排序">正确率</th>
                     <th class="sortable" data-sort="lastTestTime" title="点击按上次练习时间排序">上次练习</th>
@@ -277,7 +360,7 @@
                 const currentDirection = header.classList.contains('ascending') ? 'desc' : 'asc';
 
                 // 保存排序设置
-                saveSortSettings(field, currentDirection);
+                saveSortFunc(field, currentDirection);
 
                 // 移除所有表头的排序状态
                 headers.forEach(h => {
@@ -791,12 +874,15 @@
     }
   };
 
-  window.handleChineseAnswer = function (isCorrect) {
+  // 处理语文学习答案
+  window.handleChineseAnswer = function(isCorrect) {
     try {
-      // 根据当前模式获取学习项目
       let learningItem;
+      let updateFunc;
+      
       if (currentMode === 'characters') {
         learningItem = currentCharacter;
+        updateFunc = updateCharactersPracticeData;
         if (!learningItem || !learningItem.character) {
           console.error('当前没有汉字');
           const feedback = document.querySelector('.feedback');
@@ -807,8 +893,8 @@
           return;
         }
       } else {
-        // 对于成语模式，我们使用全局变量跟踪当前成语
         learningItem = currentIdiom;
+        updateFunc = updateIdiomsPracticeData;
         if (!learningItem || !learningItem.idiom) {
           console.error('当前没有成语');
           const feedback = document.querySelector('.feedback');
@@ -828,7 +914,7 @@
 
       // 更新统计数据
       const itemId = currentMode === 'characters' ? learningItem.character : learningItem.idiom;
-      const characterData = updatePracticeData(itemId, isCorrect);
+      const characterData = updateFunc(itemId, isCorrect);
       if (!characterData) {
         console.error('更新练习数据失败');
         const feedback = document.querySelector('.feedback');
