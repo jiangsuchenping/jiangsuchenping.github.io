@@ -266,23 +266,21 @@ class KlotskiGame {
       }
     }
 
-    // 获取空格所在的行数（从下往上数）
+    // 获取空格所在的行数（从上往下数，0-based）
     let emptyRow = -1;
     for (let i = 0; i < 3; i++) {
       for (let j = 0; j < 3; j++) {
         if (this.board[i][j] === '') {
-          emptyRow = 2 - i;
+          emptyRow = i;
           break;
         }
       }
       if (emptyRow !== -1) break;
     }
 
-    // 修改可解性判断规则
-    // 当空格在偶数行时，逆序数必须为偶数
-    // 当空格在奇数行时，逆序数必须为奇数
-    return (emptyRow % 2 === 0 && inversions % 2 === 0) ||
-      (emptyRow % 2 === 1 && inversions % 2 === 1);
+    // 修正可解性判断规则
+    // 对于3x3的华容道，当逆序数为偶数时游戏可解
+    return inversions % 2 === 0;
   }
 
   resetGame() {
