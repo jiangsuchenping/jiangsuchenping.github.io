@@ -226,6 +226,246 @@ const COMMON_IDIOMS = [
     pinyin: "sì miàn bā fāng",
     meaning: "指各个地方或各个方面。",
     example: "来自四面八方的朋友欢聚一堂。"
+  },
+  {
+    idiom: "千军万马",
+    pinyin: "qiān jūn wàn mǎ",
+    meaning: "形容兵马众多或声势浩大。",
+    example: "改革开放的浪潮如千军万马，势不可挡。"
+  },
+  {
+    idiom: "万紫千红",
+    pinyin: "wàn zǐ qiān hóng",
+    meaning: "形容百花齐放，色彩绚丽。也比喻事物丰富多彩。",
+    example: "春天来了，公园里万紫千红，美不胜收。"
+  },
+  {
+    idiom: "千方百计",
+    pinyin: "qiān fāng bǎi jì",
+    meaning: "想尽或用尽一切办法。",
+    example: "老师千方百计地帮助学生提高学习成绩。"
+  },
+  {
+    idiom: "千钧一发",
+    pinyin: "qiān jūn yī fà",
+    meaning: "比喻情况万分危急。",
+    example: "在这千钧一发的时刻，他挺身而出救了那个孩子。"
+  },
+  {
+    idiom: "万无一失",
+    pinyin: "wàn wú yī shī",
+    meaning: "非常有把握，绝对不会出差错。",
+    example: "这次考试我准备得很充分，万无一失。"
+  },
+  {
+    idiom: "一举两得",
+    pinyin: "yī jǔ liǎng dé",
+    meaning: "做一件事得到两方面的好处。",
+    example: "骑自行车上班既环保又锻炼身体，一举两得。"
+  },
+  {
+    idiom: "三长两短",
+    pinyin: "sān cháng liǎng duǎn",
+    meaning: "指意外的灾祸或事故。",
+    example: "他一个人去那么危险的地方，万一有个三长两短怎么办？"
+  },
+  {
+    idiom: "四分五裂",
+    pinyin: "sì fēn wǔ liè",
+    meaning: "形容分散，不完整。",
+    example: "这个团队现在已经四分五裂，无法继续合作了。"
+  },
+  {
+    idiom: "六神无主",
+    pinyin: "liù shén wú zhǔ",
+    meaning: "形容惊慌着急，没了主意，不知如何才好。",
+    example: "听到这个消息，他顿时六神无主，不知所措。"
+  },
+  {
+    idiom: "七嘴八舌",
+    pinyin: "qī zuǐ bā shé",
+    meaning: "形容人多嘴杂，其说不一。",
+    example: "大家七嘴八舌地讨论着这个计划的可行性。"
+  },
+  {
+    idiom: "八面玲珑",
+    pinyin: "bā miàn líng lóng",
+    meaning: "形容人处世圆滑，待人接物面面俱到。",
+    example: "他在商界多年，早已练就了八面玲珑的本事。"
+  },
+  {
+    idiom: "九死一生",
+    pinyin: "jiǔ sǐ yī shēng",
+    meaning: "形容经历极大危险而幸存。",
+    example: "这位老战士经历过战争的残酷，九死一生才活到今天。"
+  },
+  {
+    idiom: "百折不挠",
+    pinyin: "bǎi zhé bù náo",
+    meaning: "意志坚强，无论受到多少次挫折都不退缩。",
+    example: "他百折不挠的精神终于使他获得了成功。"
+  },
+  {
+    idiom: "千锤百炼",
+    pinyin: "qiān chuí bǎi liàn",
+    meaning: "比喻经历多次艰苦斗争的锻炼和考验。",
+    example: "这篇文章经过千锤百炼，终于成为传世佳作。"
+  },
+  {
+    idiom: "万古长青",
+    pinyin: "wàn gǔ cháng qīng",
+    meaning: "比喻崇高的精神或深厚的友谊永远不会消失。",
+    example: "革命先烈的精神万古长青，永远激励着我们。"
+  },
+  {
+    idiom: "日新月异",
+    pinyin: "rì xīn yuè yì",
+    meaning: "每天都在更新，每月都有变化。指发展或进步迅速。",
+    example: "科技发展日新月异，给我们的生活带来了巨大变化。"
+  },
+  {
+    idiom: "蒸蒸日上",
+    pinyin: "zhēng zhēng rì shàng",
+    meaning: "形容事业一天天向上发展。",
+    example: "在大家的努力下，公司业绩蒸蒸日上。"
+  },
+  {
+    idiom: "欣欣向荣",
+    pinyin: "xīn xīn xiàng róng",
+    meaning: "形容草木长得茂盛。比喻事业蓬勃发展。",
+    example: "春天来了，花园里百花盛开，欣欣向荣。"
+  },
+  {
+    idiom: "步步高升",
+    pinyin: "bù bù gāo shēng",
+    meaning: "形容职位不断上升。",
+    example: "祝愿你在新的一年里工作顺利，步步高升。"
+  },
+  {
+    idiom: "前程似锦",
+    pinyin: "qián chéng sì jǐn",
+    meaning: "形容前途十分美好。",
+    example: "年轻人只要努力，前程似锦。"
+  },
+  {
+    idiom: "鹏程万里",
+    pinyin: "péng chéng wàn lǐ",
+    meaning: "比喻前程远大。",
+    example: "祝你学业有成，鹏程万里。"
+  },
+  {
+    idiom: "锦上添花",
+    pinyin: "jǐn shàng tiān huā",
+    meaning: "在锦上再绣花。比喻好上加好，美上添美。",
+    example: "这个好消息真是锦上添花，让我们更加高兴。"
+  },
+  {
+    idiom: "雪中送炭",
+    pinyin: "xuě zhōng sòng tàn",
+    meaning: "在下雪天给人送炭取暖。比喻在别人急需时给以物质上或精神上的帮助。",
+    example: "在我最困难的时候，朋友的雪中送炭让我终生难忘。"
+  },
+  {
+    idiom: "画蛇添足",
+    pinyin: "huà shé tiān zú",
+    meaning: "画蛇时给蛇添上脚。比喻做了多余的事，非但无益，反而不合适。",
+    example: "这篇文章已经很完美了，你再修改就是画蛇添足。"
+  },
+  {
+    idiom: "守株待兔",
+    pinyin: "shǒu zhū dài tù",
+    meaning: "比喻希望不经过努力而得到成功的侥幸心理。",
+    example: "我们不能守株待兔，要主动去寻找机会。"
+  },
+  {
+    idiom: "掩耳盗铃",
+    pinyin: "yǎn ěr dào líng",
+    meaning: "比喻自己欺骗自己。",
+    example: "他以为别人不知道他的秘密，这简直是掩耳盗铃。"
+  },
+  {
+    idiom: "井底之蛙",
+    pinyin: "jǐng dǐ zhī wā",
+    meaning: "比喻见识狭窄的人。",
+    example: "我们不能做井底之蛙，要多出去看看外面的世界。"
+  },
+  {
+    idiom: "狐假虎威",
+    pinyin: "hú jiǎ hǔ wēi",
+    meaning: "比喻依仗别人的威势来欺压人。",
+    example: "他只是个小职员，却狐假虎威地欺负新人。"
+  },
+  {
+    idiom: "亡羊补牢",
+    pinyin: "wáng yáng bǔ láo",
+    meaning: "出了问题以后想办法补救，可以防止继续受损失。",
+    example: "虽然这次考试没考好，但亡羊补牢为时未晚，下次努力就行。"
+  },
+  {
+    idiom: "对牛弹琴",
+    pinyin: "duì niú tán qín",
+    meaning: "比喻对不懂道理的人讲道理，或对外行人说内行话。",
+    example: "跟他谈艺术简直是对牛弹琴，他完全不懂。"
+  },
+  {
+    idiom: "杯弓蛇影",
+    pinyin: "bēi gōng shé yǐng",
+    meaning: "比喻因疑神疑鬼而引起恐惧。",
+    example: "他最近总是杯弓蛇影，疑神疑鬼的。"
+  },
+  {
+    idiom: "草木皆兵",
+    pinyin: "cǎo mù jiē bīng",
+    meaning: "把山上的草木都当做敌兵。形容人在惊慌时疑神疑鬼。",
+    example: "他做了亏心事，现在草木皆兵，连风声都害怕。"
+  },
+  {
+    idiom: "胸有成竹",
+    pinyin: "xiōng yǒu chéng zhú",
+    meaning: "比喻在做事之前已经有通盘的考虑和把握。",
+    example: "看他胸有成竹的样子，这次比赛一定能赢。"
+  },
+  {
+    idiom: "水滴石穿",
+    pinyin: "shuǐ dī shí chuān",
+    meaning: "比喻只要有恒心，不断努力，事情就一定能成功。",
+    example: "学习贵在坚持，水滴石穿，总有一天会成功。"
+  },
+  {
+    idiom: "铁杵成针",
+    pinyin: "tiě chǔ chéng zhēn",
+    meaning: "比喻只要有毅力，肯下苦功，事情就能成功。",
+    example: "只要功夫深，铁杵成针，没有办不到的事。"
+  },
+  {
+    idiom: "愚公移山",
+    pinyin: "yú gōng yí shān",
+    meaning: "比喻坚持不懈地改造自然和坚定不移地进行斗争。",
+    example: "我们要学习愚公移山的精神，坚持不懈地追求梦想。"
+  },
+  {
+    idiom: "精卫填海",
+    pinyin: "jīng wèi tián hǎi",
+    meaning: "比喻意志坚决，不畏艰难。",
+    example: "他这种精卫填海的精神值得我们学习。"
+  },
+  {
+    idiom: "女娲补天",
+    pinyin: "nǚ wā bǔ tiān",
+    meaning: "比喻改造天地的雄伟气魄和大无畏的斗争精神。",
+    example: "面对困难，我们要有女娲补天的勇气和决心。"
+  },
+  {
+    idiom: "盘古开天",
+    pinyin: "pán gǔ kāi tiān",
+    meaning: "比喻人类开始有了历史。",
+    example: "从盘古开天到现在，人类文明已经发展了几千年。"
+  },
+  {
+    idiom: "夸父追日",
+    pinyin: "kuā fù zhuī rì",
+    meaning: "比喻人有大志，也比喻不自量力。",
+    example: "他的梦想虽然像夸父追日一样困难，但他依然坚持。"
   }
 ];
 
