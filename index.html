@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>幼儿园大班学习乐园</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-  <script src="https://cdn.jsdelivr.net/npm/vue@3.2.47/dist/vue.global.prod.js"></script>
   <style>
     body {
       font-family: '幼圆', '微软雅黑', sans-serif;
@@ -89,49 +89,6 @@
       font-weight: bold;
     }
     
-    .progress-container {
-      height: 30px;
-      border-radius: 15px;
-      overflow: hidden;
-      background-color: #e9ecef;
-    }
-    
-    .progress-bar {
-      background: linear-gradient(to right, #4facfe 0%, #00f2fe 100%);
-      height: 100%;
-      border-radius: 15px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-weight: bold;
-    }
-    
-    .question-option {
-      border: 2px solid #dee2e6;
-      border-radius: 10px;
-      padding: 15px;
-      margin: 10px 0;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    
-    .question-option:hover {
-      border-color: #4facfe;
-      background-color: #f8f9fa;
-    }
-    
-    .question-option.selected {
-      border-color: #4facfe;
-      background-color: #e6f7ff;
-      box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.2);
-    }
-    
-    .result-icon {
-      font-size: 5rem;
-      margin: 20px 0;
-    }
-    
     .alphabet-card {
       height: 80px;
       display: flex;
@@ -206,6 +163,7 @@
 </head>
 <body>
   <div id="app">
+    <!-- 主页 -->
     <div v-if="currentPage === 'home'">
       <div class="header text-center py-4 mb-4">
         <h1><i class="bi bi-stars"></i> 幼儿园大班学习乐园 <i class="bi bi-stars"></i></h1>
@@ -250,19 +208,10 @@
             </div>
           </div>
         </div>
-        
-        <div class="text-center mt-5">
-          <h4><i class="bi bi-award"></i> 学习进度</h4>
-          <div class="progress-container mt-3">
-            <div class="progress-bar" :style="{ width: overallProgress + '%' }">
-              {{ Math.round(overallProgress) }}%
-            </div>
-          </div>
-          <p class="mt-2">继续加油哦！</p>
-        </div>
       </div>
     </div>
     
+    <!-- 学科页面 -->
     <div v-else>
       <button class="btn btn-secondary back-btn" @click="goHome">
         <i class="bi bi-arrow-left-circle"></i> 返回主页
@@ -274,19 +223,20 @@
       
       <div class="container">
         <div class="content-area">
+          <!-- 语文内容 -->
           <div v-if="currentSubject.key === 'chinese'">
-            <ul class="nav nav-tabs" id="chineseTabs" role="tablist">
+            <ul class="nav nav-tabs" role="tablist">
               <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="pinyin-tab" data-bs-toggle="tab" data-bs-target="#pinyin" type="button" role="tab">拼音学习</button>
+                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#pinyin" type="button" role="tab">拼音学习</button>
               </li>
               <li class="nav-item" role="presentation">
-                <button class="nav-link" id="characters-tab" data-bs-toggle="tab" data-bs-target="#characters" type="button" role="tab">汉字学习</button>
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#characters" type="button" role="tab">汉字学习</button>
               </li>
               <li class="nav-item" role="presentation">
-                <button class="nav-link" id="words-tab" data-bs-toggle="tab" data-bs-target="#words" type="button" role="tab">词语学习</button>
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#words" type="button" role="tab">词语学习</button>
               </li>
             </ul>
-            <div class="tab-content" id="chineseTabsContent">
+            <div class="tab-content">
               <div class="tab-pane fade show active" id="pinyin" role="tabpanel">
                 <h3 class="mt-3">声母学习</h3>
                 <div class="row">
@@ -333,19 +283,20 @@
             </div>
           </div>
           
+          <!-- 数学内容 -->
           <div v-if="currentSubject.key === 'math'">
-            <ul class="nav nav-tabs" id="mathTabs" role="tablist">
+            <ul class="nav nav-tabs" role="tablist">
               <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="numbers-tab" data-bs-toggle="tab" data-bs-target="#numbers" type="button" role="tab">数字认知</button>
+                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#numbers" type="button" role="tab">数字认知</button>
               </li>
               <li class="nav-item" role="presentation">
-                <button class="nav-link" id="counting-tab" data-bs-toggle="tab" data-bs-target="#counting" type="button" role="tab">数数练习</button>
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#counting" type="button" role="tab">数数练习</button>
               </li>
               <li class="nav-item" role="presentation">
-                <button class="nav-link" id="addition-tab" data-bs-toggle="tab" data-bs-target="#addition" type="button" role="tab">加法练习</button>
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#addition" type="button" role="tab">加法练习</button>
               </li>
             </ul>
-            <div class="tab-content" id="mathTabsContent">
+            <div class="tab-content">
               <div class="tab-pane fade show active" id="numbers" role="tabpanel">
                 <h3 class="mt-3">数字1-20</h3>
                 <div class="row">
@@ -369,8 +320,8 @@
                   
                   <div class="options mt-4">
                     <div v-for="option in countingQuestion.options" :key="option" 
-                         class="question-option d-inline-block mx-2" 
-                         :class="{ selected: selectedCountingAnswer === option }"
+                         class="question-option d-inline-block mx-2 btn btn-outline-primary" 
+                         :class="{ active: selectedCountingAnswer === option }"
                          @click="selectCountingAnswer(option)">
                       {{ option }}
                     </div>
@@ -378,11 +329,11 @@
                   
                   <div class="mt-3" v-if="countingResult !== null">
                     <div v-if="countingResult" class="text-success">
-                      <i class="bi bi-check-circle-fill result-icon"></i>
+                      <i class="bi bi-check-circle-fill result-icon" style="font-size: 5rem;"></i>
                       <h4>答对了！真棒！</h4>
                     </div>
                     <div v-else class="text-danger">
-                      <i class="bi bi-x-circle-fill result-icon"></i>
+                      <i class="bi bi-x-circle-fill result-icon" style="font-size: 5rem;"></i>
                       <h4>再试试看哦！</h4>
                     </div>
                   </div>
@@ -398,8 +349,8 @@
                   
                   <div class="options mt-4">
                     <div v-for="option in additionQuestion.options" :key="option" 
-                         class="question-option d-inline-block mx-2" 
-                         :class="{ selected: selectedAdditionAnswer === option }"
+                         class="question-option d-inline-block mx-2 btn btn-outline-primary" 
+                         :class="{ active: selectedAdditionAnswer === option }"
                          @click="selectAdditionAnswer(option)">
                       {{ option }}
                     </div>
@@ -407,11 +358,11 @@
                   
                   <div class="mt-3" v-if="additionResult !== null">
                     <div v-if="additionResult" class="text-success">
-                      <i class="bi bi-check-circle-fill result-icon"></i>
+                      <i class="bi bi-check-circle-fill result-icon" style="font-size: 5rem;"></i>
                       <h4>答对了！真棒！</h4>
                     </div>
                     <div v-else class="text-danger">
-                      <i class="bi bi-x-circle-fill result-icon"></i>
+                      <i class="bi bi-x-circle-fill result-icon" style="font-size: 5rem;"></i>
                       <h4>再试试看哦！</h4>
                     </div>
                   </div>
@@ -420,19 +371,17 @@
             </div>
           </div>
           
+          <!-- 英语内容 -->
           <div v-if="currentSubject.key === 'english'">
-            <ul class="nav nav-tabs" id="englishTabs" role="tablist">
+            <ul class="nav nav-tabs" role="tablist">
               <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="alphabet-tab" data-bs-toggle="tab" data-bs-target="#alphabet" type="button" role="tab">字母学习</button>
+                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#alphabet" type="button" role="tab">字母学习</button>
               </li>
               <li class="nav-item" role="presentation">
-                <button class="nav-link" id="words-tab" data-bs-toggle="tab" data-bs-target="#english-words" type="button" role="tab">单词学习</button>
-              </li>
-              <li class="nav-item" role="presentation">
-                <button class="nav-link" id="quiz-tab" data-bs-toggle="tab" data-bs-target="#quiz" type="button" role="tab">小测验</button>
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#english-words" type="button" role="tab">单词学习</button>
               </li>
             </ul>
-            <div class="tab-content" id="englishTabsContent">
+            <div class="tab-content">
               <div class="tab-pane fade show active" id="alphabet" role="tabpanel">
                 <h3 class="mt-3">英文字母</h3>
                 <div class="row">
@@ -455,35 +404,6 @@
                   </div>
                 </div>
               </div>
-              
-              <div class="tab-pane fade" id="quiz" role="tabpanel">
-                <h3 class="mt-3">单词小测验</h3>
-                <div class="text-center my-4">
-                  <div class="question-display">
-                    <img :src="quizQuestion.image" :alt="quizQuestion.word" class="word-image">
-                  </div>
-                  
-                  <div class="options mt-4">
-                    <div v-for="option in quizQuestion.options" :key="option" 
-                         class="question-option" 
-                         :class="{ selected: selectedQuizAnswer === option }"
-                         @click="selectQuizAnswer(option)">
-                      {{ option }}
-                    </div>
-                  </div>
-                  
-                  <div class="mt-3" v-if="quizResult !== null">
-                    <div v-if="quizResult" class="text-success">
-                      <i class="bi bi-check-circle-fill result-icon"></i>
-                      <h4>答对了！真棒！</h4>
-                    </div>
-                    <div v-else class="text-danger">
-                      <i class="bi bi-x-circle-fill result-icon"></i>
-                      <h4>再试试看哦！正确答案是：{{ quizQuestion.word }}</h4>
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -493,7 +413,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    const { createApp, ref, reactive, computed } = Vue;
+    const { createApp, ref, reactive } = Vue;
     
     createApp({
       setup() {
@@ -597,28 +517,13 @@
           options: []
         });
         
-        // 测验题目
-        const quizQuestion = reactive({
-          word: '',
-          image: '',
-          options: []
-        });
-        
         // 用户选择的答案
         const selectedCountingAnswer = ref(null);
         const selectedAdditionAnswer = ref(null);
-        const selectedQuizAnswer = ref(null);
         
         // 答题结果
         const countingResult = ref(null);
         const additionResult = ref(null);
-        const quizResult = ref(null);
-        
-        // 学习进度
-        const overallProgress = computed(() => {
-          // 这里可以实现实际的进度计算逻辑
-          return 35;
-        });
         
         // 选择学科
         const selectSubject = (subjectKey) => {
@@ -629,8 +534,6 @@
           if (subjectKey === 'math') {
             generateCountingQuestion();
             generateAdditionQuestion();
-          } else if (subjectKey === 'english') {
-            generateQuizQuestion();
           }
         };
         
@@ -646,11 +549,23 @@
           const correctAnswer = countingQuestion.count;
           const options = new Set([correctAnswer]);
           
-          // 生成3个错误选项
-          while (options.size < 4) {
+          // 生成3个错误选项，添加最大尝试次数以防止无限循环
+          let attempts = 0;
+          const maxAttempts = 50;
+          while (options.size < 4 && attempts < maxAttempts) {
             const wrong = correctAnswer + Math.floor(Math.random() * 5) - 2;
             if (wrong > 0 && wrong <= 12 && wrong !== correctAnswer) {
               options.add(wrong);
+            }
+            attempts++;
+          }
+          
+          // 如果仍然没有足够的选项，添加临近的数字
+          if (options.size < 4) {
+            for (let i = 1; options.size < 4 && i <= 12; i++) {
+              if (i !== correctAnswer) {
+                options.add(i);
+              }
             }
           }
           
@@ -666,11 +581,23 @@
           const correctAnswer = additionQuestion.a + additionQuestion.b;
           const options = new Set([correctAnswer]);
           
-          // 生成3个错误选项
-          while (options.size < 4) {
+          // 生成3个错误选项，添加最大尝试次数以防止无限循环
+          let attempts = 0;
+          const maxAttempts = 50;
+          while (options.size < 4 && attempts < maxAttempts) {
             const wrong = correctAnswer + Math.floor(Math.random() * 5) - 2;
             if (wrong >= 0 && wrong <= 20 && wrong !== correctAnswer) {
               options.add(wrong);
+            }
+            attempts++;
+          }
+          
+          // 如果仍然没有足够的选项，添加临近的数字
+          if (options.size < 4) {
+            for (let i = 0; options.size < 4 && i <= 20; i++) {
+              if (i !== correctAnswer) {
+                options.add(i);
+              }
             }
           }
           
@@ -679,62 +606,25 @@
           additionResult.value = null;
         };
         
-        // 生成英语测验题目
-        const generateQuizQuestion = () => {
-          const correctWord = english.words[Math.floor(Math.random() * english.words.length)];
-          quizQuestion.word = correctWord.word;
-          quizQuestion.image = correctWord.image;
-          
-          const options = new Set([correctWord.word]);
-          
-          // 生成3个错误选项
-          while (options.size < 4) {
-            const wrongWord = english.words[Math.floor(Math.random() * english.words.length)].word;
-            if (wrongWord !== correctWord.word) {
-              options.add(wrongWord);
-            }
-          }
-          
-          quizQuestion.options = Array.from(options).sort(() => Math.random() - 0.5);
-          selectedQuizAnswer.value = null;
-          quizResult.value = null;
-        };
-        
         // 选择答案并立即提交
         const selectCountingAnswer = (answer) => {
           selectedCountingAnswer.value = answer;
           // 自动检查答案
+          checkCountingAnswer();
+          // 1.5秒后自动进入下一题
           setTimeout(() => {
-            checkCountingAnswer();
-            // 1秒后自动进入下一题
-            setTimeout(() => {
-              nextCountingQuestion();
-            }, 1000);
-          }, 500);
+            nextCountingQuestion();
+          }, 1500);
         };
         
         const selectAdditionAnswer = (answer) => {
           selectedAdditionAnswer.value = answer;
           // 自动检查答案
+          checkAdditionAnswer();
+          // 1.5秒后自动进入下一题
           setTimeout(() => {
-            checkAdditionAnswer();
-            // 1秒后自动进入下一题
-            setTimeout(() => {
-              nextAdditionQuestion();
-            }, 1000);
-          }, 500);
-        };
-        
-        const selectQuizAnswer = (answer) => {
-          selectedQuizAnswer.value = answer;
-          // 自动检查答案
-          setTimeout(() => {
-            checkQuizAnswer();
-            // 1秒后自动进入下一题
-            setTimeout(() => {
-              nextQuizQuestion();
-            }, 1000);
-          }, 500);
+            nextAdditionQuestion();
+          }, 1500);
         };
         
         // 检查答案
@@ -746,10 +636,6 @@
           additionResult.value = selectedAdditionAnswer.value === (additionQuestion.a + additionQuestion.b);
         };
         
-        const checkQuizAnswer = () => {
-          quizResult.value = selectedQuizAnswer.value === quizQuestion.word;
-        };
-        
         // 下一题
         const nextCountingQuestion = () => {
           generateCountingQuestion();
@@ -759,49 +645,34 @@
           generateAdditionQuestion();
         };
         
-        const nextQuizQuestion = () => {
-          generateQuizQuestion();
-        };
-        
         // 语音播放功能（简化版）
         const speak = (text) => {
           console.log("播放语音: " + text);
           // 在实际应用中，这里可以使用 Web Speech API 或其他语音合成服务
         };
         
-        // 初始化题目
-        generateCountingQuestion();
-        generateAdditionQuestion();
-        generateQuizQuestion();
-        
         return {
           currentPage,
           currentSubject,
-          subjects,
           chinese,
           english,
           chineseNumbers,
           countingQuestion,
           additionQuestion,
-          quizQuestion,
           selectedCountingAnswer,
           selectedAdditionAnswer,
-          selectedQuizAnswer,
           countingResult,
           additionResult,
-          quizResult,
-          overallProgress,
           selectSubject,
           goHome,
+          generateCountingQuestion,
+          generateAdditionQuestion,
           selectCountingAnswer,
           selectAdditionAnswer,
-          selectQuizAnswer,
           checkCountingAnswer,
           checkAdditionAnswer,
-          checkQuizAnswer,
           nextCountingQuestion,
           nextAdditionQuestion,
-          nextQuizQuestion,
           speak
         };
       }
