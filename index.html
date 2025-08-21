@@ -4,9 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>幼儿园大班学习乐园</title>
-  <link rel="stylesheet" href="assets/css/bootstrap.min.css">
-  <link rel="stylesheet" href="assets/css/bootstrap-icons.css">
-  <script src="assets/js/vue.global.js"></script>
+  <link rel="stylesheet" href="assets/css/bootstrap-custom.min.css">
+  <link rel="stylesheet" href="assets/css/bootstrap-icons.min.css">
   <style>
     body {
       font-family: '幼圆', '微软雅黑', sans-serif;
@@ -159,12 +158,22 @@
       object-fit: contain;
       margin-bottom: 10px;
     }
+    
+    /* 关键帧动画优化 */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    .fade-in {
+      animation: fadeIn 0.5s ease-in;
+    }
   </style>
 </head>
 <body>
   <div id="app">
     <!-- 主页 -->
-    <div v-if="currentPage === 'home'">
+    <div v-if="currentPage === 'home'" class="fade-in">
       <div class="header text-center py-4 mb-4">
         <h1><i class="bi bi-stars"></i> 幼儿园大班学习乐园 <i class="bi bi-stars"></i></h1>
         <p class="lead">欢迎来到快乐学习世界！</p>
@@ -212,7 +221,7 @@
     </div>
     
     <!-- 学科页面 -->
-    <div v-else>
+    <div v-else class="fade-in">
       <button class="btn btn-secondary back-btn" @click="goHome">
         <i class="bi bi-arrow-left-circle"></i> 返回主页
       </button>
@@ -398,7 +407,7 @@
                 <div class="row">
                   <div v-for="word in english.words" :key="word.word" class="col-6 col-md-3 mb-3">
                     <div class="word-card bg-light" @click="speak(word.word)">
-                      <img :src="word.image" :alt="word.word" class="word-image">
+                      <img :src="word.image" :alt="word.word" class="word-image" loading="lazy">
                       <div class="word">{{ word.word }}</div>
                     </div>
                   </div>
@@ -411,6 +420,7 @@
     </div>
   </div>
 
+  <script src="assets/js/vue.global.min.js"></script>
   <script src="assets/js/bootstrap.bundle.min.js"></script>
   <script>
     const { createApp, ref, reactive } = Vue;
