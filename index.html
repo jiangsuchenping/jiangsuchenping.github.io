@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>幼儿园大班学习乐园</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+  <script src="https://cdn.jsdelivr.net/npm/vue@3.2.47/dist/vue.global.prod.js"></script>
+  <style>
+    body {
+      font-family: '幼圆', '微软雅黑', sans-serif;
+      background: linear-gradient(135deg, #6ecbf5 0%, #cdefff 100%);
+      min-height: 100vh;
+      padding-bottom: 20px;
+    }
+    
+    .header {
+      background: linear-gradient(to right, #ff9966, #ff5e62);
+      color: white;
+      border-radius: 0 0 20px 20px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      padding: 15px 0;
+    }
+    
+    .subject-card {
+      border-radius: 20px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      height: 100%;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+    }
+    
+    .subject-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 12px 20px rgba(0,0,0,0.15);
+    }
+    
+    .subject-icon {
+      font-size: 3rem;
+      margin-bottom: 15px;
+    }
+    
+    .content-area {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+      padding: 20px;
+      min-height: 400px;
+      margin-top: 20px;
+    }
+    
+    .back-btn {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      z-index: 100;
+    }
+    
+    .activity-card {
+      border-radius: 15px;
+      transition: all 0.3s;
+      cursor: pointer;
+      border: 2px solid #eee;
+    }
+    
+    .activity-card:hover {
+      transform: scale(1.03);
+      border-color: #6ecbf5;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .btn-primary {
+      background: linear-gradient(to right, #4facfe 0%, #00f2fe 100%);
+      border: none;
+    }
+    
+    .btn-success {
+      background: linear-gradient(to right, #0ba360 0%, #3cba92 100%);
+      border: none;
+    }
+    
+    .btn-warning {
+      background: linear-gradient(to right, #ff758c 0%, #ff7eb3 100%);
+      border: none;
+    }
+    
+    h1, h2, h3, h4 {
+      font-weight: bold;
+    }
+    
+    .progress-container {
+      height: 30px;
+      border-radius: 15px;
+      overflow: hidden;
+      background-color: #e9ecef;
+    }
+    
+    .progress-bar {
+      background: linear-gradient(to right, #4facfe 0%, #00f2fe 100%);
+      height: 100%;
+      border-radius: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+    }
+    
+    .question-option {
+      border: 2px solid #dee2e6;
+      border-radius: 10px;
+      padding: 15px;
+      margin: 10px 0;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .question-option:hover {
+      border-color: #4facfe;
+      background-color: #f8f9fa;
+    }
+    
+    .question-option.selected {
+      border-color: #4facfe;
+      background-color: #e6f7ff;
+      box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.2);
+    }
+    
+    .result-icon {
+      font-size: 5rem;
+      margin: 20px 0;
+    }
+    
+    .alphabet-card {
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 2px solid #dee2e6;
+      border-radius: 10px;
+      margin: 5px;
+    }
+    
+    .alphabet-card:hover {
+      transform: scale(1.1);
+      border-color: #4facfe;
+      background-color: #f8f9fa;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .number-card {
+      height: 100px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 2px solid #dee2e6;
+      border-radius: 10px;
+      margin: 5px;
+    }
+    
+    .number-card:hover {
+      transform: scale(1.1);
+      border-color: #4facfe;
+      background-color: #f8f9fa;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .word-card {
+      min-height: 120px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 2px solid #dee2e6;
+      border-radius: 15px;
+      margin: 10px;
+      padding: 15px;
+    }
+    
+    .word-card:hover {
+      transform: scale(1.05);
+      border-color: #4facfe;
+      background-color: #f8f9fa;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    .word-image {
+      width: 80px;
+      height: 80px;
+      object-fit: contain;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div v-if="currentPage === 'home'">
+      <div class="header text-center py-4 mb-4">
+        <h1><i class="bi bi-stars"></i> 幼儿园大班学习乐园 <i class="bi bi-stars"></i></h1>
+        <p class="lead">欢迎来到快乐学习世界！</p>
+      </div>
+      
+      <div class="container">
+        <div class="row">
+          <div class="col-md-4 mb-4">
+            <div class="subject-card card bg-primary text-white" @click="selectSubject('chinese')">
+              <div class="card-body text-center">
+                <div class="subject-icon">
+                  <i class="bi bi-book"></i>
+                </div>
+                <h3 class="card-title">语文</h3>
+                <p class="card-text">学习汉字、拼音和词语</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-4 mb-4">
+            <div class="subject-card card bg-success text-white" @click="selectSubject('math')">
+              <div class="card-body text-center">
+                <div class="subject-icon">
+                  <i class="bi bi-calculator"></i>
+                </div>
+                <h3 class="card-title">数学</h3>
+                <p class="card-text">学习数字、计算和图形</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-4 mb-4">
+            <div class="subject-card card bg-warning text-white" @click="selectSubject('english')">
+              <div class="card-body text-center">
+                <div class="subject-icon">
+                  <i class="bi bi-globe"></i>
+                </div>
+                <h3 class="card-title">英语</h3>
+                <p class="card-text">学习字母、单词和简单句子</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="text-center mt-5">
+          <h4><i class="bi bi-award"></i> 学习进度</h4>
+          <div class="progress-container mt-3">
+            <div class="progress-bar" :style="{ width: overallProgress + '%' }">
+              {{ Math.round(overallProgress) }}%
+            </div>
+          </div>
+          <p class="mt-2">继续加油哦！</p>
+        </div>
+      </div>
+    </div>
+    
+    <div v-else>
+      <button class="btn btn-secondary back-btn" @click="goHome">
+        <i class="bi bi-arrow-left-circle"></i> 返回主页
+      </button>
+      
+      <div class="header text-center py-4 mb-4">
+        <h1>{{ currentSubject.title }}</h1>
+      </div>
+      
+      <div class="container">
+        <div class="content-area">
+          <div v-if="currentSubject.key === 'chinese'">
+            <ul class="nav nav-tabs" id="chineseTabs" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="pinyin-tab" data-bs-toggle="tab" data-bs-target="#pinyin" type="button" role="tab">拼音学习</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="characters-tab" data-bs-toggle="tab" data-bs-target="#characters" type="button" role="tab">汉字学习</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="words-tab" data-bs-toggle="tab" data-bs-target="#words" type="button" role="tab">词语学习</button>
+              </li>
+            </ul>
+            <div class="tab-content" id="chineseTabsContent">
+              <div class="tab-pane fade show active" id="pinyin" role="tabpanel">
+                <h3 class="mt-3">声母学习</h3>
+                <div class="row">
+                  <div v-for="initial in chinese.initials" :key="initial" class="col-2 mb-3">
+                    <div class="alphabet-card bg-light" @click="speak(initial)">
+                      {{ initial }}
+                    </div>
+                  </div>
+                </div>
+                
+                <h3 class="mt-4">韵母学习</h3>
+                <div class="row">
+                  <div v-for="final in chinese.finals" :key="final" class="col-2 mb-3">
+                    <div class="alphabet-card bg-light" @click="speak(final)">
+                      {{ final }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="tab-pane fade" id="characters" role="tabpanel">
+                <h3 class="mt-3">基础汉字</h3>
+                <div class="row">
+                  <div v-for="character in chinese.characters" :key="character.char" class="col-3 col-md-2 mb-3">
+                    <div class="number-card bg-light" @click="speak(character.pinyin)">
+                      <div class="character">{{ character.char }}</div>
+                      <div class="pinyin text-muted small">{{ character.pinyin }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="tab-pane fade" id="words" role="tabpanel">
+                <h3 class="mt-3">常用词语</h3>
+                <div class="row">
+                  <div v-for="word in chinese.words" :key="word.word" class="col-6 col-md-3 mb-3">
+                    <div class="word-card bg-light" @click="speak(word.word)">
+                      <div class="word">{{ word.word }}</div>
+                      <div class="pinyin text-muted small">{{ word.pinyin }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div v-if="currentSubject.key === 'math'">
+            <ul class="nav nav-tabs" id="mathTabs" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="numbers-tab" data-bs-toggle="tab" data-bs-target="#numbers" type="button" role="tab">数字认知</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="counting-tab" data-bs-toggle="tab" data-bs-target="#counting" type="button" role="tab">数数练习</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="addition-tab" data-bs-toggle="tab" data-bs-target="#addition" type="button" role="tab">加法练习</button>
+              </li>
+            </ul>
+            <div class="tab-content" id="mathTabsContent">
+              <div class="tab-pane fade show active" id="numbers" role="tabpanel">
+                <h3 class="mt-3">数字1-20</h3>
+                <div class="row">
+                  <div v-for="n in 20" :key="n" class="col-3 col-md-2 mb-3">
+                    <div class="number-card bg-light" @click="speak(n.toString())">
+                      <div class="number">{{ n }}</div>
+                      <div class="chinese-number text-muted small">{{ chineseNumbers[n-1] }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="tab-pane fade" id="counting" role="tabpanel">
+                <h3 class="mt-3">数一数有几个？</h3>
+                <div class="text-center my-4">
+                  <div class="question-display">
+                    <div class="d-flex justify-content-center flex-wrap">
+                      <i v-for="i in countingQuestion.count" :key="i" class="bi bi-apple" style="font-size: 2rem; color: red; margin: 5px;"></i>
+                    </div>
+                  </div>
+                  
+                  <div class="options mt-4">
+                    <div v-for="option in countingQuestion.options" :key="option" 
+                         class="question-option d-inline-block mx-2" 
+                         :class="{ selected: selectedCountingAnswer === option }"
+                         @click="selectCountingAnswer(option)">
+                      {{ option }}
+                    </div>
+                  </div>
+                  
+                  <div class="mt-3" v-if="countingResult !== null">
+                    <div v-if="countingResult" class="text-success">
+                      <i class="bi bi-check-circle-fill result-icon"></i>
+                      <h4>答对了！真棒！</h4>
+                    </div>
+                    <div v-else class="text-danger">
+                      <i class="bi bi-x-circle-fill result-icon"></i>
+                      <h4>再试试看哦！</h4>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="tab-pane fade" id="addition" role="tabpanel">
+                <h3 class="mt-3">加法练习</h3>
+                <div class="text-center my-4">
+                  <div class="question-display">
+                    <h4>{{ additionQuestion.a }} + {{ additionQuestion.b }} = ?</h4>
+                  </div>
+                  
+                  <div class="options mt-4">
+                    <div v-for="option in additionQuestion.options" :key="option" 
+                         class="question-option d-inline-block mx-2" 
+                         :class="{ selected: selectedAdditionAnswer === option }"
+                         @click="selectAdditionAnswer(option)">
+                      {{ option }}
+                    </div>
+                  </div>
+                  
+                  <div class="mt-3" v-if="additionResult !== null">
+                    <div v-if="additionResult" class="text-success">
+                      <i class="bi bi-check-circle-fill result-icon"></i>
+                      <h4>答对了！真棒！</h4>
+                    </div>
+                    <div v-else class="text-danger">
+                      <i class="bi bi-x-circle-fill result-icon"></i>
+                      <h4>再试试看哦！</h4>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div v-if="currentSubject.key === 'english'">
+            <ul class="nav nav-tabs" id="englishTabs" role="tablist">
+              <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="alphabet-tab" data-bs-toggle="tab" data-bs-target="#alphabet" type="button" role="tab">字母学习</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="words-tab" data-bs-toggle="tab" data-bs-target="#english-words" type="button" role="tab">单词学习</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" id="quiz-tab" data-bs-toggle="tab" data-bs-target="#quiz" type="button" role="tab">小测验</button>
+              </li>
+            </ul>
+            <div class="tab-content" id="englishTabsContent">
+              <div class="tab-pane fade show active" id="alphabet" role="tabpanel">
+                <h3 class="mt-3">英文字母</h3>
+                <div class="row">
+                  <div v-for="letter in english.alphabet" :key="letter" class="col-2 mb-3">
+                    <div class="alphabet-card bg-light" @click="speak(letter)">
+                      {{ letter }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="tab-pane fade" id="english-words" role="tabpanel">
+                <h3 class="mt-3">基础单词</h3>
+                <div class="row">
+                  <div v-for="word in english.words" :key="word.word" class="col-6 col-md-3 mb-3">
+                    <div class="word-card bg-light" @click="speak(word.word)">
+                      <img :src="word.image" :alt="word.word" class="word-image">
+                      <div class="word">{{ word.word }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="tab-pane fade" id="quiz" role="tabpanel">
+                <h3 class="mt-3">单词小测验</h3>
+                <div class="text-center my-4">
+                  <div class="question-display">
+                    <img :src="quizQuestion.image" :alt="quizQuestion.word" class="word-image">
+                  </div>
+                  
+                  <div class="options mt-4">
+                    <div v-for="option in quizQuestion.options" :key="option" 
+                         class="question-option" 
+                         :class="{ selected: selectedQuizAnswer === option }"
+                         @click="selectQuizAnswer(option)">
+                      {{ option }}
+                    </div>
+                  </div>
+                  
+                  <div class="mt-3" v-if="quizResult !== null">
+                    <div v-if="quizResult" class="text-success">
+                      <i class="bi bi-check-circle-fill result-icon"></i>
+                      <h4>答对了！真棒！</h4>
+                    </div>
+                    <div v-else class="text-danger">
+                      <i class="bi bi-x-circle-fill result-icon"></i>
+                      <h4>再试试看哦！正确答案是：{{ quizQuestion.word }}</h4>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const { createApp, ref, reactive, computed } = Vue;
+    
+    createApp({
+      setup() {
+        // 页面状态
+        const currentPage = ref('home');
+        const currentSubject = ref(null);
+        
+        // 学科数据
+        const subjects = {
+          chinese: {
+            key: 'chinese',
+            title: '语文学习',
+            icon: 'book'
+          },
+          math: {
+            key: 'math',
+            title: '数学学习',
+            icon: 'calculator'
+          },
+          english: {
+            key: 'english',
+            title: '英语学习',
+            icon: 'globe'
+          }
+        };
+        
+        // 语文内容
+        const chinese = {
+          initials: ['b', 'p', 'm', 'f', 'd', 't', 'n', 'l', 'g', 'k', 'h', 'j', 'q', 'x', 'zh', 'ch', 'sh', 'r', 'z', 'c', 's', 'y', 'w'],
+          finals: ['a', 'o', 'e', 'i', 'u', 'ü', 'ai', 'ei', 'ui', 'ao', 'ou', 'iu', 'ie', 'üe', 'er', 'an', 'en', 'in', 'un', 'ün', 'ang', 'eng', 'ing', 'ong'],
+          characters: [
+            { char: '一', pinyin: 'yī' },
+            { char: '二', pinyin: 'èr' },
+            { char: '三', pinyin: 'sān' },
+            { char: '四', pinyin: 'sì' },
+            { char: '五', pinyin: 'wǔ' },
+            { char: '六', pinyin: 'liù' },
+            { char: '七', pinyin: 'qī' },
+            { char: '八', pinyin: 'bā' },
+            { char: '九', pinyin: 'jiǔ' },
+            { char: '十', pinyin: 'shí' },
+            { char: '人', pinyin: 'rén' },
+            { char: '口', pinyin: 'kǒu' },
+            { char: '手', pinyin: 'shǒu' },
+            { char: '水', pinyin: 'shuǐ' },
+            { char: '火', pinyin: 'huǒ' },
+            { char: '山', pinyin: 'shān' },
+            { char: '石', pinyin: 'shí' },
+            { char: '田', pinyin: 'tián' },
+            { char: '土', pinyin: 'tǔ' },
+            { char: '木', pinyin: 'mù' }
+          ],
+          words: [
+            { word: '太阳', pinyin: 'tài yáng' },
+            { word: '月亮', pinyin: 'yuè liàng' },
+            { word: '星星', pinyin: 'xīng xīng' },
+            { word: '花朵', pinyin: 'huā duǒ' },
+            { word: '草地', pinyin: 'cǎo dì' },
+            { word: '大树', pinyin: 'dà shù' },
+            { word: '小鸟', pinyin: 'xiǎo niǎo' },
+            { word: '小鱼', pinyin: 'xiǎo yú' },
+            { word: '妈妈', pinyin: 'mā ma' },
+            { word: '爸爸', pinyin: 'bà ba' },
+            { word: '老师', pinyin: 'lǎo shī' },
+            { word: '学校', pinyin: 'xué xiào' }
+          ]
+        };
+        
+        // 英语内容
+        const english = {
+          alphabet: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),
+          words: [
+            { word: 'Apple', image: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f34e.png' },
+            { word: 'Ball', image: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f3c0.png' },
+            { word: 'Cat', image: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f431.png' },
+            { word: 'Dog', image: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f436.png' },
+            { word: 'Elephant', image: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f418.png' },
+            { word: 'Fish', image: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f41f.png' },
+            { word: 'Giraffe', image: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f992.png' },
+            { word: 'House', image: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f3e0.png' },
+            { word: 'Ice cream', image: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f368.png' },
+            { word: 'Juice', image: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f9c3.png' },
+            { word: 'Kite', image: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1fa81.png' },
+            { word: 'Lion', image: 'https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f981.png' }
+          ]
+        };
+        
+        // 数学内容
+        const chineseNumbers = ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十', '十一', '十二', '十三', '十四', '十五', '十六', '十七', '十八', '十九', '二十'];
+        
+        // 数数练习题目
+        const countingQuestion = reactive({
+          count: 0,
+          options: []
+        });
+        
+        // 加法练习题目
+        const additionQuestion = reactive({
+          a: 0,
+          b: 0,
+          options: []
+        });
+        
+        // 测验题目
+        const quizQuestion = reactive({
+          word: '',
+          image: '',
+          options: []
+        });
+        
+        // 用户选择的答案
+        const selectedCountingAnswer = ref(null);
+        const selectedAdditionAnswer = ref(null);
+        const selectedQuizAnswer = ref(null);
+        
+        // 答题结果
+        const countingResult = ref(null);
+        const additionResult = ref(null);
+        const quizResult = ref(null);
+        
+        // 学习进度
+        const overallProgress = computed(() => {
+          // 这里可以实现实际的进度计算逻辑
+          return 35;
+        });
+        
+        // 选择学科
+        const selectSubject = (subjectKey) => {
+          currentSubject.value = subjects[subjectKey];
+          currentPage.value = 'subject';
+          
+          // 初始化题目
+          if (subjectKey === 'math') {
+            generateCountingQuestion();
+            generateAdditionQuestion();
+          } else if (subjectKey === 'english') {
+            generateQuizQuestion();
+          }
+        };
+        
+        // 返回主页
+        const goHome = () => {
+          currentPage.value = 'home';
+          currentSubject.value = null;
+        };
+        
+        // 生成数数题目
+        const generateCountingQuestion = () => {
+          countingQuestion.count = Math.floor(Math.random() * 10) + 1; // 1-10
+          const correctAnswer = countingQuestion.count;
+          const options = new Set([correctAnswer]);
+          
+          // 生成3个错误选项
+          while (options.size < 4) {
+            const wrong = correctAnswer + Math.floor(Math.random() * 5) - 2;
+            if (wrong > 0 && wrong <= 12 && wrong !== correctAnswer) {
+              options.add(wrong);
+            }
+          }
+          
+          countingQuestion.options = Array.from(options).sort(() => Math.random() - 0.5);
+          selectedCountingAnswer.value = null;
+          countingResult.value = null;
+        };
+        
+        // 生成加法题目
+        const generateAdditionQuestion = () => {
+          additionQuestion.a = Math.floor(Math.random() * 10) + 1; // 1-10
+          additionQuestion.b = Math.floor(Math.random() * (10 - additionQuestion.a)) + 1; // 确保和不超过10
+          const correctAnswer = additionQuestion.a + additionQuestion.b;
+          const options = new Set([correctAnswer]);
+          
+          // 生成3个错误选项
+          while (options.size < 4) {
+            const wrong = correctAnswer + Math.floor(Math.random() * 5) - 2;
+            if (wrong >= 0 && wrong <= 20 && wrong !== correctAnswer) {
+              options.add(wrong);
+            }
+          }
+          
+          additionQuestion.options = Array.from(options).sort(() => Math.random() - 0.5);
+          selectedAdditionAnswer.value = null;
+          additionResult.value = null;
+        };
+        
+        // 生成英语测验题目
+        const generateQuizQuestion = () => {
+          const correctWord = english.words[Math.floor(Math.random() * english.words.length)];
+          quizQuestion.word = correctWord.word;
+          quizQuestion.image = correctWord.image;
+          
+          const options = new Set([correctWord.word]);
+          
+          // 生成3个错误选项
+          while (options.size < 4) {
+            const wrongWord = english.words[Math.floor(Math.random() * english.words.length)].word;
+            if (wrongWord !== correctWord.word) {
+              options.add(wrongWord);
+            }
+          }
+          
+          quizQuestion.options = Array.from(options).sort(() => Math.random() - 0.5);
+          selectedQuizAnswer.value = null;
+          quizResult.value = null;
+        };
+        
+        // 选择答案并立即提交
+        const selectCountingAnswer = (answer) => {
+          selectedCountingAnswer.value = answer;
+          // 自动检查答案
+          setTimeout(() => {
+            checkCountingAnswer();
+            // 1秒后自动进入下一题
+            setTimeout(() => {
+              nextCountingQuestion();
+            }, 1000);
+          }, 500);
+        };
+        
+        const selectAdditionAnswer = (answer) => {
+          selectedAdditionAnswer.value = answer;
+          // 自动检查答案
+          setTimeout(() => {
+            checkAdditionAnswer();
+            // 1秒后自动进入下一题
+            setTimeout(() => {
+              nextAdditionQuestion();
+            }, 1000);
+          }, 500);
+        };
+        
+        const selectQuizAnswer = (answer) => {
+          selectedQuizAnswer.value = answer;
+          // 自动检查答案
+          setTimeout(() => {
+            checkQuizAnswer();
+            // 1秒后自动进入下一题
+            setTimeout(() => {
+              nextQuizQuestion();
+            }, 1000);
+          }, 500);
+        };
+        
+        // 检查答案
+        const checkCountingAnswer = () => {
+          countingResult.value = selectedCountingAnswer.value === countingQuestion.count;
+        };
+        
+        const checkAdditionAnswer = () => {
+          additionResult.value = selectedAdditionAnswer.value === (additionQuestion.a + additionQuestion.b);
+        };
+        
+        const checkQuizAnswer = () => {
+          quizResult.value = selectedQuizAnswer.value === quizQuestion.word;
+        };
+        
+        // 下一题
+        const nextCountingQuestion = () => {
+          generateCountingQuestion();
+        };
+        
+        const nextAdditionQuestion = () => {
+          generateAdditionQuestion();
+        };
+        
+        const nextQuizQuestion = () => {
+          generateQuizQuestion();
+        };
+        
+        // 语音播放功能（简化版）
+        const speak = (text) => {
+          console.log("播放语音: " + text);
+          // 在实际应用中，这里可以使用 Web Speech API 或其他语音合成服务
+        };
+        
+        // 初始化题目
+        generateCountingQuestion();
+        generateAdditionQuestion();
+        generateQuizQuestion();
+        
+        return {
+          currentPage,
+          currentSubject,
+          subjects,
+          chinese,
+          english,
+          chineseNumbers,
+          countingQuestion,
+          additionQuestion,
+          quizQuestion,
+          selectedCountingAnswer,
+          selectedAdditionAnswer,
+          selectedQuizAnswer,
+          countingResult,
+          additionResult,
+          quizResult,
+          overallProgress,
+          selectSubject,
+          goHome,
+          selectCountingAnswer,
+          selectAdditionAnswer,
+          selectQuizAnswer,
+          checkCountingAnswer,
+          checkAdditionAnswer,
+          checkQuizAnswer,
+          nextCountingQuestion,
+          nextAdditionQuestion,
+          nextQuizQuestion,
+          speak
+        };
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>
