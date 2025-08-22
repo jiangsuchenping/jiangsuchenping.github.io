@@ -316,6 +316,16 @@
       transform: translateY(-2px);
     }
 
+    /* 识字测试汉字显示样式 */
+    .character-display {
+      font-size: 6rem;
+      font-weight: bold;
+      color: #2c3e50;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+      margin: 20px 0;
+      font-family: '楷体', '华文楷体', serif;
+    }
+
     /* 练习区域样式 */
     .practice-area {
       background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
@@ -482,13 +492,22 @@
                         @click="setActiveTab('chinese', 'idioms')">成语学习</button>
               </li>
               <li class="nav-item" role="presentation">
-                <button class="nav-link" 
+                <button class="nav-link"
                         :class="{ active: activeChineseTab === 'poems' }"
-                        data-bs-toggle="tab" 
-                        data-bs-target="#poems" 
-                        type="button" 
+                        data-bs-toggle="tab"
+                        data-bs-target="#poems"
+                        type="button"
                         role="tab"
                         @click="setActiveTab('chinese', 'poems')">古诗词学习</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link"
+                        :class="{ active: activeChineseTab === 'test' }"
+                        data-bs-toggle="tab"
+                        data-bs-target="#test"
+                        type="button"
+                        role="tab"
+                        @click="setActiveTab('chinese', 'test')">识字测试</button>
               </li>
             </ul>
             <div class="tab-content">
@@ -561,9 +580,9 @@
                 </div>
               </div>
               
-              <div class="tab-pane fade" 
-                   :class="{ 'show active': activeChineseTab === 'poems' }" 
-                   id="poems" 
+              <div class="tab-pane fade"
+                   :class="{ 'show active': activeChineseTab === 'poems' }"
+                   id="poems"
                    role="tabpanel">
                 <h3 class="mt-3">经典古诗词</h3>
                 <div class="row">
@@ -573,6 +592,173 @@
                       <div class="poem-author text-muted small mb-2">{{ poem.author }}</div>
                       <div class="poem-content mb-2">{{ poem.content }}</div>
                       <div class="poem-meaning text-muted">{{ poem.meaning }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tab-pane fade"
+                   :class="{ 'show active': activeChineseTab === 'test' }"
+                   id="test"
+                   role="tabpanel">
+                <h3 class="mt-3">识字测试</h3>
+
+                <!-- 练习区域 -->
+                <div class="practice-area">
+                  <div class="text-center my-4">
+                    <div class="question-display">
+                      <h2 class="character-display">{{ characterQuestion.char }}</h2>
+                      <p class="text-muted">请选择这个汉字的正确拼音</p>
+                    </div>
+
+                    <div class="options mt-4">
+                      <div v-for="option in characterQuestion.options" :key="option"
+                           class="question-option d-inline-block mx-2"
+                           :class="{ selected: selectedCharacterAnswer === option }"
+                           @click="selectCharacterAnswer(option)">
+                        {{ option }}
+                      </div>
+                    </div>
+
+                    <div class="mt-3" v-if="characterResult !== null">
+                      <div v-if="characterResult" class="text-success">
+                        <i class="bi bi-check-circle-fill result-icon"></i>
+                        <h4>答对了！真棒！</h4>
+                      </div>
+                      <div v-else class="text-danger">
+                        <i class="bi bi-x-circle-fill result-icon"></i>
+                        <h4>再试试看哦！</h4>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 统计卡片 -->
+                <div class="stats-section mt-5">
+                  <h4 class="mb-3">
+                    <i class="bi bi-calendar-day"></i> 今日测试统计
+                    <small class="text-muted ms-2">{{ getCurrentDateString() }}</small>
+                  </h4>
+                  <div class="row">
+                    <div class="col-md-3 col-6 mb-3">
+                      <div class="card bg-primary text-white">
+                        <div class="card-body text-center">
+                          <h5>总题数</h5>
+                          <h3>{{ characterStats.totalQuestions }}</h3>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                      <div class="card bg-success text-white">
+                        <div class="card-body text-center">
+                          <h5>答对</h5>
+                          <h3>{{ characterStats.correctAnswers }}</h3>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                      <div class="card bg-danger text-white">
+                        <div class="card-body text-center">
+                          <h5>答错</h5>
+                          <h3>{{ characterStats.wrongAnswers }}</h3>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                      <div class="card bg-info text-white">
+                        <div class="card-body text-center">
+                          <h5>正确率</h5>
+                          <h3>{{ characterStats.accuracy }}%</h3>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 历史记录展开区域 -->
+                <div class="history-section mt-5">
+                  <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="mb-0">
+                      <i class="bi bi-clock-history"></i> 测试历史
+                    </h4>
+                    <div>
+                      <button class="btn btn-outline-primary btn-sm me-2"
+                              @click="toggleHistoryExpanded">
+                        <i class="bi" :class="historyExpanded ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+                        {{ historyExpanded ? '收起' : '展开' }}详细记录
+                      </button>
+                      <button class="btn btn-outline-info btn-sm me-2"
+                              @click="resetTodayStats('character')"
+                              v-if="characterStats.totalQuestions > 0">
+                        <i class="bi bi-arrow-clockwise"></i> 重置今日
+                      </button>
+                      <button class="btn btn-outline-warning btn-sm"
+                              @click="clearPracticeHistory('character')"
+                              v-if="Object.keys(characterHistory).length > 0">
+                        <i class="bi bi-trash"></i> 清空全部
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- 简要统计 -->
+                  <div class="history-summary p-3 bg-light rounded">
+                    <div class="row text-center">
+                      <div class="col-3">
+                        <div class="fw-bold text-primary">{{ Object.keys(characterHistory).length }}</div>
+                        <small class="text-muted">累计题目</small>
+                      </div>
+                      <div class="col-3">
+                        <div class="fw-bold text-success">{{ characterAllTimeStats.correctAnswers }}</div>
+                        <small class="text-muted">累计答对</small>
+                      </div>
+                      <div class="col-3">
+                        <div class="fw-bold text-danger">{{ characterAllTimeStats.wrongAnswers }}</div>
+                        <small class="text-muted">累计答错</small>
+                      </div>
+                      <div class="col-3">
+                        <div class="fw-bold text-info">{{ characterAllTimeStats.accuracy }}%</div>
+                        <small class="text-muted">累计正确率</small>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- 详细历史记录 -->
+                  <div v-show="historyExpanded" class="history-details mt-3">
+                    <div v-if="Object.keys(characterHistory).length === 0" class="text-center text-muted py-5">
+                      <i class="bi bi-clipboard-x" style="font-size: 3rem;"></i>
+                      <h5 class="mt-3">暂无历史记录</h5>
+                      <p>开始识字测试后，这里会显示你的测试历史</p>
+                    </div>
+
+                    <div v-else class="table-responsive">
+                      <table class="table table-striped table-hover">
+                        <thead class="table-dark">
+                          <tr>
+                            <th>汉字</th>
+                            <th>拼音</th>
+                            <th>正确次数</th>
+                            <th>错误次数</th>
+                            <th>总次数</th>
+                            <th>正确率</th>
+                            <th>最后测试时间</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr v-for="(record, question) in sortedCharacterHistory" :key="question">
+                            <td class="fw-bold fs-5">{{ question.split(' - ')[0] }}</td>
+                            <td class="text-primary">{{ question.split(' - ')[1] }}</td>
+                            <td class="text-success">{{ record.correct }}</td>
+                            <td class="text-danger">{{ record.wrong }}</td>
+                            <td>{{ record.correct + record.wrong }}</td>
+                            <td>
+                              <span class="badge" :class="getAccuracyBadgeClass(record.correct, record.wrong)">
+                                {{ Math.round(record.correct / (record.correct + record.wrong) * 100) }}%
+                              </span>
+                            </td>
+                            <td class="text-muted">{{ formatTime(record.lastTime) }}</td>
+                          </tr>
+                        </tbody>
+                      </table>
                     </div>
                   </div>
                 </div>
@@ -609,6 +795,15 @@
                         type="button"
                         role="tab"
                         @click="setActiveTab('math', 'addition')">加法练习</button>
+              </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link"
+                        :class="{ active: activeMathTab === 'subtraction' }"
+                        data-bs-toggle="tab"
+                        data-bs-target="#subtraction"
+                        type="button"
+                        role="tab"
+                        @click="setActiveTab('math', 'subtraction')">减法练习</button>
               </li>
             </ul>
             <div class="tab-content">
@@ -824,9 +1019,173 @@
                   </div>
                 </div>
               </div>
+
+              <div class="tab-pane fade"
+                   :class="{ 'show active': activeMathTab === 'subtraction' }"
+                   id="subtraction"
+                   role="tabpanel">
+                <h3 class="mt-3">减法练习</h3>
+
+                <!-- 练习区域 -->
+                <div class="practice-area">
+                  <div class="text-center my-4">
+                    <div class="question-display">
+                      <h4>{{ subtractionQuestion.a }} - {{ subtractionQuestion.b }} = ?</h4>
+                    </div>
+
+                    <div class="options mt-4">
+                      <div v-for="option in subtractionQuestion.options" :key="option"
+                           class="question-option d-inline-block mx-2"
+                           :class="{ selected: selectedSubtractionAnswer === option }"
+                           @click="selectSubtractionAnswer(option)">
+                        {{ option }}
+                      </div>
+                    </div>
+
+                    <div class="mt-3" v-if="subtractionResult !== null">
+                      <div v-if="subtractionResult" class="text-success">
+                        <i class="bi bi-check-circle-fill result-icon"></i>
+                        <h4>答对了！真棒！</h4>
+                      </div>
+                      <div v-else class="text-danger">
+                        <i class="bi bi-x-circle-fill result-icon"></i>
+                        <h4>再试试看哦！</h4>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 统计卡片 -->
+                <div class="stats-section mt-5">
+                  <h4 class="mb-3">
+                    <i class="bi bi-calendar-day"></i> 今日练习统计
+                    <small class="text-muted ms-2">{{ getCurrentDateString() }}</small>
+                  </h4>
+                  <div class="row">
+                    <div class="col-md-3 col-6 mb-3">
+                      <div class="card bg-primary text-white">
+                        <div class="card-body text-center">
+                          <h5>总题数</h5>
+                          <h3>{{ subtractionStats.totalQuestions }}</h3>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                      <div class="card bg-success text-white">
+                        <div class="card-body text-center">
+                          <h5>答对</h5>
+                          <h3>{{ subtractionStats.correctAnswers }}</h3>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                      <div class="card bg-danger text-white">
+                        <div class="card-body text-center">
+                          <h5>答错</h5>
+                          <h3>{{ subtractionStats.wrongAnswers }}</h3>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                      <div class="card bg-info text-white">
+                        <div class="card-body text-center">
+                          <h5>正确率</h5>
+                          <h3>{{ subtractionStats.accuracy }}%</h3>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 历史记录展开区域 -->
+                <div class="history-section mt-5">
+                  <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="mb-0">
+                      <i class="bi bi-clock-history"></i> 答题历史
+                    </h4>
+                    <div>
+                      <button class="btn btn-outline-primary btn-sm me-2"
+                              @click="toggleHistoryExpanded">
+                        <i class="bi" :class="historyExpanded ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+                        {{ historyExpanded ? '收起' : '展开' }}详细记录
+                      </button>
+                      <button class="btn btn-outline-info btn-sm me-2"
+                              @click="resetTodayStats('subtraction')"
+                              v-if="subtractionStats.totalQuestions > 0">
+                        <i class="bi bi-arrow-clockwise"></i> 重置今日
+                      </button>
+                      <button class="btn btn-outline-warning btn-sm"
+                              @click="clearPracticeHistory('subtraction')"
+                              v-if="Object.keys(subtractionHistory).length > 0">
+                        <i class="bi bi-trash"></i> 清空全部
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- 简要统计 -->
+                  <div class="history-summary p-3 bg-light rounded">
+                    <div class="row text-center">
+                      <div class="col-3">
+                        <div class="fw-bold text-primary">{{ Object.keys(subtractionHistory).length }}</div>
+                        <small class="text-muted">累计题目</small>
+                      </div>
+                      <div class="col-3">
+                        <div class="fw-bold text-success">{{ subtractionAllTimeStats.correctAnswers }}</div>
+                        <small class="text-muted">累计答对</small>
+                      </div>
+                      <div class="col-3">
+                        <div class="fw-bold text-danger">{{ subtractionAllTimeStats.wrongAnswers }}</div>
+                        <small class="text-muted">累计答错</small>
+                      </div>
+                      <div class="col-3">
+                        <div class="fw-bold text-info">{{ subtractionAllTimeStats.accuracy }}%</div>
+                        <small class="text-muted">累计正确率</small>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- 详细历史记录 -->
+                  <div v-show="historyExpanded" class="history-details mt-3">
+                    <div v-if="Object.keys(subtractionHistory).length === 0" class="text-center text-muted py-5">
+                      <i class="bi bi-clipboard-x" style="font-size: 3rem;"></i>
+                      <h5 class="mt-3">暂无历史记录</h5>
+                      <p>开始练习减法题目后，这里会显示你的答题历史</p>
+                    </div>
+
+                    <div v-else class="table-responsive">
+                      <table class="table table-striped table-hover">
+                        <thead class="table-dark">
+                          <tr>
+                            <th>题目</th>
+                            <th>正确次数</th>
+                            <th>错误次数</th>
+                            <th>总次数</th>
+                            <th>正确率</th>
+                            <th>最后答题时间</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr v-for="(record, question) in sortedSubtractionHistory" :key="question">
+                            <td class="fw-bold">{{ question }}</td>
+                            <td class="text-success">{{ record.correct }}</td>
+                            <td class="text-danger">{{ record.wrong }}</td>
+                            <td>{{ record.correct + record.wrong }}</td>
+                            <td>
+                              <span class="badge" :class="getAccuracyBadgeClass(record.correct, record.wrong)">
+                                {{ Math.round(record.correct / (record.correct + record.wrong) * 100) }}%
+                              </span>
+                            </td>
+                            <td class="text-muted">{{ formatTime(record.lastTime) }}</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-          
+
           <!-- 英语内容 -->
           <div v-if="currentSubject.key === 'english'">
             <ul class="nav nav-tabs" role="tablist">
@@ -1021,6 +1380,7 @@
             initials: ['b', 'p', 'm', 'f', 'd', 't', 'n', 'l', 'g', 'k', 'h', 'j', 'q', 'x', 'zh', 'ch', 'sh', 'r', 'z', 'c', 's', 'y', 'w'],
             finals: ['a', 'o', 'e', 'i', 'u', 'ü', 'ai', 'ei', 'ui', 'ao', 'ou', 'iu', 'ie', 'üe', 'er', 'an', 'en', 'in', 'un', 'ün', 'ang', 'eng', 'ing', 'ong'],
             characters: [
+              // 数字汉字
               { char: '一', pinyin: 'yī' },
               { char: '二', pinyin: 'èr' },
               { char: '三', pinyin: 'sān' },
@@ -1031,30 +1391,148 @@
               { char: '八', pinyin: 'bā' },
               { char: '九', pinyin: 'jiǔ' },
               { char: '十', pinyin: 'shí' },
+              { char: '百', pinyin: 'bǎi' },
+              { char: '千', pinyin: 'qiān' },
+
+              // 基础汉字
               { char: '人', pinyin: 'rén' },
               { char: '口', pinyin: 'kǒu' },
               { char: '手', pinyin: 'shǒu' },
+              { char: '足', pinyin: 'zú' },
+              { char: '目', pinyin: 'mù' },
+              { char: '耳', pinyin: 'ěr' },
+              { char: '心', pinyin: 'xīn' },
+              { char: '头', pinyin: 'tóu' },
+
+              // 自然类
               { char: '水', pinyin: 'shuǐ' },
               { char: '火', pinyin: 'huǒ' },
               { char: '山', pinyin: 'shān' },
               { char: '石', pinyin: 'shí' },
               { char: '田', pinyin: 'tián' },
               { char: '土', pinyin: 'tǔ' },
-              { char: '木', pinyin: 'mù' }
+              { char: '木', pinyin: 'mù' },
+              { char: '林', pinyin: 'lín' },
+              { char: '森', pinyin: 'sēn' },
+              { char: '日', pinyin: 'rì' },
+              { char: '月', pinyin: 'yuè' },
+              { char: '星', pinyin: 'xīng' },
+              { char: '云', pinyin: 'yún' },
+              { char: '雨', pinyin: 'yǔ' },
+              { char: '风', pinyin: 'fēng' },
+              { char: '雪', pinyin: 'xuě' },
+
+              // 动物类
+              { char: '牛', pinyin: 'niú' },
+              { char: '马', pinyin: 'mǎ' },
+              { char: '羊', pinyin: 'yáng' },
+              { char: '猪', pinyin: 'zhū' },
+              { char: '狗', pinyin: 'gǒu' },
+              { char: '猫', pinyin: 'māo' },
+              { char: '鸟', pinyin: 'niǎo' },
+              { char: '鱼', pinyin: 'yú' },
+              { char: '虫', pinyin: 'chóng' },
+
+              // 植物类
+              { char: '花', pinyin: 'huā' },
+              { char: '草', pinyin: 'cǎo' },
+              { char: '叶', pinyin: 'yè' },
+              { char: '果', pinyin: 'guǒ' },
+
+              // 家庭类
+              { char: '爸', pinyin: 'bà' },
+              { char: '妈', pinyin: 'mā' },
+              { char: '爷', pinyin: 'yé' },
+              { char: '奶', pinyin: 'nǎi' },
+              { char: '哥', pinyin: 'gē' },
+              { char: '姐', pinyin: 'jiě' },
+              { char: '弟', pinyin: 'dì' },
+              { char: '妹', pinyin: 'mèi' },
+
+              // 常用字
+              { char: '大', pinyin: 'dà' },
+              { char: '小', pinyin: 'xiǎo' },
+              { char: '多', pinyin: 'duō' },
+              { char: '少', pinyin: 'shǎo' },
+              { char: '好', pinyin: 'hǎo' },
+              { char: '坏', pinyin: 'huài' },
+              { char: '上', pinyin: 'shàng' },
+              { char: '下', pinyin: 'xià' },
+              { char: '左', pinyin: 'zuǒ' },
+              { char: '右', pinyin: 'yòu' },
+              { char: '前', pinyin: 'qián' },
+              { char: '后', pinyin: 'hòu' },
+              { char: '里', pinyin: 'lǐ' },
+              { char: '外', pinyin: 'wài' },
+              { char: '中', pinyin: 'zhōng' },
+              { char: '来', pinyin: 'lái' },
+              { char: '去', pinyin: 'qù' },
+              { char: '有', pinyin: 'yǒu' },
+              { char: '无', pinyin: 'wú' },
+              { char: '是', pinyin: 'shì' },
+              { char: '不', pinyin: 'bù' }
             ],
             words: [
+              // 自然类
               { word: '太阳', pinyin: 'tài yáng' },
               { word: '月亮', pinyin: 'yuè liàng' },
               { word: '星星', pinyin: 'xīng xīng' },
+              { word: '白云', pinyin: 'bái yún' },
+              { word: '彩虹', pinyin: 'cǎi hóng' },
+              { word: '大海', pinyin: 'dà hǎi' },
+              { word: '河流', pinyin: 'hé liú' },
+              { word: '高山', pinyin: 'gāo shān' },
+
+              // 植物类
               { word: '花朵', pinyin: 'huā duǒ' },
               { word: '草地', pinyin: 'cǎo dì' },
               { word: '大树', pinyin: 'dà shù' },
+              { word: '森林', pinyin: 'sēn lín' },
+              { word: '果实', pinyin: 'guǒ shí' },
+              { word: '种子', pinyin: 'zhǒng zi' },
+
+              // 动物类
               { word: '小鸟', pinyin: 'xiǎo niǎo' },
               { word: '小鱼', pinyin: 'xiǎo yú' },
+              { word: '蝴蝶', pinyin: 'hú dié' },
+              { word: '蜜蜂', pinyin: 'mì fēng' },
+              { word: '小猫', pinyin: 'xiǎo māo' },
+              { word: '小狗', pinyin: 'xiǎo gǒu' },
+              { word: '兔子', pinyin: 'tù zi' },
+              { word: '熊猫', pinyin: 'xióng māo' },
+
+              // 家庭类
               { word: '妈妈', pinyin: 'mā ma' },
               { word: '爸爸', pinyin: 'bà ba' },
+              { word: '爷爷', pinyin: 'yé ye' },
+              { word: '奶奶', pinyin: 'nǎi nai' },
+              { word: '哥哥', pinyin: 'gē ge' },
+              { word: '姐姐', pinyin: 'jiě jie' },
+              { word: '弟弟', pinyin: 'dì di' },
+              { word: '妹妹', pinyin: 'mèi mei' },
+              { word: '家庭', pinyin: 'jiā tíng' },
+
+              // 学习类
               { word: '老师', pinyin: 'lǎo shī' },
-              { word: '学校', pinyin: 'xué xiào' }
+              { word: '学校', pinyin: 'xué xiào' },
+              { word: '同学', pinyin: 'tóng xué' },
+              { word: '朋友', pinyin: 'péng yǒu' },
+              { word: '书本', pinyin: 'shū běn' },
+              { word: '铅笔', pinyin: 'qiān bǐ' },
+              { word: '橡皮', pinyin: 'xiàng pí' },
+              { word: '课堂', pinyin: 'kè táng' },
+
+              // 生活类
+              { word: '房子', pinyin: 'fáng zi' },
+              { word: '汽车', pinyin: 'qì chē' },
+              { word: '玩具', pinyin: 'wán jù' },
+              { word: '衣服', pinyin: 'yī fu' },
+              { word: '鞋子', pinyin: 'xié zi' },
+              { word: '帽子', pinyin: 'mào zi' },
+              { word: '食物', pinyin: 'shí wù' },
+              { word: '水果', pinyin: 'shuǐ guǒ' },
+              { word: '蔬菜', pinyin: 'shū cài' },
+              { word: '牛奶', pinyin: 'niú nǎi' }
             ],
             poems: [
               { title: '静夜思', author: '李白', content: '床前明月光，疑是地上霜。举头望明月，低头思故乡。', meaning: '这首诗描写了秋日夜晚，诗人看到月光洒在床前，以为是地上的霜，抬头望月，低头思念故乡的情景。' },
@@ -1062,21 +1540,52 @@
               { title: '咏鹅', author: '骆宾王', content: '鹅，鹅，鹅，曲项向天歌。白毛浮绿水，红掌拨清波。', meaning: '这首诗描写了鹅的形象，鹅弯曲着脖子向天鸣叫，白色的羽毛浮在绿色的水面上，红色的脚掌拨动着清澈的水波。' },
               { title: '登鹳雀楼', author: '王之涣', content: '白日依山尽，黄河入海流。欲穷千里目，更上一层楼。', meaning: '这首诗描写了诗人登楼远眺的所见所感，太阳依着山峦落下，黄河奔流入海，要想看到更远的景色，就要再上一层楼。' },
               { title: '悯农', author: '李绅', content: '锄禾日当午，汗滴禾下土。谁知盘中餐，粒粒皆辛苦。', meaning: '这首诗描写了农民在烈日下锄禾的辛苦劳作，表达了对农民辛勤劳动的同情和对粮食来之不易的感慨。' },
-              { title: '江雪', author: '柳宗元', content: '千山鸟飞绝，万径人踪灭。孤舟蓑笠翁，独钓寒江雪。', meaning: '这首诗描绘了一幅江雪独钓的画面，千山万径都没有鸟飞人行的踪迹，只有一位老翁独自在江上雪中垂钓。' }
+              { title: '江雪', author: '柳宗元', content: '千山鸟飞绝，万径人踪灭。孤舟蓑笠翁，独钓寒江雪。', meaning: '这首诗描绘了一幅江雪独钓的画面，千山万径都没有鸟飞人行的踪迹，只有一位老翁独自在江上雪中垂钓。' },
+              { title: '草', author: '白居易', content: '离离原上草，一岁一枯荣。野火烧不尽，春风吹又生。', meaning: '这首诗描写了草原上的野草，一年一度枯萎又繁荣，野火烧不完，春风一吹又重新生长，赞美了草的顽强生命力。' },
+              { title: '望庐山瀑布', author: '李白', content: '日照香炉生紫烟，遥看瀑布挂前川。飞流直下三千尺，疑是银河落九天。', meaning: '这首诗描写了庐山瀑布的壮观景象，阳光照射下香炉峰升起紫色烟雾，远看瀑布像挂在山前的白练，飞流直下，好像银河从天上落下来。' },
+              { title: '早发白帝城', author: '李白', content: '朝辞白帝彩云间，千里江陵一日还。两岸猿声啼不住，轻舟已过万重山。', meaning: '这首诗描写了诗人从白帝城出发，乘船顺流而下的愉快心情，两岸猿猴的叫声还在耳边，轻快的小船已经穿过了万重山峦。' },
+              { title: '黄鹤楼送孟浩然之广陵', author: '李白', content: '故人西辞黄鹤楼，烟花三月下扬州。孤帆远影碧空尽，唯见长江天际流。', meaning: '这首诗描写了诗人在黄鹤楼送别好友孟浩然去扬州，在烟花盛开的三月，看着朋友的船帆渐渐消失在碧空中，只见长江水滚滚流向天边。' },
+              { title: '山行', author: '杜牧', content: '远上寒山石径斜，白云深处有人家。停车坐爱枫林晚，霜叶红于二月花。', meaning: '这首诗描写了秋天山中的美景，沿着弯曲的石径上山，白云深处有人家居住，停下车来欣赏枫林晚景，经霜的红叶比二月的花还要红艳。' },
+              { title: '小池', author: '杨万里', content: '泉眼无声惜细流，树阴照水爱晴柔。小荷才露尖尖角，早有蜻蜓立上头。', meaning: '这首诗描写了初夏小池的美景，泉眼悄无声息地流淌着细流，树荫倒映在水中，小荷花刚刚露出尖尖的角，就有蜻蜓停在上面了。' },
+              { title: '村居', author: '高鼎', content: '草长莺飞二月天，拂堤杨柳醉春烟。儿童散学归来早，忙趁东风放纸鸢。', meaning: '这首诗描写了二月春天的乡村景象，草木茂盛，黄莺飞舞，杨柳拂堤，孩子们放学回来得早，趁着东风放风筝。' },
+              { title: '所见', author: '袁枚', content: '牧童骑黄牛，歌声振林樾。意欲捕鸣蝉，忽然闭口立。', meaning: '这首诗描写了一个牧童骑着黄牛，唱着歌，歌声在树林中回荡，突然想要捕捉鸣蝉，立刻停止歌唱，静静地站着的情景。' },
+              { title: '赠汪伦', author: '李白', content: '李白乘舟将欲行，忽闻岸上踏歌声。桃花潭水深千尺，不及汪伦送我情。', meaning: '这首诗表达了诗人对朋友汪伦的深厚友谊，李白乘船要走时，听到岸上汪伦踏歌送别，桃花潭水虽然深达千尺，也比不上汪伦送别的深情。' }
             ],
             idioms: [
+              // 数字成语
               { idiom: '一心一意', pinyin: 'yī xīn yī yì', meaning: '形容做事专心一意，一门心思。' },
-              { idiom: '一心二用', pinyin: 'yī xīn èr yòng', meaning: '形容同时做两件事，注意力分散。' },
+              { idiom: '二话不说', pinyin: 'èr huà bù shuō', meaning: '形容说话干脆，行动果断。' },
               { idiom: '三心二意', pinyin: 'sān xīn èr yì', meaning: '形容意志不坚定，犹豫不决。' },
-              { idiom: '四海为家', pinyin: 'sì hǎi wéi jiā', meaning: '形容到处都可以安家立业。' },
-              { idiom: '五湖四海', pinyin: 'wǔ hú sì hǎi', meaning: '形容全国各地，有时也指世界各地。' },
-              { idiom: '六神无主', pinyin: 'liù shén wú zhǔ', meaning: '形容惊慌着急，没有主意。' },
-              { idiom: '七上八下', pinyin: 'qī shàng bā xià', meaning: '形容心里慌乱不安，或事物零落不齐。' },
-              { idiom: '八仙过海', pinyin: 'bā xiān guò hǎi', meaning: '比喻各自有一套办法，或各自施展本领，互相竞赛。' },
-              { idiom: '九牛一毛', pinyin: 'jiǔ niú yī máo', meaning: '形容极大数量中的极小部分，微不足道。' },
-              { idiom: '十全十美', pinyin: 'shí quán shí měi', meaning: '形容事物完美无缺，各方面都非常好。' },
-              { idiom: '百折不挠', pinyin: 'bǎi zhé bù náo', meaning: '形容意志坚强，无论受到多少挫折都不退缩。' },
-              { idiom: '千方百计', pinyin: 'qiān fāng bǎi jì', meaning: '形容想尽一切办法，费尽心机。' }
+              { idiom: '四面八方', pinyin: 'sì miàn bā fāng', meaning: '形容各个方向，到处都是。' },
+              { idiom: '五颜六色', pinyin: 'wǔ yán liù sè', meaning: '形容颜色繁多，色彩丰富。' },
+              { idiom: '七上八下', pinyin: 'qī shàng bā xià', meaning: '形容心里慌乱不安。' },
+              { idiom: '九牛一毛', pinyin: 'jiǔ niú yī máo', meaning: '形容极小的部分，微不足道。' },
+              { idiom: '十全十美', pinyin: 'shí quán shí měi', meaning: '形容事物完美无缺。' },
+
+              // 动物成语
+              { idiom: '画龙点睛', pinyin: 'huà lóng diǎn jīng', meaning: '比喻在关键地方加上一笔，使作品更加生动。' },
+              { idiom: '守株待兔', pinyin: 'shǒu zhū dài tù', meaning: '比喻不主动努力，只想不劳而获。' },
+              { idiom: '亡羊补牢', pinyin: 'wáng yáng bǔ láo', meaning: '比喻出了问题及时补救，还不算晚。' },
+              { idiom: '狐假虎威', pinyin: 'hú jiǎ hǔ wēi', meaning: '比喻依仗别人的威势欺压人。' },
+              { idiom: '鸡鸣狗盗', pinyin: 'jī míng gǒu dào', meaning: '比喻有一技之长的人。' },
+
+              // 自然成语
+              { idiom: '春暖花开', pinyin: 'chūn nuǎn huā kāi', meaning: '形容春天气候温暖，花朵盛开。' },
+              { idiom: '秋高气爽', pinyin: 'qiū gāo qì shuǎng', meaning: '形容秋天天空高远，气候凉爽。' },
+              { idiom: '风和日丽', pinyin: 'fēng hé rì lì', meaning: '形容天气晴朗温和。' },
+              { idiom: '鸟语花香', pinyin: 'niǎo yǔ huā xiāng', meaning: '形容春天美好的景象。' },
+
+              // 品德成语
+              { idiom: '助人为乐', pinyin: 'zhù rén wéi lè', meaning: '形容乐于帮助别人。' },
+              { idiom: '诚实守信', pinyin: 'chéng shí shǒu xìn', meaning: '形容为人诚实，遵守诺言。' },
+              { idiom: '勤学苦练', pinyin: 'qín xué kǔ liàn', meaning: '形容学习勤奋刻苦。' },
+              { idiom: '团结友爱', pinyin: 'tuán jié yǒu ài', meaning: '形容大家和睦相处，互相关爱。' },
+
+              // 学习成语
+              { idiom: '学而时习', pinyin: 'xué ér shí xí', meaning: '形容经常复习学过的知识。' },
+              { idiom: '温故知新', pinyin: 'wēn gù zhī xīn', meaning: '复习旧知识能够获得新的理解。' },
+              { idiom: '百折不挠', pinyin: 'bǎi zhé bù náo', meaning: '形容意志坚强，不怕困难。' },
+              { idiom: '持之以恒', pinyin: 'chí zhī yǐ héng', meaning: '形容做事有恒心，能够坚持。' }
             ]
           };
           
@@ -1084,18 +1593,59 @@
           const english = {
             alphabet: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),
             words: [
-              { word: 'Apple', emojiCode: '1f34e' },
-              { word: 'Ball', emojiCode: '1f3c0' },
+              // 动物类
               { word: 'Cat', emojiCode: '1f431' },
               { word: 'Dog', emojiCode: '1f436' },
-              { word: 'Elephant', emojiCode: '1f418' },
               { word: 'Fish', emojiCode: '1f41f' },
+              { word: 'Bird', emojiCode: '1f426' },
+              { word: 'Rabbit', emojiCode: '1f430' },
+              { word: 'Bear', emojiCode: '1f43b' },
+              { word: 'Lion', emojiCode: '1f981' },
+              { word: 'Tiger', emojiCode: '1f405' },
+              { word: 'Elephant', emojiCode: '1f418' },
               { word: 'Giraffe', emojiCode: '1f992' },
-              { word: 'House', emojiCode: '1f3e0' },
+              { word: 'Monkey', emojiCode: '1f412' },
+              { word: 'Pig', emojiCode: '1f437' },
+
+              // 食物类
+              { word: 'Apple', emojiCode: '1f34e' },
+              { word: 'Banana', emojiCode: '1f34c' },
+              { word: 'Orange', emojiCode: '1f34a' },
+              { word: 'Cake', emojiCode: '1f370' },
+              { word: 'Bread', emojiCode: '1f35e' },
+              { word: 'Milk', emojiCode: '1f95b' },
+              { word: 'Egg', emojiCode: '1f95a' },
               { word: 'Ice cream', emojiCode: '1f368' },
-              { word: 'Juice', emojiCode: '1f9c3' },
-              { word: 'Kite', emojiCode: '1fa81' },
-              { word: 'Lion', emojiCode: '1f981' }
+              { word: 'Cookie', emojiCode: '1f36a' },
+
+              // 颜色类
+              { word: 'Red', emojiCode: '1f534' },
+              { word: 'Blue', emojiCode: '1f535' },
+              { word: 'Yellow', emojiCode: '1f7e1' },
+              { word: 'Green', emojiCode: '1f7e2' },
+
+              // 身体部位
+              { word: 'Eye', emojiCode: '1f441' },
+              { word: 'Hand', emojiCode: '270b' },
+              { word: 'Foot', emojiCode: '1f9b6' },
+
+              // 家庭成员
+              { word: 'Mom', emojiCode: '1f469' },
+              { word: 'Dad', emojiCode: '1f468' },
+              { word: 'Baby', emojiCode: '1f476' },
+
+              // 物品类
+              { word: 'Ball', emojiCode: '1f3c0' },
+              { word: 'Book', emojiCode: '1f4d6' },
+              { word: 'Car', emojiCode: '1f697' },
+              { word: 'House', emojiCode: '1f3e0' },
+              { word: 'Tree', emojiCode: '1f333' },
+              { word: 'Flower', emojiCode: '1f33c' },
+              { word: 'Sun', emojiCode: '2600' },
+              { word: 'Moon', emojiCode: '1f319' },
+              { word: 'Star', emojiCode: '2b50' },
+              { word: 'Water', emojiCode: '1f4a7' },
+              { word: 'Fire', emojiCode: '1f525' }
             ]
           };
           
@@ -1114,14 +1664,32 @@
             b: 0,
             options: []
           });
-          
+
+          // 减法练习题目
+          const subtractionQuestion = reactive({
+            a: 0,
+            b: 0,
+            options: []
+          });
+
+          // 识字测试题目
+          const characterQuestion = reactive({
+            char: '',
+            pinyin: '',
+            options: []
+          });
+
           // 用户选择的答案
           const selectedCountingAnswer = ref(null);
           const selectedAdditionAnswer = ref(null);
-          
+          const selectedSubtractionAnswer = ref(null);
+          const selectedCharacterAnswer = ref(null);
+
           // 答题结果
           const countingResult = ref(null);
           const additionResult = ref(null);
+          const subtractionResult = ref(null);
+          const characterResult = ref(null);
 
           // 历史记录展开状态
           const historyExpanded = ref(false);
@@ -1142,6 +1710,38 @@
 
           // 加法练习累计统计数据
           const allTimeStats = reactive({
+            totalQuestions: 0,
+            correctAnswers: 0,
+            wrongAnswers: 0,
+            accuracy: 0
+          });
+
+          // 减法练习历史记录和统计数据
+          const subtractionHistory = reactive({});
+          const subtractionTodayHistory = reactive({});
+          const subtractionStats = reactive({
+            totalQuestions: 0,
+            correctAnswers: 0,
+            wrongAnswers: 0,
+            accuracy: 0
+          });
+          const subtractionAllTimeStats = reactive({
+            totalQuestions: 0,
+            correctAnswers: 0,
+            wrongAnswers: 0,
+            accuracy: 0
+          });
+
+          // 识字测试历史记录和统计数据
+          const characterHistory = reactive({});
+          const characterTodayHistory = reactive({});
+          const characterStats = reactive({
+            totalQuestions: 0,
+            correctAnswers: 0,
+            wrongAnswers: 0,
+            accuracy: 0
+          });
+          const characterAllTimeStats = reactive({
             totalQuestions: 0,
             correctAnswers: 0,
             wrongAnswers: 0,
@@ -1219,18 +1819,21 @@
           const selectSubject = (subjectKey, updateUrl = true) => {
             currentSubject.value = subjects[subjectKey];
             currentPage.value = 'subject';
-            
+
             // 初始化题目
             if (subjectKey === 'math') {
               generateCountingQuestion();
               generateAdditionQuestion();
+              generateSubtractionQuestion();
+            } else if (subjectKey === 'chinese') {
+              generateCharacterQuestion();
             }
-            
+
             // 更新URL参数
             if (updateUrl) {
               const url = new new URL(window.location);
               url.searchParams.set('subject', subjectKey);
-              
+
               // 设置默认标签页
               let defaultTab = '';
               switch(subjectKey) {
@@ -1244,7 +1847,7 @@
                   defaultTab = activeEnglishTab.value;
                   break;
               }
-              
+
               url.searchParams.set('tab', defaultTab);
               window.history.replaceState({}, '', url);
             }
@@ -1287,7 +1890,7 @@
             additionQuestion.b = Math.floor(Math.random() * (10 - additionQuestion.a)) + 1; // 确保和不超过10
             const correctAnswer = additionQuestion.a + additionQuestion.b;
             const options = new Set([correctAnswer]);
-            
+
             // 生成3个错误选项
             while (options.size < 4) {
               const wrong = correctAnswer + Math.floor(Math.random() * 5) - 2;
@@ -1295,10 +1898,66 @@
                 options.add(wrong);
               }
             }
-            
+
             additionQuestion.options = Array.from(options).sort(() => Math.random() - 0.5);
             selectedAdditionAnswer.value = null;
             additionResult.value = null;
+          };
+
+          // 生成减法题目
+          const generateSubtractionQuestion = () => {
+            subtractionQuestion.a = Math.floor(Math.random() * 10) + 1; // 1-10
+            subtractionQuestion.b = Math.floor(Math.random() * subtractionQuestion.a); // 0到a-1，确保结果不小于0
+            const correctAnswer = subtractionQuestion.a - subtractionQuestion.b;
+            const options = new Set([correctAnswer]);
+
+            // 生成3个错误选项
+            let attempts = 0;
+            while (options.size < 4 && attempts < 50) {
+              const wrong = Math.floor(Math.random() * 11); // 0-10的随机数
+              if (wrong !== correctAnswer) {
+                options.add(wrong);
+              }
+              attempts++;
+            }
+
+            // 如果仍然没有足够的选项，添加一些固定的选项
+            if (options.size < 4) {
+              for (let i = 0; i <= 10; i++) {
+                if (i !== correctAnswer && options.size < 4) {
+                  options.add(i);
+                }
+              }
+            }
+
+            subtractionQuestion.options = Array.from(options).sort(() => Math.random() - 0.5);
+            selectedSubtractionAnswer.value = null;
+            subtractionResult.value = null;
+          };
+
+          // 生成识字测试题目
+          const generateCharacterQuestion = () => {
+            const characters = chinese.characters;
+            const randomIndex = Math.floor(Math.random() * characters.length);
+            const selectedChar = characters[randomIndex];
+
+            characterQuestion.char = selectedChar.char;
+            characterQuestion.pinyin = selectedChar.pinyin;
+
+            const options = new Set([selectedChar.pinyin]);
+
+            // 生成3个错误选项
+            while (options.size < 4) {
+              const wrongIndex = Math.floor(Math.random() * characters.length);
+              const wrongPinyin = characters[wrongIndex].pinyin;
+              if (wrongPinyin !== selectedChar.pinyin) {
+                options.add(wrongPinyin);
+              }
+            }
+
+            characterQuestion.options = Array.from(options).sort(() => Math.random() - 0.5);
+            selectedCharacterAnswer.value = null;
+            characterResult.value = null;
           };
           
           // 选择答案并立即提交
@@ -1323,23 +1982,63 @@
               nextAdditionQuestion();
             }, 1500);
           };
+
+          const selectSubtractionAnswer = (answer) => {
+            selectedSubtractionAnswer.value = answer;
+            // 自动检查答案
+            checkSubtractionAnswer();
+            // 记录答题历史
+            recordSubtractionAnswer(answer);
+            // 1.5秒后自动进入下一题
+            setTimeout(() => {
+              nextSubtractionQuestion();
+            }, 1500);
+          };
+
+          const selectCharacterAnswer = (answer) => {
+            selectedCharacterAnswer.value = answer;
+            // 自动检查答案
+            checkCharacterAnswer();
+            // 记录答题历史
+            recordCharacterAnswer(answer);
+            // 1.5秒后自动进入下一题
+            setTimeout(() => {
+              nextCharacterQuestion();
+            }, 1500);
+          };
           
           // 检查答案
           const checkCountingAnswer = () => {
             countingResult.value = selectedCountingAnswer.value === countingQuestion.count;
           };
-          
+
           const checkAdditionAnswer = () => {
             additionResult.value = selectedAdditionAnswer.value === (additionQuestion.a + additionQuestion.b);
+          };
+
+          const checkSubtractionAnswer = () => {
+            subtractionResult.value = selectedSubtractionAnswer.value === (subtractionQuestion.a - subtractionQuestion.b);
+          };
+
+          const checkCharacterAnswer = () => {
+            characterResult.value = selectedCharacterAnswer.value === characterQuestion.pinyin;
           };
           
           // 下一题
           const nextCountingQuestion = () => {
             generateCountingQuestion();
           };
-          
+
           const nextAdditionQuestion = () => {
             generateAdditionQuestion();
+          };
+
+          const nextSubtractionQuestion = () => {
+            generateSubtractionQuestion();
+          };
+
+          const nextCharacterQuestion = () => {
+            generateCharacterQuestion();
           };
           
           // 通用的练习答题记录方法
@@ -1352,11 +2051,14 @@
                 history = additionHistory;
                 saveFunction = saveAdditionHistory;
                 break;
-              // 未来可以添加其他练习类型
-              // case 'subtraction':
-              //   history = subtractionHistory;
-              //   saveFunction = saveSubtractionHistory;
-              //   break;
+              case 'subtraction':
+                history = subtractionHistory;
+                saveFunction = saveSubtractionHistory;
+                break;
+              case 'character':
+                history = characterHistory;
+                saveFunction = saveCharacterHistory;
+                break;
               default:
                 console.warn(`未知的练习类型: ${practiceType}`);
                 return;
@@ -1385,23 +2087,50 @@
             // 保存到localStorage
             saveFunction();
 
-            // 重新计算今日统计（仅对加法练习）
-            if (practiceType === 'addition') {
-              calculateTodayStats();
+            // 重新计算今日统计
+            switch(practiceType) {
+              case 'addition':
+                calculateTodayStats();
+                break;
+              case 'subtraction':
+                calculateSubtractionStats();
+                break;
+              case 'character':
+                calculateCharacterStats();
+                break;
             }
           };
 
-          // 加法练习专用的记录方法（保持向后兼容）
+          // 专用的记录方法
           const recordAdditionAnswer = (answer) => {
             const question = `${additionQuestion.a} + ${additionQuestion.b}`;
             const correctAnswer = additionQuestion.a + additionQuestion.b;
             recordPracticeAnswer('addition', question, answer, correctAnswer);
           };
 
+          const recordSubtractionAnswer = (answer) => {
+            const question = `${subtractionQuestion.a} - ${subtractionQuestion.b}`;
+            const correctAnswer = subtractionQuestion.a - subtractionQuestion.b;
+            recordPracticeAnswer('subtraction', question, answer, correctAnswer);
+          };
+
+          const recordCharacterAnswer = (answer) => {
+            const question = `${characterQuestion.char} - ${characterQuestion.pinyin}`;
+            const correctAnswer = characterQuestion.pinyin;
+            recordPracticeAnswer('character', question, answer, correctAnswer);
+          };
+
           // 保存历史记录到localStorage
           const saveAdditionHistory = () => {
             localStorage.setItem('additionHistory', JSON.stringify(additionHistory));
-            // 注意：不再保存统计数据，因为统计数据现在是基于今日动态计算的
+          };
+
+          const saveSubtractionHistory = () => {
+            localStorage.setItem('subtractionHistory', JSON.stringify(subtractionHistory));
+          };
+
+          const saveCharacterHistory = () => {
+            localStorage.setItem('characterHistory', JSON.stringify(characterHistory));
           };
 
           // 从localStorage加载历史记录
@@ -1422,6 +2151,30 @@
             calculateTodayStats();
           };
 
+          const loadSubtractionHistory = () => {
+            const savedHistory = localStorage.getItem('subtractionHistory');
+
+            if (savedHistory) {
+              const parsedHistory = JSON.parse(savedHistory);
+              Object.assign(subtractionHistory, parsedHistory);
+            }
+
+            // 加载完成后计算统计
+            calculateSubtractionStats();
+          };
+
+          const loadCharacterHistory = () => {
+            const savedHistory = localStorage.getItem('characterHistory');
+
+            if (savedHistory) {
+              const parsedHistory = JSON.parse(savedHistory);
+              Object.assign(characterHistory, parsedHistory);
+            }
+
+            // 加载完成后计算统计
+            calculateCharacterStats();
+          };
+
           // 切换历史记录展开状态
           const toggleHistoryExpanded = () => {
             historyExpanded.value = !historyExpanded.value;
@@ -1430,20 +2183,48 @@
           };
 
           // 重置今日统计（清除今日的答题记录）
-          const resetTodayStats = () => {
-            if (confirm('确定要重置今日练习统计吗？这将清除今天的所有答题记录，但保留历史记录。')) {
+          const resetTodayStats = (practiceType = 'addition') => {
+            const practiceNames = {
+              'addition': '加法练习',
+              'subtraction': '减法练习',
+              'character': '识字测试'
+            };
+
+            const practiceName = practiceNames[practiceType] || '练习';
+
+            if (confirm(`确定要重置今日${practiceName}统计吗？这将清除今天的所有答题记录，但保留历史记录。`)) {
+              let history, saveFunction, calculateFunction;
+
+              switch(practiceType) {
+                case 'addition':
+                  history = additionHistory;
+                  saveFunction = saveAdditionHistory;
+                  calculateFunction = calculateTodayStats;
+                  break;
+                case 'subtraction':
+                  history = subtractionHistory;
+                  saveFunction = saveSubtractionHistory;
+                  calculateFunction = calculateSubtractionStats;
+                  break;
+                case 'character':
+                  history = characterHistory;
+                  saveFunction = saveCharacterHistory;
+                  calculateFunction = calculateCharacterStats;
+                  break;
+                default:
+                  return;
+              }
+
               // 遍历历史记录，清除今日的答题次数
-              Object.entries(additionHistory).forEach(([question, record]) => {
+              Object.entries(history).forEach(([question, record]) => {
                 if (isToday(record.lastTime)) {
-                  // 如果这道题只在今天答过，则完全删除
-                  // 否则保留题目但清零今日的答题次数（这里简化处理，直接删除今日记录）
-                  delete additionHistory[question];
+                  delete history[question];
                 }
               });
 
               // 保存更改并重新计算统计
-              saveAdditionHistory();
-              calculateTodayStats();
+              saveFunction();
+              calculateFunction();
             }
           };
 
@@ -1452,7 +2233,7 @@
             const practiceNames = {
               'addition': '加法练习',
               'subtraction': '减法练习',
-              'counting': '数数练习'
+              'character': '识字测试'
             };
 
             const practiceName = practiceNames[practiceType] || '练习';
@@ -1472,13 +2253,32 @@
                   allTimeStats.accuracy = 0;
                   saveAdditionHistory();
                   break;
-                // 未来可以添加其他练习类型的清空逻辑
-                // case 'subtraction':
-                //   clearSubtractionHistory();
-                //   break;
-                // case 'counting':
-                //   clearCountingHistory();
-                //   break;
+                case 'subtraction':
+                  Object.keys(subtractionHistory).forEach(key => delete subtractionHistory[key]);
+                  Object.keys(subtractionTodayHistory).forEach(key => delete subtractionTodayHistory[key]);
+                  subtractionStats.totalQuestions = 0;
+                  subtractionStats.correctAnswers = 0;
+                  subtractionStats.wrongAnswers = 0;
+                  subtractionStats.accuracy = 0;
+                  subtractionAllTimeStats.totalQuestions = 0;
+                  subtractionAllTimeStats.correctAnswers = 0;
+                  subtractionAllTimeStats.wrongAnswers = 0;
+                  subtractionAllTimeStats.accuracy = 0;
+                  saveSubtractionHistory();
+                  break;
+                case 'character':
+                  Object.keys(characterHistory).forEach(key => delete characterHistory[key]);
+                  Object.keys(characterTodayHistory).forEach(key => delete characterTodayHistory[key]);
+                  characterStats.totalQuestions = 0;
+                  characterStats.correctAnswers = 0;
+                  characterStats.wrongAnswers = 0;
+                  characterStats.accuracy = 0;
+                  characterAllTimeStats.totalQuestions = 0;
+                  characterAllTimeStats.correctAnswers = 0;
+                  characterAllTimeStats.wrongAnswers = 0;
+                  characterAllTimeStats.accuracy = 0;
+                  saveCharacterHistory();
+                  break;
               }
             }
           };
@@ -1582,6 +2382,68 @@
               : 0;
           };
 
+          // 计算减法练习统计数据
+          const calculateSubtractionStats = () => {
+            let todayCorrect = 0, todayWrong = 0, todayTotal = 0;
+            let allTimeCorrect = 0, allTimeWrong = 0, allTimeTotal = 0;
+
+            Object.keys(subtractionTodayHistory).forEach(key => delete subtractionTodayHistory[key]);
+
+            Object.entries(subtractionHistory).forEach(([question, record]) => {
+              allTimeCorrect += record.correct;
+              allTimeWrong += record.wrong;
+              allTimeTotal += record.correct + record.wrong;
+
+              if (isToday(record.lastTime)) {
+                subtractionTodayHistory[question] = { ...record };
+                todayCorrect += record.correct;
+                todayWrong += record.wrong;
+                todayTotal += record.correct + record.wrong;
+              }
+            });
+
+            subtractionStats.totalQuestions = todayTotal;
+            subtractionStats.correctAnswers = todayCorrect;
+            subtractionStats.wrongAnswers = todayWrong;
+            subtractionStats.accuracy = todayTotal > 0 ? Math.round((todayCorrect / todayTotal) * 100) : 0;
+
+            subtractionAllTimeStats.totalQuestions = allTimeTotal;
+            subtractionAllTimeStats.correctAnswers = allTimeCorrect;
+            subtractionAllTimeStats.wrongAnswers = allTimeWrong;
+            subtractionAllTimeStats.accuracy = allTimeTotal > 0 ? Math.round((allTimeCorrect / allTimeTotal) * 100) : 0;
+          };
+
+          // 计算识字测试统计数据
+          const calculateCharacterStats = () => {
+            let todayCorrect = 0, todayWrong = 0, todayTotal = 0;
+            let allTimeCorrect = 0, allTimeWrong = 0, allTimeTotal = 0;
+
+            Object.keys(characterTodayHistory).forEach(key => delete characterTodayHistory[key]);
+
+            Object.entries(characterHistory).forEach(([question, record]) => {
+              allTimeCorrect += record.correct;
+              allTimeWrong += record.wrong;
+              allTimeTotal += record.correct + record.wrong;
+
+              if (isToday(record.lastTime)) {
+                characterTodayHistory[question] = { ...record };
+                todayCorrect += record.correct;
+                todayWrong += record.wrong;
+                todayTotal += record.correct + record.wrong;
+              }
+            });
+
+            characterStats.totalQuestions = todayTotal;
+            characterStats.correctAnswers = todayCorrect;
+            characterStats.wrongAnswers = todayWrong;
+            characterStats.accuracy = todayTotal > 0 ? Math.round((todayCorrect / todayTotal) * 100) : 0;
+
+            characterAllTimeStats.totalQuestions = allTimeTotal;
+            characterAllTimeStats.correctAnswers = allTimeCorrect;
+            characterAllTimeStats.wrongAnswers = allTimeWrong;
+            characterAllTimeStats.accuracy = allTimeTotal > 0 ? Math.round((allTimeCorrect / allTimeTotal) * 100) : 0;
+          };
+
           // 语音播放功能（简化版）
           const speak = (text) => {
             console.log("播放语音: " + text);
@@ -1616,10 +2478,36 @@
             }, {});
           });
 
+          const sortedSubtractionHistory = computed(() => {
+            const entries = Object.entries(subtractionHistory);
+            return entries.sort((a, b) => {
+              const timeA = new Date(a[1].lastTime || 0);
+              const timeB = new Date(b[1].lastTime || 0);
+              return timeB - timeA;
+            }).reduce((obj, [key, value]) => {
+              obj[key] = value;
+              return obj;
+            }, {});
+          });
+
+          const sortedCharacterHistory = computed(() => {
+            const entries = Object.entries(characterHistory);
+            return entries.sort((a, b) => {
+              const timeA = new Date(a[1].lastTime || 0);
+              const timeB = new Date(b[1].lastTime || 0);
+              return timeB - timeA;
+            }).reduce((obj, [key, value]) => {
+              obj[key] = value;
+              return obj;
+            }, {});
+          });
+
           // 组件挂载时恢复状态
           onMounted(() => {
             restoreTabState();
-            loadAdditionHistory(); // 加载历史记录
+            loadAdditionHistory(); // 加载加法练习历史记录
+            loadSubtractionHistory(); // 加载减法练习历史记录
+            loadCharacterHistory(); // 加载识字测试历史记录
 
             // 从URL参数恢复状态
             const urlParams = new URLSearchParams(window.location.search);
@@ -1648,31 +2536,57 @@
             chineseNumbers,
             countingQuestion,
             additionQuestion,
+            subtractionQuestion,
+            characterQuestion,
             selectedCountingAnswer,
             selectedAdditionAnswer,
+            selectedSubtractionAnswer,
+            selectedCharacterAnswer,
             countingResult,
             additionResult,
+            subtractionResult,
+            characterResult,
             historyExpanded,
             additionHistory,
             additionTodayHistory,
             additionStats,
             allTimeStats,
+            subtractionHistory,
+            subtractionTodayHistory,
+            subtractionStats,
+            subtractionAllTimeStats,
+            characterHistory,
+            characterTodayHistory,
+            characterStats,
+            characterAllTimeStats,
             sortedAdditionHistory,
+            sortedSubtractionHistory,
+            sortedCharacterHistory,
             selectSubject,
             goHome,
             generateCountingQuestion,
             generateAdditionQuestion,
+            generateSubtractionQuestion,
+            generateCharacterQuestion,
             selectCountingAnswer,
             selectAdditionAnswer,
+            selectSubtractionAnswer,
+            selectCharacterAnswer,
             checkCountingAnswer,
             checkAdditionAnswer,
+            checkSubtractionAnswer,
+            checkCharacterAnswer,
             nextCountingQuestion,
             nextAdditionQuestion,
+            nextSubtractionQuestion,
+            nextCharacterQuestion,
             setActiveTab,
             speak,
             getEmojiImageUrl,
             handleImageError,
             recordAdditionAnswer,
+            recordSubtractionAnswer,
+            recordCharacterAnswer,
             recordPracticeAnswer,
             toggleHistoryExpanded,
             resetTodayStats,
@@ -1680,7 +2594,9 @@
             getAccuracyBadgeClass,
             formatTime,
             getCurrentDateString,
-            calculateTodayStats
+            calculateTodayStats,
+            calculateSubtractionStats,
+            calculateCharacterStats
           };
         }
       }).mount('#app');
