@@ -825,6 +825,26 @@
             
             // 保存标签页状态到localStorage
             localStorage.setItem(`activeTab_${subject}`, tab);
+            
+            // 更新URL参数
+            if (currentSubject.value) {
+              const url = new URL(window.location);
+              url.searchParams.set('subject', currentSubject.value.key);
+              
+              switch(currentSubject.value.key) {
+                case 'chinese':
+                  url.searchParams.set('tab', activeChineseTab.value);
+                  break;
+                case 'math':
+                  url.searchParams.set('tab', activeMathTab.value);
+                  break;
+                case 'english':
+                  url.searchParams.set('tab', activeEnglishTab.value);
+                  break;
+              }
+              
+              window.history.replaceState({}, '', url);
+            }
           };
           
           // 从localStorage恢复标签页状态
@@ -839,7 +859,7 @@
           };
           
           // 选择学科
-          const selectSubject = (subjectKey) => {
+          const selectSubject = (subjectKey, updateUrl = true) => {
             currentSubject.value = subjects[subjectKey];
             currentPage.value = 'subject';
             
@@ -848,12 +868,41 @@
               generateCountingQuestion();
               generateAdditionQuestion();
             }
+            
+            // 更新URL参数
+            if (updateUrl) {
+              const url = new URL(window.location);
+              url.searchParams.set('subject', subjectKey);
+              
+              // 设置默认标签页
+              let defaultTab = '';
+              switch(subjectKey) {
+                case 'chinese':
+                  defaultTab = activeChineseTab.value;
+                  break;
+                case 'math':
+                  defaultTab = activeMathTab.value;
+                  break;
+                case 'english':
+                  defaultTab = activeEnglishTab.value;
+                  break;
+              }
+              
+              url.searchParams.set('tab', defaultTab);
+              window.history.replaceState({}, '', url);
+            }
           };
           
           // 返回主页
           const goHome = () => {
             currentPage.value = 'home';
             currentSubject.value = null;
+            
+            // 清理URL参数
+            const url = new URL(window.location);
+            url.searchParams.delete('subject');
+            url.searchParams.delete('tab');
+            window.history.replaceState({}, '', url);
           };
           
           // 生成数数题目
@@ -958,6 +1007,21 @@
           // 组件挂载时恢复状态
           onMounted(() => {
             restoreTabState();
+            
+            // 从URL参数恢复状态
+            const urlParams = new URLSearchParams(window.location.search);
+            const subjectParam = urlParams.get('subject');
+            const tabParam = urlParams.get('tab');
+            
+            if (subjectParam && subjects[subjectParam]) {
+              selectSubject(subjectParam, false); // 不更新URL，因为我们正在从URL恢复
+              
+              if (tabParam) {
+                setTimeout(() => {
+                  setActiveTab(subjectParam, tabParam);
+                }, 0);
+              }
+            }
           });
           
           return {
