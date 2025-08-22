@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>幼儿园大班学习乐园</title>
-  <link rel="stylesheet" href="assets/css/bootstrap-custom.min.css">
+  <link rel="stylesheet" href="assets/css/bootstrap.min.css">
   <link rel="stylesheet" href="assets/css/bootstrap-icons.min.css">
   <style>
     body {
@@ -168,6 +168,31 @@
     .fade-in {
       animation: fadeIn 0.5s ease-in;
     }
+    
+    .result-icon {
+      font-size: 5rem;
+      margin: 20px 0;
+    }
+    
+    .question-option {
+      border: 2px solid #dee2e6;
+      border-radius: 10px;
+      padding: 15px;
+      margin: 10px 0;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .question-option:hover {
+      border-color: #4facfe;
+      background-color: #f8f9fa;
+    }
+    
+    .question-option.selected {
+      border-color: #4facfe;
+      background-color: #e6f7ff;
+      box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.2);
+    }
   </style>
 </head>
 <body>
@@ -329,8 +354,8 @@
                   
                   <div class="options mt-4">
                     <div v-for="option in countingQuestion.options" :key="option" 
-                         class="question-option d-inline-block mx-2 btn btn-outline-primary" 
-                         :class="{ active: selectedCountingAnswer === option }"
+                         class="question-option d-inline-block mx-2" 
+                         :class="{ selected: selectedCountingAnswer === option }"
                          @click="selectCountingAnswer(option)">
                       {{ option }}
                     </div>
@@ -338,11 +363,11 @@
                   
                   <div class="mt-3" v-if="countingResult !== null">
                     <div v-if="countingResult" class="text-success">
-                      <i class="bi bi-check-circle-fill result-icon" style="font-size: 5rem;"></i>
+                      <i class="bi bi-check-circle-fill result-icon"></i>
                       <h4>答对了！真棒！</h4>
                     </div>
                     <div v-else class="text-danger">
-                      <i class="bi bi-x-circle-fill result-icon" style="font-size: 5rem;"></i>
+                      <i class="bi bi-x-circle-fill result-icon"></i>
                       <h4>再试试看哦！</h4>
                     </div>
                   </div>
@@ -358,8 +383,8 @@
                   
                   <div class="options mt-4">
                     <div v-for="option in additionQuestion.options" :key="option" 
-                         class="question-option d-inline-block mx-2 btn btn-outline-primary" 
-                         :class="{ active: selectedAdditionAnswer === option }"
+                         class="question-option d-inline-block mx-2" 
+                         :class="{ selected: selectedAdditionAnswer === option }"
                          @click="selectAdditionAnswer(option)">
                       {{ option }}
                     </div>
@@ -367,11 +392,11 @@
                   
                   <div class="mt-3" v-if="additionResult !== null">
                     <div v-if="additionResult" class="text-success">
-                      <i class="bi bi-check-circle-fill result-icon" style="font-size: 5rem;"></i>
+                      <i class="bi bi-check-circle-fill result-icon"></i>
                       <h4>答对了！真棒！</h4>
                     </div>
                     <div v-else class="text-danger">
-                      <i class="bi bi-x-circle-fill result-icon" style="font-size: 5rem;"></i>
+                      <i class="bi bi-x-circle-fill result-icon"></i>
                       <h4>再试试看哦！</h4>
                     </div>
                   </div>
