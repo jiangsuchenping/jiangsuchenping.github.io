@@ -5,11 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>幼儿园大班学习乐园</title>
   
-  <!-- 直接使用可靠的CDN源 -->
+  <!-- 智能资源管理器 -->
+  <script src="assets/js/smart-resource-manager.js"></script>
+  <script src="assets/js/cdn-manager.js"></script>
+  
+  <!-- Bootstrap CSS 备用方案 -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.min.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/vue@3.3.4/dist/vue.global.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   
   <style>
     body {
@@ -635,307 +637,362 @@
   </div>
 
   <script>
-    // 简化的Vue应用初始化
-    const { createApp, ref, reactive, onMounted } = Vue;
-    
-    createApp({
-      setup() {
-        // 页面状态
-        const currentPage = ref('home');
-        const currentSubject = ref(null);
+    // 页面加载时使用智能资源管理器加载资源
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('页面加载完成，开始智能加载资源...');
+      
+      if (window.smartResourceManager) {
+        // 使用智能资源管理器重新加载CSS（会覆盖备用方案）
+        setTimeout(() => {
+          window.smartResourceManager.loadCSS('bootstrap-css');
+          window.smartResourceManager.loadCSS('bootstrap-icons');
+        }, 100);
         
-        // 标签页状态
-        const activeChineseTab = ref('pinyin');
-        const activeMathTab = ref('numbers');
-        const activeEnglishTab = ref('alphabet');
+        // 使用智能资源管理器加载JS
+        window.smartResourceManager.loadJS('vue-js');
+        window.smartResourceManager.loadJS('bootstrap-js');
         
-        // 学科数据
-        const subjects = {
-          chinese: {
-            key: 'chinese',
-            title: '语文学习',
-            icon: 'book'
-          },
-          math: {
-            key: 'math',
-            title: '数学学习',
-            icon: 'calculator'
-          },
-          english: {
-            key: 'english',
-            title: '英语学习',
-            icon: 'globe'
+        // 等待Vue.js加载完成后初始化应用
+        const checkVueLoaded = setInterval(() => {
+          if (window.Vue) {
+            clearInterval(checkVueLoaded);
+            console.log('Vue.js加载完成，初始化应用...');
+            initializeApp();
           }
-        };
+        }, 100);
+      } else {
+        console.warn('智能资源管理器未找到，使用备用方案...');
+        // 备用方案 - 直接加载JS
+        const fallbackJS = [
+          'https://cdn.jsdelivr.net/npm/vue@3.3.4/dist/vue.global.min.js',
+          'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js'
+        ];
         
-        // 语文内容
-        const chinese = {
-          initials: ['b', 'p', 'm', 'f', 'd', 't', 'n', 'l', 'g', 'k', 'h', 'j', 'q', 'x', 'zh', 'ch', 'sh', 'r', 'z', 'c', 's', 'y', 'w'],
-          finals: ['a', 'o', 'e', 'i', 'u', 'ü', 'ai', 'ei', 'ui', 'ao', 'ou', 'iu', 'ie', 'üe', 'er', 'an', 'en', 'in', 'un', 'ün', 'ang', 'eng', 'ing', 'ong'],
-          characters: [
-            { char: '一', pinyin: 'yī' },
-            { char: '二', pinyin: 'èr' },
-            { char: '三', pinyin: 'sān' },
-            { char: '四', pinyin: 'sì' },
-            { char: '五', pinyin: 'wǔ' },
-            { char: '六', pinyin: 'liù' },
-            { char: '七', pinyin: 'qī' },
-            { char: '八', pinyin: 'bā' },
-            { char: '九', pinyin: 'jiǔ' },
-            { char: '十', pinyin: 'shí' },
-            { char: '人', pinyin: 'rén' },
-            { char: '口', pinyin: 'kǒu' },
-            { char: '手', pinyin: 'shǒu' },
-            { char: '水', pinyin: 'shuǐ' },
-            { char: '火', pinyin: 'huǒ' },
-            { char: '山', pinyin: 'shān' },
-            { char: '石', pinyin: 'shí' },
-            { char: '田', pinyin: 'tián' },
-            { char: '土', pinyin: 'tǔ' },
-            { char: '木', pinyin: 'mù' }
-          ],
-          words: [
-            { word: '太阳', pinyin: 'tài yáng' },
-            { word: '月亮', pinyin: 'yuè liàng' },
-            { word: '星星', pinyin: 'xīng xīng' },
-            { word: '花朵', pinyin: 'huā duǒ' },
-            { word: '草地', pinyin: 'cǎo dì' },
-            { word: '大树', pinyin: 'dà shù' },
-            { word: '小鸟', pinyin: 'xiǎo niǎo' },
-            { word: '小鱼', pinyin: 'xiǎo yú' },
-            { word: '妈妈', pinyin: 'mā ma' },
-            { word: '爸爸', pinyin: 'bà ba' },
-            { word: '老师', pinyin: 'lǎo shī' },
-            { word: '学校', pinyin: 'xué xiào' }
-          ]
-        };
-        
-        // 英语内容
-        const english = {
-          alphabet: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),
-          words: [
-            { word: 'Apple', emojiCode: '1f34e' },
-            { word: 'Ball', emojiCode: '1f3c0' },
-            { word: 'Cat', emojiCode: '1f431' },
-            { word: 'Dog', emojiCode: '1f436' },
-            { word: 'Elephant', emojiCode: '1f418' },
-            { word: 'Fish', emojiCode: '1f41f' },
-            { word: 'Giraffe', emojiCode: '1f992' },
-            { word: 'House', emojiCode: '1f3e0' },
-            { word: 'Ice cream', emojiCode: '1f368' },
-            { word: 'Juice', emojiCode: '1f9c3' },
-            { word: 'Kite', emojiCode: '1fa81' },
-            { word: 'Lion', emojiCode: '1f981' }
-          ]
-        };
-        
-        // 数学内容
-        const chineseNumbers = ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十', '十一', '十二', '十三', '十四', '十五', '十六', '十七', '十八', '十九', '二十'];
-        
-        // 数数练习题目
-        const countingQuestion = reactive({
-          count: 0,
-          options: []
-        });
-        
-        // 加法练习题目
-        const additionQuestion = reactive({
-          a: 0,
-          b: 0,
-          options: []
-        });
-        
-        // 用户选择的答案
-        const selectedCountingAnswer = ref(null);
-        const selectedAdditionAnswer = ref(null);
-        
-        // 答题结果
-        const countingResult = ref(null);
-        const additionResult = ref(null);
-        
-        // 设置活动标签页
-        const setActiveTab = (subject, tab) => {
-          switch(subject) {
-            case 'chinese':
-              activeChineseTab.value = tab;
-              break;
-            case 'math':
-              activeMathTab.value = tab;
-              break;
-            case 'english':
-              activeEnglishTab.value = tab;
-              break;
-          }
-          
-          // 保存标签页状态到localStorage
-          localStorage.setItem(`activeTab_${subject}`, tab);
-        };
-        
-        // 从localStorage恢复标签页状态
-        const restoreTabState = () => {
-          const chineseTab = localStorage.getItem('activeTab_chinese');
-          const mathTab = localStorage.getItem('activeTab_math');
-          const englishTab = localStorage.getItem('activeTab_english');
-          
-          if (chineseTab) activeChineseTab.value = chineseTab;
-          if (mathTab) activeMathTab.value = mathTab;
-          if (englishTab) activeEnglishTab.value = englishTab;
-        };
-        
-        // 选择学科
-        const selectSubject = (subjectKey) => {
-          currentSubject.value = subjects[subjectKey];
-          currentPage.value = 'subject';
-          
-          // 初始化题目
-          if (subjectKey === 'math') {
-            generateCountingQuestion();
-            generateAdditionQuestion();
-          }
-        };
-        
-        // 返回主页
-        const goHome = () => {
-          currentPage.value = 'home';
-          currentSubject.value = null;
-        };
-        
-        // 生成数数题目
-        const generateCountingQuestion = () => {
-          countingQuestion.count = Math.floor(Math.random() * 10) + 1; // 1-10
-          const correctAnswer = countingQuestion.count;
-          const options = new Set([correctAnswer]);
-          
-          // 生成3个错误选项
-          while (options.size < 4) {
-            const wrong = correctAnswer + Math.floor(Math.random() * 5) - 2;
-            if (wrong > 0 && wrong <= 12 && wrong !== correctAnswer) {
-              options.add(wrong);
+        let loadedCount = 0;
+        fallbackJS.forEach(src => {
+          const script = document.createElement('script');
+          script.src = src;
+          script.onload = () => {
+            loadedCount++;
+            if (loadedCount === fallbackJS.length) {
+              initializeApp();
             }
-          }
-          
-          countingQuestion.options = Array.from(options).sort(() => Math.random() - 0.5);
-          selectedCountingAnswer.value = null;
-          countingResult.value = null;
-        };
-        
-        // 生成加法题目
-        const generateAdditionQuestion = () => {
-          additionQuestion.a = Math.floor(Math.random() * 10) + 1; // 1-10
-          additionQuestion.b = Math.floor(Math.random() * (10 - additionQuestion.a)) + 1; // 确保和不超过10
-          const correctAnswer = additionQuestion.a + additionQuestion.b;
-          const options = new Set([correctAnswer]);
-          
-          // 生成3个错误选项
-          while (options.size < 4) {
-            const wrong = correctAnswer + Math.floor(Math.random() * 5) - 2;
-            if (wrong >= 0 && wrong <= 20 && wrong !== correctAnswer) {
-              options.add(wrong);
-            }
-          }
-          
-          additionQuestion.options = Array.from(options).sort(() => Math.random() - 0.5);
-          selectedAdditionAnswer.value = null;
-          additionResult.value = null;
-        };
-        
-        // 选择答案并立即提交
-        const selectCountingAnswer = (answer) => {
-          selectedCountingAnswer.value = answer;
-          // 自动检查答案
-          checkCountingAnswer();
-          // 1.5秒后自动进入下一题
-          setTimeout(() => {
-            nextCountingQuestion();
-          }, 1500);
-        };
-        
-        const selectAdditionAnswer = (answer) => {
-          selectedAdditionAnswer.value = answer;
-          // 自动检查答案
-          checkAdditionAnswer();
-          // 1.5秒后自动进入下一题
-          setTimeout(() => {
-            nextAdditionQuestion();
-          }, 1500);
-        };
-        
-        // 检查答案
-        const checkCountingAnswer = () => {
-          countingResult.value = selectedCountingAnswer.value === countingQuestion.count;
-        };
-        
-        const checkAdditionAnswer = () => {
-          additionResult.value = selectedAdditionAnswer.value === (additionQuestion.a + additionQuestion.b);
-        };
-        
-        // 下一题
-        const nextCountingQuestion = () => {
-          generateCountingQuestion();
-        };
-        
-        const nextAdditionQuestion = () => {
-          generateAdditionQuestion();
-        };
-        
-        // 语音播放功能（简化版）
-        const speak = (text) => {
-          console.log("播放语音: " + text);
-        };
-
-        // 获取emoji图片URL（使用可靠的CDN）
-        const getEmojiImageUrl = (emojiCode) => {
-          return `https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/${emojiCode}.png`;
-        };
-
-        // 处理图片加载错误
-        const handleImageError = (event, emojiCode) => {
-          console.warn(`图片加载失败: ${emojiCode}`);
-          // 显示占位符
-          event.target.style.display = 'none';
-          const placeholder = document.createElement('div');
-          placeholder.className = 'image-placeholder';
-          placeholder.innerHTML = '<i class="bi bi-image"></i>';
-          event.target.parentNode.insertBefore(placeholder, event.target);
-        };
-        
-        // 组件挂载时恢复状态
-        onMounted(() => {
-          restoreTabState();
+          };
+          document.head.appendChild(script);
         });
-        
-        return {
-          currentPage,
-          currentSubject,
-          activeChineseTab,
-          activeMathTab,
-          activeEnglishTab,
-          chinese,
-          english,
-          chineseNumbers,
-          countingQuestion,
-          additionQuestion,
-          selectedCountingAnswer,
-          selectedAdditionAnswer,
-          countingResult,
-          additionResult,
-          selectSubject,
-          goHome,
-          generateCountingQuestion,
-          generateAdditionQuestion,
-          selectCountingAnswer,
-          selectAdditionAnswer,
-          checkCountingAnswer,
-          checkAdditionAnswer,
-          nextCountingQuestion,
-          nextAdditionQuestion,
-          setActiveTab,
-          speak,
-          getEmojiImageUrl,
-          handleImageError
-        };
       }
-    }).mount('#app');
+    });
+  </script>
+  
+  <script>
+    // 简化的Vue应用初始化
+    function initializeApp() {
+      if (!window.Vue) {
+        console.error('Vue未加载，无法初始化应用');
+        return;
+      }
+      
+      const { createApp, ref, reactive, onMounted } = Vue;
+      
+      createApp({
+        setup() {
+          // 页面状态
+          const currentPage = ref('home');
+          const currentSubject = ref(null);
+          
+          // 标签页状态
+          const activeChineseTab = ref('pinyin');
+          const activeMathTab = ref('numbers');
+          const activeEnglishTab = ref('alphabet');
+          
+          // 学科数据
+          const subjects = {
+            chinese: {
+              key: 'chinese',
+              title: '语文学习',
+              icon: 'book'
+            },
+            math: {
+              key: 'math',
+              title: '数学学习',
+              icon: 'calculator'
+            },
+            english: {
+              key: 'english',
+              title: '英语学习',
+              icon: 'globe'
+            }
+          };
+          
+          // 语文内容
+          const chinese = {
+            initials: ['b', 'p', 'm', 'f', 'd', 't', 'n', 'l', 'g', 'k', 'h', 'j', 'q', 'x', 'zh', 'ch', 'sh', 'r', 'z', 'c', 's', 'y', 'w'],
+            finals: ['a', 'o', 'e', 'i', 'u', 'ü', 'ai', 'ei', 'ui', 'ao', 'ou', 'iu', 'ie', 'üe', 'er', 'an', 'en', 'in', 'un', 'ün', 'ang', 'eng', 'ing', 'ong'],
+            characters: [
+              { char: '一', pinyin: 'yī' },
+              { char: '二', pinyin: 'èr' },
+              { char: '三', pinyin: 'sān' },
+              { char: '四', pinyin: 'sì' },
+              { char: '五', pinyin: 'wǔ' },
+              { char: '六', pinyin: 'liù' },
+              { char: '七', pinyin: 'qī' },
+              { char: '八', pinyin: 'bā' },
+              { char: '九', pinyin: 'jiǔ' },
+              { char: '十', pinyin: 'shí' },
+              { char: '人', pinyin: 'rén' },
+              { char: '口', pinyin: 'kǒu' },
+              { char: '手', pinyin: 'shǒu' },
+              { char: '水', pinyin: 'shuǐ' },
+              { char: '火', pinyin: 'huǒ' },
+              { char: '山', pinyin: 'shān' },
+              { char: '石', pinyin: 'shí' },
+              { char: '田', pinyin: 'tián' },
+              { char: '土', pinyin: 'tǔ' },
+              { char: '木', pinyin: 'mù' }
+            ],
+            words: [
+              { word: '太阳', pinyin: 'tài yáng' },
+              { word: '月亮', pinyin: 'yuè liàng' },
+              { word: '星星', pinyin: 'xīng xīng' },
+              { word: '花朵', pinyin: 'huā duǒ' },
+              { word: '草地', pinyin: 'cǎo dì' },
+              { word: '大树', pinyin: 'dà shù' },
+              { word: '小鸟', pinyin: 'xiǎo niǎo' },
+              { word: '小鱼', pinyin: 'xiǎo yú' },
+              { word: '妈妈', pinyin: 'mā ma' },
+              { word: '爸爸', pinyin: 'bà ba' },
+              { word: '老师', pinyin: 'lǎo shī' },
+              { word: '学校', pinyin: 'xué xiào' }
+            ]
+          };
+          
+          // 英语内容
+          const english = {
+            alphabet: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),
+            words: [
+              { word: 'Apple', emojiCode: '1f34e' },
+              { word: 'Ball', emojiCode: '1f3c0' },
+              { word: 'Cat', emojiCode: '1f431' },
+              { word: 'Dog', emojiCode: '1f436' },
+              { word: 'Elephant', emojiCode: '1f418' },
+              { word: 'Fish', emojiCode: '1f41f' },
+              { word: 'Giraffe', emojiCode: '1f992' },
+              { word: 'House', emojiCode: '1f3e0' },
+              { word: 'Ice cream', emojiCode: '1f368' },
+              { word: 'Juice', emojiCode: '1f9c3' },
+              { word: 'Kite', emojiCode: '1fa81' },
+              { word: 'Lion', emojiCode: '1f981' }
+            ]
+          };
+          
+          // 数学内容
+          const chineseNumbers = ['一', '二', '三', '四', '五', '六', '七', '八', '九', '十', '十一', '十二', '十三', '十四', '十五', '十六', '十七', '十八', '十九', '二十'];
+          
+          // 数数练习题目
+          const countingQuestion = reactive({
+            count: 0,
+            options: []
+          });
+          
+          // 加法练习题目
+          const additionQuestion = reactive({
+            a: 0,
+            b: 0,
+            options: []
+          });
+          
+          // 用户选择的答案
+          const selectedCountingAnswer = ref(null);
+          const selectedAdditionAnswer = ref(null);
+          
+          // 答题结果
+          const countingResult = ref(null);
+          const additionResult = ref(null);
+          
+          // 设置活动标签页
+          const setActiveTab = (subject, tab) => {
+            switch(subject) {
+              case 'chinese':
+                activeChineseTab.value = tab;
+                break;
+              case 'math':
+                activeMathTab.value = tab;
+                break;
+              case 'english':
+                activeEnglishTab.value = tab;
+                break;
+            }
+            
+            // 保存标签页状态到localStorage
+            localStorage.setItem(`activeTab_${subject}`, tab);
+          };
+          
+          // 从localStorage恢复标签页状态
+          const restoreTabState = () => {
+            const chineseTab = localStorage.getItem('activeTab_chinese');
+            const mathTab = localStorage.getItem('activeTab_math');
+            const englishTab = localStorage.getItem('activeTab_english');
+            
+            if (chineseTab) activeChineseTab.value = chineseTab;
+            if (mathTab) activeMathTab.value = mathTab;
+            if (englishTab) activeEnglishTab.value = englishTab;
+          };
+          
+          // 选择学科
+          const selectSubject = (subjectKey) => {
+            currentSubject.value = subjects[subjectKey];
+            currentPage.value = 'subject';
+            
+            // 初始化题目
+            if (subjectKey === 'math') {
+              generateCountingQuestion();
+              generateAdditionQuestion();
+            }
+          };
+          
+          // 返回主页
+          const goHome = () => {
+            currentPage.value = 'home';
+            currentSubject.value = null;
+          };
+          
+          // 生成数数题目
+          const generateCountingQuestion = () => {
+            countingQuestion.count = Math.floor(Math.random() * 10) + 1; // 1-10
+            const correctAnswer = countingQuestion.count;
+            const options = new Set([correctAnswer]);
+            
+            // 生成3个错误选项
+            while (options.size < 4) {
+              const wrong = correctAnswer + Math.floor(Math.random() * 5) - 2;
+              if (wrong > 0 && wrong <= 12 && wrong !== correctAnswer) {
+                options.add(wrong);
+              }
+            }
+            
+            countingQuestion.options = Array.from(options).sort(() => Math.random() - 0.5);
+            selectedCountingAnswer.value = null;
+            countingResult.value = null;
+          };
+          
+          // 生成加法题目
+          const generateAdditionQuestion = () => {
+            additionQuestion.a = Math.floor(Math.random() * 10) + 1; // 1-10
+            additionQuestion.b = Math.floor(Math.random() * (10 - additionQuestion.a)) + 1; // 确保和不超过10
+            const correctAnswer = additionQuestion.a + additionQuestion.b;
+            const options = new Set([correctAnswer]);
+            
+            // 生成3个错误选项
+            while (options.size < 4) {
+              const wrong = correctAnswer + Math.floor(Math.random() * 5) - 2;
+              if (wrong >= 0 && wrong <= 20 && wrong !== correctAnswer) {
+                options.add(wrong);
+              }
+            }
+            
+            additionQuestion.options = Array.from(options).sort(() => Math.random() - 0.5);
+            selectedAdditionAnswer.value = null;
+            additionResult.value = null;
+          };
+          
+          // 选择答案并立即提交
+          const selectCountingAnswer = (answer) => {
+            selectedCountingAnswer.value = answer;
+            // 自动检查答案
+            checkCountingAnswer();
+            // 1.5秒后自动进入下一题
+            setTimeout(() => {
+              nextCountingQuestion();
+            }, 1500);
+          };
+          
+          const selectAdditionAnswer = (answer) => {
+            selectedAdditionAnswer.value = answer;
+            // 自动检查答案
+            checkAdditionAnswer();
+            // 1.5秒后自动进入下一题
+            setTimeout(() => {
+              nextAdditionQuestion();
+            }, 1500);
+          };
+          
+          // 检查答案
+          const checkCountingAnswer = () => {
+            countingResult.value = selectedCountingAnswer.value === countingQuestion.count;
+          };
+          
+          const checkAdditionAnswer = () => {
+            additionResult.value = selectedAdditionAnswer.value === (additionQuestion.a + additionQuestion.b);
+          };
+          
+          // 下一题
+          const nextCountingQuestion = () => {
+            generateCountingQuestion();
+          };
+          
+          const nextAdditionQuestion = () => {
+            generateAdditionQuestion();
+          };
+          
+          // 语音播放功能（简化版）
+          const speak = (text) => {
+            console.log("播放语音: " + text);
+          };
+
+          // 获取emoji图片URL（使用可靠的CDN）
+          const getEmojiImageUrl = (emojiCode) => {
+            return `https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/${emojiCode}.png`;
+          };
+
+          // 处理图片加载错误
+          const handleImageError = (event, emojiCode) => {
+            console.warn(`图片加载失败: ${emojiCode}`);
+            // 显示占位符
+            event.target.style.display = 'none';
+            const placeholder = document.createElement('div');
+            placeholder.className = 'image-placeholder';
+            placeholder.innerHTML = '<i class="bi bi-image"></i>';
+            event.target.parentNode.insertBefore(placeholder, event.target);
+          };
+          
+          // 组件挂载时恢复状态
+          onMounted(() => {
+            restoreTabState();
+          });
+          
+          return {
+            currentPage,
+            currentSubject,
+            activeChineseTab,
+            activeMathTab,
+            activeEnglishTab,
+            chinese,
+            english,
+            chineseNumbers,
+            countingQuestion,
+            additionQuestion,
+            selectedCountingAnswer,
+            selectedAdditionAnswer,
+            countingResult,
+            additionResult,
+            selectSubject,
+            goHome,
+            generateCountingQuestion,
+            generateAdditionQuestion,
+            selectCountingAnswer,
+            selectAdditionAnswer,
+            checkCountingAnswer,
+            checkAdditionAnswer,
+            nextCountingQuestion,
+            nextAdditionQuestion,
+            setActiveTab,
+            speak,
+            getEmojiImageUrl,
+            handleImageError
+          };
+        }
+      }).mount('#app');
+    }
   </script>
 </body>
 </html>

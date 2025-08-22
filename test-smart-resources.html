@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能资源管理器测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        .loading { background-color: #fff3cd; color: #856404; }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .btn-primary { background-color: #007bff; color: white; }
+        .btn-success { background-color: #28a745; color: white; }
+        .btn-warning { background-color: #ffc107; color: black; }
+        .btn-danger { background-color: #dc3545; color: white; }
+        .resource-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            background: #f9f9f9;
+        }
+        .resource-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .resource-name {
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        .resource-type {
+            background: #007bff;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+        }
+        .source-list {
+            margin-top: 10px;
+        }
+        .source-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            margin: 5px 0;
+            background: white;
+            border-radius: 4px;
+            border-left: 4px solid #ddd;
+        }
+        .source-item.current {
+            border-left-color: #28a745;
+            background: #f8fff8;
+        }
+        .source-item.local {
+            border-left-color: #ffc107;
+            background: #fffdf8;
+        }
+        .score {
+            font-weight: bold;
+        }
+        .score.high { color: #28a745; }
+        .score.medium { color: #ffc107; }
+        .score.low { color: #dc3545; }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #007bff;
+        }
+        .stat-label {
+            color: #6c757d;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 智能资源管理器测试</h1>
+        
+        <div id="status-container">
+            <div class="status loading" id="status">正在检查智能资源管理器状态...</div>
+        </div>
+        
+        <div class="stats-grid" id="stats-grid">
+            <!-- 统计信息将在这里显示 -->
+        </div>
+        
+        <div id="actions">
+            <button class="btn-primary" onclick="testAllResources()">测试所有资源</button>
+            <button class="btn-success" onclick="loadAllResources()">加载所有资源</button>
+            <button class="btn-warning" onclick="showResourceDetails()">显示详细信息</button>
+            <button class="btn-danger" onclick="clearHistory()">清除历史记录</button>
+        </div>
+        
+        <div id="resource-details">
+            <!-- 资源详细信息将在这里显示 -->
+        </div>
+        
+        <div id="console-output">
+            <h3>控制台输出：</h3>
+            <div id="console" style="background: #f8f9fa; padding: 10px; border-radius: 4px; font-family: monospace; max-height: 300px; overflow-y: auto;"></div>
+        </div>
+    </div>
+
+    <script>
+        // 重写console.log来捕获输出
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+        
+        function addToConsole(message, type = 'log') {
+            const consoleDiv = document.getElementById('console');
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'error' ? 'red' : type === 'warn' ? 'orange' : 'black';
+            consoleDiv.innerHTML += `<div style="color: ${color};">[${timestamp}] ${message}</div>`;
+            consoleDiv.scrollTop = consoleDiv.scrollHeight;
+        }
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            addToConsole(args.join(' '), 'log');
+        };
+        
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            addToConsole(args.join(' '), 'error');
+        };
+        
+        console.warn = function(...args) {
+            originalWarn.apply(console, args);
+            addToConsole(args.join(' '), 'warn');
+        };
+        
+        function updateStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+        }
+        
+        function updateStats() {
+            if (!window.smartResourceManager) return;
+            
+            const stats = window.smartResourceManager.getStats();
+            const statsGrid = document.getElementById('stats-grid');
+            
+            statsGrid.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-value">${stats.totalResources}</div>
+                    <div class="stat-label">总资源数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.cdnResources}</div>
+                    <div class="stat-label">CDN资源</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.localResources}</div>
+                    <div class="stat-label">本地资源</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${stats.averageScore.toFixed(1)}</div>
+                    <div class="stat-label">平均评分</div>
+                </div>
+            `;
+        }
+        
+        function getScoreClass(score) {
+            if (score >= 80) return 'score high';
+            if (score >= 60) return 'score medium';
+            return 'score low';
+        }
+        
+        function showResourceDetails() {
+            if (!window.smartResourceManager) return;
+            
+            const detailsDiv = document.getElementById('resource-details');
+            const resources = window.smartResourceManager.resources;
+            
+            let html = '<h3>资源详细信息：</h3>';
+            
+            Object.keys(resources).forEach(resourceKey => {
+                const resource = resources[resourceKey];
+                const info = window.smartResourceManager.getResourceInfo(resourceKey);
+                
+                html += `
+                    <div class="resource-card">
+                        <div class="resource-header">
+                            <div class="resource-name">${resource.name}</div>
+                            <div class="resource-type">${resource.type.toUpperCase()}</div>
+                        </div>
+                        <div>当前源: <strong>${info.currentSource}</strong></div>
+                        <div>评分: <span class="${getScoreClass(info.score)}">${info.score.toFixed(1)}</span></div>
+                        <div>状态: ${info.isLocal ? '本地资源' : 'CDN资源'} ${info.isTesting ? '(测试中...)' : ''}</div>
+                        
+                        <div class="source-list">
+                            <h5>所有可用源：</h5>
+                            ${resource.cdnSources.map(url => {
+                                const isCurrent = url === info.currentSource;
+                                const isLocal = url === resource.localPath;
+                                const score = window.smartResourceManager.calculateScore(resourceKey, url);
+                                const className = isCurrent ? 'source-item current' : 
+                                                isLocal ? 'source-item local' : 'source-item';
+                                const label = isLocal ? '本地资源' : new URL(url).hostname;
+                                
+                                return `
+                                    <div class="${className}">
+                                        <span>${label}</span>
+                                        <span class="${getScoreClass(score)}">${score.toFixed(1)}</span>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                        
+                        <button class="btn-warning" onclick="testResource('${resourceKey}')">测试此资源</button>
+                    </div>
+                `;
+            });
+            
+            detailsDiv.innerHTML = html;
+        }
+        
+        async function testResource(resourceKey) {
+            if (!window.smartResourceManager) return;
+            
+            updateStatus(`正在测试 ${resourceKey}...`, 'loading');
+            const results = await window.smartResourceManager.testAllSources(resourceKey);
+            updateStatus(`${resourceKey} 测试完成`, 'success');
+            updateStats();
+            showResourceDetails();
+        }
+        
+        async function testAllResources() {
+            if (!window.smartResourceManager) return;
+            
+            updateStatus('正在测试所有资源...', 'loading');
+            
+            const resources = Object.keys(window.smartResourceManager.resources);
+            for (const resourceKey of resources) {
+                await testResource(resourceKey);
+            }
+            
+            updateStatus('所有资源测试完成', 'success');
+            updateStats();
+            showResourceDetails();
+        }
+        
+        function loadAllResources() {
+            if (!window.smartResourceManager) return;
+            
+            updateStatus('正在加载所有资源...', 'loading');
+            
+            window.smartResourceManager.loadCSS('bootstrap-css');
+            window.smartResourceManager.loadCSS('bootstrap-icons');
+            window.smartResourceManager.loadJS('vue-js');
+            window.smartResourceManager.loadJS('bootstrap-js');
+            
+            updateStatus('所有资源加载完成', 'success');
+        }
+        
+        function clearHistory() {
+            if (!window.smartResourceManager) return;
+            
+            window.smartResourceManager.clearHistory();
+            updateStatus('历史记录已清除', 'info');
+            updateStats();
+            showResourceDetails();
+        }
+        
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            updateStatus('页面加载完成，检查智能资源管理器...', 'info');
+            
+            setTimeout(() => {
+                if (window.smartResourceManager) {
+                    updateStatus('智能资源管理器已就绪', 'success');
+                    updateStats();
+                    showResourceDetails();
+                } else {
+                    updateStatus('智能资源管理器未找到', 'error');
+                }
+            }, 1000);
+        });
+    </script>
+    
+    <!-- 加载智能资源管理器 -->
+    <script src="assets/js/smart-resource-manager.js"></script>
+</body>
+</html> 
