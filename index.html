@@ -21,6 +21,11 @@
       padding-bottom: 20px;
     }
     
+    /* 解决Vue页面加载时的闪现问题 */
+    [v-cloak] {
+      display: none;
+    }
+    
     .header {
       background: linear-gradient(to right, #ff9966, #ff5e62);
       color: white;
@@ -322,7 +327,7 @@
     </div>
     
     <!-- 学科页面 -->
-    <div v-else class="fade-in">
+    <div v-else class="fade-in" v-cloak>
       <button class="btn btn-secondary back-btn" @click="goHome">
         <i class="bi bi-arrow-left-circle"></i> 返回主页
       </button>
@@ -944,7 +949,7 @@
             
             // 更新URL参数
             if (updateUrl) {
-              const url = new URL(window.location);
+              const url = new new URL(window.location);
               url.searchParams.set('subject', subjectKey);
               
               // 设置默认标签页
