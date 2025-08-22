@@ -193,6 +193,23 @@
       background-color: #e6f7ff;
       box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.2);
     }
+    
+    /* 图片加载状态样式 */
+    .image-placeholder {
+      width: 80px;
+      height: 80px;
+      background-color: #f0f0f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+      border-radius: 5px;
+    }
+    
+    .image-placeholder i {
+      font-size: 2rem;
+      color: #ccc;
+    }
   </style>
 </head>
 <body>
@@ -261,17 +278,38 @@
           <div v-if="currentSubject.key === 'chinese'">
             <ul class="nav nav-tabs" role="tablist">
               <li class="nav-item" role="presentation">
-                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#pinyin" type="button" role="tab">拼音学习</button>
+                <button class="nav-link" 
+                        :class="{ active: activeChineseTab === 'pinyin' }"
+                        data-bs-toggle="tab" 
+                        data-bs-target="#pinyin" 
+                        type="button" 
+                        role="tab"
+                        @click="setActiveTab('chinese', 'pinyin')">拼音学习</button>
               </li>
               <li class="nav-item" role="presentation">
-                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#characters" type="button" role="tab">汉字学习</button>
+                <button class="nav-link" 
+                        :class="{ active: activeChineseTab === 'characters' }"
+                        data-bs-toggle="tab" 
+                        data-bs-target="#characters" 
+                        type="button" 
+                        role="tab"
+                        @click="setActiveTab('chinese', 'characters')">汉字学习</button>
               </li>
               <li class="nav-item" role="presentation">
-                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#words" type="button" role="tab">词语学习</button>
+                <button class="nav-link" 
+                        :class="{ active: activeChineseTab === 'words' }"
+                        data-bs-toggle="tab" 
+                        data-bs-target="#words" 
+                        type="button" 
+                        role="tab"
+                        @click="setActiveTab('chinese', 'words')">词语学习</button>
               </li>
             </ul>
             <div class="tab-content">
-              <div class="tab-pane fade show active" id="pinyin" role="tabpanel">
+              <div class="tab-pane fade" 
+                   :class="{ 'show active': activeChineseTab === 'pinyin' }" 
+                   id="pinyin" 
+                   role="tabpanel">
                 <h3 class="mt-3">声母学习</h3>
                 <div class="row">
                   <div v-for="initial in chinese.initials" :key="initial" class="col-2 mb-3">
@@ -291,7 +329,10 @@
                 </div>
               </div>
               
-              <div class="tab-pane fade" id="characters" role="tabpanel">
+              <div class="tab-pane fade" 
+                   :class="{ 'show active': activeChineseTab === 'characters' }" 
+                   id="characters" 
+                   role="tabpanel">
                 <h3 class="mt-3">基础汉字</h3>
                 <div class="row">
                   <div v-for="character in chinese.characters" :key="character.char" class="col-3 col-md-2 mb-3">
@@ -303,7 +344,10 @@
                 </div>
               </div>
               
-              <div class="tab-pane fade" id="words" role="tabpanel">
+              <div class="tab-pane fade" 
+                   :class="{ 'show active': activeChineseTab === 'words' }" 
+                   id="words" 
+                   role="tabpanel">
                 <h3 class="mt-3">常用词语</h3>
                 <div class="row">
                   <div v-for="word in chinese.words" :key="word.word" class="col-6 col-md-3 mb-3">
@@ -321,17 +365,38 @@
           <div v-if="currentSubject.key === 'math'">
             <ul class="nav nav-tabs" role="tablist">
               <li class="nav-item" role="presentation">
-                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#numbers" type="button" role="tab">数字认知</button>
+                <button class="nav-link" 
+                        :class="{ active: activeMathTab === 'numbers' }"
+                        data-bs-toggle="tab" 
+                        data-bs-target="#numbers" 
+                        type="button" 
+                        role="tab"
+                        @click="setActiveTab('math', 'numbers')">数字认知</button>
               </li>
               <li class="nav-item" role="presentation">
-                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#counting" type="button" role="tab">数数练习</button>
+                <button class="nav-link" 
+                        :class="{ active: activeMathTab === 'counting' }"
+                        data-bs-toggle="tab" 
+                        data-bs-target="#counting" 
+                        type="button" 
+                        role="tab"
+                        @click="setActiveTab('math', 'counting')">数数练习</button>
               </li>
               <li class="nav-item" role="presentation">
-                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#addition" type="button" role="tab">加法练习</button>
+                <button class="nav-link" 
+                        :class="{ active: activeMathTab === 'addition' }"
+                        data-bs-toggle="tab" 
+                        data-bs-target="#addition" 
+                        type="button" 
+                        role="tab"
+                        @click="setActiveTab('math', 'addition')">加法练习</button>
               </li>
             </ul>
             <div class="tab-content">
-              <div class="tab-pane fade show active" id="numbers" role="tabpanel">
+              <div class="tab-pane fade" 
+                   :class="{ 'show active': activeMathTab === 'numbers' }" 
+                   id="numbers" 
+                   role="tabpanel">
                 <h3 class="mt-3">数字1-20</h3>
                 <div class="row">
                   <div v-for="n in 20" :key="n" class="col-3 col-md-2 mb-3">
@@ -343,7 +408,10 @@
                 </div>
               </div>
               
-              <div class="tab-pane fade" id="counting" role="tabpanel">
+              <div class="tab-pane fade" 
+                   :class="{ 'show active': activeMathTab === 'counting' }" 
+                   id="counting" 
+                   role="tabpanel">
                 <h3 class="mt-3">数一数有几个？</h3>
                 <div class="text-center my-4">
                   <div class="question-display">
@@ -374,7 +442,10 @@
                 </div>
               </div>
               
-              <div class="tab-pane fade" id="addition" role="tabpanel">
+              <div class="tab-pane fade" 
+                   :class="{ 'show active': activeMathTab === 'addition' }" 
+                   id="addition" 
+                   role="tabpanel">
                 <h3 class="mt-3">加法练习</h3>
                 <div class="text-center my-4">
                   <div class="question-display">
@@ -409,14 +480,29 @@
           <div v-if="currentSubject.key === 'english'">
             <ul class="nav nav-tabs" role="tablist">
               <li class="nav-item" role="presentation">
-                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#alphabet" type="button" role="tab">字母学习</button>
+                <button class="nav-link" 
+                        :class="{ active: activeEnglishTab === 'alphabet' }"
+                        data-bs-toggle="tab" 
+                        data-bs-target="#alphabet" 
+                        type="button" 
+                        role="tab"
+                        @click="setActiveTab('english', 'alphabet')">字母学习</button>
               </li>
               <li class="nav-item" role="presentation">
-                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#english-words" type="button" role="tab">单词学习</button>
+                <button class="nav-link" 
+                        :class="{ active: activeEnglishTab === 'words' }"
+                        data-bs-toggle="tab" 
+                        data-bs-target="#english-words" 
+                        type="button" 
+                        role="tab"
+                        @click="setActiveTab('english', 'words')">单词学习</button>
               </li>
             </ul>
             <div class="tab-content">
-              <div class="tab-pane fade show active" id="alphabet" role="tabpanel">
+              <div class="tab-pane fade" 
+                   :class="{ 'show active': activeEnglishTab === 'alphabet' }" 
+                   id="alphabet" 
+                   role="tabpanel">
                 <h3 class="mt-3">英文字母</h3>
                 <div class="row">
                   <div v-for="letter in english.alphabet" :key="letter" class="col-2 mb-3">
@@ -427,7 +513,10 @@
                 </div>
               </div>
               
-              <div class="tab-pane fade" id="english-words" role="tabpanel">
+              <div class="tab-pane fade" 
+                   :class="{ 'show active': activeEnglishTab === 'words' }" 
+                   id="english-words" 
+                   role="tabpanel">
                 <h3 class="mt-3">基础单词</h3>
                 <div class="row">
                   <div v-for="word in english.words" :key="word.word" class="col-6 col-md-3 mb-3">
@@ -448,13 +537,18 @@
   <script src="assets/js/vue.global.min.js"></script>
   <script src="assets/js/bootstrap.bundle.min.js"></script>
   <script>
-    const { createApp, ref, reactive } = Vue;
+    const { createApp, ref, reactive, onMounted } = Vue;
     
     createApp({
       setup() {
         // 页面状态
         const currentPage = ref('home');
         const currentSubject = ref(null);
+        
+        // 标签页状态
+        const activeChineseTab = ref('pinyin');
+        const activeMathTab = ref('numbers');
+        const activeEnglishTab = ref('alphabet');
         
         // 学科数据
         const subjects = {
@@ -560,8 +654,77 @@
         const countingResult = ref(null);
         const additionResult = ref(null);
         
+        // 设置活动标签页
+        const setActiveTab = (subject, tab) => {
+          switch(subject) {
+            case 'chinese':
+              activeChineseTab.value = tab;
+              break;
+            case 'math':
+              activeMathTab.value = tab;
+              break;
+            case 'english':
+              activeEnglishTab.value = tab;
+              break;
+          }
+          
+          // 保存标签页状态到localStorage
+          localStorage.setItem(`activeTab_${subject}`, tab);
+          
+          // 更新URL参数
+          updateURLParams();
+        };
+        
+        // 更新URL参数
+        const updateURLParams = () => {
+          const url = new URL(window.location);
+          url.searchParams.set('subject', currentSubject.value.key);
+          
+          switch(currentSubject.value.key) {
+            case 'chinese':
+              url.searchParams.set('tab', activeChineseTab.value);
+              break;
+            case 'math':
+              url.searchParams.set('tab', activeMathTab.value);
+              break;
+            case 'english':
+              url.searchParams.set('tab', activeEnglishTab.value);
+              break;
+          }
+          
+          window.history.replaceState({}, '', url);
+        };
+        
+        // 从URL参数恢复状态
+        const restoreStateFromURL = () => {
+          const urlParams = new URLSearchParams(window.location.search);
+          const subjectParam = urlParams.get('subject');
+          const tabParam = urlParams.get('tab');
+          
+          if (subjectParam && subjects[subjectParam]) {
+            selectSubject(subjectParam, false); // 不更新URL，因为我们正在从URL恢复
+            
+            if (tabParam) {
+              setTimeout(() => {
+                setActiveTab(subjectParam, tabParam);
+              }, 0);
+            }
+          }
+        };
+        
+        // 从localStorage恢复标签页状态
+        const restoreTabState = () => {
+          const chineseTab = localStorage.getItem('activeTab_chinese');
+          const mathTab = localStorage.getItem('activeTab_math');
+          const englishTab = localStorage.getItem('activeTab_english');
+          
+          if (chineseTab) activeChineseTab.value = chineseTab;
+          if (mathTab) activeMathTab.value = mathTab;
+          if (englishTab) activeEnglishTab.value = englishTab;
+        };
+        
         // 选择学科
-        const selectSubject = (subjectKey) => {
+        const selectSubject = (subjectKey, updateUrl = true) => {
           currentSubject.value = subjects[subjectKey];
           currentPage.value = 'subject';
           
@@ -570,12 +733,23 @@
             generateCountingQuestion();
             generateAdditionQuestion();
           }
+          
+          // 更新URL参数
+          if (updateUrl) {
+            updateURLParams();
+          }
         };
         
         // 返回主页
         const goHome = () => {
           currentPage.value = 'home';
           currentSubject.value = null;
+          
+          // 更新URL参数
+          const url = new URL(window.location);
+          url.searchParams.delete('subject');
+          url.searchParams.delete('tab');
+          window.history.replaceState({}, '', url);
         };
         
         // 生成数数题目
@@ -686,9 +860,18 @@
           // 在实际应用中，这里可以使用 Web Speech API 或其他语音合成服务
         };
         
+        // 组件挂载时恢复状态
+        onMounted(() => {
+          restoreTabState();
+          restoreStateFromURL();
+        });
+        
         return {
           currentPage,
           currentSubject,
+          activeChineseTab,
+          activeMathTab,
+          activeEnglishTab,
           chinese,
           english,
           chineseNumbers,
@@ -708,6 +891,7 @@
           checkAdditionAnswer,
           nextCountingQuestion,
           nextAdditionQuestion,
+          setActiveTab,
           speak
         };
       }
