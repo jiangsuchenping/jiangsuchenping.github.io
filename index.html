@@ -372,6 +372,15 @@
                         role="tab"
                         @click="setActiveTab('chinese', 'idioms')">成语学习</button>
               </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link" 
+                        :class="{ active: activeChineseTab === 'poems' }"
+                        data-bs-toggle="tab" 
+                        data-bs-target="#poems" 
+                        type="button" 
+                        role="tab"
+                        @click="setActiveTab('chinese', 'poems')">古诗词学习</button>
+              </li>
             </ul>
             <div class="tab-content">
               <div class="tab-pane fade" 
@@ -438,6 +447,23 @@
                       <div class="word">{{ idiom.idiom }}</div>
                       <div class="pinyin text-muted small">{{ idiom.pinyin }}</div>
                       <div class="meaning text-muted small">{{ idiom.meaning }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="tab-pane fade" 
+                   :class="{ 'show active': activeChineseTab === 'poems' }" 
+                   id="poems" 
+                   role="tabpanel">
+                <h3 class="mt-3">经典古诗词</h3>
+                <div class="row">
+                  <div v-for="poem in chinese.poems" :key="poem.title" class="col-12 col-md-6 mb-4">
+                    <div class="poem-card bg-light p-3 h-100">
+                      <div class="poem-title fw-bold fs-5 mb-2">{{ poem.title }}</div>
+                      <div class="poem-author text-muted small mb-2">{{ poem.author }}</div>
+                      <div class="poem-content mb-2">{{ poem.content }}</div>
+                      <div class="poem-meaning text-muted">{{ poem.meaning }}</div>
                     </div>
                   </div>
                 </div>
@@ -789,19 +815,27 @@
               { word: '老师', pinyin: 'lǎo shī' },
               { word: '学校', pinyin: 'xué xiào' }
             ],
+            poems: [
+              { title: '静夜思', author: '李白', content: '床前明月光，疑是地上霜。举头望明月，低头思故乡。', meaning: '这首诗描写了秋日夜晚，诗人看到月光洒在床前，以为是地上的霜，抬头望月，低头思念故乡的情景。' },
+              { title: '春晓', author: '孟浩然', content: '春眠不觉晓，处处闻啼鸟。夜来风雨声，花落知多少。', meaning: '这首诗描写了春天早晨醒来后，听到鸟儿啼叫，想起夜里风雨声，不知有多少花儿被吹落的情景。' },
+              { title: '咏鹅', author: '骆宾王', content: '鹅，鹅，鹅，曲项向天歌。白毛浮绿水，红掌拨清波。', meaning: '这首诗描写了鹅的形象，鹅弯曲着脖子向天鸣叫，白色的羽毛浮在绿色的水面上，红色的脚掌拨动着清澈的水波。' },
+              { title: '登鹳雀楼', author: '王之涣', content: '白日依山尽，黄河入海流。欲穷千里目，更上一层楼。', meaning: '这首诗描写了诗人登楼远眺的所见所感，太阳依着山峦落下，黄河奔流入海，要想看到更远的景色，就要再上一层楼。' },
+              { title: '悯农', author: '李绅', content: '锄禾日当午，汗滴禾下土。谁知盘中餐，粒粒皆辛苦。', meaning: '这首诗描写了农民在烈日下锄禾的辛苦劳作，表达了对农民辛勤劳动的同情和对粮食来之不易的感慨。' },
+              { title: '江雪', author: '柳宗元', content: '千山鸟飞绝，万径人踪灭。孤舟蓑笠翁，独钓寒江雪。', meaning: '这首诗描绘了一幅江雪独钓的画面，千山万径都没有鸟飞人行的踪迹，只有一位老翁独自在江上雪中垂钓。' }
+            ],
             idioms: [
-              { idiom: '一心一意', pinyin: 'yī xīn yī yì', meaning: '形容专心致志，一心一意' },
-              { idiom: '一心二用', pinyin: 'yī xīn èr yòng', meaning: '形容同时做几件事' },
-              { idiom: '三心二意', pinyin: 'sān xīn èr yì', meaning: '形容意志不坚定，犹豫不决' },
-              { idiom: '四海为家', pinyin: 'sì hǎi wéi jiā', meaning: '形容到处都可以安家' },
-              { idiom: '五湖四海', pinyin: 'wǔ hú sì hǎi', meaning: '形容全国各地' },
-              { idiom: '六神无主', pinyin: 'liù shén wú zhǔ', meaning: '形容惊慌着急，没有主意' },
-              { idiom: '七上八下', pinyin: 'qī shàng bā xià', meaning: '形容心里慌乱不安' },
-              { idiom: '八仙过海', pinyin: 'bā xiān guò hǎi', meaning: '比喻各自有一套办法或本领' },
-              { idiom: '九牛一毛', pinyin: 'jiǔ niú yī máo', meaning: '形容极大数量中的极少数' },
-              { idiom: '十全十美', pinyin: 'shí quán shí měi', meaning: '形容事物完美无缺' },
-              { idiom: '百花齐放', pinyin: 'bǎi huā qí fàng', meaning: '形容艺术界的繁荣景象' },
-              { idiom: '千军万马', pinyin: 'qiān jūn wàn mǎ', meaning: '形容雄壮的队伍或浩大的声势' }
+              { idiom: '一心一意', pinyin: 'yī xīn yī yì', meaning: '形容做事专心一意，一门心思。' },
+              { idiom: '一心二用', pinyin: 'yī xīn èr yòng', meaning: '形容同时做两件事，注意力分散。' },
+              { idiom: '三心二意', pinyin: 'sān xīn èr yì', meaning: '形容意志不坚定，犹豫不决。' },
+              { idiom: '四海为家', pinyin: 'sì hǎi wéi jiā', meaning: '形容到处都可以安家立业。' },
+              { idiom: '五湖四海', pinyin: 'wǔ hú sì hǎi', meaning: '形容全国各地，有时也指世界各地。' },
+              { idiom: '六神无主', pinyin: 'liù shén wú zhǔ', meaning: '形容惊慌着急，没有主意。' },
+              { idiom: '七上八下', pinyin: 'qī shàng bā xià', meaning: '形容心里慌乱不安，或事物零落不齐。' },
+              { idiom: '八仙过海', pinyin: 'bā xiān guò hǎi', meaning: '比喻各自有一套办法，或各自施展本领，互相竞赛。' },
+              { idiom: '九牛一毛', pinyin: 'jiǔ niú yī máo', meaning: '形容极大数量中的极小部分，微不足道。' },
+              { idiom: '十全十美', pinyin: 'shí quán shí měi', meaning: '形容事物完美无缺，各方面都非常好。' },
+              { idiom: '百折不挠', pinyin: 'bǎi zhé bù náo', meaning: '形容意志坚强，无论受到多少挫折都不退缩。' },
+              { idiom: '千方百计', pinyin: 'qiān fāng bǎi jì', meaning: '形容想尽一切办法，费尽心机。' }
             ]
           };
           
