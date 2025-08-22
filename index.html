@@ -274,6 +274,110 @@
       color: #3498db;
       width: 20px;
     }
+
+    /* 历史记录表格样式 */
+    .table-responsive {
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .table th {
+      border: none;
+      font-weight: 600;
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    .table td {
+      border: none;
+      text-align: center;
+      vertical-align: middle;
+      padding: 12px 8px;
+    }
+
+    .table-striped > tbody > tr:nth-of-type(odd) > td {
+      background-color: rgba(0,0,0,0.02);
+    }
+
+    .table-hover > tbody > tr:hover > td {
+      background-color: rgba(79, 172, 254, 0.1);
+    }
+
+    /* 统计卡片样式 */
+    .card {
+      border-radius: 15px;
+      border: none;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      transition: transform 0.2s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+    }
+
+    /* 练习区域样式 */
+    .practice-area {
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      border-radius: 20px;
+      padding: 30px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    /* 统计区域样式 */
+    .stats-section {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      border: 1px solid #e9ecef;
+    }
+
+    /* 历史记录区域样式 */
+    .history-section {
+      background: white;
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      border: 1px solid #e9ecef;
+    }
+
+    .history-summary {
+      border: 2px dashed #dee2e6;
+      transition: all 0.3s ease;
+    }
+
+    .history-summary:hover {
+      border-color: #6ecbf5;
+      background-color: #f8f9fa !important;
+    }
+
+    .history-details {
+      animation: slideDown 0.3s ease-out;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* 按钮样式优化 */
+    .btn-outline-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .btn-outline-warning:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
   </style>
 </head>
 <body>
@@ -498,11 +602,11 @@
                         @click="setActiveTab('math', 'counting')">数数练习</button>
               </li>
               <li class="nav-item" role="presentation">
-                <button class="nav-link" 
+                <button class="nav-link"
                         :class="{ active: activeMathTab === 'addition' }"
-                        data-bs-toggle="tab" 
-                        data-bs-target="#addition" 
-                        type="button" 
+                        data-bs-toggle="tab"
+                        data-bs-target="#addition"
+                        type="button"
                         role="tab"
                         @click="setActiveTab('math', 'addition')">加法练习</button>
               </li>
@@ -557,33 +661,165 @@
                 </div>
               </div>
               
-              <div class="tab-pane fade" 
-                   :class="{ 'show active': activeMathTab === 'addition' }" 
-                   id="addition" 
+              <div class="tab-pane fade"
+                   :class="{ 'show active': activeMathTab === 'addition' }"
+                   id="addition"
                    role="tabpanel">
                 <h3 class="mt-3">加法练习</h3>
-                <div class="text-center my-4">
-                  <div class="question-display">
-                    <h4>{{ additionQuestion.a }} + {{ additionQuestion.b }} = ?</h4>
-                  </div>
-                  
-                  <div class="options mt-4">
-                    <div v-for="option in additionQuestion.options" :key="option" 
-                         class="question-option d-inline-block mx-2" 
-                         :class="{ selected: selectedAdditionAnswer === option }"
-                         @click="selectAdditionAnswer(option)">
-                      {{ option }}
+
+                <!-- 练习区域 -->
+                <div class="practice-area">
+                  <div class="text-center my-4">
+                    <div class="question-display">
+                      <h4>{{ additionQuestion.a }} + {{ additionQuestion.b }} = ?</h4>
+                    </div>
+
+                    <div class="options mt-4">
+                      <div v-for="option in additionQuestion.options" :key="option"
+                           class="question-option d-inline-block mx-2"
+                           :class="{ selected: selectedAdditionAnswer === option }"
+                           @click="selectAdditionAnswer(option)">
+                        {{ option }}
+                      </div>
+                    </div>
+
+                    <div class="mt-3" v-if="additionResult !== null">
+                      <div v-if="additionResult" class="text-success">
+                        <i class="bi bi-check-circle-fill result-icon"></i>
+                        <h4>答对了！真棒！</h4>
+                      </div>
+                      <div v-else class="text-danger">
+                        <i class="bi bi-x-circle-fill result-icon"></i>
+                        <h4>再试试看哦！</h4>
+                      </div>
                     </div>
                   </div>
-                  
-                  <div class="mt-3" v-if="additionResult !== null">
-                    <div v-if="additionResult" class="text-success">
-                      <i class="bi bi-check-circle-fill result-icon"></i>
-                      <h4>答对了！真棒！</h4>
+                </div>
+
+                <!-- 统计卡片 -->
+                <div class="stats-section mt-5">
+                  <h4 class="mb-3">
+                    <i class="bi bi-calendar-day"></i> 今日练习统计
+                    <small class="text-muted ms-2">{{ getCurrentDateString() }}</small>
+                  </h4>
+                  <div class="row">
+                    <div class="col-md-3 col-6 mb-3">
+                      <div class="card bg-primary text-white">
+                        <div class="card-body text-center">
+                          <h5>总题数</h5>
+                          <h3>{{ additionStats.totalQuestions }}</h3>
+                        </div>
+                      </div>
                     </div>
-                    <div v-else class="text-danger">
-                      <i class="bi bi-x-circle-fill result-icon"></i>
-                      <h4>再试试看哦！</h4>
+                    <div class="col-md-3 col-6 mb-3">
+                      <div class="card bg-success text-white">
+                        <div class="card-body text-center">
+                          <h5>答对</h5>
+                          <h3>{{ additionStats.correctAnswers }}</h3>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                      <div class="card bg-danger text-white">
+                        <div class="card-body text-center">
+                          <h5>答错</h5>
+                          <h3>{{ additionStats.wrongAnswers }}</h3>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                      <div class="card bg-info text-white">
+                        <div class="card-body text-center">
+                          <h5>正确率</h5>
+                          <h3>{{ additionStats.accuracy }}%</h3>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 历史记录展开区域 -->
+                <div class="history-section mt-5">
+                  <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="mb-0">
+                      <i class="bi bi-clock-history"></i> 答题历史
+                    </h4>
+                    <div>
+                      <button class="btn btn-outline-primary btn-sm me-2"
+                              @click="toggleHistoryExpanded">
+                        <i class="bi" :class="historyExpanded ? 'bi-chevron-up' : 'bi-chevron-down'"></i>
+                        {{ historyExpanded ? '收起' : '展开' }}详细记录
+                      </button>
+                      <button class="btn btn-outline-info btn-sm me-2"
+                              @click="resetTodayStats"
+                              v-if="additionStats.totalQuestions > 0">
+                        <i class="bi bi-arrow-clockwise"></i> 重置今日
+                      </button>
+                      <button class="btn btn-outline-warning btn-sm"
+                              @click="clearPracticeHistory('addition')"
+                              v-if="Object.keys(additionHistory).length > 0">
+                        <i class="bi bi-trash"></i> 清空全部
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- 简要统计 -->
+                  <div class="history-summary p-3 bg-light rounded">
+                    <div class="row text-center">
+                      <div class="col-3">
+                        <div class="fw-bold text-primary">{{ Object.keys(additionHistory).length }}</div>
+                        <small class="text-muted">累计题目</small>
+                      </div>
+                      <div class="col-3">
+                        <div class="fw-bold text-success">{{ allTimeStats.correctAnswers }}</div>
+                        <small class="text-muted">累计答对</small>
+                      </div>
+                      <div class="col-3">
+                        <div class="fw-bold text-danger">{{ allTimeStats.wrongAnswers }}</div>
+                        <small class="text-muted">累计答错</small>
+                      </div>
+                      <div class="col-3">
+                        <div class="fw-bold text-info">{{ allTimeStats.accuracy }}%</div>
+                        <small class="text-muted">累计正确率</small>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- 详细历史记录 -->
+                  <div v-show="historyExpanded" class="history-details mt-3">
+                    <div v-if="Object.keys(additionHistory).length === 0" class="text-center text-muted py-5">
+                      <i class="bi bi-clipboard-x" style="font-size: 3rem;"></i>
+                      <h5 class="mt-3">暂无历史记录</h5>
+                      <p>开始练习加法题目后，这里会显示你的答题历史</p>
+                    </div>
+
+                    <div v-else class="table-responsive">
+                      <table class="table table-striped table-hover">
+                        <thead class="table-dark">
+                          <tr>
+                            <th>题目</th>
+                            <th>正确次数</th>
+                            <th>错误次数</th>
+                            <th>总次数</th>
+                            <th>正确率</th>
+                            <th>最后答题时间</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr v-for="(record, question) in sortedAdditionHistory" :key="question">
+                            <td class="fw-bold">{{ question }}</td>
+                            <td class="text-success">{{ record.correct }}</td>
+                            <td class="text-danger">{{ record.wrong }}</td>
+                            <td>{{ record.correct + record.wrong }}</td>
+                            <td>
+                              <span class="badge" :class="getAccuracyBadgeClass(record.correct, record.wrong)">
+                                {{ Math.round(record.correct / (record.correct + record.wrong) * 100) }}%
+                              </span>
+                            </td>
+                            <td class="text-muted">{{ formatTime(record.lastTime) }}</td>
+                          </tr>
+                        </tbody>
+                      </table>
                     </div>
                   </div>
                 </div>
@@ -748,7 +984,7 @@
         return;
       }
       
-      const { createApp, ref, reactive, onMounted } = Vue;
+      const { createApp, ref, reactive, computed, onMounted } = Vue;
       
       createApp({
         setup() {
@@ -886,6 +1122,49 @@
           // 答题结果
           const countingResult = ref(null);
           const additionResult = ref(null);
+
+          // 历史记录展开状态
+          const historyExpanded = ref(false);
+
+          // 加法练习历史记录
+          const additionHistory = reactive({});
+
+          // 加法练习统计数据（今日）
+          const additionStats = reactive({
+            totalQuestions: 0,
+            correctAnswers: 0,
+            wrongAnswers: 0,
+            accuracy: 0
+          });
+
+          // 加法练习今日记录
+          const additionTodayHistory = reactive({});
+
+          // 加法练习累计统计数据
+          const allTimeStats = reactive({
+            totalQuestions: 0,
+            correctAnswers: 0,
+            wrongAnswers: 0,
+            accuracy: 0
+          });
+
+          // 未来扩展示例：减法练习历史记录和统计数据
+          // const subtractionHistory = reactive({});
+          // const subtractionStats = reactive({
+          //   totalQuestions: 0,
+          //   correctAnswers: 0,
+          //   wrongAnswers: 0,
+          //   accuracy: 0
+          // });
+
+          // 未来扩展示例：数数练习历史记录和统计数据
+          // const countingHistory = reactive({});
+          // const countingStats = reactive({
+          //   totalQuestions: 0,
+          //   correctAnswers: 0,
+          //   wrongAnswers: 0,
+          //   accuracy: 0
+          // });
           
           // 设置活动标签页
           const setActiveTab = (subject, tab) => {
@@ -1037,6 +1316,8 @@
             selectedAdditionAnswer.value = answer;
             // 自动检查答案
             checkAdditionAnswer();
+            // 记录答题历史
+            recordAdditionAnswer(answer);
             // 1.5秒后自动进入下一题
             setTimeout(() => {
               nextAdditionQuestion();
@@ -1061,6 +1342,246 @@
             generateAdditionQuestion();
           };
           
+          // 通用的练习答题记录方法
+          const recordPracticeAnswer = (practiceType, question, userAnswer, correctAnswer) => {
+            let history, saveFunction;
+
+            // 根据练习类型选择对应的数据结构
+            switch(practiceType) {
+              case 'addition':
+                history = additionHistory;
+                saveFunction = saveAdditionHistory;
+                break;
+              // 未来可以添加其他练习类型
+              // case 'subtraction':
+              //   history = subtractionHistory;
+              //   saveFunction = saveSubtractionHistory;
+              //   break;
+              default:
+                console.warn(`未知的练习类型: ${practiceType}`);
+                return;
+            }
+
+            const isCorrect = userAnswer === correctAnswer;
+
+            // 初始化题目记录
+            if (!history[question]) {
+              history[question] = {
+                correct: 0,
+                wrong: 0,
+                lastTime: null
+              };
+            }
+
+            // 更新记录
+            if (isCorrect) {
+              history[question].correct++;
+            } else {
+              history[question].wrong++;
+            }
+
+            history[question].lastTime = new Date().toISOString();
+
+            // 保存到localStorage
+            saveFunction();
+
+            // 重新计算今日统计（仅对加法练习）
+            if (practiceType === 'addition') {
+              calculateTodayStats();
+            }
+          };
+
+          // 加法练习专用的记录方法（保持向后兼容）
+          const recordAdditionAnswer = (answer) => {
+            const question = `${additionQuestion.a} + ${additionQuestion.b}`;
+            const correctAnswer = additionQuestion.a + additionQuestion.b;
+            recordPracticeAnswer('addition', question, answer, correctAnswer);
+          };
+
+          // 保存历史记录到localStorage
+          const saveAdditionHistory = () => {
+            localStorage.setItem('additionHistory', JSON.stringify(additionHistory));
+            // 注意：不再保存统计数据，因为统计数据现在是基于今日动态计算的
+          };
+
+          // 从localStorage加载历史记录
+          const loadAdditionHistory = () => {
+            const savedHistory = localStorage.getItem('additionHistory');
+            const savedExpanded = localStorage.getItem('historyExpanded');
+
+            if (savedHistory) {
+              const parsedHistory = JSON.parse(savedHistory);
+              Object.assign(additionHistory, parsedHistory);
+            }
+
+            if (savedExpanded) {
+              historyExpanded.value = savedExpanded === 'true';
+            }
+
+            // 加载完成后计算今日统计
+            calculateTodayStats();
+          };
+
+          // 切换历史记录展开状态
+          const toggleHistoryExpanded = () => {
+            historyExpanded.value = !historyExpanded.value;
+            // 保存展开状态到localStorage
+            localStorage.setItem('historyExpanded', historyExpanded.value.toString());
+          };
+
+          // 重置今日统计（清除今日的答题记录）
+          const resetTodayStats = () => {
+            if (confirm('确定要重置今日练习统计吗？这将清除今天的所有答题记录，但保留历史记录。')) {
+              // 遍历历史记录，清除今日的答题次数
+              Object.entries(additionHistory).forEach(([question, record]) => {
+                if (isToday(record.lastTime)) {
+                  // 如果这道题只在今天答过，则完全删除
+                  // 否则保留题目但清零今日的答题次数（这里简化处理，直接删除今日记录）
+                  delete additionHistory[question];
+                }
+              });
+
+              // 保存更改并重新计算统计
+              saveAdditionHistory();
+              calculateTodayStats();
+            }
+          };
+
+          // 通用的练习历史记录清空方法
+          const clearPracticeHistory = (practiceType) => {
+            const practiceNames = {
+              'addition': '加法练习',
+              'subtraction': '减法练习',
+              'counting': '数数练习'
+            };
+
+            const practiceName = practiceNames[practiceType] || '练习';
+
+            if (confirm(`确定要清空${practiceName}的所有历史记录吗？此操作不可恢复。`)) {
+              switch(practiceType) {
+                case 'addition':
+                  Object.keys(additionHistory).forEach(key => delete additionHistory[key]);
+                  Object.keys(additionTodayHistory).forEach(key => delete additionTodayHistory[key]);
+                  additionStats.totalQuestions = 0;
+                  additionStats.correctAnswers = 0;
+                  additionStats.wrongAnswers = 0;
+                  additionStats.accuracy = 0;
+                  allTimeStats.totalQuestions = 0;
+                  allTimeStats.correctAnswers = 0;
+                  allTimeStats.wrongAnswers = 0;
+                  allTimeStats.accuracy = 0;
+                  saveAdditionHistory();
+                  break;
+                // 未来可以添加其他练习类型的清空逻辑
+                // case 'subtraction':
+                //   clearSubtractionHistory();
+                //   break;
+                // case 'counting':
+                //   clearCountingHistory();
+                //   break;
+              }
+            }
+          };
+
+          // 获取正确率徽章样式
+          const getAccuracyBadgeClass = (correct, wrong) => {
+            const accuracy = correct / (correct + wrong) * 100;
+            if (accuracy >= 90) return 'bg-success';
+            if (accuracy >= 70) return 'bg-warning';
+            return 'bg-danger';
+          };
+
+          // 格式化时间显示
+          const formatTime = (timeString) => {
+            if (!timeString) return '未知';
+            const date = new Date(timeString);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+
+            if (diffMins < 1) return '刚刚';
+            if (diffMins < 60) return `${diffMins}分钟前`;
+            if (diffHours < 24) return `${diffHours}小时前`;
+            if (diffDays < 7) return `${diffDays}天前`;
+
+            return date.toLocaleDateString('zh-CN', {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            });
+          };
+
+          // 获取当前日期字符串（YYYY-MM-DD格式）
+          const getCurrentDateString = () => {
+            const today = new Date();
+            return today.toLocaleDateString('zh-CN', {
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit'
+            }).replace(/\//g, '-');
+          };
+
+          // 检查是否为今天的记录
+          const isToday = (timeString) => {
+            if (!timeString) return false;
+            const recordDate = new Date(timeString);
+            const today = new Date();
+            return recordDate.toDateString() === today.toDateString();
+          };
+
+          // 计算今日统计和累计统计数据
+          const calculateTodayStats = () => {
+            let todayCorrect = 0;
+            let todayWrong = 0;
+            let todayTotal = 0;
+
+            let allTimeCorrect = 0;
+            let allTimeWrong = 0;
+            let allTimeTotal = 0;
+
+            // 清空今日历史记录
+            Object.keys(additionTodayHistory).forEach(key => delete additionTodayHistory[key]);
+
+            // 遍历所有历史记录
+            Object.entries(additionHistory).forEach(([question, record]) => {
+              // 累计所有时间的统计
+              allTimeCorrect += record.correct;
+              allTimeWrong += record.wrong;
+              allTimeTotal += record.correct + record.wrong;
+
+              // 筛选今日的记录
+              if (isToday(record.lastTime)) {
+                // 添加到今日历史记录
+                additionTodayHistory[question] = { ...record };
+
+                // 累计今日统计
+                todayCorrect += record.correct;
+                todayWrong += record.wrong;
+                todayTotal += record.correct + record.wrong;
+              }
+            });
+
+            // 更新今日统计数据
+            additionStats.totalQuestions = todayTotal;
+            additionStats.correctAnswers = todayCorrect;
+            additionStats.wrongAnswers = todayWrong;
+            additionStats.accuracy = todayTotal > 0
+              ? Math.round((todayCorrect / todayTotal) * 100)
+              : 0;
+
+            // 更新累计统计数据
+            allTimeStats.totalQuestions = allTimeTotal;
+            allTimeStats.correctAnswers = allTimeCorrect;
+            allTimeStats.wrongAnswers = allTimeWrong;
+            allTimeStats.accuracy = allTimeTotal > 0
+              ? Math.round((allTimeCorrect / allTimeTotal) * 100)
+              : 0;
+          };
+
           // 语音播放功能（简化版）
           const speak = (text) => {
             console.log("播放语音: " + text);
@@ -1082,18 +1603,32 @@
             event.target.parentNode.insertBefore(placeholder, event.target);
           };
           
+          // 计算属性：按最后答题时间排序的历史记录
+          const sortedAdditionHistory = computed(() => {
+            const entries = Object.entries(additionHistory);
+            return entries.sort((a, b) => {
+              const timeA = new Date(a[1].lastTime || 0);
+              const timeB = new Date(b[1].lastTime || 0);
+              return timeB - timeA; // 最新的在前
+            }).reduce((obj, [key, value]) => {
+              obj[key] = value;
+              return obj;
+            }, {});
+          });
+
           // 组件挂载时恢复状态
           onMounted(() => {
             restoreTabState();
-            
+            loadAdditionHistory(); // 加载历史记录
+
             // 从URL参数恢复状态
             const urlParams = new URLSearchParams(window.location.search);
             const subjectParam = urlParams.get('subject');
             const tabParam = urlParams.get('tab');
-            
+
             if (subjectParam && subjects[subjectParam]) {
               selectSubject(subjectParam, false); // 不更新URL，因为我们正在从URL恢复
-              
+
               if (tabParam) {
                 setTimeout(() => {
                   setActiveTab(subjectParam, tabParam);
@@ -1117,6 +1652,12 @@
             selectedAdditionAnswer,
             countingResult,
             additionResult,
+            historyExpanded,
+            additionHistory,
+            additionTodayHistory,
+            additionStats,
+            allTimeStats,
+            sortedAdditionHistory,
             selectSubject,
             goHome,
             generateCountingQuestion,
@@ -1130,7 +1671,16 @@
             setActiveTab,
             speak,
             getEmojiImageUrl,
-            handleImageError
+            handleImageError,
+            recordAdditionAnswer,
+            recordPracticeAnswer,
+            toggleHistoryExpanded,
+            resetTodayStats,
+            clearPracticeHistory,
+            getAccuracyBadgeClass,
+            formatTime,
+            getCurrentDateString,
+            calculateTodayStats
           };
         }
       }).mount('#app');
