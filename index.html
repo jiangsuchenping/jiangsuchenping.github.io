@@ -794,7 +794,7 @@
                         data-bs-target="#addition"
                         type="button"
                         role="tab"
-                        @click="setActiveTab('math', 'addition')">加法练习</button>
+                        @click="setActiveTab('math', 'addition')">20以内加法</button>
               </li>
               <li class="nav-item" role="presentation">
                 <button class="nav-link"
@@ -803,7 +803,7 @@
                         data-bs-target="#subtraction"
                         type="button"
                         role="tab"
-                        @click="setActiveTab('math', 'subtraction')">减法练习</button>
+                        @click="setActiveTab('math', 'subtraction')">20以内减法</button>
               </li>
             </ul>
             <div class="tab-content">
@@ -860,7 +860,7 @@
                    :class="{ 'show active': activeMathTab === 'addition' }"
                    id="addition"
                    role="tabpanel">
-                <h3 class="mt-3">加法练习</h3>
+                <h3 class="mt-3">20以内加法练习</h3>
 
                 <!-- 练习区域 -->
                 <div class="practice-area">
@@ -1024,7 +1024,7 @@
                    :class="{ 'show active': activeMathTab === 'subtraction' }"
                    id="subtraction"
                    role="tabpanel">
-                <h3 class="mt-3">减法练习</h3>
+                <h3 class="mt-3">20以内减法练习</h3>
 
                 <!-- 练习区域 -->
                 <div class="practice-area">
@@ -1887,7 +1887,7 @@
           // 生成加法题目
           const generateAdditionQuestion = () => {
             additionQuestion.a = Math.floor(Math.random() * 10) + 1; // 1-10
-            additionQuestion.b = Math.floor(Math.random() * (10 - additionQuestion.a)) + 1; // 确保和不超过10
+            additionQuestion.b = Math.floor(Math.random() * 10) + 1; // 1-10，允许和超过10但不超过20
             const correctAnswer = additionQuestion.a + additionQuestion.b;
             const options = new Set([correctAnswer]);
 
@@ -1906,7 +1906,7 @@
 
           // 生成减法题目
           const generateSubtractionQuestion = () => {
-            subtractionQuestion.a = Math.floor(Math.random() * 10) + 1; // 1-10
+            subtractionQuestion.a = Math.floor(Math.random() * 20) + 1; // 1-20
             subtractionQuestion.b = Math.floor(Math.random() * subtractionQuestion.a); // 0到a-1，确保结果不小于0
             const correctAnswer = subtractionQuestion.a - subtractionQuestion.b;
             const options = new Set([correctAnswer]);
@@ -1914,7 +1914,7 @@
             // 生成3个错误选项
             let attempts = 0;
             while (options.size < 4 && attempts < 50) {
-              const wrong = Math.floor(Math.random() * 11); // 0-10的随机数
+              const wrong = Math.floor(Math.random() * 21); // 0-20的随机数
               if (wrong !== correctAnswer) {
                 options.add(wrong);
               }
