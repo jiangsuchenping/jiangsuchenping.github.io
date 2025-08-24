@@ -2483,8 +2483,59 @@
           //   accuracy: 0
           // });
           
-          // 设置活动标签页
-          const setActiveTab = (subject, tab) => {
+          // 从localStorage恢复标签页状态
+          const restoreTabState = () => {
+            const chineseTab = localStorage.getItem('activeTab_chinese');
+            const mathTab = localStorage.getItem('activeTab_math');
+            const englishTab = localStorage.getItem('activeTab_english');
+            
+            if (chineseTab) activeChineseTab.value = chineseTab;
+            if (mathTab) activeMathTab.value = mathTab;
+            if (englishTab) activeEnglishTab.value = englishTab;
+          };
+          
+          // 防抖函数，避免频繁触发，并支持取消功能
+          const debounce = (fn, delay) => {
+            let timer = null;
+            const debounced = function(...args) {
+              if (timer) clearTimeout(timer);
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = null;
+              }, delay);
+            };
+            
+            // 添加取消功能
+            debounced.cancel = function() {
+              if (timer) {
+                clearTimeout(timer);
+                timer = null;
+              }
+            };
+            
+            return debounced;
+          };
+          
+          // 设置活动标签页（添加防抖功能）
+          const setActiveTab = debounce((subject, tab) => {
+            // 防止重复设置同一个标签页
+            let currentTab = '';
+            switch(subject) {
+              case 'chinese':
+                currentTab = activeChineseTab.value;
+                break;
+              case 'math':
+                currentTab = activeMathTab.value;
+                break;
+              case 'english':
+                currentTab = activeEnglishTab.value;
+                break;
+            }
+            
+            if (currentTab === tab) {
+              return; // 如果是同一个标签页，不做任何操作
+            }
+            
             switch(subject) {
               case 'chinese':
                 activeChineseTab.value = tab;
@@ -2519,21 +2570,15 @@
               
               window.history.replaceState({}, '', url);
             }
-          };
+          }, 300); // 300毫秒的防抖延迟
           
-          // 从localStorage恢复标签页状态
-          const restoreTabState = () => {
-            const chineseTab = localStorage.getItem('activeTab_chinese');
-            const mathTab = localStorage.getItem('activeTab_math');
-            const englishTab = localStorage.getItem('activeTab_english');
+          // 选择学科（添加防抖功能）
+          const selectSubject = debounce((subjectKey, updateUrl = true) => {
+            // 防止重复点击同一个学科
+            if (currentSubject.value && currentSubject.value.key === subjectKey) {
+              return;
+            }
             
-            if (chineseTab) activeChineseTab.value = chineseTab;
-            if (mathTab) activeMathTab.value = mathTab;
-            if (englishTab) activeEnglishTab.value = englishTab;
-          };
-          
-          // 选择学科
-          const selectSubject = (subjectKey, updateUrl = true) => {
             currentSubject.value = subjects[subjectKey];
             currentPage.value = 'subject';
 
@@ -2568,16 +2613,54 @@
               url.searchParams.set('tab', defaultTab);
               window.history.replaceState({}, '', url);
             }
-          };
+          }, 300); // 300毫秒的防抖延迟
           
-          // 选择学科和标签页
-          const selectSubjectAndTab = (subjectKey, tabKey) => {
+          // 选择学科和标签页（添加防抖功能）
+          const selectSubjectAndTab = debounce((subjectKey, tabKey) => {
+            // 防止重复点击同一个学科和标签页
+            if (currentSubject.value && currentSubject.value.key === subjectKey) {
+              // 如果是同一个学科，检查是否是同一个标签页
+              let currentTab = '';
+              switch(subjectKey) {
+                case 'chinese':
+                  currentTab = activeChineseTab.value;
+                  break;
+                case 'math':
+                  currentTab = activeMathTab.value;
+                  break;
+                case 'english':
+                  currentTab = activeEnglishTab.value;
+                  break;
+              }
+              
+              if (currentTab === tabKey) {
+                return; // 如果是同一个标签页，不做任何操作
+              }
+            }
+            
             // 先选择学科
-            selectSubject(subjectKey);
+            selectSubject.cancel && selectSubject.cancel(); // 取消可能正在进行的selectSubject防抖
+            currentSubject.value = subjects[subjectKey];
+            currentPage.value = 'subject';
+            
+            // 初始化题目
+            if (subjectKey === 'math') {
+              generateCountingQuestion();
+              generateAdditionQuestion();
+              generateSubtractionQuestion();
+            } else if (subjectKey === 'chinese') {
+              generateCharacterQuestion();
+            }
             
             // 再设置对应的标签页
             setActiveTab(subjectKey, tabKey);
-          };
+            
+            // 更新URL参数
+            const url = new URL(window.location);
+            url.searchParams.set('subject', subjectKey);
+            url.searchParams.set('tab', tabKey);
+            window.history.replaceState({}, '', url);
+          }, 300); // 300毫秒的防抖延迟
           
           
           // 返回主页
