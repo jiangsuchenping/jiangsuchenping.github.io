@@ -76,8 +76,14 @@
       right: 0;
       background: linear-gradient(to right, #4facfe 0%, #00f2fe 100%);
       padding: 10px 0;
-      z-index: 1001;
+      z-index: 1060;
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .quick-nav-item {
+      position: relative;
+      display: inline-block;
+      margin: 0 5px;
     }
     
     .quick-nav-btn {
@@ -85,10 +91,10 @@
       border: 1px solid rgba(255, 255, 255, 0.3);
       color: white;
       padding: 8px 16px;
-      margin: 0 5px;
       border-radius: 20px;
       transition: all 0.3s ease;
       font-size: 14px;
+      cursor: pointer;
     }
     
     .quick-nav-btn:hover {
@@ -102,9 +108,128 @@
       color: #4facfe;
     }
     
+    /* 下拉菜单样式 */
+    .quick-nav-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%) translateY(10px);
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+      padding: 10px 0;
+      min-width: 180px;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+      margin-top: 5px;
+      z-index: 1070;
+      border: 1px solid rgba(0,0,0,0.1);
+    }
+    
+    .quick-nav-item:hover .quick-nav-dropdown {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* 增强下拉菜单的交互体验 */
+    .quick-nav-item:hover .quick-nav-btn {
+      background: rgba(255, 255, 255, 0.4);
+      transform: translateY(-1px);
+    }
+
+    /* 防止下拉菜单意外关闭 */
+    .quick-nav-dropdown:hover {
+      opacity: 1;
+      visibility: visible;
+    }
+    
+    .quick-nav-dropdown-item {
+      display: block;
+      padding: 8px 20px;
+      color: #333;
+      text-decoration: none;
+      font-size: 13px;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      border: none;
+      background: none;
+      width: 100%;
+      text-align: left;
+    }
+    
+    .quick-nav-dropdown-item:hover {
+      background: #f8f9fa;
+      color: #4facfe;
+      transform: translateX(5px);
+    }
+    
+    .quick-nav-dropdown-item.active {
+      background: #e3f2fd;
+      color: #1976d2;
+      font-weight: 500;
+    }
+
     /* 为页面内容添加顶部间距，避免被快捷菜单遮挡 */
     .page-content {
       margin-top: 60px;
+    }
+
+    /* 响应式设计 - 快速导航菜单 */
+    @media (max-width: 768px) {
+      .quick-nav {
+        padding: 8px 0;
+        font-size: 12px;
+      }
+
+      .quick-nav-btn {
+        padding: 6px 12px;
+        font-size: 12px;
+        margin: 0 2px;
+      }
+
+      .quick-nav-dropdown {
+        min-width: 160px;
+        left: 0;
+        transform: translateX(0) translateY(10px);
+        margin-top: 3px;
+      }
+
+      .quick-nav-dropdown-item {
+        padding: 6px 15px;
+        font-size: 12px;
+      }
+
+      .page-content {
+        margin-top: 50px;
+      }
+
+      .nav-tabs-sticky {
+        top: 50px;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .quick-nav {
+        padding: 5px 0;
+      }
+
+      .quick-nav-btn {
+        padding: 4px 8px;
+        font-size: 11px;
+        border-radius: 15px;
+      }
+
+      .quick-nav-dropdown {
+        min-width: 140px;
+        font-size: 11px;
+      }
+
+      .quick-nav-dropdown-item {
+        padding: 5px 12px;
+        font-size: 11px;
+      }
     }
     
     .activity-card {
@@ -137,6 +262,85 @@
     
     h1, h2, h3, h4 {
       font-weight: bold;
+    }
+    
+    /* 图形认知样式 */
+    .shape-card {
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+      cursor: pointer;
+      height: 180px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .shape-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+    }
+    
+    .shape-circle {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background-color: #ff7eb3;
+    }
+    
+    .shape-square {
+      width: 80px;
+      height: 80px;
+      background-color: #4facfe;
+    }
+    
+    .shape-triangle {
+      width: 0;
+      height: 0;
+      border-left: 40px solid transparent;
+      border-right: 40px solid transparent;
+      border-bottom: 80px solid #3cba92;
+    }
+    
+    .shape-rectangle {
+      width: 100px;
+      height: 60px;
+      background-color: #ff758c;
+    }
+    
+    .shape-oval {
+      width: 100px;
+      height: 60px;
+      border-radius: 50%;
+      background-color: #ffcf5c;
+    }
+    
+    .shape-pentagon {
+      width: 80px;
+      height: 80px;
+      background-color: #8e44ad;
+      clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+    }
+    
+    .shape-hexagon {
+      width: 80px;
+      height: 80px;
+      background-color: #16a085;
+      clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+    }
+    
+    .shape-star {
+      width: 80px;
+      height: 80px;
+      background-color: #f1c40f;
+      clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+    }
+    
+    .shape-name {
+      font-weight: bold;
+      margin-top: 10px;
     }
     
     /* 返回顶部按钮样式 */
@@ -370,7 +574,7 @@
     /* 固定标签导航样式 */
     .nav-tabs-sticky {
       position: sticky;
-      top: 0;
+      top: 60px;
       z-index: 1020;
       background: white;
       padding: 10px 0;
@@ -503,24 +707,125 @@
     <div class="quick-nav" v-if="currentPage !== 'home'">
       <div class="container">
         <div class="d-flex justify-content-center align-items-center">
-          <button class="btn quick-nav-btn" 
-                  :class="{ active: currentSubject.key === 'chinese' }"
-                  @click="selectSubject('chinese')">
-            <i class="bi bi-book"></i> 语文
-          </button>
-          <button class="btn quick-nav-btn" 
-                  :class="{ active: currentSubject.key === 'math' }"
-                  @click="selectSubject('math')">
-            <i class="bi bi-calculator"></i> 数学
-          </button>
-          <button class="btn quick-nav-btn" 
-                  :class="{ active: currentSubject.key === 'english' }"
-                  @click="selectSubject('english')">
-            <i class="bi bi-globe"></i> 英语
-          </button>
-          <button class="btn quick-nav-btn ms-3" @click="goHome">
-            <i class="bi bi-house-door"></i> 主页
-          </button>
+          <!-- 语文学科下拉菜单 -->
+          <div class="quick-nav-item">
+            <button class="btn quick-nav-btn" 
+                    :class="{ active: currentSubject.key === 'chinese' }"
+                    @click="selectSubject('chinese')">
+              <i class="bi bi-book"></i> 语文
+            </button>
+            <div class="quick-nav-dropdown">
+              <button class="quick-nav-dropdown-item" 
+                      :class="{ active: currentSubject.key === 'chinese' && activeChineseTab === 'pinyin' }"
+                      @click="selectSubjectAndTab('chinese', 'pinyin')">
+                <i class="bi bi-music-note"></i> 拼音学习
+              </button>
+              <button class="quick-nav-dropdown-item" 
+                      :class="{ active: currentSubject.key === 'chinese' && activeChineseTab === 'characters' }"
+                      @click="selectSubjectAndTab('chinese', 'characters')">
+                <i class="bi bi-fonts"></i> 汉字学习
+              </button>
+              <button class="quick-nav-dropdown-item" 
+                      :class="{ active: currentSubject.key === 'chinese' && activeChineseTab === 'words' }"
+                      @click="selectSubjectAndTab('chinese', 'words')">
+                <i class="bi bi-chat-text"></i> 词语学习
+              </button>
+              <button class="quick-nav-dropdown-item" 
+                      :class="{ active: currentSubject.key === 'chinese' && activeChineseTab === 'idioms' }"
+                      @click="selectSubjectAndTab('chinese', 'idioms')">
+                <i class="bi bi-gem"></i> 成语学习
+              </button>
+              <button class="quick-nav-dropdown-item" 
+                      :class="{ active: currentSubject.key === 'chinese' && activeChineseTab === 'poems' }"
+                      @click="selectSubjectAndTab('chinese', 'poems')">
+                <i class="bi bi-journal-text"></i> 古诗词学习
+              </button>
+              <button class="quick-nav-dropdown-item" 
+                      :class="{ active: currentSubject.key === 'chinese' && activeChineseTab === 'test' }"
+                      @click="selectSubjectAndTab('chinese', 'test')">
+                <i class="bi bi-clipboard-check"></i> 识字测试
+              </button>
+              <button class="quick-nav-dropdown-item" 
+                      :class="{ active: currentSubject.key === 'chinese' && activeChineseTab === 'sayings' }"
+                      @click="selectSubjectAndTab('chinese', 'sayings')">
+                <i class="bi bi-chat-quote"></i> 歇后语
+              </button>
+              <button class="quick-nav-dropdown-item" 
+                      :class="{ active: currentSubject.key === 'chinese' && activeChineseTab === 'fables' }"
+                      @click="selectSubjectAndTab('chinese', 'fables')">
+                <i class="bi bi-book-half"></i> 寓言故事
+              </button>
+              <button class="quick-nav-dropdown-item" 
+                      :class="{ active: currentSubject.key === 'chinese' && activeChineseTab === 'riddles' }"
+                      @click="selectSubjectAndTab('chinese', 'riddles')">
+                <i class="bi bi-question-circle"></i> 谜语
+              </button>
+            </div>
+          </div>
+          
+          <!-- 数学学科下拉菜单 -->
+          <div class="quick-nav-item">
+            <button class="btn quick-nav-btn" 
+                    :class="{ active: currentSubject.key === 'math' }"
+                    @click="selectSubject('math')">
+              <i class="bi bi-calculator"></i> 数学
+            </button>
+            <div class="quick-nav-dropdown">
+              <button class="quick-nav-dropdown-item" 
+                      :class="{ active: currentSubject.key === 'math' && activeMathTab === 'numbers' }"
+                      @click="selectSubjectAndTab('math', 'numbers')">
+                <i class="bi bi-123"></i> 数字认知
+              </button>
+              <button class="quick-nav-dropdown-item" 
+                      :class="{ active: currentSubject.key === 'math' && activeMathTab === 'counting' }"
+                      @click="selectSubjectAndTab('math', 'counting')">
+                <i class="bi bi-list-ol"></i> 数数练习
+              </button>
+              <button class="quick-nav-dropdown-item" 
+                      :class="{ active: currentSubject.key === 'math' && activeMathTab === 'addition' }"
+                      @click="selectSubjectAndTab('math', 'addition')">
+                <i class="bi bi-plus-circle"></i> 20以内加法
+              </button>
+              <button class="quick-nav-dropdown-item" 
+                      :class="{ active: currentSubject.key === 'math' && activeMathTab === 'subtraction' }"
+                      @click="selectSubjectAndTab('math', 'subtraction')">
+                <i class="bi bi-dash-circle"></i> 20以内减法
+              </button>
+              <button class="quick-nav-dropdown-item" 
+                      :class="{ active: currentSubject.key === 'math' && activeMathTab === 'shapes' }"
+                      @click="selectSubjectAndTab('math', 'shapes')">
+                <i class="bi bi-hexagon"></i> 图形认知
+              </button>
+            </div>
+          </div>
+          
+          <!-- 英语学科下拉菜单 -->
+          <div class="quick-nav-item">
+            <button class="btn quick-nav-btn" 
+                    :class="{ active: currentSubject.key === 'english' }"
+                    @click="selectSubject('english')">
+              <i class="bi bi-globe"></i> 英语
+            </button>
+            <div class="quick-nav-dropdown">
+              <button class="quick-nav-dropdown-item" 
+                      :class="{ active: currentSubject.key === 'english' && activeEnglishTab === 'alphabet' }"
+                      @click="selectSubjectAndTab('english', 'alphabet')">
+                <i class="bi bi-alphabet"></i> 字母学习
+              </button>
+              <button class="quick-nav-dropdown-item" 
+                      :class="{ active: currentSubject.key === 'english' && activeEnglishTab === 'words' }"
+                      @click="selectSubjectAndTab('english', 'words')">
+                <i class="bi bi-translate"></i> 单词学习
+              </button>
+            </div>
+          </div>
+          
+          <!-- 主页按钮 -->
+          <div class="quick-nav-item ms-3">
+            <button class="btn quick-nav-btn" @click="goHome">
+              <i class="bi bi-house-door"></i> 主页
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -1090,6 +1395,15 @@
                         role="tab"
                         @click="setActiveTab('math', 'subtraction')">20以内减法</button>
               </li>
+              <li class="nav-item" role="presentation">
+                <button class="nav-link"
+                        :class="{ active: activeMathTab === 'shapes' }"
+                        data-bs-toggle="tab"
+                        data-bs-target="#shapes"
+                        type="button"
+                        role="tab"
+                        @click="setActiveTab('math', 'shapes')">图形认知</button>
+              </li>
             </ul>
             </div>
             <div class="tab-content">
@@ -1469,6 +1783,64 @@
                   </div>
                 </div>
               </div>
+              
+              <!-- 图形认知标签页内容 -->
+              <div class="tab-pane fade"
+                   :class="{ 'show active': activeMathTab === 'shapes' }"
+                   id="shapes"
+                   role="tabpanel">
+                <h3 class="mt-3">图形认知</h3>
+                <div class="row">
+                  <div class="col-md-3 col-6 mb-4">
+                    <div class="shape-card bg-light" @click="speak('圆形')">
+                      <div class="shape-circle"></div>
+                      <div class="shape-name text-center mt-2">圆形</div>
+                    </div>
+                  </div>
+                  <div class="col-md-3 col-6 mb-4">
+                    <div class="shape-card bg-light" @click="speak('正方形')">
+                      <div class="shape-square"></div>
+                      <div class="shape-name text-center mt-2">正方形</div>
+                    </div>
+                  </div>
+                  <div class="col-md-3 col-6 mb-4">
+                    <div class="shape-card bg-light" @click="speak('三角形')">
+                      <div class="shape-triangle"></div>
+                      <div class="shape-name text-center mt-2">三角形</div>
+                    </div>
+                  </div>
+                  <div class="col-md-3 col-6 mb-4">
+                    <div class="shape-card bg-light" @click="speak('长方形')">
+                      <div class="shape-rectangle"></div>
+                      <div class="shape-name text-center mt-2">长方形</div>
+                    </div>
+                  </div>
+                  <div class="col-md-3 col-6 mb-4">
+                    <div class="shape-card bg-light" @click="speak('椭圆形')">
+                      <div class="shape-oval"></div>
+                      <div class="shape-name text-center mt-2">椭圆形</div>
+                    </div>
+                  </div>
+                  <div class="col-md-3 col-6 mb-4">
+                    <div class="shape-card bg-light" @click="speak('五边形')">
+                      <div class="shape-pentagon"></div>
+                      <div class="shape-name text-center mt-2">五边形</div>
+                    </div>
+                  </div>
+                  <div class="col-md-3 col-6 mb-4">
+                    <div class="shape-card bg-light" @click="speak('六边形')">
+                      <div class="shape-hexagon"></div>
+                      <div class="shape-name text-center mt-2">六边形</div>
+                    </div>
+                  </div>
+                  <div class="col-md-3 col-6 mb-4">
+                    <div class="shape-card bg-light" @click="speak('星形')">
+                      <div class="shape-star"></div>
+                      <div class="shape-name text-center mt-2">星形</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -1568,7 +1940,7 @@
         </div>
         <div class="row mt-3">
           <div class="col-12 text-center">
-            <p class="mb-0">&copy; 2024 幼儿园大班学习乐园. 让学习变得更有趣！</p>
+            <p class="mb-0">&copy; 2025 幼儿园大班学习乐园. 让学习变得更有趣！</p>
           </div>
         </div>
       </div>
@@ -2197,6 +2569,16 @@
               window.history.replaceState({}, '', url);
             }
           };
+          
+          // 选择学科和标签页
+          const selectSubjectAndTab = (subjectKey, tabKey) => {
+            // 先选择学科
+            selectSubject(subjectKey);
+            
+            // 再设置对应的标签页
+            setActiveTab(subjectKey, tabKey);
+          };
+          
           
           // 返回主页
           const goHome = () => {
@@ -2908,6 +3290,7 @@
             sortedSubtractionHistory,
             sortedCharacterHistory,
             selectSubject,
+            selectSubjectAndTab,
             goHome,
             generateCountingQuestion,
             generateAdditionQuestion,
