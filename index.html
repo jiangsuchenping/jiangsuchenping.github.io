@@ -68,6 +68,45 @@
       z-index: 100;
     }
     
+    /* 快捷菜单样式 */
+    .quick-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(to right, #4facfe 0%, #00f2fe 100%);
+      padding: 10px 0;
+      z-index: 1001;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .quick-nav-btn {
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: white;
+      padding: 8px 16px;
+      margin: 0 5px;
+      border-radius: 20px;
+      transition: all 0.3s ease;
+      font-size: 14px;
+    }
+    
+    .quick-nav-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    
+    .quick-nav-btn.active {
+      background: white;
+      color: #4facfe;
+    }
+    
+    /* 为页面内容添加顶部间距，避免被快捷菜单遮挡 */
+    .page-content {
+      margin-top: 60px;
+    }
+    
     .activity-card {
       border-radius: 15px;
       transition: all 0.3s;
@@ -460,8 +499,34 @@
 </head>
 <body>
   <div id="app">
+    <!-- 快捷菜单 -->
+    <div class="quick-nav" v-if="currentPage !== 'home'">
+      <div class="container">
+        <div class="d-flex justify-content-center align-items-center">
+          <button class="btn quick-nav-btn" 
+                  :class="{ active: currentSubject.key === 'chinese' }"
+                  @click="selectSubject('chinese')">
+            <i class="bi bi-book"></i> 语文
+          </button>
+          <button class="btn quick-nav-btn" 
+                  :class="{ active: currentSubject.key === 'math' }"
+                  @click="selectSubject('math')">
+            <i class="bi bi-calculator"></i> 数学
+          </button>
+          <button class="btn quick-nav-btn" 
+                  :class="{ active: currentSubject.key === 'english' }"
+                  @click="selectSubject('english')">
+            <i class="bi bi-globe"></i> 英语
+          </button>
+          <button class="btn quick-nav-btn ms-3" @click="goHome">
+            <i class="bi bi-house-door"></i> 主页
+          </button>
+        </div>
+      </div>
+    </div>
+    
     <!-- 主页 -->
-    <div v-if="currentPage === 'home'" class="fade-in">
+    <div v-if="currentPage === 'home'" class="fade-in page-content">
       <div class="header text-center py-4 mb-4">
         <h1><i class="bi bi-stars"></i> 幼儿园大班学习乐园 <i class="bi bi-stars"></i></h1>
         <p class="lead">欢迎来到快乐学习世界！</p>
@@ -509,12 +574,7 @@
     </div>
     
     <!-- 学科页面 -->
-    <div v-else class="fade-in" v-cloak> 
-        <button class="btn btn-secondary back-btn" @click="goHome">
-          <i class="bi bi-arrow-left-circle"></i> 返回主页
-        </button>
-     
-      
+    <div v-else class="fade-in page-content" v-cloak> 
       <div class="header text-center py-4 mb-4">
         <h1>{{ currentSubject.title }}</h1>
       </div>
