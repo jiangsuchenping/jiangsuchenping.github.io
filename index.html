@@ -652,6 +652,132 @@
               </div>
               
               <div class="tab-pane fade"
+                   :class="{ 'show active': activeChineseTab === 'sayings' }"
+                   id="sayings"
+                   role="tabpanel">
+                <h3 class="mt-3">经典歇后语</h3>
+                <div class="row">
+                  <div v-for="saying in chinese.sayings" :key="saying.first" class="col-12 col-md-6 mb-3">
+                    <div class="word-card bg-light" @click="speak(saying.first + '，' + saying.second)">
+                      <div class="word fw-bold">{{ saying.first }}</div>
+                      <div class="second mt-2">{{ saying.second }}</div>
+                      <div class="explanation text-muted small mt-2" v-if="saying.explanation">{{ saying.explanation }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="tab-pane fade"
+                   :class="{ 'show active': activeChineseTab === 'fables' }"
+                   id="fables"
+                   role="tabpanel">
+                <h3 class="mt-3">寓言故事</h3>
+                <div class="row">
+                  <div v-for="fable in chinese.fables" :key="fable.title" class="col-12 mb-4">
+                    <div class="card h-100 shadow-sm">
+                      <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">{{ fable.title }}</h5>
+                      </div>
+                      <div class="card-body">
+                        <p class="card-text">{{ fable.content }}</p>
+                        <div class="mt-3 p-3 bg-light rounded">
+                          <h6 class="mb-2"><i class="bi bi-lightbulb"></i> 寓意</h6>
+                          <p class="mb-0">{{ fable.moral }}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="tab-pane fade"
+                   :class="{ 'show active': activeChineseTab === 'riddles' }"
+                   id="riddles"
+                   role="tabpanel">
+                <h3 class="mt-3">趣味谜语</h3>
+                <div class="row">
+                  <div class="col-12 mb-4">
+                    <ul class="nav nav-pills mb-3" id="riddle-tabs" role="tablist">
+                      <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="word-riddles-tab" data-bs-toggle="pill" data-bs-target="#word-riddles" type="button" role="tab">字谜</button>
+                      </li>
+                      <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="object-riddles-tab" data-bs-toggle="pill" data-bs-target="#object-riddles" type="button" role="tab">物谜</button>
+                      </li>
+                      <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="animal-riddles-tab" data-bs-toggle="pill" data-bs-target="#animal-riddles" type="button" role="tab">动物谜</button>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+                
+                <div class="tab-content" id="riddle-content">
+                  <div class="tab-pane fade show active" id="word-riddles" role="tabpanel">
+                    <div class="row">
+                      <div v-for="riddle in chinese.riddles.word" :key="riddle.question" class="col-12 col-md-6 mb-3">
+                        <div class="card h-100">
+                          <div class="card-body">
+                            <h5 class="card-title">{{ riddle.question }}</h5>
+                            <div class="mt-3">
+                              <button class="btn btn-sm btn-outline-primary" @click="riddle.showAnswer = !riddle.showAnswer">
+                                {{ riddle.showAnswer ? '隐藏答案' : '查看答案' }}
+                              </button>
+                              <div v-if="riddle.showAnswer" class="mt-2">
+                                <p class="text-success fw-bold">答案：{{ riddle.answer }}</p>
+                                <p v-if="riddle.explanation" class="text-muted small">解释：{{ riddle.explanation }}</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="tab-pane fade" id="object-riddles" role="tabpanel">
+                    <div class="row">
+                      <div v-for="riddle in chinese.riddles.object" :key="riddle.question" class="col-12 col-md-6 mb-3">
+                        <div class="card h-100">
+                          <div class="card-body">
+                            <h5 class="card-title">{{ riddle.question }}</h5>
+                            <div class="mt-3">
+                              <button class="btn btn-sm btn-outline-primary" @click="riddle.showAnswer = !riddle.showAnswer">
+                                {{ riddle.showAnswer ? '隐藏答案' : '查看答案' }}
+                              </button>
+                              <div v-if="riddle.showAnswer" class="mt-2">
+                                <p class="text-success fw-bold">答案：{{ riddle.answer }}</p>
+                                <p v-if="riddle.explanation" class="text-muted small">解释：{{ riddle.explanation }}</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="tab-pane fade" id="animal-riddles" role="tabpanel">
+                    <div class="row">
+                      <div v-for="riddle in chinese.riddles.animal" :key="riddle.question" class="col-12 col-md-6 mb-3">
+                        <div class="card h-100">
+                          <div class="card-body">
+                            <h5 class="card-title">{{ riddle.question }}</h5>
+                            <div class="mt-3">
+                              <button class="btn btn-sm btn-outline-primary" @click="riddle.showAnswer = !riddle.showAnswer">
+                                {{ riddle.showAnswer ? '隐藏答案' : '查看答案' }}
+                              </button>
+                              <div v-if="riddle.showAnswer" class="mt-2">
+                                <p class="text-success fw-bold">答案：{{ riddle.answer }}</p>
+                                <p v-if="riddle.explanation" class="text-muted small">解释：{{ riddle.explanation }}</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="tab-pane fade"
                    :class="{ 'show active': activeChineseTab === 'poems' }"
                    id="poems"
                    role="tabpanel">
@@ -1661,7 +1787,64 @@
               { idiom: '温故知新', pinyin: 'wēn gù zhī xīn', meaning: '复习旧知识能够获得新的理解。' },
               { idiom: '百折不挠', pinyin: 'bǎi zhé bù náo', meaning: '形容意志坚强，不怕困难。' },
               { idiom: '持之以恒', pinyin: 'chí zhī yǐ héng', meaning: '形容做事有恒心，能够坚持。' }
-            ]
+            ],
+            sayings: [
+              { first: '八仙过海', second: '各显神通', explanation: '比喻各人有各人的本领或办法。' },
+              { first: '小葱拌豆腐', second: '一清二白', explanation: '比喻为人清白纯洁。' },
+              { first: '泥菩萨过河', second: '自身难保', explanation: '比喻自己都难以保全，更不用说保护别人了。' },
+              { first: '猴子捞月亮', second: '空忙一场', explanation: '比喻做无法实现的事情，白费力气。' },
+              { first: '孔夫子搬家', second: '尽是书(输)', explanation: '双关语，一方面指孔子家中书多，另一方面暗示总是失败。' },
+              { first: '老太太吃汤圆', second: '囫囵吞', explanation: '比喻做事不细致，粗枝大叶。' },
+              { first: '打破砂锅', second: '问到底', explanation: '比喻追根究底，一定要弄清楚。' },
+              { first: '王八吃西瓜', second: '不知从哪下口', explanation: '比喻遇事犹豫不决，不知如何着手。' },
+              { first: '竹篮打水', second: '一场空', explanation: '比喻白费力气，没有收获。' },
+              { first: '和尚打伞', second: '无法无天', explanation: '双关语，和尚没有头发，打伞没有天，引申为不讲规矩法度。' },
+              { first: '铁打的公鸡', second: '下不了蛋', explanation: '比喻不可能完成的事情。' },
+              { first: '外甥打灯笼', second: '照旧(舅)', explanation: '双关语，照旧和照舅谐音，意思是按老规矩办事。' },
+              { first: '猪八戒照镜子', second: '里外不是人', explanation: '比喻无论怎样都不讨好。' },
+              { first: '秃子打伞', second: '无法(发)遮', explanation: '双关语，无法和无发谐音，比喻没有办法掩饰。' },
+              { first: '偷鸡不成', second: '蚀把米', explanation: '比喻想占便宜反而吃了亏。' }
+            ],
+            fables: [
+              { title: '守株待兔', content: '从前有个农夫，在田里耕作时，看见一只兔子撞在树桩上死了。他很高兴，捡起兔子就回家了。他想：如果每天都有兔子撞死在树桩上，那我就不用耕田了。于是他天天守在树桩旁，等待兔子撞树，结果田也荒了，兔子也没等到。', moral: '告诉我们不能坐等机会，而要通过自己的努力去创造机会。' },
+              { title: '揠苗助长', content: '宋国有个农夫，很着急自己的禾苗长得太慢。有一天，他把禾苗一棵棵拔高一些，累得筋疲力尽。他回到家对家人说："今天真累啊，我帮助禾苗长高了。"他儿子跑去田里一看，禾苗都已经枯死了。', moral: '告诉我们做事不能违背自然规律，揠苗助长只会适得其反。' },
+              { title: '滥竽充数', content: '齐宣王喜欢听300人一起吹竽。有个叫南郭的人不会吹竽，但他想得到俸禄，就混在吹竽的人群中假装吹奏。宣王死后，齐湣王即位，喜欢听独奏，要求300名吹竽者一个个表演。南郭害怕露馅，连夜逃走了。', moral: '告诉我们不要弄虚作假，否则总有露馅的一天。' },
+              { title: '刻舟求剑', content: '春秋时期，一个楚国人坐船渡河，不小心把宝剑掉进河里。他立刻在船舷上刻了个记号，说："这是我的剑掉下去的地方。"船靠岸后，他从刻记号的地方跳入水中找剑。船已经向前行驶，而剑却沉在原地，这样找剑当然找不到。', moral: '告诉我们做事要懂得变通，不能死板教条。' },
+              { title: '画蛇添足', content: '楚国有个祭祀的地方，几个人在那里喝酒。主人说谁先画完蛇就可以喝一杯酒。一个人很快画完了蛇，看别人还没画完，就得意地说："我还可以给蛇画脚呢！"他刚开始画脚，另一个人画完了蛇，抢过酒杯说："蛇本来没有脚，你画什么脚？"于是第二个人喝了酒。', moral: '告诉我们做事不要多此一举，否则会弄巧成拙。' },
+              { title: '狐假虎威', content: '一只老虎抓到一只狐狸。狐狸说："你不能吃我，因为我是上天派来管理百兽的。如果你不信，我走在前面，你跟在后面，看看百兽是不是都害怕我。"老虎信以为真，跟在狐狸后面走。所有的动物看到它们都跑了。老虎以为是因为狐狸的威风，却不知道动物们是害怕它自己。', moral: '告诉我们不要被表象迷惑，要看清事物的本质。' },
+              { title: '掩耳盗铃', content: '有个人想偷别人的铃铛，但他担心铃声会被别人听到。于是他捂住自己的耳朵，以为这样别人就听不到铃声了，结果当然是被发现了。', moral: '告诉我们自欺欺人是没有用的，逃避现实只会害了自己。' },
+              { title: '亡羊补牢', content: '有个人养了很多羊，但羊圈有破洞，羊经常跑出去丢失。有人劝他修补羊圈，他说："已经丢了那么多羊了，现在修还有什么用？"后来他改变主意，把羊圈修好了，果然没有再丢羊。', moral: '告诉我们即使已经造成了损失，及时补救仍然可以避免更大的损失。' },
+              { title: '塞翁失马', content: '边塞有个老人，他的马跑到胡人那里去了。大家都来安慰他，他却说："这未必不是福。"几个月后，那匹马带回来许多胡人的好马。大家都来祝贺他，他却说："这未必不是祸。"他的儿子喜欢骑马，结果从马上摔下来，摔断了腿。大家都来安慰他，他却说："这未必不是福。"一年后，胡人入侵，年轻人都去打仗，十个有九个死了，他儿子因为腿瘸没去，保住了性命。', moral: '告诉我们祸福相依，塞翁失马焉知非福。' },
+              { title: '愚公移山', content: '太行山和王屋山之间住着一个九十岁的老人，名叫愚公。这两座山挡住了他家的出路，他决定带领全家人把山移走。有人笑他愚蠢，他说："我死了有儿子，儿子死了有孙子，子子孙孙无穷尽，而山不会增高，总有一天会被我们铲平。"天帝被他的决心感动，命令两位大力神把山搬走了。', moral: '告诉我们只要有坚定的信念和不懈的努力，再大的困难也能克服。' }
+            ],
+            riddles: {
+              word: [
+                Vue.reactive({ question: '一加一', answer: '王', explanation: '一横加一横成"王"字', showAnswer: false }),
+                Vue.reactive({ question: '一人在内', answer: '囚', explanation: '人字在口字内', showAnswer: false }),
+                Vue.reactive({ question: '一口吃掉牛尾巴', answer: '告', explanation: '口字吃掉牛字的尾巴', showAnswer: false }),
+                Vue.reactive({ question: '八十八', answer: '米', explanation: '八十八写在一起像"米"字', showAnswer: false }),
+                Vue.reactive({ question: '言字底下一张口', answer: '话', explanation: '言字底下加口字', showAnswer: false }),
+                Vue.reactive({ question: '一个礼拜七天', answer: '周', explanation: '一个"礼拜"有七"天"，即"周"字', showAnswer: false }),
+                Vue.reactive({ question: '一个人搬两个土', answer: '佳', explanation: '人字旁加两个土字', showAnswer: false }),
+                Vue.reactive({ question: '一个口，两个口，三个口，四个口', answer: '吕', explanation: '两个口字叠在一起', showAnswer: false })
+              ],
+              object: [
+                Vue.reactive({ question: '远看像座山，近看一条线，从小到老都有它，没有它就缺半边', answer: '鼻子', explanation: '鼻子从远处看像座山，侧面看像一条线，人人都有', showAnswer: false }),
+                Vue.reactive({ question: '一物生得巧，地位比人高，戴上御风寒，脱下有烦恼', answer: '帽子', explanation: '帽子戴在头上，可以御寒', showAnswer: false }),
+                Vue.reactive({ question: '薄薄一张口，能啃硬骨头，吃肉不喝汤，吃瓜不嚼豆', answer: '菜刀', explanation: '菜刀可以切硬的东西，但不能盛汤', showAnswer: false }),
+                Vue.reactive({ question: '身穿绿衣裳，肚里水汪汪，生的子儿多，个个黑脸膛', answer: '西瓜', explanation: '西瓜外皮绿色，里面多汁，籽多且黑', showAnswer: false }),
+                Vue.reactive({ question: '头戴红缨帽，身穿绿罗袍，小时候是哑巴，老来咯咯叫', answer: '公鸡', explanation: '公鸡头上有红冠，小时候不会叫，长大后会打鸣', showAnswer: false }),
+                Vue.reactive({ question: '一物像葫芦，肚里水常满，要是下得早，地上水汪汪', answer: '水壶', explanation: '水壶形状像葫芦，装满水，如果放下不小心会洒水', showAnswer: false })
+              ],
+              animal: [
+                Vue.reactive({ question: '说马不像马，路上没有它，若用它做药，要到海中抓', answer: '海马', explanation: '海马是海洋生物，形状像马但不是马，可入药', showAnswer: false }),
+                Vue.reactive({ question: '黑黑皮肤黑眼珠，长长鼻子扫地溜，一身粗皮像穿铠，大象见了让三分', answer: '犀牛', explanation: '犀牛皮肤黑，鼻子长，皮厚，体型大', showAnswer: false }),
+                Vue.reactive({ question: '身穿白袍子，头戴红帽子，走起路来一摇一摆，说话叽叽喳喳', answer: '鹅', explanation: '鹅身体白色，头上有红色部分，走路摇摆，叫声嘎嘎', showAnswer: false }),
+                Vue.reactive({ question: '头顶两只角，身披大棉袄，农民好伙伴，耕地不用刀', answer: '黄牛', explanation: '黄牛有两只角，毛厚，是农民耕地的好帮手', showAnswer: false }),
+                Vue.reactive({ question: '小小飞行员，嗡嗡满天飞，飞到西瓜上，搬不动西瓜尾', answer: '蜜蜂', explanation: '蜜蜂会飞，发出嗡嗡声，但力气小搬不动西瓜', showAnswer: false }),
+                Vue.reactive({ question: '远看像只猫，近看不是猫，山中称大王，百兽都怕它', answer: '老虎', explanation: '老虎外形像大猫，是山中之王，百兽之王', showAnswer: false })
+              ]
+            }
           };
           
           // 英语内容
