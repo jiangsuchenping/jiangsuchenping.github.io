@@ -100,6 +100,34 @@
       font-weight: bold;
     }
     
+    /* 返回顶部按钮样式 */
+    .back-to-top {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 1000;
+      transition: all 0.3s ease;
+    }
+    
+    .back-to-top:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+    
+    .back-to-top i {
+      font-size: 1.5rem;
+      color: #4facfe;
+    }
+    
     .alphabet-card {
       height: 80px;
       display: flex;
@@ -2859,6 +2887,37 @@
         }
       }).mount('#app');
     }
+  </script>
+  <!-- 返回顶部按钮 -->
+  <div class="back-to-top" id="backToTop" v-cloak>
+    <i class="bi bi-arrow-up"></i>
+  </div>
+
+  <script>
+    // 返回顶部功能
+    document.addEventListener('DOMContentLoaded', function() {
+      const backToTopBtn = document.getElementById('backToTop');
+      
+      // 监听滚动事件，控制按钮显示/隐藏
+      window.addEventListener('scroll', function() {
+        if (window.pageYOffset > 300) {
+          backToTopBtn.style.display = 'flex';
+        } else {
+          backToTopBtn.style.display = 'none';
+        }
+      });
+      
+      // 初始状态隐藏按钮
+      backToTopBtn.style.display = 'none';
+      
+      // 点击返回顶部
+      backToTopBtn.addEventListener('click', function() {
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
+      });
+    });
   </script>
 </body>
 </html>
