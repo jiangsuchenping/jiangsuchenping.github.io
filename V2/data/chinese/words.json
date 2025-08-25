@@ -1,0 +1,344 @@
+{
+  "commonWords": [
+    {
+      "word": "早上好",
+      "pinyin": "zǎo shang hǎo",
+      "meaning": "早晨问候语",
+      "category": "daily"
+    },
+    {
+      "word": "谢谢你",
+      "pinyin": "xiè xiè nǐ",
+      "meaning": "表示感谢",
+      "category": "daily"
+    },
+    {
+      "word": "对不起",
+      "pinyin": "duì bù qǐ",
+      "meaning": "表示歉意",
+      "category": "daily"
+    },
+    {
+      "word": "没关系",
+      "pinyin": "méi guān xì",
+      "meaning": "表示原谅",
+      "category": "daily"
+    },
+    {
+      "word": "高高兴兴",
+      "pinyin": "gāo gāo xìng xìng",
+      "meaning": "形容非常开心",
+      "category": "emotion"
+    },
+    {
+      "word": "漂漂亮亮",
+      "pinyin": "piào piào liang liang",
+      "meaning": "形容非常漂亮",
+      "category": "description"
+    },
+    {
+      "word": "快快乐乐",
+      "pinyin": "kuài kuài lè lè",
+      "meaning": "形容非常快乐",
+      "category": "emotion"
+    },
+    {
+      "word": "认认真真",
+      "pinyin": "rèn rèn zhēn zhēn",
+      "meaning": "形容非常认真",
+      "category": "description"
+    },
+    {
+      "word": "干干净净",
+      "pinyin": "gàn gàn jìng jìng",
+      "meaning": "形容非常干净",
+      "category": "description"
+    },
+    {
+      "word": "慢慢走",
+      "pinyin": "màn màn zǒu",
+      "meaning": "缓慢行走",
+      "category": "action"
+    },
+    {
+      "word": "快点来",
+      "pinyin": "kuài diǎn lái",
+      "meaning": "催促快点过来",
+      "category": "action"
+    },
+    {
+      "word": "蓝天白云",
+      "pinyin": "lán tiān bái yún",
+      "meaning": "形容晴朗的天空",
+      "category": "nature"
+    },
+    {
+      "word": "绿树成荫",
+      "pinyin": "lǜ shù chéng yīn",
+      "meaning": "树木茂盛成荫",
+      "category": "nature"
+    },
+    {
+      "word": "鸟语花香",
+      "pinyin": "niǎo yǔ huā xiāng",
+      "meaning": "形容春天美好景象",
+      "category": "nature"
+    },
+    {
+      "word": "五颜六色",
+      "pinyin": "wǔ yán liù sè",
+      "meaning": "形容颜色丰富多彩",
+      "category": "description"
+    },
+    {
+      "word": "自言自语",
+      "pinyin": "zì yán zì yǔ",
+      "meaning": "自己和自己说话",
+      "category": "action"
+    },
+    {
+      "word": "左右为难",
+      "pinyin": "zuǒ yòu wéi nán",
+      "meaning": "形容处于两难境地",
+      "category": "emotion"
+    },
+    {
+      "word": "一模一样",
+      "pinyin": "yī mó yī yàng",
+      "meaning": "完全相同",
+      "category": "description"
+    },
+    {
+      "word": "一干二净",
+      "pinyin": "yī gàn èr jìng",
+      "meaning": "形容非常干净",
+      "category": "description"
+    },
+    {
+      "word": "一心一意",
+      "pinyin": "yī xīn yī yì",
+      "meaning": "专心致志",
+      "category": "description"
+    },
+    {
+      "word": "七嘴八舌",
+      "pinyin": "qī zuǐ bā shé",
+      "meaning": "形容很多人同时说话",
+      "category": "action"
+    },
+    {
+      "word": "三心二意",
+      "pinyin": "sān xīn èr yì",
+      "meaning": "形容心思不专一",
+      "category": "description"
+    },
+    {
+      "word": "四面八方",
+      "pinyin": "sì miàn bā fāng",
+      "meaning": "形容各个方向",
+      "category": "description"
+    },
+    {
+      "word": "说说笑笑",
+      "pinyin": "shuō shuō xiào xiào",
+      "meaning": "边说边笑",
+      "category": "action"
+    }
+  ],
+  "opposites": [
+    {
+      "word1": "大",
+      "pinyin1": "dà",
+      "word2": "小",
+      "pinyin2": "xiǎo"
+    },
+    {
+      "word1": "高",
+      "pinyin1": "gāo",
+      "word2": "矮",
+      "pinyin2": "ǎi"
+    },
+    {
+      "word1": "多",
+      "pinyin1": "duō",
+      "word2": "少",
+      "pinyin2": "shǎo"
+    },
+    {
+      "word1": "快",
+      "pinyin1": "kuài",
+      "word2": "慢",
+      "pinyin2": "màn"
+    },
+    {
+      "word1": "冷",
+      "pinyin1": "lěng",
+      "word2": "热",
+      "pinyin2": "rè"
+    },
+    {
+      "word1": "轻",
+      "pinyin1": "qīng",
+      "word2": "重",
+      "pinyin2": "zhòng"
+    },
+    {
+      "word1": "长",
+      "pinyin1": "cháng",
+      "word2": "短",
+      "pinyin2": "duǎn"
+    },
+    {
+      "word1": "宽",
+      "pinyin1": "kuān",
+      "word2": "窄",
+      "pinyin2": "zhǎi"
+    },
+    {
+      "word1": "厚",
+      "pinyin1": "hòu",
+      "word2": "薄",
+      "pinyin2": "báo"
+    },
+    {
+      "word1": "粗",
+      "pinyin1": "cū",
+      "word2": "细",
+      "pinyin2": "xì"
+    },
+    {
+      "word1": "硬",
+      "pinyin1": "yìng",
+      "word2": "软",
+      "pinyin2": "ruǎn"
+    },
+    {
+      "word1": "亮",
+      "pinyin1": "liàng",
+      "word2": "暗",
+      "pinyin2": "àn"
+    },
+    {
+      "word1": "干",
+      "pinyin1": "gàn",
+      "word2": "湿",
+      "pinyin2": "shī"
+    },
+    {
+      "word1": "新",
+      "pinyin1": "xīn",
+      "word2": "旧",
+      "pinyin2": "jiù"
+    },
+    {
+      "word1": "前",
+      "pinyin1": "qián",
+      "word2": "后",
+      "pinyin2": "hòu"
+    },
+    {
+      "word1": "上",
+      "pinyin1": "shàng",
+      "word2": "下",
+      "pinyin2": "xià"
+    },
+    {
+      "word1": "左",
+      "pinyin1": "zuǒ",
+      "word2": "右",
+      "pinyin2": "yòu"
+    },
+    {
+      "word1": "里",
+      "pinyin1": "lǐ",
+      "word2": "外",
+      "pinyin2": "wài"
+    },
+    {
+      "word1": "开",
+      "pinyin1": "kāi",
+      "word2": "关",
+      "pinyin2": "guān"
+    },
+    {
+      "word1": "来",
+      "pinyin1": "lái",
+      "word2": "去",
+      "pinyin2": "qù"
+    }
+  ],
+  "synonyms": [
+    {
+      "mainWord": "漂亮",
+      "mainPinyin": "piào liang",
+      "similarWords": ["美丽", "好看", "俊俏"],
+      "similarPinyin": ["měi lì", "hǎo kàn", "jùn qiào"]
+    },
+    {
+      "mainWord": "快乐",
+      "mainPinyin": "kuài lè",
+      "similarWords": ["高兴", "开心", "愉快"],
+      "similarPinyin": ["gāo xìng", "kāi xīn", "yú kuài"]
+    },
+    {
+      "mainWord": "聪明",
+      "mainPinyin": "cōng ming",
+      "similarWords": ["智慧", "伶俐", "灵巧"],
+      "similarPinyin": ["zhì huì", "líng lì", "líng qiǎo"]
+    },
+    {
+      "mainWord": "勇敢",
+      "mainPinyin": "yǒng gǎn",
+      "similarWords": ["无畏", "胆大", "英勇"],
+      "similarPinyin": ["wú wèi", "dǎn dà", "yīng yǒng"]
+    },
+    {
+      "mainWord": "干净",
+      "mainPinyin": "gān jìng",
+      "similarWords": ["整洁", "清洁", "洁净"],
+      "similarPinyin": ["zhěng jié", "qīng jié", "jié jìng"]
+    },
+    {
+      "mainWord": "喜欢",
+      "mainPinyin": "xǐ huan",
+      "similarWords": ["爱好", "喜爱", "钟爱"],
+      "similarPinyin": ["ài hào", "xǐ ài", "zhōng ài"]
+    },
+    {
+      "mainWord": "说话",
+      "mainPinyin": "shuō huà",
+      "similarWords": ["讲话", "交谈", "谈话"],
+      "similarPinyin": ["jiǎng huà", "jiāo tán", "tán huà"]
+    },
+    {
+      "mainWord": "看见",
+      "mainPinyin": "kàn jiàn",
+      "similarWords": ["瞧见", "望见", "发现"],
+      "similarPinyin": ["qiáo jiàn", "wàng jiàn", "fā xiàn"]
+    },
+    {
+      "mainWord": "帮助",
+      "mainPinyin": "bāng zhù",
+      "similarWords": ["援助", "协助", "扶助"],
+      "similarPinyin": ["yuán zhù", "xié zhù", "fú zhù"]
+    },
+    {
+      "mainWord": "快速",
+      "mainPinyin": "kuài sù",
+      "similarWords": ["迅速", "飞快", "敏捷"],
+      "similarPinyin": ["xùn sù", "fēi kuài", "mǐn jié"]
+    },
+    {
+      "mainWord": "美好",
+      "mainPinyin": "měi hǎo",
+      "similarWords": ["美丽", "优美", "美妙"],
+      "similarPinyin": ["měi lì", "yōu měi", "měi miào"]
+    },
+    {
+      "mainWord": "安静",
+      "mainPinyin": "ān jìng",
+      "similarWords": ["寂静", "平静", "宁静"],
+      "similarPinyin": ["jì jìng", "píng jìng", "níng jìng"]
+    }
+  ]
+}

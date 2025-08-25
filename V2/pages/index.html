@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>幼儿园大班学习乐园 - V2</title>
+  
+  <!-- 智能资源管理器 -->
+  <script src="../assets/js/smart-resource-manager.js"></script>
+  <script src="../assets/js/cdn-manager.js"></script>
+  
+  <!-- 样式表 -->
+  <link rel="stylesheet" href="../css/common.css">
+  <link rel="stylesheet" href="../css/home.css">
+</head>
+<body>
+  <header class="main-header">
+    <div class="container">
+      <h1>幼儿园大班学习乐园</h1>
+      <p class="tagline">快乐学习，健康成长</p>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="subjects-grid">
+      <!-- 语文学习入口 -->
+      <div class="subject-card" onclick="window.location.href='chinese/index.html'">
+        <div class="subject-icon">
+          <i class="bi bi-book"></i>
+        </div>
+        <h2>语文学习</h2>
+        <p>拼音、汉字、词语、古诗词</p>
+        <div class="card-footer">
+          <button class="btn-primary">开始学习</button>
+        </div>
+      </div>
+
+      <!-- 数学学习入口 -->
+      <div class="subject-card" onclick="window.location.href='math/index.html'">
+        <div class="subject-icon">
+          <i class="bi bi-calculator"></i>
+        </div>
+        <h2>数学学习</h2>
+        <p>数数、加法、减法、图形认知</p>
+        <div class="card-footer">
+          <button class="btn-primary">开始学习</button>
+        </div>
+      </div>
+
+      <!-- 英语学习入口 -->
+      <div class="subject-card" onclick="window.location.href='english/index.html'">
+        <div class="subject-icon">
+          <i class="bi bi-globe"></i>
+        </div>
+        <h2>英语学习</h2>
+        <p>字母、单词、句子</p>
+        <div class="card-footer">
+          <button class="btn-primary">开始学习</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="main-footer">
+    <div class="container">
+      <p>&copy; 2025 幼儿园大班学习乐园 - V2版本</p>
+    </div>
+  </footer>
+
+  <!-- 引入Bootstrap图标库 -->
+  <script>
+    // 使用智能CDN管理器加载Bootstrap图标
+    if (window.CDNManager) {
+      CDNManager.loadCSS('bootstrap-icons', '../assets/css/bootstrap-icons.min.css', 'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.min.css');
+    }
+  </script>
+</body>
+</html>

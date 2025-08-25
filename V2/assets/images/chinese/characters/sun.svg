@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <!-- 日字图像 -->
+  <g stroke="black" stroke-width="4" stroke-linecap="round" fill="none">
+    <path d="M25,25 L75,25" />
+    <path d="M75,25 L75,75" />
+    <path d="M75,75 L25,75" />
+    <path d="M25,75 L25,25" />
+    <path d="M25,50 L75,50" />
+  </g>
+  <!-- 背景圆形 -->
+  <circle cx="50" cy="50" r="48" stroke="#ddd" stroke-width="2" fill="none" />
+</svg>
