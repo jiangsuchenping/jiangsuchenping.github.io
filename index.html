@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>幼儿园大班学习乐园</title>
+   
   
   <!-- 智能资源管理器 -->
   <script src="assets/js/smart-resource-manager.js"></script>
@@ -1948,6 +1949,133 @@
   </div>
 
   <script>
+    // 全局定义防抖和节流函数，确保在Vue组件中可用
+    // 增强的防抖函数，专注于性能和稳定性，添加执行状态跟踪和最小调用间隔控制
+    const debounce = (fn, delay, immediate = false) => {
+      let timer = null;
+      let isRunning = false; // 添加执行状态标志
+      let isFirstCall = true; // 首次调用标志，用于立即执行模式
+      let lastCallTime = 0; // 记录上次调用时间
+      const minInterval = 300; // 最小调用间隔，单位毫秒
+      
+      const debounced = function(...args) {
+        const now = Date.now();
+        const callTimeDiff = now - lastCallTime;
+        
+        // 记录调用时间
+        lastCallTime = now;
+        
+        // 如果函数正在执行中或调用间隔太短，直接返回
+        if (isRunning || (!isFirstCall && callTimeDiff < minInterval)) {
+          console.log('防抖：忽略此次调用，原因：', 
+                      isRunning ? '函数执行中' : '调用间隔太短');
+          return;
+        }
+        
+        // 清除现有定时器
+        clearTimeout(timer);
+        
+        // 立即执行模式且是首次调用
+        if (immediate && isFirstCall) {
+          isFirstCall = false;
+          isRunning = true; // 设置执行状态
+          console.log('防抖：立即执行模式，首次调用');
+          
+          try {
+            fn.apply(this, args);
+          } catch (e) {
+            console.error('防抖：执行出错', e);
+          } finally {
+            // 确保执行完毕后重置状态，使用setTimeout确保异步安全
+            setTimeout(() => {
+              isRunning = false; // 重置执行状态
+              console.log('防抖：执行完毕，重置状态');
+            }, 300); // 延长延迟，确保状态安全重置
+          }
+          return;
+        }
+        
+        // 常规防抖逻辑
+        timer = setTimeout(() => {
+          isRunning = true; // 设置执行状态
+          isFirstCall = false; // 重置首次调用标志
+          console.log('防抖：延迟执行');
+          
+          try {
+            fn.apply(this, args);
+          } catch (e) {
+            console.error('防抖：执行出错', e);
+          } finally {
+            // 确保执行完毕后重置状态，使用setTimeout确保异步安全
+            setTimeout(() => {
+              isRunning = false; // 重置执行状态
+              console.log('防抖：执行完毕，重置状态');
+            }, 300); // 延长延迟，确保状态安全重置
+          }
+        }, delay);
+      };
+      
+      // 添加取消功能
+      debounced.cancel = function() {
+        console.log('防抖：取消执行');
+        if (timer) {
+          clearTimeout(timer);
+          timer = null;
+        }
+        isFirstCall = true; // 重置首次调用标志
+        
+        // 确保执行状态被正确重置，使用setTimeout确保异步安全
+        setTimeout(() => {
+          isRunning = false; // 重置执行状态
+          console.log('防抖：取消后重置执行状态');
+        }, 300); // 延长延迟，确保状态安全重置
+      };
+      
+      return debounced;
+    };
+
+    // 节流函数，确保函数在指定时间间隔内最多执行一次
+    const throttle = (fn, delay) => {
+      let lastCall = 0;
+      let timer = null;
+
+      return function(...args) {
+        const now = Date.now();
+        const remaining = delay - (now - lastCall);
+
+        if (remaining <= 0) {
+          if (timer) {
+            clearTimeout(timer);
+            timer = null;
+          }
+          lastCall = now;
+          fn.apply(this, args);
+        } else if (!timer) {
+          timer = setTimeout(() => {
+            lastCall = Date.now();
+            timer = null;
+            fn.apply(this, args);
+          }, remaining);
+        }
+      };
+    };
+
+    // 防止双击函数，用于防止按钮被快速连续点击
+    const preventDoubleClick = (fn, delay = 500) => {
+      let isClicked = false;
+
+      return function(...args) {
+        if (isClicked) return;
+
+        isClicked = true;
+        fn.apply(this, args);
+
+        setTimeout(() => {
+          isClicked = false;
+        }, delay);
+      };
+    };
+    
     // 页面加载时使用智能资源管理器加载资源
     document.addEventListener('DOMContentLoaded', function() {
       console.log('页面加载完成，开始智能加载资源...');
@@ -2483,42 +2611,35 @@
           //   accuracy: 0
           // });
           
-          // 从localStorage恢复标签页状态
-          const restoreTabState = () => {
-            const chineseTab = localStorage.getItem('activeTab_chinese');
-            const mathTab = localStorage.getItem('activeTab_math');
-            const englishTab = localStorage.getItem('activeTab_english');
-            
-            if (chineseTab) activeChineseTab.value = chineseTab;
-            if (mathTab) activeMathTab.value = mathTab;
-            if (englishTab) activeEnglishTab.value = englishTab;
-          };
+          // 设置活动标签页（添加防抖功能，使用立即执行模式提高响应速度）
+          // 添加锁定机制，防止重复调用导致的性能问题
+          let isSetActiveTabLocked = false;
+          let lastSetActiveTabTime = 0; // 记录上次调用时间
+          const setActiveTabMinInterval = 800; // 增加最小调用间隔，单位毫秒
+          let setActiveTabPendingCount = 0; // 添加挂起计数器
           
-          // 防抖函数，避免频繁触发，并支持取消功能
-          const debounce = (fn, delay) => {
-            let timer = null;
-            const debounced = function(...args) {
-              if (timer) clearTimeout(timer);
-              timer = setTimeout(() => {
-                fn.apply(this, args);
-                timer = null;
-              }, delay);
-            };
-            
-            // 添加取消功能
-            debounced.cancel = function() {
-              if (timer) {
-                clearTimeout(timer);
-                timer = null;
-              }
-            };
-            
-            return debounced;
-          };
-          
-          // 设置活动标签页（添加防抖功能）
           const setActiveTab = debounce((subject, tab) => {
-            // 防止重复设置同一个标签页
+            const now = Date.now();
+            console.log('设置活动标签页：', subject, tab, '挂起计数：', setActiveTabPendingCount);
+            
+            // 增加挂起计数器
+            setActiveTabPendingCount++;
+            
+            // 防止重复设置同一个标签页、函数执行中重复调用或调用间隔太短
+            if (isSetActiveTabLocked || (now - lastSetActiveTabTime < setActiveTabMinInterval)) {
+              console.log('设置活动标签页：忽略此次调用，原因：', 
+                          isSetActiveTabLocked ? '函数锁定中' : '调用间隔太短',
+                          '挂起计数：', setActiveTabPendingCount);
+              
+              // 减少挂起计数器
+              setTimeout(() => {
+                setActiveTabPendingCount = Math.max(0, setActiveTabPendingCount - 1);
+                console.log('设置活动标签页：减少挂起计数，当前：', setActiveTabPendingCount);
+              }, 100);
+              
+              return; // 如果函数已锁定或调用间隔太短，直接返回
+            }
+            
             let currentTab = '';
             switch(subject) {
               case 'chinese':
@@ -2533,91 +2654,271 @@
             }
             
             if (currentTab === tab) {
+              console.log('设置活动标签页：相同标签页，忽略此次调用');
+              
+              // 减少挂起计数器
+              setTimeout(() => {
+                setActiveTabPendingCount = Math.max(0, setActiveTabPendingCount - 1);
+                console.log('设置活动标签页：减少挂起计数，当前：', setActiveTabPendingCount);
+              }, 100);
+              
               return; // 如果是同一个标签页，不做任何操作
             }
             
-            switch(subject) {
-              case 'chinese':
-                activeChineseTab.value = tab;
-                break;
-              case 'math':
-                activeMathTab.value = tab;
-                break;
-              case 'english':
-                activeEnglishTab.value = tab;
-                break;
+            // 如果挂起计数过高，可能存在性能问题，强制重置
+            if (setActiveTabPendingCount > 5) {
+              console.warn('设置活动标签页：挂起计数过高，强制重置所有状态');
+              // 重置所有锁定状态
+              isSelectSubjectLocked = false;
+              isSetActiveTabLocked = false;
+              isSelectSubjectAndTabLocked = false;
+              setActiveTabPendingCount = 1; // 保留当前操作
             }
             
-            // 保存标签页状态到localStorage
-            localStorage.setItem(`activeTab_${subject}`, tab);
+            // 更新上次调用时间
+            lastSetActiveTabTime = now;
             
-            // 更新URL参数
-            if (currentSubject.value) {
-              const url = new URL(window.location);
-              url.searchParams.set('subject', currentSubject.value.key);
-              
-              switch(currentSubject.value.key) {
+            // 锁定函数，防止重复调用
+            isSetActiveTabLocked = true;
+            console.log('设置活动标签页：锁定函数');
+            
+            try {
+              // 立即更新UI状态
+              switch(subject) {
                 case 'chinese':
-                  url.searchParams.set('tab', activeChineseTab.value);
+                  activeChineseTab.value = tab;
                   break;
                 case 'math':
-                  url.searchParams.set('tab', activeMathTab.value);
+                  activeMathTab.value = tab;
                   break;
                 case 'english':
-                  url.searchParams.set('tab', activeEnglishTab.value);
+                  activeEnglishTab.value = tab;
                   break;
               }
               
-              window.history.replaceState({}, '', url);
+              // 使用setTimeout延迟执行非UI操作，避免阻塞渲染
+              console.log('设置活动标签页：准备延迟执行非UI操作');
+              setTimeout(() => {
+                try {
+                  console.log('设置活动标签页：开始执行非UI操作');
+                  // 保存标签页状态到localStorage
+                  try {
+                    localStorage.setItem(`activeTab_${subject}`, tab);
+                    console.log('设置活动标签页：保存标签页状态成功');
+                  } catch (e) {
+                    console.warn('保存标签页状态失败:', e);
+                  }
+                  
+                  // 更新URL参数
+                  if (currentSubject.value) {
+                    try {
+                      const url = new URL(window.location);
+                      url.searchParams.set('subject', currentSubject.value.key);
+                      
+                      switch(currentSubject.value.key) {
+                        case 'chinese':
+                          url.searchParams.set('tab', activeChineseTab.value);
+                          break;
+                        case 'math':
+                          url.searchParams.set('tab', activeMathTab.value);
+                          break;
+                        case 'english':
+                          url.searchParams.set('tab', activeEnglishTab.value);
+                          break;
+                      }
+                      
+                      window.history.replaceState({}, '', url);
+                      console.log('设置活动标签页：更新URL参数成功');
+                    } catch (e) {
+                      console.warn('更新URL参数失败:', e);
+                    }
+                  }
+                  console.log('设置活动标签页：非UI操作执行完成');
+                } catch (e) {
+                  console.error('设置活动标签页：执行非UI操作出错', e);
+                } finally {
+                  // 减少挂起计数器
+                  setActiveTabPendingCount = Math.max(0, setActiveTabPendingCount - 1);
+                  console.log('设置活动标签页：减少挂起计数，当前：', setActiveTabPendingCount);
+                  
+                  // 确保执行完毕后解锁，无论是否发生错误
+                  console.log('设置活动标签页：准备解锁函数');
+                  setTimeout(() => {
+                    isSetActiveTabLocked = false;
+                    console.log('设置活动标签页：解锁函数完成');
+                  }, 800); // 延长延迟，防止过快重复调用
+                }
+              }, 300); // 延长延迟，让UI先渲染
+            } catch (e) {
+              console.error('设置活动标签页：执行出错', e);
+              
+              // 出错时也要减少挂起计数器并解锁
+              setActiveTabPendingCount = Math.max(0, setActiveTabPendingCount - 1);
+              isSetActiveTabLocked = false;
             }
-          }, 300); // 300毫秒的防抖延迟
+          }, 300, true); // 增加防抖延迟，启用立即执行模式
           
-          // 选择学科（添加防抖功能）
+          // 从localStorage恢复标签页状态
+          const restoreTabState = () => {
+            const chineseTab = localStorage.getItem('activeTab_chinese');
+            const mathTab = localStorage.getItem('activeTab_math');
+            const englishTab = localStorage.getItem('activeTab_english');
+            
+            if (chineseTab) activeChineseTab.value = chineseTab;
+            if (mathTab) activeMathTab.value = mathTab;
+            if (englishTab) activeEnglishTab.value = englishTab;
+          };
+          
+          
+          
+          // 选择学科（添加防抖功能，使用立即执行模式提高响应速度）
+          // 添加锁定机制，防止重复调用导致的性能问题
+          let isSelectSubjectLocked = false;
+          let lastSelectSubjectTime = 0; // 记录上次调用时间
+          const selectSubjectMinInterval = 800; // 增加最小调用间隔，单位毫秒
+          let selectSubjectPendingCount = 0; // 添加挂起计数器
+          
           const selectSubject = debounce((subjectKey, updateUrl = true) => {
-            // 防止重复点击同一个学科
-            if (currentSubject.value && currentSubject.value.key === subjectKey) {
+            const now = Date.now();
+            console.log('选择学科：', subjectKey, '挂起计数：', selectSubjectPendingCount);
+            
+            // 增加挂起计数器
+            selectSubjectPendingCount++;
+            
+            // 防止重复点击同一个学科、函数执行中重复调用或调用间隔太短
+            if ((currentSubject.value && currentSubject.value.key === subjectKey) || 
+                isSelectSubjectLocked || 
+                (now - lastSelectSubjectTime < selectSubjectMinInterval)) {
+              console.log('选择学科：忽略此次调用，原因：', 
+                          (currentSubject.value && currentSubject.value.key === subjectKey) ? '相同学科' : 
+                          isSelectSubjectLocked ? '函数锁定中' : '调用间隔太短',
+                          '挂起计数：', selectSubjectPendingCount);
+              
+              // 减少挂起计数器
+              setTimeout(() => {
+                selectSubjectPendingCount = Math.max(0, selectSubjectPendingCount - 1);
+                console.log('选择学科：减少挂起计数，当前：', selectSubjectPendingCount);
+              }, 100);
+              
               return;
             }
             
-            currentSubject.value = subjects[subjectKey];
-            currentPage.value = 'subject';
-
-            // 初始化题目
-            if (subjectKey === 'math') {
-              generateCountingQuestion();
-              generateAdditionQuestion();
-              generateSubtractionQuestion();
-            } else if (subjectKey === 'chinese') {
-              generateCharacterQuestion();
+            // 如果挂起计数过高，可能存在性能问题，强制重置
+            if (selectSubjectPendingCount > 5) {
+              console.warn('选择学科：挂起计数过高，强制重置所有状态');
+              // 重置所有锁定状态
+              isSelectSubjectLocked = false;
+              isSetActiveTabLocked = false;
+              isSelectSubjectAndTabLocked = false;
+              selectSubjectPendingCount = 1; // 保留当前操作
             }
+            
+            // 更新上次调用时间
+            lastSelectSubjectTime = now;
+            
+            // 锁定函数，防止重复调用
+            isSelectSubjectLocked = true;
+            console.log('选择学科：锁定函数');
+            
+            try {
+              // 先更新UI状态，提高响应速度
+              currentSubject.value = subjects[subjectKey];
+              currentPage.value = 'subject';
+              console.log('选择学科：更新UI状态完成');
+              
+              // 使用setTimeout延迟执行耗时操作，避免阻塞UI
+              setTimeout(() => {
+                try {
+                  console.log('选择学科：开始初始化题目');
+                  // 初始化题目
+                  if (subjectKey === 'math') {
+                    generateCountingQuestion();
+                    generateAdditionQuestion();
+                    generateSubtractionQuestion();
+                  } else if (subjectKey === 'chinese') {
+                    generateCharacterQuestion();
+                  }
+                  console.log('选择学科：初始化题目完成');
+                  
+                  // 更新URL参数
+                  if (updateUrl) {
+                    try {
+                      const url = new URL(window.location);
+                      url.searchParams.set('subject', subjectKey);
 
-            // 更新URL参数
-            if (updateUrl) {
-              const url = new URL(window.location);
-              url.searchParams.set('subject', subjectKey);
+                      // 设置默认标签页
+                      let defaultTab = '';
+                      switch(subjectKey) {
+                        case 'chinese':
+                          defaultTab = activeChineseTab.value;
+                          break;
+                        case 'math':
+                          defaultTab = activeMathTab.value;
+                          break;
+                        case 'english':
+                          defaultTab = activeEnglishTab.value;
+                          break;
+                      }
 
-              // 设置默认标签页
-              let defaultTab = '';
-              switch(subjectKey) {
-                case 'chinese':
-                  defaultTab = activeChineseTab.value;
-                  break;
-                case 'math':
-                  defaultTab = activeMathTab.value;
-                  break;
-                case 'english':
-                  defaultTab = activeEnglishTab.value;
-                  break;
-              }
-
-              url.searchParams.set('tab', defaultTab);
-              window.history.replaceState({}, '', url);
+                      url.searchParams.set('tab', defaultTab);
+                      window.history.replaceState({}, '', url);
+                      console.log('选择学科：更新URL参数成功');
+                    } catch (e) {
+                      console.warn('更新URL参数失败:', e);
+                    }
+                  }
+                } catch (e) {
+                  console.error('选择学科：初始化题目出错', e);
+                } finally {
+                  // 减少挂起计数器
+                  selectSubjectPendingCount = Math.max(0, selectSubjectPendingCount - 1);
+                  console.log('选择学科：减少挂起计数，当前：', selectSubjectPendingCount);
+                  
+                  // 确保执行完毕后解锁，无论是否发生错误
+                  setTimeout(() => {
+                    isSelectSubjectLocked = false;
+                    console.log('选择学科：解锁函数');
+                  }, 800); // 延长延迟，防止过快重复调用
+                }
+              }, 200); // 延长延迟，让UI先渲染
+            } catch (e) {
+              console.error('选择学科：执行出错', e);
+              
+              // 出错时也要减少挂起计数器并解锁
+              selectSubjectPendingCount = Math.max(0, selectSubjectPendingCount - 1);
+              isSelectSubjectLocked = false;
             }
-          }, 300); // 300毫秒的防抖延迟
+          }, 300, true); // 增加防抖延迟，启用立即执行模式
           
-          // 选择学科和标签页（添加防抖功能）
+          // 选择学科和标签页（添加防抖功能，使用立即执行模式提高响应速度）
+          // 添加锁定机制，防止重复调用导致的性能问题
+          let isSelectSubjectAndTabLocked = false;
+          let lastSelectSubjectAndTabTime = 0; // 记录上次调用时间
+          const selectSubjectAndTabMinInterval = 1000; // 增加最小调用间隔，单位毫秒
+          let selectSubjectAndTabPendingCount = 0; // 添加挂起计数器
+          
           const selectSubjectAndTab = debounce((subjectKey, tabKey) => {
-            // 防止重复点击同一个学科和标签页
+            const now = Date.now();
+            console.log('选择学科和标签页：', subjectKey, tabKey, '挂起计数：', selectSubjectAndTabPendingCount);
+            
+            // 增加挂起计数器
+            selectSubjectAndTabPendingCount++;
+            
+            // 防止重复点击同一个学科和标签页、函数执行中重复调用或调用间隔太短
+            if (isSelectSubjectAndTabLocked || (now - lastSelectSubjectAndTabTime < selectSubjectAndTabMinInterval)) {
+              console.log('选择学科和标签页：忽略此次调用，原因：', 
+                          isSelectSubjectAndTabLocked ? '函数锁定中' : '调用间隔太短', 
+                          '挂起计数：', selectSubjectAndTabPendingCount);
+              
+              // 减少挂起计数器
+              setTimeout(() => {
+                selectSubjectAndTabPendingCount = Math.max(0, selectSubjectAndTabPendingCount - 1);
+                console.log('选择学科和标签页：减少挂起计数，当前：', selectSubjectAndTabPendingCount);
+              }, 100);
+              
+              return; // 如果函数已锁定或调用间隔太短，直接返回
+            }
+            
             if (currentSubject.value && currentSubject.value.key === subjectKey) {
               // 如果是同一个学科，检查是否是同一个标签页
               let currentTab = '';
@@ -2634,33 +2935,122 @@
               }
               
               if (currentTab === tabKey) {
+                console.log('选择学科和标签页：相同学科和标签页，忽略此次调用');
+                
+                // 减少挂起计数器
+                setTimeout(() => {
+                  selectSubjectAndTabPendingCount = Math.max(0, selectSubjectAndTabPendingCount - 1);
+                  console.log('选择学科和标签页：减少挂起计数，当前：', selectSubjectAndTabPendingCount);
+                }, 100);
+                
                 return; // 如果是同一个标签页，不做任何操作
               }
             }
             
-            // 先选择学科
-            selectSubject.cancel && selectSubject.cancel(); // 取消可能正在进行的selectSubject防抖
-            currentSubject.value = subjects[subjectKey];
-            currentPage.value = 'subject';
-            
-            // 初始化题目
-            if (subjectKey === 'math') {
-              generateCountingQuestion();
-              generateAdditionQuestion();
-              generateSubtractionQuestion();
-            } else if (subjectKey === 'chinese') {
-              generateCharacterQuestion();
+            // 如果挂起计数过高，可能存在性能问题，强制重置
+            if (selectSubjectAndTabPendingCount > 5) {
+              console.warn('选择学科和标签页：挂起计数过高，强制重置所有状态');
+              // 重置所有锁定状态
+              isSelectSubjectLocked = false;
+              isSetActiveTabLocked = false;
+              isSelectSubjectAndTabLocked = false;
+              selectSubjectAndTabPendingCount = 1; // 保留当前操作
             }
             
-            // 再设置对应的标签页
-            setActiveTab(subjectKey, tabKey);
+            // 更新上次调用时间
+            lastSelectSubjectAndTabTime = now;
             
-            // 更新URL参数
-            const url = new URL(window.location);
-            url.searchParams.set('subject', subjectKey);
-            url.searchParams.set('tab', tabKey);
-            window.history.replaceState({}, '', url);
-          }, 300); // 300毫秒的防抖延迟
+            // 锁定函数，防止重复调用
+            isSelectSubjectAndTabLocked = true;
+            console.log('选择学科和标签页：锁定函数');
+            
+            // 先选择学科
+            if (selectSubject.cancel) {
+              console.log('选择学科和标签页：取消可能正在进行的selectSubject防抖');
+              selectSubject.cancel(); // 取消可能正在进行的selectSubject防抖
+            }
+            
+            // 如果setActiveTab有取消功能，也取消它
+            if (setActiveTab.cancel) {
+              console.log('选择学科和标签页：取消可能正在进行的setActiveTab防抖');
+              setActiveTab.cancel(); // 取消可能正在进行的setActiveTab防抖
+            }
+            
+            try {
+              // 更新UI状态
+              console.log('选择学科和标签页：更新UI状态');
+              currentSubject.value = subjects[subjectKey];
+              currentPage.value = 'subject';
+              
+              // 先设置对应的标签页，确保UI立即响应
+              console.log('选择学科和标签页：设置活动标签页');
+              
+              // 直接更新标签页状态，而不是调用setActiveTab函数
+              // 这样可以避免多层函数调用导致的性能问题
+              switch(subjectKey) {
+                case 'chinese':
+                  activeChineseTab.value = tabKey;
+                  break;
+                case 'math':
+                  activeMathTab.value = tabKey;
+                  break;
+                case 'english':
+                  activeEnglishTab.value = tabKey;
+                  break;
+              }
+              
+              // 使用setTimeout延迟执行耗时操作，避免阻塞UI
+              console.log('选择学科和标签页：准备延迟执行耗时操作');
+              setTimeout(() => {
+                try {
+                  console.log('选择学科和标签页：开始初始化题目');
+                  // 初始化题目
+                  if (subjectKey === 'math') {
+                    generateCountingQuestion();
+                    generateAdditionQuestion();
+                    generateSubtractionQuestion();
+                  } else if (subjectKey === 'chinese') {
+                    generateCharacterQuestion();
+                  }
+                  console.log('选择学科和标签页：初始化题目完成');
+                  
+                  // 更新URL参数和本地存储
+                  try {
+                    // 保存标签页状态到localStorage
+                    localStorage.setItem(`activeTab_${subjectKey}`, tabKey);
+                    
+                    // 更新URL参数
+                    const url = new URL(window.location);
+                    url.searchParams.set('subject', subjectKey);
+                    url.searchParams.set('tab', tabKey);
+                    window.history.replaceState({}, '', url);
+                    
+                    console.log('选择学科和标签页：更新URL参数和本地存储成功');
+                  } catch (e) {
+                    console.warn('更新URL参数或本地存储失败:', e);
+                  }
+                } catch (e) {
+                  console.error('选择学科和标签页：初始化题目出错', e);
+                } finally {
+                  // 减少挂起计数器
+                  selectSubjectAndTabPendingCount = Math.max(0, selectSubjectAndTabPendingCount - 1);
+                  console.log('选择学科和标签页：减少挂起计数，当前：', selectSubjectAndTabPendingCount);
+                  
+                  // 确保执行完毕后解锁，无论是否发生错误
+                  setTimeout(() => {
+                    isSelectSubjectAndTabLocked = false;
+                    console.log('选择学科和标签页：解锁函数');
+                  }, 800); // 延长延迟，防止过快重复调用
+                }
+              }, 300); // 延长延迟，让UI先渲染
+            } catch (e) {
+              console.error('选择学科和标签页：执行出错', e);
+              
+              // 出错时也要减少挂起计数器并解锁
+              selectSubjectAndTabPendingCount = Math.max(0, selectSubjectAndTabPendingCount - 1);
+              isSelectSubjectAndTabLocked = false;
+            }
+          }, 300, true); // 增加防抖延迟，启用立即执行模式
           
           
           // 返回主页
