@@ -2626,6 +2626,10 @@
           
           
           
+          // 防止快速点击学科选择的标志
+          let isSelectingSubject = false;
+          let lastSubjectSelectTime = 0;
+          
           // 选择学科（添加防抖功能，使用立即执行模式提高响应速度）
           // 简化的学科选择函数
           const selectSubject = debounce((subjectKey, updateUrl = true) => {
@@ -2634,18 +2638,33 @@
               return;
             }
             
+            // 防止快速连续点击
+            const now = Date.now();
+            if (isSelectingSubject || (now - lastSubjectSelectTime < 300)) {
+              return;
+            }
+            
+            // 设置选择标志
+            isSelectingSubject = true;
+            lastSubjectSelectTime = now;
+            
             // 更新UI状态
             currentSubject.value = subjects[subjectKey];
             currentPage.value = 'subject';
             
-            // 初始化题目
-            if (subjectKey === 'math') {
-              generateCountingQuestion();
-              generateAdditionQuestion();
-              generateSubtractionQuestion();
-            } else if (subjectKey === 'chinese') {
-              generateCharacterQuestion();
-            }
+            // 延迟初始化题目，避免阻塞UI
+            setTimeout(() => {
+              if (subjectKey === 'math') {
+                generateCountingQuestion();
+                generateAdditionQuestion();
+                generateSubtractionQuestion();
+              } else if (subjectKey === 'chinese') {
+                generateCharacterQuestion();
+              }
+              
+              // 重置选择标志
+              isSelectingSubject = false;
+            }, 100); // 延迟100ms执行
             
             // 更新URL参数
             if (updateUrl) {
@@ -2675,8 +2694,16 @@
             }
           }, 200); // 简化的防抖延迟
           
+          // 防止快速点击的标志
+          let isSwitchingSubject = false;
+          
           // 简化的学科和标签页选择函数
           const selectSubjectAndTab = debounce((subjectKey, tabKey) => {
+            // 如果正在切换中，忽略新的点击
+            if (isSwitchingSubject) {
+              return;
+            }
+            
             // 检查是否是相同的学科和标签页
             if (currentSubject.value && currentSubject.value.key === subjectKey) {
               let currentTab = '';
@@ -2697,6 +2724,9 @@
               }
             }
             
+            // 设置切换标志
+            isSwitchingSubject = true;
+            
             // 更新UI状态
             currentSubject.value = subjects[subjectKey];
             currentPage.value = 'subject';
@@ -2714,14 +2744,16 @@
                 break;
             }
             
-            // 初始化题目
-            if (subjectKey === 'math') {
-              generateCountingQuestion();
-              generateAdditionQuestion();
-              generateSubtractionQuestion();
-            } else if (subjectKey === 'chinese') {
-              generateCharacterQuestion();
-            }
+            // 延迟初始化题目，避免阻塞UI
+            setTimeout(() => {
+              if (subjectKey === 'math') {
+                generateCountingQuestion();
+                generateAdditionQuestion();
+                generateSubtractionQuestion();
+              } else if (subjectKey === 'chinese') {
+                generateCharacterQuestion();
+              }
+            }, 50); // 延迟50ms执行
             
             // 更新URL参数和本地存储
             try {
@@ -2751,6 +2783,11 @@
                 }
               }, 100);
             }
+            
+            // 重置切换标志，允许下一次点击
+            setTimeout(() => {
+              isSwitchingSubject = false;
+            }, 300); // 稍微长一点的延迟确保所有操作完成
           }, 200); // 简化的防抖延迟
           
           
@@ -2766,18 +2803,27 @@
             window.history.replaceState({}, '', url);
           };
           
-          // 生成数数题目
+          // 生成数数题目（优化版本）
           const generateCountingQuestion = () => {
             countingQuestion.count = Math.floor(Math.random() * 10) + 1; // 1-10
             const correctAnswer = countingQuestion.count;
-            const options = new Set([correctAnswer]);
             
-            // 生成3个错误选项
-            while (options.size < 4) {
-              const wrong = correctAnswer + Math.floor(Math.random() * 5) - 2;
-              if (wrong > 0 && wrong <= 12 && wrong !== correctAnswer) {
-                options.add(wrong);
+            // 生成3个错误选项（更高效的方法）
+            const options = new Set([correctAnswer]);
+            const possibleWrongAnswers = [];
+            
+            // 预先生成可能的错误答案范围
+            for (let i = 1; i <= 12; i++) {
+              if (i !== correctAnswer) {
+                possibleWrongAnswers.push(i);
               }
+            }
+            
+            // 随机选择3个错误答案
+            while (options.size < 4 && possibleWrongAnswers.length > 0) {
+              const randomIndex = Math.floor(Math.random() * possibleWrongAnswers.length);
+              options.add(possibleWrongAnswers[randomIndex]);
+              possibleWrongAnswers.splice(randomIndex, 1);
             }
             
             countingQuestion.options = Array.from(options).sort(() => Math.random() - 0.5);
@@ -2785,19 +2831,28 @@
             countingResult.value = null;
           };
           
-          // 生成加法题目
+          // 生成加法题目（优化版本）
           const generateAdditionQuestion = () => {
             additionQuestion.a = Math.floor(Math.random() * 10) + 1; // 1-10
             additionQuestion.b = Math.floor(Math.random() * 10) + 1; // 1-10，允许和超过10但不超过20
             const correctAnswer = additionQuestion.a + additionQuestion.b;
+            
+            // 生成3个错误选项（更高效的方法）
             const options = new Set([correctAnswer]);
-
-            // 生成3个错误选项
-            while (options.size < 4) {
-              const wrong = correctAnswer + Math.floor(Math.random() * 5) - 2;
-              if (wrong >= 0 && wrong <= 20 && wrong !== correctAnswer) {
-                options.add(wrong);
+            const possibleWrongAnswers = [];
+            
+            // 预先生成可能的错误答案范围
+            for (let i = 0; i <= 20; i++) {
+              if (i !== correctAnswer) {
+                possibleWrongAnswers.push(i);
               }
+            }
+            
+            // 随机选择3个错误答案
+            while (options.size < 4 && possibleWrongAnswers.length > 0) {
+              const randomIndex = Math.floor(Math.random() * possibleWrongAnswers.length);
+              options.add(possibleWrongAnswers[randomIndex]);
+              possibleWrongAnswers.splice(randomIndex, 1);
             }
 
             additionQuestion.options = Array.from(options).sort(() => Math.random() - 0.5);
@@ -2805,30 +2860,28 @@
             additionResult.value = null;
           };
 
-          // 生成减法题目
+          // 生成减法题目（优化版本）
           const generateSubtractionQuestion = () => {
             subtractionQuestion.a = Math.floor(Math.random() * 20) + 1; // 1-20
             subtractionQuestion.b = Math.floor(Math.random() * subtractionQuestion.a); // 0到a-1，确保结果不小于0
             const correctAnswer = subtractionQuestion.a - subtractionQuestion.b;
+            
+            // 生成3个错误选项（更高效的方法）
             const options = new Set([correctAnswer]);
-
-            // 生成3个错误选项
-            let attempts = 0;
-            while (options.size < 4 && attempts < 50) {
-              const wrong = Math.floor(Math.random() * 21); // 0-20的随机数
-              if (wrong !== correctAnswer) {
-                options.add(wrong);
+            const possibleWrongAnswers = [];
+            
+            // 预先生成可能的错误答案范围
+            for (let i = 0; i <= 20; i++) {
+              if (i !== correctAnswer) {
+                possibleWrongAnswers.push(i);
               }
-              attempts++;
             }
-
-            // 如果仍然没有足够的选项，添加一些固定的选项
-            if (options.size < 4) {
-              for (let i = 0; i <= 10; i++) {
-                if (i !== correctAnswer && options.size < 4) {
-                  options.add(i);
-                }
-              }
+            
+            // 随机选择3个错误答案
+            while (options.size < 4 && possibleWrongAnswers.length > 0) {
+              const randomIndex = Math.floor(Math.random() * possibleWrongAnswers.length);
+              options.add(possibleWrongAnswers[randomIndex]);
+              possibleWrongAnswers.splice(randomIndex, 1);
             }
 
             subtractionQuestion.options = Array.from(options).sort(() => Math.random() - 0.5);
@@ -2836,7 +2889,7 @@
             subtractionResult.value = null;
           };
 
-          // 生成识字测试题目
+          // 生成识字测试题目（优化版本）
           const generateCharacterQuestion = () => {
             const characters = chinese.characters;
             const randomIndex = Math.floor(Math.random() * characters.length);
@@ -2846,14 +2899,20 @@
             characterQuestion.pinyin = selectedChar.pinyin;
 
             const options = new Set([selectedChar.pinyin]);
-
-            // 生成3个错误选项
-            while (options.size < 4) {
-              const wrongIndex = Math.floor(Math.random() * characters.length);
-              const wrongPinyin = characters[wrongIndex].pinyin;
-              if (wrongPinyin !== selectedChar.pinyin) {
-                options.add(wrongPinyin);
+            const possibleWrongPinyins = [];
+            
+            // 预先生成可能的错误拼音选项
+            for (let i = 0; i < characters.length; i++) {
+              if (characters[i].pinyin !== selectedChar.pinyin) {
+                possibleWrongPinyins.push(characters[i].pinyin);
               }
+            }
+
+            // 随机选择3个错误选项
+            while (options.size < 4 && possibleWrongPinyins.length > 0) {
+              const randomIndex = Math.floor(Math.random() * possibleWrongPinyins.length);
+              options.add(possibleWrongPinyins[randomIndex]);
+              possibleWrongPinyins.splice(randomIndex, 1);
             }
 
             characterQuestion.options = Array.from(options).sort(() => Math.random() - 0.5);
