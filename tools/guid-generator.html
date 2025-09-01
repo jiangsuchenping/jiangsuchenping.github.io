@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GUID生成器 - 在线工具箱</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .tool-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .result-group {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            text-align: center;
+        }
+        
+        #guid-result {
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            word-break: break-all;
+            padding: 10px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        
+        .button-group {
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .button-group button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            margin: 0 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .button-group button:hover {
+            background-color: #2980b9;
+        }
+        
+        .copy-btn {
+            background-color: #28a745 !important;
+        }
+        
+        .copy-btn:hover {
+            background-color: #218838 !important;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>GUID生成器</h1>
+            <p>在线生成GUID/UUID</p>
+        </div>
+    </header>
+
+    <nav>
+        <div class="container">
+            <ul>
+                <li><a href="../index.html">首页</a></li>
+                <li><a href="#generate">生成</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="tool-container">
+        <div class="info">
+            <h3>关于GUID</h3>
+            <p>GUID（Globally Unique Identifier，全局唯一标识符）是一种由算法生成的唯一标识符。GUID通常用于分布式系统中，确保不同设备生成的标识符不会冲突。</p>
+        </div>
+
+        <div class="button-group">
+            <button onclick="generateGUID()">生成GUID</button>
+            <button class="copy-btn" onclick="copyToClipboard()">复制到剪贴板</button>
+        </div>
+
+        <div class="result-group">
+            <h3>生成结果</h3>
+            <div id="guid-result">点击上面的按钮生成GUID</div>
+        </div>
+
+        <div class="info">
+            <h3>说明</h3>
+            <ul>
+                <li>每次点击"生成GUID"按钮都会生成一个新的唯一标识符</li>
+                <li>生成的GUID遵循标准的8-4-4-4-12格式（32个十六进制字符）</li>
+                <li>可以使用"复制到剪贴板"按钮快速复制生成的GUID</li>
+            </ul>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 在线工具箱 - GUID生成器</p>
+        </div>
+    </footer>
+
+    <script>
+        /**
+         * 生成GUID/UUID (版本4 - 随机)
+         * @returns {string} 格式化的GUID字符串
+         */
+        function generateGUID() {
+            const guid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                const r = Math.random() * 16 | 0;
+                const v = c == 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+            
+            document.getElementById('guid-result').textContent = guid;
+            return guid;
+        }
+
+        /**
+         * 复制生成的GUID到剪贴板
+         */
+        function copyToClipboard() {
+            const resultElement = document.getElementById('guid-result');
+            const text = resultElement.textContent;
+            
+            if (text === '点击上面的按钮生成GUID') {
+                alert('请先生成一个GUID');
+                return;
+            }
+            
+            navigator.clipboard.writeText(text).then(() => {
+                alert('GUID已复制到剪贴板: ' + text);
+            }).catch(err => {
+                console.error('复制失败: ', err);
+                // 降级方案
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('GUID已复制到剪贴板: ' + text);
+            });
+        }
+    </script>
+</body>
+</html>

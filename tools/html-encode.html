@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML编码/解码工具 - 在线工具箱</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .tool-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .input-group textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            resize: vertical;
+        }
+        
+        .button-group {
+            margin-bottom: 20px;
+        }
+        
+        .button-group button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin-right: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .button-group button:hover {
+            background-color: #2980b9;
+        }
+        
+        .result-container {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            min-height: 100px;
+        }
+        
+        .error {
+            color: #e74c3c;
+            background-color: #fdf2f2;
+            border: 1px solid #f5c6cb;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>HTML编码/解码工具</h1>
+            <p>在线HTML编码和解码工具</p>
+        </div>
+    </header>
+
+    <nav>
+        <div class="container">
+            <ul>
+                <li><a href="../index.html">首页</a></li>
+                <li><a href="#encode">编码</a></li>
+                <li><a href="#decode">解码</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="tool-container">
+        <div class="input-group">
+            <label for="input-text">输入文本：</label>
+            <textarea id="input-text" placeholder="请输入要编码或解码的文本"></textarea>
+        </div>
+
+        <div class="button-group">
+            <button onclick="encodeHTML()">HTML编码</button>
+            <button onclick="decodeHTML()">HTML解码</button>
+            <button onclick="clearAll()">清空</button>
+        </div>
+
+        <div id="result-container">
+            <div class="input-group">
+                <label for="output-text">处理结果：</label>
+                <textarea id="output-text" readonly></textarea>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 在线工具箱 - HTML编码/解码工具</p>
+        </div>
+    </footer>
+
+    <script>
+        function encodeHTML() {
+            const input = document.getElementById('input-text').value;
+            const output = document.getElementById('output-text');
+            
+            if (!input.trim()) {
+                output.value = '请输入要编码的文本';
+                return;
+            }
+            
+            try {
+                const div = document.createElement('div');
+                div.textContent = input;
+                output.value = div.innerHTML;
+            } catch (error) {
+                output.value = '编码错误: ' + error.message;
+            }
+        }
+        
+        function decodeHTML() {
+            const input = document.getElementById('input-text').value;
+            const output = document.getElementById('output-text');
+            
+            if (!input.trim()) {
+                output.value = '请输入要解码的HTML字符串';
+                return;
+            }
+            
+            try {
+                const div = document.createElement('div');
+                div.innerHTML = input;
+                output.value = div.textContent || div.innerText || '';
+            } catch (error) {
+                output.value = '解码错误: 输入的HTML字符串可能无效';
+            }
+        }
+        
+        function clearAll() {
+            document.getElementById('input-text').value = '';
+            document.getElementById('output-text').value = '';
+        }
+    </script>
+</body>
+</html>
