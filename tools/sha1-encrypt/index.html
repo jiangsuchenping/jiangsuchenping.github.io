@@ -1,0 +1,339 @@
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHA1加密工具 - 在线工具箱</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .tool-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .input-group textarea, .input-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            resize: vertical;
+        }
+        
+        .input-group input {
+            height: 40px;
+        }
+        
+        .button-group {
+            margin-bottom: 20px;
+        }
+        
+        .button-group button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin-right: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .button-group button:hover {
+            background-color: #2980b9;
+        }
+        
+        .result-container {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            min-height: 100px;
+        }
+        
+        .error {
+            color: #e74c3c;
+            background-color: #fdf2f2;
+            border: 1px solid #f5c6cb;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>SHA1加密工具</h1>
+            <p>在线SHA1加密工具</p>
+        </div>
+    </header>
+
+    <nav>
+        <div class="container">
+            <ul>
+                <li><a href="../../index.html">首页</a></li>
+                <li><a href="../sha1-encrypt/index.html">SHA1加密</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="tool-container">
+        <div class="input-group">
+            <label for="input-text">输入文本：</label>
+            <textarea id="input-text" placeholder="请输入要加密的文本"></textarea>
+        </div>
+        
+        <div class="input-group">
+            <label for="salt">盐值（可选）：</label>
+            <input type="text" id="salt" placeholder="可选的盐值">
+        </div>
+
+        <div class="button-group">
+            <button onclick="encryptSHA1()">SHA1加密</button>
+            <button onclick="clearAll()">清空</button>
+        </div>
+
+        <div id="result-container">
+            <div class="input-group">
+                <label for="output-text">SHA1结果：</label>
+                <textarea id="output-text" readonly></textarea>
+            </div>
+        </div>
+        
+        <div class="info">
+            <h3>说明</h3>
+            <ul>
+                <li>SHA1是一种密码散列函数，由美国国家安全局设计，产生160位（20字节）的哈希值</li>
+                <li>SHA1算法是不可逆的，不能从哈希值还原原始数据</li>
+                <li>盐值是附加在原始数据上的随机字符串，用于增加安全性</li>
+                <li>SHA1已被发现存在安全漏洞，不建议用于敏感数据加密</li>
+            </ul>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 在线工具箱 - SHA1加密工具</p>
+        </div>
+    </footer>
+
+    <script src="../../js/main.js"></script>
+    <script>
+        // 工具ID，用于保存选项
+        const TOOL_ID = 'sha1-encrypt';
+        
+        function recordToolUsage(toolName) {
+            // 检查浏览器是否支持 navigator.sendBeacon 或 XMLHttpRequest
+            if (navigator.sendBeacon) {
+                // 使用 sendBeacon 异步发送数据，不影响页面卸载
+                navigator.sendBeacon('https://jiangsuchenping.github.io/recordToolUsage.html?tool=' + toolName);
+            } else {
+                // 降级方案：使用 XMLHttpRequest
+                var xhr = new XMLHttpRequest();
+                xhr.open('GET', 'https://jiangsuchenping.github.io/recordToolUsage.html?tool=' + toolName, true);
+                xhr.send();
+            }
+        }
+        recordToolUsage('tools/sha1-encrypt/index.html');
+
+        // SHA1实现
+        function sha1(msg) {
+            // 将字符串转换为UTF-8编码的字节数组
+            function strToUtf8Bytes(str) {
+                const bytes = [];
+                for (let i = 0; i < str.length; i++) {
+                    let charcode = str.charCodeAt(i);
+                    if (charcode < 0x80) {
+                        bytes.push(charcode);
+                    } else if (charcode < 0x800) {
+                        bytes.push(0xc0 | (charcode >> 6),
+                                   0x80 | (charcode & 0x3f));
+                    } else if (charcode < 0xd800 || charcode >= 0xe000) {
+                        bytes.push(0xe0 | (charcode >> 12),
+                                   0x80 | ((charcode >> 6) & 0x3f),
+                                   0x80 | (charcode & 0x3f));
+                    } else {
+                        i++;
+                        charcode = 0x10000 + (((charcode & 0x3ff) << 10)
+                                    | (str.charCodeAt(i) & 0x3ff));
+                        bytes.push(0xf0 | (charcode >> 18),
+                                   0x80 | ((charcode >> 12) & 0x3f),
+                                   0x80 | ((charcode >> 6) & 0x3f),
+                                   0x80 | (charcode & 0x3f));
+                    }
+                }
+                return bytes;
+            }
+            
+            // 左旋转函数
+            function rol(num, cnt) {
+                return (num << cnt) | (num >>> (32 - cnt));
+            }
+            
+            // 64个元素的数组K
+            const K = [
+                0x5a827999, 0x5a827999, 0x5a827999, 0x5a827999,
+                0x5a827999, 0x5a827999, 0x5a827999, 0x5a827999,
+                0x5a827999, 0x5a827999, 0x5a827999, 0x5a827999,
+                0x5a827999, 0x5a827999, 0x5a827999, 0x5a827999,
+                0x5a827999, 0x5a827999, 0x5a827999, 0x5a827999,
+                0x6ed9eba1, 0x6ed9eba1, 0x6ed9eba1, 0x6ed9eba1,
+                0x6ed9eba1, 0x6ed9eba1, 0x6ed9eba1, 0x6ed9eba1,
+                0x6ed9eba1, 0x6ed9eba1, 0x6ed9eba1, 0x6ed9eba1,
+                0x6ed9eba1, 0x6ed9eba1, 0x6ed9eba1, 0x6ed9eba1,
+                0x6ed9eba1, 0x6ed9eba1, 0x6ed9eba1, 0x6ed9eba1,
+                0x8f1bbcdc, 0x8f1bbcdc, 0x8f1bbcdc, 0x8f1bbcdc,
+                0x8f1bbcdc, 0x8f1bbcdc, 0x8f1bbcdc, 0x8f1bbcdc,
+                0x8f1bbcdc, 0x8f1bbcdc, 0x8f1bbcdc, 0x8f1bbcdc,
+                0x8f1bbcdc, 0x8f1bbcdc, 0x8f1bbcdc, 0x8f1bbcdc,
+                0x8f1bbcdc, 0x8f1bbcdc, 0x8f1bbcdc, 0x8f1bbcdc,
+                0xca62c1d6, 0xca62c1d6, 0xca62c1d6, 0xca62c1d6,
+                0xca62c1d6, 0xca62c1d6, 0xca62c1d6, 0xca62c1d6,
+                0xca62c1d6, 0xca62c1d6, 0xca62c1d6, 0xca62c1d6,
+                0xca62c1d6, 0xca62c1d6, 0xca62c1d6, 0xca62c1d6,
+                0xca62c1d6, 0xca62c1d6, 0xca62c1d6, 0xca62c1d6
+            ];
+            
+            // 将字节数组转换为32位整数数组
+            function bytesToWords(bytes) {
+                const words = [];
+                for (let i = 0; i < bytes.length; i++) {
+                    words[i >>> 2] |= bytes[i] << (24 - (i % 4) * 8);
+                }
+                return words;
+            }
+            
+            // 将32位整数数组转换为字节数组
+            function wordsToBytes(words) {
+                const bytes = [];
+                for (let i = 0; i < words.length * 4; i++) {
+                    bytes.push((words[i >>> 2] >>> (24 - (i % 4) * 8)) & 0xff);
+                }
+                return bytes;
+            }
+            
+            // 将字节数组转换为十六进制字符串
+            function bytesToHex(bytes) {
+                let hex = '';
+                for (let i = 0; i < bytes.length; i++) {
+                    hex += (bytes[i] < 16 ? '0' : '') + bytes[i].toString(16);
+                }
+                return hex;
+            }
+
+            const utf8Msg = strToUtf8Bytes(msg);
+            const msgLen = utf8Msg.length * 8; // 消息长度（位）
+
+            // 填充消息
+            utf8Msg.push(0x80); // 附加位 '1'
+            while ((utf8Msg.length * 8) % 512 !== 448) {
+                utf8Msg.push(0x00); // 附加位 '0'
+            }
+            // 附加原始消息长度
+            for (let i = 0; i < 8; i++) {
+                utf8Msg.push((msgLen >>> (56 - i * 8)) & 0xff);
+            }
+
+            const M = bytesToWords(utf8Msg);
+
+            // 初始化哈希值
+            let H0 = 0x67452301;
+            let H1 = 0xefcdab89;
+            let H2 = 0x98badcfe;
+            let H3 = 0x10325476;
+            let H4 = 0xc3d2e1f0;
+
+            for (let i = 0; i < M.length; i += 16) {
+                const W = [];
+                for (let j = 0; j < 16; j++) {
+                    W[j] = M[i + j];
+                }
+
+                for (let j = 16; j < 80; j++) {
+                    W[j] = rol(W[j - 3] ^ W[j - 8] ^ W[j - 14] ^ W[j - 16], 1);
+                }
+
+                let a = H0;
+                let b = H1;
+                let c = H2;
+                let d = H3;
+                let e = H4;
+
+                for (let j = 0; j < 80; j++) {
+                    let f, k;
+                    if (j < 20) {
+                        f = (b & c) | ((~b) & d);
+                        k = 0x5a827999;
+                    } else if (j < 40) {
+                        f = b ^ c ^ d;
+                        k = 0x6ed9eba1;
+                    } else if (j < 60) {
+                        f = (b & c) | (b & d) | (c & d);
+                        k = 0x8f1bbcdc;
+                    } else {
+                        f = b ^ c ^ d;
+                        k = 0xca62c1d6;
+                    }
+
+                    const temp = rol(a, 5) + f + e + k + W[j];
+                    e = d;
+                    d = c;
+                    c = rol(b, 30);
+                    b = a;
+                    a = temp;
+                }
+
+                H0 = (H0 + a) | 0;
+                H1 = (H1 + b) | 0;
+                H2 = (H2 + c) | 0;
+                H3 = (H3 + d) | 0;
+                H4 = (H4 + e) | 0;
+            }
+
+            return bytesToHex(wordsToBytes([H0, H1, H2, H3, H4]));
+        }
+
+        function encryptSHA1() {
+            const inputText = document.getElementById('input-text').value;
+            const salt = document.getElementById('salt').value;
+            const outputText = document.getElementById('output-text');
+
+            if (!inputText.trim()) {
+                outputText.value = '请输入要加密的文本';
+                return;
+            }
+
+            try {
+                const combinedText = inputText + salt; // 文本和盐值组合
+                const hash = sha1(combinedText);
+                outputText.value = hash;
+                recordToolUsage('SHA1加密', 'tools/sha1-encrypt/index.html');
+            } catch (error) {
+                outputText.value = '加密失败: ' + error.message;
+            }
+        }
+
+        function clearAll() {
+            document.getElementById('input-text').value = '';
+            document.getElementById('salt').value = '';
+            document.getElementById('output-text').value = '';
+            recordToolUsage('SHA1加密', 'tools/sha1-encrypt/index.html');
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('SHA1加密工具已加载');
+        });
+    </script>
+</body>
+</html>

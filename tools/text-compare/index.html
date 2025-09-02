@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文本对比工具 - 在线工具箱</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .tool-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .text-compare-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .text-panel {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .text-panel label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .text-panel textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            resize: vertical;
+        }
+        
+        .button-group {
+            margin-bottom: 20px;
+        }
+        
+        .button-group button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin-right: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .button-group button:hover {
+            background-color: #2980b9;
+        }
+        
+        .result-container {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            min-height: 100px;
+        }
+        
+        .diff-line {
+            margin: 2px 0;
+            padding: 2px 5px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .diff-line-added {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .diff-line-removed {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .diff-line-unchanged {
+            background-color: #f8f9fa;
+        }
+        
+        .legend {
+            display: flex;
+            gap: 20px;
+            margin: 10px 0;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            margin-right: 5px;
+        }
+        
+        .legend-added {
+            background-color: #d4edda;
+        }
+        
+        .legend-removed {
+            background-color: #f8d7da;
+        }
+        
+        .error {
+            color: #e74c3c;
+            background-color: #fdf2f2;
+            border: 1px solid #f5c6cb;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>文本对比工具</h1>
+            <p>在线文本差异对比工具</p>
+        </div>
+    </header>
+
+    <nav>
+        <div class="container">
+            <ul>
+                <li><a href="../../index.html">首页</a></li>
+                <li><a href="../text-compare/index.html">文本对比</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="tool-container">
+        <div class="text-compare-container">
+            <div class="text-panel">
+                <label for="text1">原文本：</label>
+                <textarea id="text1" placeholder="输入原文本内容"></textarea>
+            </div>
+            
+            <div class="text-panel">
+                <label for="text2">对比文本：</label>
+                <textarea id="text2" placeholder="输入要对比的文本内容"></textarea>
+            </div>
+        </div>
+
+        <div class="button-group">
+            <button onclick="compareText()">对比文本</button>
+            <button onclick="swapText()">交换文本</button>
+            <button onclick="clearAll()">清空</button>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color legend-added"></div>
+                <span>新增内容</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color legend-removed"></div>
+                <span>删除内容</span>
+            </div>
+        </div>
+
+        <div id="result-container">
+            <div class="input-group">
+                <label>对比结果：</label>
+                <div id="compare-output"></div>
+            </div>
+        </div>
+        
+        <div class="info">
+            <h3>说明</h3>
+            <ul>
+                <li>该工具可以对比两段文本的差异</li>
+                <li>红色背景表示在原文本中存在但对比文本中删除的内容</li>
+                <li>绿色背景表示在对比文本中新增的内容</li>
+                <li>支持多行文本对比</li>
+            </ul>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 在线工具箱 - 文本对比工具</p>
+        </div>
+    </footer>
+
+    <script src="../../js/main.js"></script>
+    <script>
+        // 工具ID，用于保存选项
+        const TOOL_ID = 'text-compare';
+
+        /**
+         * 对比两段文本的差异
+         */
+        function compareText() {
+            const text1 = document.getElementById('text1').value;
+            const text2 = document.getElementById('text2').value;
+            const outputDiv = document.getElementById('compare-output');
+            outputDiv.innerHTML = ''; // 清空之前的对比结果
+
+            if (!text1.trim() && !text2.trim()) {
+                outputDiv.innerHTML = '<div class="error">请输入至少一段文本进行对比。</div>';
+                return;
+            }
+
+            const lines1 = text1.split(/\r?\n/);
+            const lines2 = text2.split(/\r?\n/);
+
+            const diff = generateDiff(lines1, lines2);
+
+            diff.forEach(item => {
+                const div = document.createElement('div');
+                div.classList.add('diff-line');
+                if (item.added) {
+                    div.classList.add('diff-line-added');
+                    div.textContent = '+ ' + item.value;
+                } else if (item.removed) {
+                    div.classList.add('diff-line-removed');
+                    div.textContent = '- ' + item.value;
+                } else {
+                    div.classList.add('diff-line-unchanged');
+                    div.textContent = '  ' + item.value;
+                }
+                outputDiv.appendChild(div);
+            });
+
+            // 记录工具使用频次
+            if (typeof recordToolUsage === 'function') {
+                recordToolUsage('tools/text-compare/index.html');
+            }
+        }
+
+        /**
+         * 交换两个文本框的内容
+         */
+        function swapText() {
+            const text1 = document.getElementById('text1');
+            const text2 = document.getElementById('text2');
+            const temp = text1.value;
+            text1.value = text2.value;
+            text2.value = temp;
+            // 记录工具使用频次
+            if (typeof recordToolUsage === 'function') {
+                recordToolUsage('tools/text-compare/index.html');
+            }
+        }
+
+        /**
+         * 清空输入和输出
+         */
+        function clearAll() {
+            document.getElementById('text1').value = '';
+            document.getElementById('text2').value = '';
+            document.getElementById('compare-output').innerHTML = '';
+            // 记录工具使用频次
+            if (typeof recordToolUsage === 'function') {
+                recordToolUsage('tools/text-compare/index.html');
+            }
+        }
+
+        /**
+         * 生成文本差异（Myers算法简化版）
+         * @param {Array<string>} a - 文本A的行数组
+         * @param {Array<string>} b - 文本B的行数组
+         * @returns {Array<object>} - 差异结果数组
+         */
+        function generateDiff(a, b) {
+            const dp = Array(a.length + 1).fill(0).map(() => Array(b.length + 1).fill(0));
+
+            for (let i = 1; i <= a.length; i++) {
+                for (let j = 1; j <= b.length; j++) {
+                    if (a[i - 1] === b[j - 1]) {
+                        dp[i][j] = dp[i - 1][j - 1] + 1;
+                    } else {
+                        dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
+                    }
+                }
+            }
+
+            const result = [];
+            let i = a.length;
+            let j = b.length;
+
+            while (i > 0 || j > 0) {
+                if (i > 0 && j > 0 && a[i - 1] === b[j - 1]) {
+                    result.unshift({ value: a[i - 1], common: true });
+                    i--;
+                    j--;
+                } else if (j > 0 && (i === 0 || dp[i][j - 1] >= dp[i - 1][j])) {
+                    result.unshift({ value: b[j - 1], added: true });
+                    j--;
+                } else if (i > 0 && (j === 0 || dp[i][j - 1] < dp[i - 1][j])) {
+                    result.unshift({ value: a[i - 1], removed: true });
+                    i--;
+                }
+            }
+            return result;
+        }
+
+        // 页面加载时恢复选项设置
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('文本对比工具已加载');
+        });
+    </script>
+</body>
+</html>

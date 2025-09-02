@@ -1,0 +1,309 @@
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>进制转换工具 - 在线工具箱</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .tool-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .converter {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .converter-panel {
+            flex: 1;
+            min-width: 300px;
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .converter-panel h3 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        .button-group {
+            margin: 20px 0;
+        }
+        
+        .button-group button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin-right: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .button-group button:hover {
+            background-color: #2980b9;
+        }
+        
+        .result {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #e8f4fc;
+            border-radius: 4px;
+            min-height: 20px;
+        }
+        
+        .error {
+            color: #e74c3c;
+            background-color: #fdf2f2;
+            border: 1px solid #f5c6cb;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>进制转换工具</h1>
+            <p>二进制、八进制、十进制、十六进制相互转换工具</p>
+        </div>
+    </header>
+
+    <nav>
+        <div class="container">
+            <ul>
+                <li><a href="../../index.html">首页</a></li>
+                <li><a href="../number-convert/index.html">进制转换</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="tool-container">
+        <div class="converter">
+            <div class="converter-panel">
+                <h3>进制转换器</h3>
+                <div class="input-group">
+                    <label for="number-input">输入数字：</label>
+                    <input type="text" id="number-input" placeholder="请输入数字">
+                </div>
+                
+                <div class="input-group">
+                    <label for="from-base">源进制：</label>
+                    <select id="from-base">
+                        <option value="2">二进制 (Binary)</option>
+                        <option value="8">八进制 (Octal)</option>
+                        <option value="10" selected>十进制 (Decimal)</option>
+                        <option value="16">十六进制 (Hexadecimal)</option>
+                    </select>
+                </div>
+                
+                <div class="input-group">
+                    <label for="to-base">目标进制：</label>
+                    <select id="to-base">
+                        <option value="2">二进制 (Binary)</option>
+                        <option value="8">八进制 (Octal)</option>
+                        <option value="10" selected>十进制 (Decimal)</option>
+                        <option value="16">十六进制 (Hexadecimal)</option>
+                    </select>
+                </div>
+                
+                <div class="button-group">
+                    <button onclick="convertNumber()">转换</button>
+                    <button onclick="clearAll()">清空</button>
+                </div>
+                
+                <div class="result" id="conversion-result"></div>
+            </div>
+            
+            <div class="converter-panel">
+                <h3>多进制显示</h3>
+                <div class="input-group">
+                    <label for="multi-input">输入十进制数字：</label>
+                    <input type="text" id="multi-input" placeholder="请输入十进制数字">
+                </div>
+                
+                <div class="button-group">
+                    <button onclick="showAllBases()">显示所有进制</button>
+                </div>
+                
+                <div class="result" id="all-bases-result">
+                    <table id="bases-table">
+                        <thead>
+                            <tr>
+                                <th>进制</th>
+                                <th>值</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>二进制 (Binary)</td>
+                                <td id="binary-value">-</td>
+                            </tr>
+                            <tr>
+                                <td>八进制 (Octal)</td>
+                                <td id="octal-value">-</td>
+                            </tr>
+                            <tr>
+                                <td>十进制 (Decimal)</td>
+                                <td id="decimal-value">-</td>
+                            </tr>
+                            <tr>
+                                <td>十六进制 (Hexadecimal)</td>
+                                <td id="hex-value">-</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 在线工具箱 - 进制转换工具</p>
+        </div>
+    </footer>
+
+    <script src="../../js/main.js"></script>
+    <script>
+        // 工具ID，用于保存选项
+        const TOOL_ID = 'number-convert';
+        
+        function recordToolUsage(toolName) {
+            // 检查浏览器是否支持 navigator.sendBeacon 或 XMLHttpRequest
+            if (navigator.sendBeacon) {
+                // 使用 sendBeacon 异步发送数据，不影响页面卸载
+                navigator.sendBeacon('https://jiangsuchenping.github.io/recordToolUsage.html?tool=' + toolName);
+            } else {
+                // 降级方案：使用 XMLHttpRequest
+                var xhr = new XMLHttpRequest();
+                xhr.open('GET', 'https://jiangsuchenping.github.io/recordToolUsage.html?tool=' + toolName, true);
+                xhr.send();
+            }
+        }
+        recordToolUsage('tools/number-convert/index.html');
+
+        function convertNumber() {
+            const numberInput = document.getElementById('number-input').value;
+            const fromBase = parseInt(document.getElementById('from-base').value);
+            const toBase = parseInt(document.getElementById('to-base').value);
+            const resultDiv = document.getElementById('conversion-result');
+
+            if (!numberInput) {
+                resultDiv.textContent = '请输入数字';
+                return;
+            }
+
+            try {
+                const decimalValue = parseInt(numberInput, fromBase);
+                if (isNaN(decimalValue)) {
+                    resultDiv.textContent = '输入数字或源进制不合法';
+                    return;
+                }
+                resultDiv.textContent = `转换结果: ${decimalValue.toString(toBase).toUpperCase()}`;
+                recordToolUsage('进制转换', 'tools/number-convert/index.html');
+            } catch (error) {
+                resultDiv.textContent = '转换失败: ' + error.message;
+            }
+        }
+
+        function showAllBases() {
+            const multiInput = document.getElementById('multi-input').value;
+            const binaryValue = document.getElementById('binary-value');
+            const octalValue = document.getElementById('octal-value');
+            const decimalValue = document.getElementById('decimal-value');
+            const hexValue = document.getElementById('hex-value');
+
+            if (!multiInput) {
+                binaryValue.textContent = '-';
+                octalValue.textContent = '-';
+                decimalValue.textContent = '-';
+                hexValue.textContent = '-';
+                return;
+            }
+
+            try {
+                const decimal = parseInt(multiInput, 10);
+                if (isNaN(decimal)) {
+                    binaryValue.textContent = '无效输入';
+                    octalValue.textContent = '无效输入';
+                    decimalValue.textContent = '无效输入';
+                    hexValue.textContent = '无效输入';
+                    return;
+                }
+
+                binaryValue.textContent = decimal.toString(2);
+                octalValue.textContent = decimal.toString(8);
+                decimalValue.textContent = decimal.toString(10);
+                hexValue.textContent = decimal.toString(16).toUpperCase();
+                recordToolUsage('多进制显示', 'tools/number-convert/index.html');
+            } catch (error) {
+                binaryValue.textContent = '错误';
+                octalValue.textContent = '错误';
+                decimalValue.textContent = '错误';
+                hexValue.textContent = '错误';
+            }
+        }
+
+        function clearAll() {
+            document.getElementById('number-input').value = '';
+            document.getElementById('conversion-result').textContent = '';
+            document.getElementById('multi-input').value = '';
+            document.getElementById('binary-value').textContent = '-';
+            document.getElementById('octal-value').textContent = '-';
+            document.getElementById('decimal-value').textContent = '-';
+            document.getElementById('hex-value').textContent = '-';
+            recordToolUsage('进制转换', 'tools/number-convert/index.html');
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('进制转换工具已加载');
+        });
+    </script>
+</body>
+</html>

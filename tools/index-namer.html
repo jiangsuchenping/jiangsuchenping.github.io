@@ -168,6 +168,10 @@
             
             try {
                 // 获取命名规范选项
+                // 记录工具使用频次
+                if (typeof recordToolUsage === 'function') {
+                    recordToolUsage('tools/index-namer.html');
+                }
                 const namingConvention = document.querySelector('input[name="naming-convention"]:checked').value;
                 const includeIndexType = document.getElementById('include-index-type').checked;
                 
@@ -328,6 +332,10 @@
          * 清空所有输入和输出
          */
         function clearAll() {
+            // 记录工具使用频次
+            if (typeof recordToolUsage === 'function') {
+                recordToolUsage('tools/index-namer.html');
+            }
             document.getElementById('sql-input').value = '';
             document.getElementById('result-output').innerHTML = '';
         }

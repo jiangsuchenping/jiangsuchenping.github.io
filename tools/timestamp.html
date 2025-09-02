@@ -184,7 +184,7 @@
                 
                 // 记录工具使用频次
                 if (typeof recordToolUsage === 'function') {
-                    recordToolUsage('时间戳转换', window.location.href);
+                    recordToolUsage('时间戳转换', 'tools/timestamp.html');
                 }
             } catch (error) {
                 resultElement.innerHTML = `<div class="error">转换错误: ${error.message}</div>`;
@@ -198,6 +198,12 @@
             if (!dateInput.trim()) {
                 resultElement.innerHTML = '<div class="error">请输入日期时间</div>';
                 return;
+            }
+
+            // 记录工具使用频次
+            if (typeof recordToolUsage === 'function') {
+                recordToolUsage('时间戳转换', 'tools/timestamp.html');
+            }
             }
             
             try {
@@ -223,6 +229,7 @@
         }
         
         function getCurrentTimestamp() {
+            recordToolUsage('时间戳转换', 'tools/timestamp.html');
             const now = new Date();
             const timestamp = Math.floor(now.getTime() / 1000);
             document.getElementById('timestamp-input').value = timestamp;
@@ -230,6 +237,7 @@
         }
         
         function getCurrentDate() {
+            recordToolUsage('时间戳转换', 'tools/timestamp.html');
             const now = new Date();
             document.getElementById('date-input').value = formatDate(now);
             dateToTimestamp();

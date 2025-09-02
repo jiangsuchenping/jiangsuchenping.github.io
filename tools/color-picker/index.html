@@ -1,0 +1,199 @@
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="免费在线颜色选择器工具，支持RGB、HEX、HSL等多种颜色格式转换，可生成颜色调色板，帮助设计师和开发者轻松选择和管理颜色。">
+    <meta name="keywords" content="颜色选择器,在线工具,RGB转换,HEX转换,HSL转换,颜色调色板,颜色代码,前端开发工具">
+    <meta name="author" content="在线工具箱">
+    <link rel="canonical" href="https://jiangsuchenping.github.io/tools/color-picker/index.html">
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://jiangsuchenping.github.io/tools/color-picker/index.html">
+    <meta property="og:title" content="颜色选择器 | RGB、HEX、HSL颜色转换工具 - 在线工具箱">
+    <meta property="og:description" content="免费在线颜色选择器工具，支持RGB、HEX、HSL等多种颜色格式转换，可生成颜色调色板，帮助设计师和开发者轻松选择和管理颜色。">
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://jiangsuchenping.github.io/tools/color-picker/index.html">
+    <meta property="twitter:title" content="颜色选择器 | RGB、HEX、HSL颜色转换工具 - 在线工具箱">
+    <meta property="twitter:description" content="免费在线颜色选择器工具，支持RGB、HEX、HSL等多种颜色格式转换，可生成颜色调色板，帮助设计师和开发者轻松选择和管理颜色。">
+    <title>颜色选择器 | RGB、HEX、HSL颜色转换工具 - 在线工具箱</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <!-- 结构化数据 Schema.org -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "颜色选择器",
+      "url": "https://jiangsuchenping.github.io/tools/color-picker/index.html",
+      "description": "免费在线颜色选择器工具，支持RGB、HEX、HSL等多种颜色格式转换，可生成颜色调色板，帮助设计师和开发者轻松选择和管理颜色。",
+      "applicationCategory": "DesignApplication",
+      "operatingSystem": "Web",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "CNY"
+      }
+    }
+    </script>
+    <style>
+        .tool-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .color-picker-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .picker-panel {
+            flex: 1;
+            min-width: 300px;
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .picker-panel h3 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        .color-preview {
+            width: 100%;
+            height: 100px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin: 15px 0;
+        }
+        
+        .button-group {
+            margin: 20px 0;
+        }
+        
+        .button-group button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin-right: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .button-group button:hover {
+            background-color: #2980b9;
+        }
+        
+        .color-formats {
+            margin-top: 20px;
+        }
+        
+        .format-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .format-value {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+        }
+        
+        .palette {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .palette-color {
+            width: 40px;
+            height: 40px;
+            border-radius: 4px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: transform 0.2s;
+        }
+        
+        .palette-color:hover {
+            transform: scale(1.1);
+            border-color: #333;
+        }
+        
+        .error {
+            color: #e74c3c;
+            background-color: #fdf2f2;
+            border: 1px solid #f5c6cb;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>颜色选择器</h1>
+            <p>在线颜色选择和转换工具</p>
+        </div>
+    </header>
+
+    <nav>
+        <div class="container">
+            <ul>
+                <li><a href="../../index.html">首页</a></li>
+                <li><a href="#picker">选择器</a></li>
+                <li><a href="#palette">调色板</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="breadcrumb">
+        <div class="container">
+            <ul>
+                <li><a href="../../index.html">首页</a></li>
+                <li>实用开发辅助工具</li>
+                <li>颜色选择器</li>
+            </ul>
+        </div>
+    </div>
+
+    <main class="tool-container">
+        <div class="page-nav">
+            <h2>功能导航</h2>
+            <ul>
+                <li><a href="#color-picker-section">颜色选择器</a></li>
+                <li><a href="#color-values-section">颜色值转换</a></li>
+                <li><a href="#color-palette-section">颜色调色板</a></li>
+                <li><a href="#color-history-section">历史记录</a></li>
+            </ul>
+        </div>
+        
+        <div id="color-picker-section" class="tool-section">
+            <h2>颜色选择器</h2>
+            <div class="color-picker-container">

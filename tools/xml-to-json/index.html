@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XML转JSON工具 - 在线工具箱</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .tool-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .input-group textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            resize: vertical;
+        }
+        
+        .button-group {
+            margin-bottom: 20px;
+        }
+        
+        .button-group button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin-right: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .button-group button:hover {
+            background-color: #2980b9;
+        }
+        
+        .result-container {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            min-height: 100px;
+        }
+        
+        .error {
+            color: #e74c3c;
+            background-color: #fdf2f2;
+            border: 1px solid #f5c6cb;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>XML转JSON工具</h1>
+            <p>在线将XML格式数据转换为JSON格式</p>
+        </div>
+    </header>
+
+    <nav>
+        <div class="container">
+            <ul>
+                <li><a href="../../index.html">首页</a></li>
+                <li><a href="../xml-to-json/index.html">XML转JSON</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="tool-container">
+        <div class="input-group">
+            <label for="xml-input">输入XML代码：</label>
+            <textarea id="xml-input" placeholder="<note><to>Tove</to><from>Jani</from><heading>Reminder</heading><body>Don't forget me this weekend!</body></note>"></textarea>
+        </div>
+
+        <div class="button-group">
+            <button onclick="convertXMLtoJSON()">转换为JSON</button>
+            <button onclick="clearAll()">清空</button>
+        </div>
+
+        <div id="result-container">
+            <div class="input-group">
+                <label for="json-output">JSON结果：</label>
+                <textarea id="json-output" readonly></textarea>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 在线工具箱 - XML转JSON工具</p>
+        </div>
+    </footer>
+
+    <script src="../../js/main.js"></script>
+    <script>
+        // 工具ID，用于保存选项
+        const TOOL_ID = 'xml-to-json';
+
+        /**
+         * 将XML转换为JSON
+         */
+        function convertXMLtoJSON() {
+            const input = document.getElementById('xml-input').value;
+            const output = document.getElementById('json-output');
+            
+            if (!input.trim()) {
+                output.value = '请输入XML数据';
+                return;
+            }
+            
+            try {
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(input, "text/xml");
+                
+                // 检查解析错误
+                const parseError = xmlDoc.getElementsByTagName("parsererror");
+                if (parseError.length > 0) {
+                    throw new Error("XML格式错误");
+                }
+                
+                const json = xmlToJson(xmlDoc);
+                output.value = JSON.stringify(json, null, 4);
+                
+                // 记录工具使用频次
+                if (typeof recordToolUsage === 'function') {
+                    recordToolUsage('tools/xml-to-json/index.html');
+                }
+            } catch (error) {
+                output.value = 'XML格式错误: ' + error.message;
+            }
+        }
+        
+        /**
+         * 将XML DOM对象转换为JSON对象
+         * @param {Node} xml - XML DOM节点
+         * @returns {object} - 对应的JSON对象
+         */
+        function xmlToJson(xml) {
+            let obj = {};
+            
+            if (xml.nodeType == 1) { // element
+                // 处理属性
+                if (xml.attributes.length > 0) {
+                    obj["@attributes"] = {};
+                    for (let j = 0; j < xml.attributes.length; j++) {
+                        const attribute = xml.attributes.item(j);
+                        obj["@attributes"][attribute.nodeName] = attribute.nodeValue;
+                    }
+                }
+            } else if (xml.nodeType == 3) { // text
+                obj = xml.nodeValue.trim();
+            }
+            
+            // 处理子元素
+            if (xml.hasChildNodes()) {
+                for (let i = 0; i < xml.childNodes.length; i++) {
+                    const item = xml.childNodes.item(i);
+                    const nodeName = item.nodeName;
+                    
+                    if (typeof(obj[nodeName]) == "undefined") {
+                        obj[nodeName] = xmlToJson(item);
+                    } else {
+                        if (typeof(obj[nodeName].push) == "undefined") {
+                            const old = obj[nodeName];
+                            obj[nodeName] = [];
+                            obj[nodeName].push(old);
+                        }
+                        obj[nodeName].push(xmlToJson(item));
+                    }
+                }
+            }
+            
+            return obj;
+        }
+        
+        /**
+         * 清空输入和输出
+         */
+        function clearAll() {
+            document.getElementById('xml-input').value = '';
+            document.getElementById('json-output').value = '';
+            
+            // 记录工具使用频次
+            if (typeof recordToolUsage === 'function') {
+                recordToolUsage('tools/xml-to-json/index.html');
+            }
+        }
+        
+        // 页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('XML转JSON工具已加载');
+        });
+    </script>
+</body>
+</html>

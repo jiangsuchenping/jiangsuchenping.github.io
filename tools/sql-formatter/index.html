@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQL格式化工具 - 在线工具箱</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .tool-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .input-group textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            resize: vertical;
+        }
+        
+        .button-group {
+            margin-bottom: 20px;
+        }
+        
+        .button-group button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin-right: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .button-group button:hover {
+            background-color: #2980b9;
+        }
+        
+        .options-group {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        
+        .options-group label {
+            margin-right: 15px;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+        
+        .result-container {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            min-height: 100px;
+        }
+        
+        .error {
+            color: #e74c3c;
+            background-color: #fdf2f2;
+            border: 1px solid #f5c6cb;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>SQL格式化工具</h1>
+            <p>在线SQL语句格式化工具</p>
+        </div>
+    </header>
+
+    <nav>
+        <div class="container">
+            <ul>
+                <li><a href="../../index.html">首页</a></li>
+                <li><a href="../sql-formatter/index.html">SQL格式化</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="tool-container">
+        <div class="input-group">
+            <label for="sql-input">输入SQL代码：</label>
+            <textarea id="sql-input" placeholder="SELECT id, name, email FROM users WHERE age > 18 ORDER BY name;"></textarea>
+        </div>
+
+        <div class="options-group">
+            <h3>格式化选项</h3>
+            <label>
+                <input type="checkbox" id="uppercase" checked> 关键字大写
+            </label>
+            <label>
+                <input type="checkbox" id="indent-spaces" checked> 使用空格缩进
+            </label>
+            <label>
+                缩进大小:
+                <select id="indent-size">
+                    <option value="2">2个空格</option>
+                    <option value="4" selected>4个空格</option>
+                    <option value="8">8个空格</option>
+                </select>
+            </label>
+        </div>
+
+        <div class="button-group">
+            <button onclick="formatSQL()">格式化SQL</button>
+            <button onclick="compressSQL()">压缩SQL</button>
+            <button onclick="clearAll()">清空</button>
+        </div>
+
+        <div id="result-container">
+            <div class="input-group">
+                <label for="sql-output">处理结果：</label>
+                <textarea id="sql-output" readonly></textarea>
+            </div>
+        </div>
+        
+        <div class="info">
+            <h3>说明</h3>
+            <ul>
+                <li>支持标准SQL语句格式化</li>
+                <li>可选择关键字是否大写</li>
+                <li>可自定义缩进大小</li>
+                <li>支持SQL压缩功能，将SQL语句压缩为一行</li>
+            </ul>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 在线工具箱 - SQL格式化工具</p>
+        </div>
+    </footer>
+
+    <script>
+        // 工具ID，用于保存选项
+        const TOOL_ID = 'sql-formatter';
+        
+        function recordToolUsage(toolName) {
+            // 检查浏览器是否支持 navigator.sendBeacon 或 XMLHttpRequest
+            if (navigator.sendBeacon) {
+                // 使用 sendBeacon 异步发送数据，不影响页面卸载
+                navigator.sendBeacon('https://jiangsuchenping.github.io/recordToolUsage.html?tool=' + toolName);
+            } else {
+                // 降级方案：使用 XMLHttpRequest
+                var xhr = new XMLHttpRequest();
+                xhr.open('GET', 'https://jiangsuchenping.github.io/recordToolUsage.html?tool=' + toolName, true);
+                xhr.send();
+            }
+        }
+        recordToolUsage('tools/sql-formatter/index.html');
+
+        function formatSQL() {
+            const input = document.getElementById('sql-input').value;
+            const output = document.getElementById('sql-output');
+            const uppercase = document.getElementById('uppercase').checked;
+            const indentSpaces = document.getElementById('indent-spaces').checked;
+            const indentSize = parseInt(document.getElementById('indent-size').value);
+            
+            if (!input.trim()) {
+                output.value = '请输入SQL代码';
+                return;
+            }
+            
+            try {
+                const formatted = formatSqlCode(input, {
+                    uppercase: uppercase,
+                    indentSpaces: indentSpaces,
+                    indentSize: indentSize
+                });
+                output.value = formatted;
+                
+                // 记录工具使用频次
+                if (typeof recordToolUsage === 'function') {
+                    recordToolUsage('tools/sql-formatter/index.html');
+                }
+            } catch (error) {
+                output.value = '格式化错误: ' + error.message;
+            }
+        }
+        
+        function compressSQL() {
+            const input = document.getElementById('sql-input').value;
+            const output = document.getElementById('sql-output');
+            
+            if (!input.trim()) {
+                output.value = '请输入SQL代码';
+                return;
+            }
+            
+            try {
+                // 简单的SQL压缩：移除多余空格和换行
+                let compressed = input.replace(/\s+/g, ' ');
+                compressed = compressed.replace(/\s*([,;()])\s*/g, '$1');
+                compressed = compressed.trim();
+                output.value = compressed;
+
+                // 记录工具使用频次
+                if (typeof recordToolUsage === 'function') {
+                    recordToolUsage('tools/sql-formatter/index.html');
+                }
+            } catch (error) {
+                output.value = '压缩错误: ' + error.message;
+            }
+        }
+
+        function clearAll() {
+            document.getElementById('sql-input').value = '';
+            document.getElementById('sql-output').value = '';
+            // 记录工具使用频次
+            if (typeof recordToolUsage === 'function') {
+                recordToolUsage('tools/sql-formatter/index.html');
+            }
+        }
+
+        // 简单的SQL格式化函数（需要更复杂的逻辑来处理所有SQL语法）
+        function formatSqlCode(sql, options) {
+            let formattedSql = sql;
+
+            // 关键字大写
+            if (options.uppercase) {
+                const keywords = ['SELECT', 'FROM', 'WHERE', 'AND', 'OR', 'GROUP BY', 'ORDER BY', 'LIMIT', 'INSERT', 'INTO', 'VALUES', 'UPDATE', 'SET', 'DELETE', 'TRUNCATE', 'TABLE', 'CREATE', 'ALTER', 'DROP', 'INDEX', 'JOIN', 'LEFT JOIN', 'RIGHT JOIN', 'INNER JOIN', 'ON', 'AS', 'DISTINCT', 'COUNT', 'SUM', 'AVG', 'MAX', 'MIN', 'CASE', 'WHEN', 'THEN', 'ELSE', 'END', 'UNION', 'ALL', 'HAVING', 'BY', 'ASC', 'DESC', 'NULL', 'NOT NULL', 'PRIMARY KEY', 'FOREIGN KEY', 'REFERENCES', 'DEFAULT', 'CONSTRAINT', 'DATABASE', 'USE', 'SHOW', 'EXPLAIN', 'LIKE', 'IN', 'BETWEEN', 'EXISTS', 'IS', 'NULL', 'NOT', 'TOP', 'OFFSET', 'FETCH', 'NEXT', 'ROWS', 'ONLY', 'WITH', 'CTE', 'DECLARE', 'BEGIN', 'END', 'TRANSACTION', 'COMMIT', 'ROLLBACK', 'SAVEPOINT', 'GRANT', 'REVOKE', 'VIEW', 'PROCEDURE', 'FUNCTION', 'TRIGGER', 'CURSOR', 'OPEN', 'FETCH', 'CLOSE', 'DEALLOCATE', 'EXEC', 'EXECUTE', 'CALL', 'RETURN', 'GO', 'NOLOCK', 'READPAST', 'READCOMMITTED', 'READUNCOMMITTED', 'REPEATABLEREAD', 'SERIALIZABLE', 'SNAPSHOT', 'ROWLOCK', 'PAGLOCK', 'TABLOCK', 'XLOCK', 'UPDLOCK', 'HOLDLOCK', 'FASTFIRSTROW', 'FORCESEEK', 'FORCEORDER', 'LOOP JOIN', 'HASH JOIN', 'MERGE JOIN', 'REMOTE JOIN', 'APPLY', 'CROSS APPLY', 'OUTER APPLY', 'PIVOT', 'UNPIVOT', 'XML', 'PATH', 'ROOT', 'ELEMENTS', 'AUTO', 'TYPE', 'BINARY', 'VARBINARY', 'VARCHAR', 'NVARCHAR', 'CHAR', 'NCHAR', 'TEXT', 'NTEXT', 'INT', 'BIGINT', 'SMALLINT', 'TINYINT', 'BIT', 'DECIMAL', 'NUMERIC', 'MONEY', 'SMALLMONEY', 'FLOAT', 'REAL', 'DATE', 'DATETIME', 'DATETIME2', 'SMALLDATETIME', 'TIME', 'TIMESTAMP', 'UNIQUEIDENTIFIER', 'XML', 'GEOMETRY', 'GEOGRAPHY', 'HIERARCHYID', 'ROWVERSION', 'SQL_VARIANT', 'TABLE', 'CURSOR', 'ROWCOUNT', 'IDENTITY', 'NEWID', 'NEWSEQUENTIALID', 'GETDATE', 'GETUTCDATE', 'SYSDATETIME', 'SYSUTCDATETIME', 'SYSDATETIMEOFFSET', 'ISNULL', 'COALESCE', 'NULLIF', 'IIF', 'CHOOSE', 'CONVERT', 'CAST', 'PARSE', 'TRY_CONVERT', 'TRY_CAST', 'TRY_PARSE', 'FORMAT', 'REPLACE', 'SUBSTRING', 'LEFT', 'RIGHT', 'LEN', 'DATALENGTH', 'CHARINDEX', 'PATINDEX', 'QUOTENAME', 'REPLICATE', 'REVERSE', 'STUFF', 'TRANSLATE', 'TRIM', 'LTRIM', 'RTRIM', 'UPPER', 'LOWER', 'ABS', 'CEILING', 'FLOOR', 'ROUND', 'POWER', 'SQRT', 'EXP', 'LOG', 'LOG10', 'PI', 'RAND', 'SIGN', 'DEGREES', 'RADIANS', 'ACOS', 'ASIN', 'ATAN', 'ATN2', 'COS', 'COT', 'SIN', 'TAN', 'CURRENT_TIMESTAMP', 'CURRENT_USER', 'SESSION_USER', 'SYSTEM_USER', 'USER', 'SUSER_SNAME', 'SUSER_ID', 'SUSER_SID', 'ORIGINAL_LOGIN', 'APP_NAME', 'HOST_NAME', 'DB_NAME', 'DB_ID', 'OBJECT_NAME', 'OBJECT_ID', 'COL_NAME', 'COL_LENGTH', 'INDEX_COL', 'INDEXPROPERTY', 'COLUMNPROPERTY', 'DATABASEPROPERTY', 'DATABASEPROPERTYEX', 'FILE_ID', 'FILE_NAME', 'FILEGROUP_ID', 'FILEGROUP_NAME', 'FILEPROPERTY', 'FULLTEXTCATALOGPROPERTY', 'FULLTEXTSERVICEPROPERTY', 'INDEXKEY_PROPERTY', 'OBJECT_DEFINITION', 'OBJECT_SCHEMA_NAME', 'OBJECT_PROPERTY', 'OBJECT_PROPERTY_EX', 'SCHEMA_ID', 'SCHEMA_NAME', 'SQL_VARIANT_PROPERTY', 'TYPE_ID', 'TYPE_NAME', 'AVG', 'COUNT', 'MAX', 'MIN', 'SUM', 'STDEV', 'STDEVP', 'VAR', 'VARP', 'CHECKSUM_AGG', 'COUNT_BIG', 'GROUPING', 'GROUPING_ID', 'CUBE', 'ROLLUP', 'GROUPING SETS', 'OVER', 'PARTITION BY', 'ROWS', 'RANGE', 'UNBOUNDED PRECEDING', 'CURRENT ROW', 'FOLLOWING', 'NTH_VALUE', 'FIRST_VALUE', 'LAST_VALUE', 'LAG', 'LEAD', 'PERCENT_RANK', 'CUME_DIST', 'NTILE', 'ROW_NUMBER', 'RANK', 'DENSE_RANK', 'PERCENTILE_CONT', 'PERCENTILE_DISC', 'MEDIAN', 'MODE', 'STRING_AGG', 'JSON_VALUE', 'JSON_QUERY', 'JSON_MODIFY', 'ISJSON', 'JSON_OBJECT', 'JSON_ARRAY', 'JSON_PATH_EXISTS', 'OPENJSON', 'FOR JSON', 'AUTO', 'PATH', 'ROOT', 'WITHOUT_ARRAY_WRAPPER', 'INCLUDE_NULL_VALUES', 'DATE_FORMAT', 'TIME_FORMAT', 'DATETIME_FORMAT', 'GETDATE', 'GETUTCDATE', 'SYSDATETIME', 'SYSUTCDATETIME', 'SYSDATETIMEOFFSET', 'ISNULL', 'COALESCE', 'NULLIF', 'IIF', 'CHOOSE', 'CONVERT', 'CAST', 'PARSE', 'TRY_CONVERT', 'TRY_CAST', 'TRY_PARSE', 'FORMAT', 'REPLACE', 'SUBSTRING', 'LEFT', 'RIGHT', 'LEN', 'DATALENGTH', 'CHARINDEX', 'PATINDEX', 'QUOTENAME', 'REPLICATE', 'REVERSE', 'STUFF', 'TRANSLATE', 'TRIM', 'LTRIM', 'RTRIM', 'UPPER', 'LOWER', 'ABS', 'CEILING', 'FLOOR', 'ROUND', 'POWER', 'SQRT', 'EXP', 'LOG', 'LOG10', 'PI', 'RAND', 'SIGN', 'DEGREES', 'RADIANS', 'ACOS', 'ASIN', 'ATAN', 'ATN2', 'COS', 'COT', 'SIN', 'TAN', 'CURRENT_TIMESTAMP', 'CURRENT_USER', 'SESSION_USER', 'SYSTEM_USER', 'USER', 'SUSER_SNAME', 'SUSER_ID', 'SUSER_SID', 'ORIGINAL_LOGIN', 'APP_NAME', 'HOST_NAME', 'DB_NAME', 'DB_ID', 'OBJECT_NAME', 'OBJECT_ID', 'COL_NAME', 'COL_LENGTH', 'INDEX_COL', 'INDEXPROPERTY', 'COLUMNPROPERTY', 'DATABASEPROPERTY', 'DATABASEPROPERTYEX', 'FILE_ID', 'FILE_NAME', 'FILEGROUP_ID', 'FILEGROUP_NAME', 'FILEPROPERTY', 'FULLTEXTCATALOGPROPERTY', 'FULLTEXTSERVICEPROPERTY', 'INDEXKEY_PROPERTY', 'OBJECT_DEFINITION', 'OBJECT_SCHEMA_NAME', 'OBJECT_PROPERTY', 'OBJECT_PROPERTY_EX', 'SCHEMA_ID', 'SCHEMA_NAME', 'SQL_VARIANT_PROPERTY', 'TYPE_ID', 'TYPE_NAME', 'AVG', 'COUNT', 'MAX', 'MIN', 'SUM', 'STDEV', 'STDEVP', 'VAR', 'VARP', 'CHECKSUM_AGG', 'COUNT_BIG', 'GROUPING', 'GROUPING_ID', 'CUBE', 'ROLLUP', 'GROUPING SETS', 'OVER', 'PARTITION BY', 'ROWS', 'RANGE', 'UNBOUNDED PRECEDING', 'CURRENT ROW', 'FOLLOWING', 'NTH_VALUE', 'FIRST_VALUE', 'LAST_VALUE', 'LAG', 'LEAD', 'PERCENT_RANK', 'CUME_DIST', 'NTILE', 'ROW_NUMBER', 'RANK', 'DENSE_RANK', 'PERCENTILE_CONT', 'PERCENTILE_DISC', 'MEDIAN', 'MODE', 'STRING_AGG', 'JSON_VALUE', 'JSON_QUERY', 'JSON_MODIFY', 'ISJSON', 'JSON_OBJECT', 'JSON_ARRAY', 'JSON_PATH_EXISTS', 'OPENJSON', 'FOR JSON', 'AUTO', 'PATH', 'ROOT', 'WITHOUT_ARRAY_WRAPPER', 'INCLUDE_NULL_VALUES', 'DATE_FORMAT', 'TIME_FORMAT', 'DATETIME_FORMAT'];
+                keywords.forEach(keyword => {
+                    formattedSql = formattedSql.replace(new RegExp('\b' + keyword + '\b', 'gi'), keyword.toUpperCase());
+                });
+            }
+
+            // 简单的缩进逻辑（需要更复杂的解析器来处理嵌套和复杂语句）
+            const indent = options.indentSpaces ? ' '.repeat(options.indentSize) : '\t';
+            formattedSql = formattedSql.replace(/\s*([,;])\s*/g, '$1\n'); // 逗号和分号后换行
+            formattedSql = formattedSql.replace(/\s*(FROM|WHERE|GROUP BY|ORDER BY|LIMIT|INSERT|UPDATE|DELETE|CREATE|ALTER|DROP|JOIN|ON)\s*/gi, '\n' + indent + '$1 '); // 关键字前换行并缩进
+            formattedSql = formattedSql.replace(/\s*([()])\s*/g, '$1'); // 括号前后不留空格
+            formattedSql = formattedSql.replace(/\s*(=|<>|!=|>|<|>=|<=|LIKE|IN|BETWEEN|AND|OR)\s*/gi, ' $1 '); // 运算符前后加空格
+            formattedSql = formattedSql.replace(/\s*SELECT\s*/gi, 'SELECT\n' + indent); // SELECT后换行并缩进
+            formattedSql = formattedSql.replace(/\s*VALUES\s*/gi, '\n' + indent + 'VALUES '); // VALUES前换行并缩进
+            formattedSql = formattedSql.replace(/\s*SET\s*/gi, '\n' + indent + 'SET '); // SET前换行并缩进
+            
+            // 移除多余的空行
+            formattedSql = formattedSql.replace(/\n\s*\n/g, '\n');
+            formattedSql = formattedSql.trim();
+
+            return formattedSql;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('SQL格式化工具已加载');
+        });
+    </script>
+</body>
+</html>

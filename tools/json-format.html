@@ -10,14 +10,14 @@
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://jiangsuchenping.github.io/tools/json-format.html">
-    <meta property="og:title" content="JSON格式化工具 - 在线工具箱">
+    <meta property="og:title" content="JSON格式化工具 | 在线美化、压缩和校验JSON数据 - 在线工具箱">
     <meta property="og:description" content="免费在线JSON格式化工具，支持JSON美化、压缩、校验和转换，帮助开发者快速处理和调试JSON数据。">
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://jiangsuchenping.github.io/tools/json-format.html">
-    <meta property="twitter:title" content="JSON格式化工具 - 在线工具箱">
+    <meta property="twitter:title" content="JSON格式化工具 | 在线美化、压缩和校验JSON数据 - 在线工具箱">
     <meta property="twitter:description" content="免费在线JSON格式化工具，支持JSON美化、压缩、校验和转换，帮助开发者快速处理和调试JSON数据。">
-    <title>JSON格式化工具 - 在线工具箱</title>
+    <title>JSON格式化工具 | 在线美化、压缩和校验JSON数据 - 在线工具箱</title>
     <link rel="stylesheet" href="../css/style.css">
     <!-- 结构化数据 Schema.org -->
     <script type="application/ld+json">
@@ -119,24 +119,52 @@
         </div>
     </nav>
 
+    <div class="breadcrumb">
+        <div class="container">
+            <ul>
+                <li><a href="../index.html">首页</a></li>
+                <li>JSON处理工具</li>
+                <li>JSON格式化工具</li>
+            </ul>
+        </div>
+    </div>
+
     <main class="tool-container">
-        <div class="input-group">
-            <label for="json-input">输入JSON代码：</label>
-            <textarea id="json-input" placeholder='{"name": "示例", "value": 123}'></textarea>
+        <div class="page-nav">
+            <h2>功能导航</h2>
+            <ul>
+                <li><a href="#input-section">输入区域</a></li>
+                <li><a href="#format-section">格式化功能</a></li>
+                <li><a href="#compress-section">压缩功能</a></li>
+                <li><a href="#validate-section">校验功能</a></li>
+                <li><a href="#convert-section">转换功能</a></li>
+                <li><a href="#result-section">结果输出</a></li>
+            </ul>
+        </div>
+
+        <div id="input-section" class="tool-section">
+            <h2>JSON输入</h2>
+            <div class="input-group">
+                <label for="json-input">输入JSON代码：</label>
+                <textarea id="json-input" placeholder='{"name": "示例", "value": 123}'></textarea>
+            </div>
         </div>
 
         <div class="button-group">
-            <button onclick="formatJSON()">格式化</button>
-            <button onclick="compressJSON()">压缩</button>
-            <button onclick="validateJSON()">校验</button>
-            <button onclick="convertToCSharp()">转C#类</button>
+            <button id="format-section" onclick="formatJSON()">格式化</button>
+            <button id="compress-section" onclick="compressJSON()">压缩</button>
+            <button id="validate-section" onclick="validateJSON()">校验</button>
+            <button id="convert-section" onclick="convertToCSharp()">转C#类</button>
             <button onclick="clearAll()">清空</button>
         </div>
 
-        <div id="result-container">
-            <div class="input-group">
-                <label for="json-output">处理结果：</label>
-                <textarea id="json-output" readonly></textarea>
+        <div id="result-section" class="tool-section">
+            <h2>处理结果</h2>
+            <div id="result-container">
+                <div class="input-group">
+                    <label for="json-output">处理结果：</label>
+                    <textarea id="json-output" readonly></textarea>
+                </div>
             </div>
         </div>
     </main>
@@ -165,7 +193,7 @@
                 const jsonObj = JSON.parse(input);
                 output.value = JSON.stringify(jsonObj, null, 4);
                 // 记录使用频次
-                recordToolUsage('JSON格式化', window.location.href);
+                recordToolUsage('JSON格式化', 'tools/json-format.html');
             } catch (error) {
                 output.value = 'JSON格式错误: ' + error.message;
             }
@@ -184,7 +212,7 @@
                 const jsonObj = JSON.parse(input);
                 output.value = JSON.stringify(jsonObj);
                 // 记录使用频次
-                recordToolUsage('JSON格式化', window.location.href);
+                recordToolUsage('JSON格式化', 'tools/json-format.html');
             } catch (error) {
                 output.value = 'JSON格式错误: ' + error.message;
             }
@@ -203,7 +231,7 @@
                 JSON.parse(input);
                 output.value = 'JSON格式正确！';
                 // 记录使用频次
-                recordToolUsage('JSON格式化', window.location.href);
+                recordToolUsage('JSON格式化', 'tools/json-format.html');
             } catch (error) {
                 output.value = 'JSON格式错误: ' + error.message;
             }
@@ -242,7 +270,7 @@
                 output.value = result;
                 
                 // 记录使用频次
-                recordToolUsage('JSON格式化', window.location.href);
+                recordToolUsage('JSON格式化', 'tools/json-format.html');
             } catch (error) {
                 output.value = 'JSON格式错误或转换失败: ' + error.message;
             }
@@ -386,7 +414,7 @@
             document.getElementById('json-output').value = '';
             
             // 记录使用频次
-            recordToolUsage('JSON格式化', window.location.href);
+            recordToolUsage('JSON格式化', 'tools/json-format.html');
         }
     </script>
 </body>

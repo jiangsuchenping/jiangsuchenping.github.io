@@ -255,7 +255,7 @@
                 
                 // 记录工具使用频次
                 if (typeof recordToolUsage === 'function') {
-                    recordToolUsage('正则表达式测试', window.location.href);
+                    recordToolUsage('tools/regex-test.html');
                 }
             } catch (error) {
                 output.innerHTML = `<div class="error">正则表达式错误: ${error.message}</div>`;
@@ -269,7 +269,7 @@
             
             // 记录工具使用频次
             if (typeof recordToolUsage === 'function') {
-                recordToolUsage('正则表达式测试', window.location.href);
+                recordToolUsage('tools/regex-test.html');
             }
         }
         
@@ -280,7 +280,7 @@
             // 为输入框添加事件监听器以记录使用频次
             document.getElementById('regex-input').addEventListener('input', function() {
                 if (typeof recordToolUsage === 'function') {
-                    recordToolUsage('正则表达式测试', window.location.href);
+                    recordToolUsage('tools/regex-test.html');
                 }
             });
             

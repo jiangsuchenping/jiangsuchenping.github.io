@@ -128,7 +128,7 @@
                 
                 // 记录工具使用频次
                 if (typeof recordToolUsage === 'function') {
-                    recordToolUsage('URL编码', window.location.href);
+                    recordToolUsage('URL编码', 'tools/url-encode.html');
                 }
             } catch (error) {
                 output.value = '编码错误: ' + error.message;
@@ -149,7 +149,7 @@
                 
                 // 记录工具使用频次
                 if (typeof recordToolUsage === 'function') {
-                    recordToolUsage('URL解码', window.location.href);
+                    recordToolUsage('URL解码', 'tools/url-encode.html');
                 }
             } catch (error) {
                 output.value = '解码错误: 输入的URL字符串可能无效';
@@ -162,7 +162,7 @@
             
             // 记录工具使用频次
             if (typeof recordToolUsage === 'function') {
-                recordToolUsage('URL编码/解码', window.location.href);
+                recordToolUsage('URL编码/解码', 'tools/url-encode.html');
             }
         }
         
@@ -173,7 +173,7 @@
             // 为输入框添加事件监听器以记录使用频次
             document.getElementById('input-text').addEventListener('input', function() {
                 if (typeof recordToolUsage === 'function') {
-                    recordToolUsage('URL编码/解码', window.location.href);
+                    recordToolUsage('URL编码/解码', 'tools/url-encode.html');
                 }
             });
         });
