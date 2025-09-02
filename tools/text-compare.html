@@ -226,6 +226,11 @@
                 });
                 
                 output.innerHTML = resultHTML;
+                
+                // 记录工具使用频次
+                if (typeof recordToolUsage === 'function') {
+                    recordToolUsage('文本对比', window.location.href);
+                }
             } catch (error) {
                 output.innerHTML = `<div class="error">对比错误: ${error.message}</div>`;
             }
@@ -280,12 +285,22 @@
             const temp = text1.value;
             text1.value = text2.value;
             text2.value = temp;
+            
+            // 记录工具使用频次
+            if (typeof recordToolUsage === 'function') {
+                recordToolUsage('文本对比', window.location.href);
+            }
         }
         
         function clearAll() {
             document.getElementById('text1').value = '';
             document.getElementById('text2').value = '';
             document.getElementById('compare-output').innerHTML = '';
+            
+            // 记录工具使用频次
+            if (typeof recordToolUsage === 'function') {
+                recordToolUsage('文本对比', window.location.href);
+            }
         }
         
         function escapeHtml(text) {
@@ -299,6 +314,24 @@
             
             return text.replace(/[&<>"']/g, function(m) { return map[m]; });
         }
+        
+        // 页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('文本对比工具已加载');
+            
+            // 为输入框添加事件监听器以记录使用频次
+            document.getElementById('text1').addEventListener('input', function() {
+                if (typeof recordToolUsage === 'function') {
+                    recordToolUsage('文本对比', window.location.href);
+                }
+            });
+            
+            document.getElementById('text2').addEventListener('input', function() {
+                if (typeof recordToolUsage === 'function') {
+                    recordToolUsage('文本对比', window.location.href);
+                }
+            });
+        });
     </script>
 </body>
 </html>

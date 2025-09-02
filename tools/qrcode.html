@@ -177,7 +177,97 @@
         </div>
     </footer>
 
+    <!-- 引入QRCode.js库（带备用CDN） -->
     <script>
+        // 加载QRCode.js库的函数
+        function loadQRCodeLibrary() {
+            // 主要CDN和备用CDN列表
+            const cdnUrls = [
+                "https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js",
+                "https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js",
+                "https://unpkg.com/qrcode-generator@1.4.4/qrcode.min.js"
+            ];
+            
+            // 尝试加载第一个CDN
+            loadScript(cdnUrls, 0);
+        }
+        
+        // 递归加载脚本，如果失败则尝试下一个CDN
+        function loadScript(urls, index) {
+            if (index >= urls.length) {
+                console.error("所有CDN加载失败");
+                alert("无法加载二维码生成库，请检查网络连接或稍后再试。");
+                document.getElementById('qr-result').innerHTML = '<div class="error">无法加载二维码生成库，请检查网络连接或稍后再试</div>';
+                return;
+            }
+            
+            const script = document.createElement('script');
+            script.src = urls[index];
+            
+            // 添加加载成功回调
+            script.onload = function() {
+                console.log(`CDN ${urls[index]} 加载成功`);
+                // 调用加载成功回调
+                onQRCodeLibraryLoaded();
+                                
+                // 记录工具加载完成
+                if (typeof recordToolUsage === 'function') {
+                    recordToolUsage('二维码生成', window.location.href);
+                }
+            };
+            
+            script.onerror = function() {
+                console.warn(`CDN ${urls[index]} 加载失败，尝试下一个...`);
+                loadScript(urls, index + 1);
+            };
+            
+            document.head.appendChild(script);
+        }
+        
+        // 页面加载完成后执行
+        window.addEventListener('DOMContentLoaded', function() {
+            // 初始禁用生成按钮，直到库加载完成
+            const generateButton = document.querySelector('.button-group button:first-child');
+            if (generateButton) {
+                generateButton.disabled = true;
+                generateButton.title = "正在加载二维码生成库...";
+            }
+            
+            // 显示加载提示
+            const resultDiv = document.getElementById('qr-result');
+            if (resultDiv) {
+                resultDiv.innerHTML = '<div style="color: #3498db;">正在加载二维码生成库...</div>';
+            }
+            
+            // 加载库
+            loadQRCodeLibrary();
+        });
+    </script>
+    
+    <!-- 工具使用统计容器 -->
+    <div id="tool-usage-stats" style="display: none;"></div>
+    
+    <script>
+        // 标记库是否已加载
+        let qrcodeLibraryLoaded = false;
+        
+        // 添加库加载成功的回调
+        function onQRCodeLibraryLoaded() {
+            qrcodeLibraryLoaded = true;
+            console.log('二维码库加载成功');
+            // 启用生成按钮
+            document.querySelector('.button-group button:first-child').disabled = false;
+            
+            // 记录工具使用频次
+            if (typeof recordToolUsage === 'function') {
+                recordToolUsage('二维码生成', window.location.href);
+            }
+        }
+        
+        /**
+         * 生成二维码并显示在画布上
+         * 使用专业的QRCode库生成标准二维码
+         */
         function generateQRCode() {
             const textInput = document.getElementById('text-input').value;
             const width = parseInt(document.getElementById('qr-width').value);
@@ -189,10 +279,31 @@
             const resultDiv = document.getElementById('qr-result');
             const downloadLink = document.getElementById('download-link');
             
+            // 检查库是否已加载
+            if (!qrcodeLibraryLoaded) {
+                resultDiv.innerHTML = '<div class="error">二维码生成库尚未加载完成，请稍后再试</div>';
+                downloadLink.style.display = 'none';
+                return;
+            }
+            
             if (!textInput.trim()) {
                 resultDiv.innerHTML = '<div class="error">请输入文本或URL</div>';
                 downloadLink.style.display = 'none';
                 return;
+            }
+            
+            // 检查文本长度是否超过最大限制（4296个字符）
+            if (textInput.length > 4296) {
+                resultDiv.innerHTML = '<div class="error">文本长度超过限制（最大4296个字符），当前长度：' + textInput.length + '个字符</div>';
+                downloadLink.style.display = 'none';
+                return;
+            }
+            
+            // 检查文本长度是否接近限制，给出警告但仍然生成
+            if (textInput.length > 3500) {
+                resultDiv.innerHTML = '<div style="color: #f39c12; background-color: #fef9e7; border: 1px solid #f8c471; padding: 10px; border-radius: 4px; margin-bottom: 15px;">警告：文本长度接近限制（当前' + textInput.length + '/4296个字符），可能影响二维码识别率</div>';
+            } else {
+                resultDiv.innerHTML = '';
             }
             
             try {
@@ -204,19 +315,35 @@
                 ctx.fillStyle = bgColor;
                 ctx.fillRect(0, 0, width, height);
                 
-                // 生成二维码矩阵（简化版本）
-                const qrMatrix = generateQRMatrix(textInput);
+                // 使用QRCode库生成二维码
+                // 计算合适的二维码类型（1-40，数字越大，容量越大）
+                const qrTypeNumber = calculateQRTypeNumber(textInput);
                 
-                // 绘制二维码
-                const cellSize = Math.min(width, height) / qrMatrix.length;
+                // 创建QRCode对象
+                const qr = qrcode(qrTypeNumber, 'L'); // L = 低纠错级别
+                qr.addData(textInput);
+                qr.make();
+                
+                // 获取模块数量（二维码矩阵大小）
+                const moduleCount = qr.getModuleCount();
+                
+                // 计算每个模块的大小
+                const cellSize = Math.min(width, height) / moduleCount;
+                
+                // 计算偏移量，使二维码居中
+                const offsetX = (width - moduleCount * cellSize) / 2;
+                const offsetY = (height - moduleCount * cellSize) / 2;
+                
+                // 设置前景色
                 ctx.fillStyle = fgColor;
                 
-                for (let y = 0; y < qrMatrix.length; y++) {
-                    for (let x = 0; x < qrMatrix[y].length; x++) {
-                        if (qrMatrix[y][x]) {
+                // 绘制二维码
+                for (let row = 0; row < moduleCount; row++) {
+                    for (let col = 0; col < moduleCount; col++) {
+                        if (qr.isDark(row, col)) {
                             ctx.fillRect(
-                                x * cellSize + (width - qrMatrix.length * cellSize) / 2,
-                                y * cellSize + (height - qrMatrix.length * cellSize) / 2,
+                                col * cellSize + offsetX,
+                                row * cellSize + offsetY,
                                 cellSize,
                                 cellSize
                             );
@@ -231,95 +358,45 @@
                 downloadLink.href = canvas.toDataURL('image/png');
                 downloadLink.download = 'qrcode.png';
                 downloadLink.style.display = 'inline-block';
+                
+                // 记录工具使用频次
+                if (typeof recordToolUsage === 'function') {
+                    recordToolUsage('二维码生成', window.location.href);
+                }
             } catch (error) {
                 resultDiv.innerHTML = `<div class="error">生成错误: ${error.message}</div>`;
                 downloadLink.style.display = 'none';
+                console.error('二维码生成错误:', error);
             }
         }
         
-        // 简化的二维码矩阵生成函数
-        function generateQRMatrix(text) {
-            // 这是一个非常简化的实现，实际的二维码生成算法非常复杂
-            // 这里只是演示目的，生成一个简单的模式
+        /**
+         * 根据输入文本长度计算合适的二维码类型
+         * @param {string} text - 输入文本
+         * @returns {number} - 二维码类型（1-40）
+         */
+        function calculateQRTypeNumber(text) {
+            const length = text.length;
             
-            const size = 21; // 标准二维码的最小尺寸
-            const matrix = [];
+            // 根据文本长度选择合适的二维码类型
+            if (length <= 25) return 1;      // 最多存储25个字符
+            if (length <= 47) return 2;      // 最多存储47个字符
+            if (length <= 77) return 3;      // 最多存储77个字符
+            if (length <= 114) return 4;     // 最多存储114个字符
+            if (length <= 154) return 5;     // 最多存储154个字符
+            if (length <= 195) return 6;     // 最多存储195个字符
+            if (length <= 224) return 7;     // 最多存储224个字符
+            if (length <= 279) return 8;     // 最多存储279个字符
+            if (length <= 335) return 9;     // 最多存储335个字符
+            if (length <= 395) return 10;    // 最多存储395个字符
             
-            // 初始化矩阵
-            for (let i = 0; i < size; i++) {
-                matrix[i] = new Array(size).fill(0);
-            }
-            
-            // 添加定位图案
-            // 左上角
-            for (let i = 0; i < 7; i++) {
-                matrix[0][i] = 1;
-                matrix[6][i] = 1;
-                matrix[i][0] = 1;
-                matrix[i][6] = 1;
-            }
-            for (let i = 2; i < 5; i++) {
-                for (let j = 2; j < 5; j++) {
-                    matrix[i][j] = 1;
-                }
-            }
-            
-            // 右上角
-            for (let i = 0; i < 7; i++) {
-                matrix[0][size - 1 - i] = 1;
-                matrix[6][size - 1 - i] = 1;
-                matrix[i][size - 1] = 1;
-                matrix[i][size - 7] = 1;
-            }
-            for (let i = 2; i < 5; i++) {
-                for (let j = 2; j < 5; j++) {
-                    matrix[i][size - 1 - j] = 1;
-                }
-            }
-            
-            // 左下角
-            for (let i = 0; i < 7; i++) {
-                matrix[size - 1 - i][0] = 1;
-                matrix[size - 1 - i][6] = 1;
-                matrix[size - 7][i] = 1;
-                matrix[size - 1][i] = 1;
-            }
-            for (let i = 2; i < 5; i++) {
-                for (let j = 2; j < 5; j++) {
-                    matrix[size - 1 - i][j] = 1;
-                }
-            }
-            
-            // 添加格式信息
-            for (let i = 0; i < 9; i++) {
-                matrix[8][i] = (i % 2);
-                matrix[i][8] = (i % 2);
-            }
-            for (let i = 0; i < 8; i++) {
-                matrix[size - 1 - i][8] = (i % 2);
-                matrix[8][size - 1 - i] = (i % 2);
-            }
-            
-            // 基于文本生成一些随机模式（简化版）
-            let hash = 0;
-            for (let i = 0; i < text.length; i++) {
-                hash = text.charCodeAt(i) + ((hash << 5) - hash);
-            }
-            
-            // 在中心区域添加一些基于文本的图案
-            for (let y = 9; y < size - 8; y++) {
-                for (let x = 9; x < size - 8; x++) {
-                    // 使用简单的哈希算法决定是否填充
-                    const val = (hash + x * y) & 0xFF;
-                    if (val > 128) {
-                        matrix[y][x] = 1;
-                    }
-                }
-            }
-            
-            return matrix;
+            // 对于更长的文本，使用更高级别的二维码类型
+            return Math.min(Math.ceil(length / 40) + 10, 40); // 最大为40
         }
         
+        /**
+         * 清空所有输入和输出
+         */
         function clearAll() {
             document.getElementById('text-input').value = '';
             document.getElementById('qr-result').innerHTML = '';
@@ -329,6 +406,11 @@
             const canvas = document.getElementById('qr-canvas');
             const ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 记录工具使用频次
+            if (typeof recordToolUsage === 'function') {
+                recordToolUsage('二维码生成', window.location.href);
+            }
         }
     </script>
 </body>

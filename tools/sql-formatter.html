@@ -173,6 +173,11 @@
                     indentSize: indentSize
                 });
                 output.value = formatted;
+                
+                // 记录工具使用频次
+                if (typeof recordToolUsage === 'function') {
+                    recordToolUsage('SQL格式化', window.location.href);
+                }
             } catch (error) {
                 output.value = '格式化错误: ' + error.message;
             }
@@ -193,6 +198,11 @@
                 compressed = compressed.replace(/\s*([,;()])\s*/g, '$1');
                 compressed = compressed.trim();
                 output.value = compressed;
+                
+                // 记录工具使用频次
+                if (typeof recordToolUsage === 'function') {
+                    recordToolUsage('SQL格式化', window.location.href);
+                }
             } catch (error) {
                 output.value = '压缩错误: ' + error.message;
             }
@@ -257,7 +267,24 @@
         function clearAll() {
             document.getElementById('sql-input').value = '';
             document.getElementById('sql-output').value = '';
+            
+            // 记录工具使用频次
+            if (typeof recordToolUsage === 'function') {
+                recordToolUsage('SQL格式化', window.location.href);
+            }
         }
+        
+        // 页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('SQL格式化工具已加载');
+            
+            // 为输入框添加事件监听器以记录使用频次
+            document.getElementById('sql-input').addEventListener('input', function() {
+                if (typeof recordToolUsage === 'function') {
+                    recordToolUsage('SQL格式化', window.location.href);
+                }
+            });
+        });
     </script>
 </body>
 </html>

@@ -252,6 +252,11 @@
                 } else {
                     output.innerHTML = '<div class="error">未找到匹配项</div>';
                 }
+                
+                // 记录工具使用频次
+                if (typeof recordToolUsage === 'function') {
+                    recordToolUsage('正则表达式测试', window.location.href);
+                }
             } catch (error) {
                 output.innerHTML = `<div class="error">正则表达式错误: ${error.message}</div>`;
             }
@@ -261,7 +266,30 @@
             document.getElementById('regex-input').value = '';
             document.getElementById('text-input').value = '';
             document.getElementById('regex-output').innerHTML = '';
+            
+            // 记录工具使用频次
+            if (typeof recordToolUsage === 'function') {
+                recordToolUsage('正则表达式测试', window.location.href);
+            }
         }
+        
+        // 页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('正则表达式测试工具已加载');
+            
+            // 为输入框添加事件监听器以记录使用频次
+            document.getElementById('regex-input').addEventListener('input', function() {
+                if (typeof recordToolUsage === 'function') {
+                    recordToolUsage('正则表达式测试', window.location.href);
+                }
+            });
+            
+            document.getElementById('text-input').addEventListener('input', function() {
+                if (typeof recordToolUsage === 'function') {
+                    recordToolUsage('正则表达式测试', window.location.href);
+                }
+            });
+        });
     </script>
 </body>
 </html>

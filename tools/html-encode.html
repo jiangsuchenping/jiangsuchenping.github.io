@@ -127,6 +127,11 @@
                 const div = document.createElement('div');
                 div.textContent = input;
                 output.value = div.innerHTML;
+                
+                // 记录工具使用频次
+                if (typeof recordToolUsage === 'function') {
+                    recordToolUsage('HTML编码', window.location.href);
+                }
             } catch (error) {
                 output.value = '编码错误: ' + error.message;
             }
@@ -145,6 +150,11 @@
                 const div = document.createElement('div');
                 div.innerHTML = input;
                 output.value = div.textContent || div.innerText || '';
+                
+                // 记录工具使用频次
+                if (typeof recordToolUsage === 'function') {
+                    recordToolUsage('HTML解码', window.location.href);
+                }
             } catch (error) {
                 output.value = '解码错误: 输入的HTML字符串可能无效';
             }
@@ -153,7 +163,24 @@
         function clearAll() {
             document.getElementById('input-text').value = '';
             document.getElementById('output-text').value = '';
+            
+            // 记录工具使用频次
+            if (typeof recordToolUsage === 'function') {
+                recordToolUsage('HTML编码/解码', window.location.href);
+            }
         }
+        
+        // 页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('HTML编码/解码工具已加载');
+            
+            // 为输入框添加事件监听器以记录使用频次
+            document.getElementById('input-text').addEventListener('input', function() {
+                if (typeof recordToolUsage === 'function') {
+                    recordToolUsage('HTML编码/解码', window.location.href);
+                }
+            });
+        });
     </script>
 </body>
 </html>

@@ -125,6 +125,9 @@
             
             try {
                 output.value = btoa(unescape(encodeURIComponent(input)));
+                
+                // 记录工具使用频次
+                recordToolUsage('Base64编码工具', '../tools/base64-encode.html');
             } catch (error) {
                 output.value = '编码错误: ' + error.message;
             }
@@ -141,6 +144,9 @@
             
             try {
                 output.value = decodeURIComponent(escape(atob(input)));
+                
+                // 记录工具使用频次
+                recordToolUsage('Base64解码工具', '../tools/base64-encode.html');
             } catch (error) {
                 output.value = '解码错误: 输入的Base64字符串可能无效';
             }
@@ -149,6 +155,9 @@
         function clearAll() {
             document.getElementById('input-text').value = '';
             document.getElementById('output-text').value = '';
+            
+            // 记录工具使用频次
+            recordToolUsage('Base64编码/解码工具', '../tools/base64-encode.html');
         }
     </script>
 </body>

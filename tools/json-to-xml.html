@@ -124,6 +124,11 @@
             try {
                 const jsonObj = JSON.parse(input);
                 output.value = jsonToXml(jsonObj);
+                
+                // 记录工具使用频次
+                if (typeof recordToolUsage === 'function') {
+                    recordToolUsage('JSON转XML', window.location.href);
+                }
             } catch (error) {
                 output.value = 'JSON格式错误: ' + error.message;
             }
@@ -154,7 +159,24 @@
         function clearAll() {
             document.getElementById('json-input').value = '';
             document.getElementById('xml-output').value = '';
+            
+            // 记录工具使用频次
+            if (typeof recordToolUsage === 'function') {
+                recordToolUsage('JSON转XML', window.location.href);
+            }
         }
+        
+        // 页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('JSON转XML工具已加载');
+            
+            // 为输入框添加事件监听器以记录使用频次
+            document.getElementById('json-input').addEventListener('input', function() {
+                if (typeof recordToolUsage === 'function') {
+                    recordToolUsage('JSON转XML', window.location.href);
+                }
+            });
+        });
     </script>
 </body>
 </html>

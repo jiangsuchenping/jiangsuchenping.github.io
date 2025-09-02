@@ -181,6 +181,11 @@
                     <p><strong>本地时间：</strong> ${formattedDate}</p>
                     <p><strong>ISO 8601：</strong> ${date.toISOString()}</p>
                 `;
+                
+                // 记录工具使用频次
+                if (typeof recordToolUsage === 'function') {
+                    recordToolUsage('时间戳转换', window.location.href);
+                }
             } catch (error) {
                 resultElement.innerHTML = `<div class="error">转换错误: ${error.message}</div>`;
             }
@@ -207,6 +212,11 @@
                     <p><strong>Unix时间戳：</strong> ${timestamp}</p>
                     <p><strong>毫秒时间戳：</strong> ${date.getTime()}</p>
                 `;
+                
+                // 记录工具使用频次
+                if (typeof recordToolUsage === 'function') {
+                    recordToolUsage('时间戳转换', window.location.href);
+                }
             } catch (error) {
                 resultElement.innerHTML = `<div class="error">转换错误: ${error.message}</div>`;
             }
@@ -235,6 +245,24 @@
             
             return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
         }
+        
+        // 页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('时间戳转换工具已加载');
+            
+            // 为按钮添加事件监听器以记录使用频次
+            document.getElementById('timestamp-input').addEventListener('input', function() {
+                if (typeof recordToolUsage === 'function') {
+                    recordToolUsage('时间戳转换', window.location.href);
+                }
+            });
+            
+            document.getElementById('date-input').addEventListener('input', function() {
+                if (typeof recordToolUsage === 'function') {
+                    recordToolUsage('时间戳转换', window.location.href);
+                }
+            });
+        });
     </script>
 </body>
 </html>

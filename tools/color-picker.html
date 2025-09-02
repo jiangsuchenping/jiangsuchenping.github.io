@@ -218,6 +218,8 @@
             updateColorPreview('#3498db');
             generateColorPalette();
             generateWebSafePalette();
+            
+            console.log('颜色选择器工具已加载');
         });
         
         // 监听颜色选择器变化
@@ -225,6 +227,11 @@
             const color = this.value;
             document.getElementById('color-input').value = color;
             updateColorPreview(color);
+            
+            // 记录工具使用频次
+            if (typeof recordToolUsage === 'function') {
+                recordToolUsage('颜色选择器', window.location.href);
+            }
         });
         
         function updateColor() {
@@ -239,6 +246,11 @@
                 const hexColor = parseColor(colorInput);
                 document.getElementById('color-picker').value = hexColor;
                 updateColorPreview(hexColor);
+                
+                // 记录工具使用频次
+                if (typeof recordToolUsage === 'function') {
+                    recordToolUsage('颜色选择器', window.location.href);
+                }
             } catch (error) {
                 alert('无效的颜色值: ' + error.message);
             }
@@ -267,12 +279,22 @@
             document.getElementById('color-picker').value = color;
             document.getElementById('color-input').value = color;
             updateColorPreview(color);
+            
+            // 记录工具使用频次
+            if (typeof recordToolUsage === 'function') {
+                recordToolUsage('颜色选择器', window.location.href);
+            }
         }
         
         function clearAll() {
             document.getElementById('color-picker').value = '#3498db';
             document.getElementById('color-input').value = '#3498db';
             updateColorPreview('#3498db');
+            
+            // 记录工具使用频次
+            if (typeof recordToolUsage === 'function') {
+                recordToolUsage('颜色选择器', window.location.href);
+            }
         }
         
         // 解析颜色值并转换为HEX格式
@@ -399,6 +421,11 @@
                     document.getElementById('color-picker').value = color;
                     document.getElementById('color-input').value = color;
                     updateColorPreview(color);
+                    
+                    // 记录工具使用频次
+                    if (typeof recordToolUsage === 'function') {
+                        recordToolUsage('颜色选择器', window.location.href);
+                    }
                 });
                 palette.appendChild(colorElement);
             });
@@ -422,6 +449,11 @@
                             document.getElementById('color-picker').value = color;
                             document.getElementById('color-input').value = color;
                             updateColorPreview(color);
+                            
+                            // 记录工具使用频次
+                            if (typeof recordToolUsage === 'function') {
+                                recordToolUsage('颜色选择器', window.location.href);
+                            }
                         });
                         palette.appendChild(colorElement);
                     }

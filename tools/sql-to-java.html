@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQL转Java类 - 在线工具箱</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .tool-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .input-group textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            resize: vertical;
+        }
+        
+        .button-group {
+            margin-bottom: 20px;
+        }
+        
+        .button-group button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin-right: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .button-group button:hover {
+            background-color: #2980b9;
+        }
+        
+        .result-container {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            min-height: 100px;
+        }
+        
+        .error {
+            color: #e74c3c;
+            background-color: #fdf2f2;
+            border: 1px solid #f5c6cb;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+        
+        .options-group {
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .option-item {
+            display: flex;
+            align-items: center;
+        }
+        
+        .option-item input {
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>SQL转Java类</h1>
+            <p>在线将SQL表结构转换为Java实体类</p>
+        </div>
+    </header>
+
+    <nav>
+        <div class="container">
+            <ul>
+                <li><a href="../index.html">首页</a></li>
+                <li><a href="sql-formatter.html">SQL格式化</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="tool-container">
+        <div class="input-group">
+            <label for="sql-input">输入SQL建表语句：</label>
+            <textarea id="sql-input" placeholder="CREATE TABLE Users (\n    Id INT PRIMARY KEY,\n    Username VARCHAR(50) NOT NULL,\n    Email VARCHAR(100),\n    CreatedAt DATETIME\n);\n"></textarea>
+        </div>
+
+        <div class="options-group">
+            <div class="option-item">
+                <input type="checkbox" id="add-annotations" checked>
+                <label for="add-annotations">添加JPA注解</label>
+            </div>
+            <div class="option-item">
+                <input type="checkbox" id="add-lombok" checked>
+                <label for="add-lombok">使用Lombok</label>
+            </div>
+            <div class="option-item">
+                <input type="checkbox" id="camel-case" checked>
+                <label for="camel-case">使用驼峰命名法</label>
+            </div>
+            <div class="option-item">
+                <input type="checkbox" id="add-getters-setters" checked>
+                <label for="add-getters-setters">生成Getter/Setter</label>
+            </div>
+        </div>
+
+        <div class="button-group">
+            <button onclick="convertToJava()">转换为Java类</button>
+            <button onclick="clearAll()">清空</button>
+        </div>
+
+        <div id="result-container">
+            <div class="input-group">
+                <label for="sql-output">Java类定义：</label>
+                <textarea id="sql-output" readonly></textarea>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 在线工具箱 - SQL转Java类工具</p>
+        </div>
+    </footer>
+
+    <script src="../js/main.js"></script>
+    <script>
+        // 工具ID，用于保存选项
+        const TOOL_ID = 'sql-to-java';
+        /**
+         * 将SQL转换为Java类定义
+         * 根据SQL表结构生成对应的Java实体类
+         */
+        function convertToJava() {
+            const input = document.getElementById('sql-input').value;
+            const output = document.getElementById('sql-output');
+            const addAnnotations = document.getElementById('add-annotations').checked;
+            const addLombok = document.getElementById('add-lombok').checked;
+            const camelCase = document.getElementById('camel-case').checked;
+            const addGettersSetters = document.getElementById('add-getters-setters').checked;
+            
+            if (!input.trim()) {
+                output.value = '请输入SQL建表语句';
+                return;
+            }
+            
+            try {
+                // 解析SQL语句
+                const tableInfo = parseSqlCreateTable(input);
+                if (!tableInfo) {
+                    output.value = '无法解析SQL语句，请确保输入了正确的CREATE TABLE语句';
+                    return;
+                }
+                
+                // 生成Java类
+                const result = generateJavaClass(tableInfo, {
+                    addAnnotations,
+                    addLombok,
+                    camelCase,
+                    addGettersSetters
+                });
+                
+                output.value = result;
+                
+                // 保存选项设置
+                saveOption(TOOL_ID, 'add-annotations', addAnnotations);
+                saveOption(TOOL_ID, 'add-lombok', addLombok);
+                saveOption(TOOL_ID, 'camel-case', camelCase);
+                saveOption(TOOL_ID, 'add-getters-setters', addGettersSetters);
+                
+                // 记录使用频次
+                recordToolUsage('SQL转Java', window.location.href);
+            } catch (error) {
+                output.value = 'SQL解析错误或转换失败: ' + error.message;
+            }
+        }
+        
+        /**
+         * 解析SQL CREATE TABLE语句
+         * @param {string} sql - SQL建表语句
+         * @returns {Object|null} 表信息对象或null（如果解析失败）
+         */
+        function parseSqlCreateTable(sql) {
+            // 匹配CREATE TABLE语句
+            const tableRegex = /CREATE\s+TABLE\s+(?:\[|`|"|')?([\w_]+)(?:\]|`|"|')?\s*\(([\s\S]+?)\)\s*;?/i;
+            const tableMatch = sql.match(tableRegex);
+            
+            if (!tableMatch) {
+                return null;
+            }
+            
+            const tableName = tableMatch[1];
+            const columnsText = tableMatch[2];
+            
+            // 解析列定义
+            const columns = [];
+            const columnRegex = /\s*(?:\[|`|"|')?([\w_]+)(?:\]|`|"|')?\s+([\w\(\)]+)(?:\s+(NOT\s+NULL|NULL))?(?:\s+(?:DEFAULT\s+([^,]+)))?(?:\s+(PRIMARY\s+KEY))?(?:\s+(IDENTITY(?:\([^)]+\))?))?[^,]*(?:,|$)/gi;
+            
+            let columnMatch;
+            while ((columnMatch = columnRegex.exec(columnsText)) !== null) {
+                const columnName = columnMatch[1];
+                const dataType = columnMatch[2];
+                const nullable = !(columnMatch[3] && columnMatch[3].toUpperCase() === 'NOT NULL');
+                const isPrimaryKey = !!(columnMatch[5] && columnMatch[5].toUpperCase() === 'PRIMARY KEY');
+                const isIdentity = !!(columnMatch[6] && columnMatch[6].toUpperCase().includes('IDENTITY'));
+                
+                columns.push({
+                    name: columnName,
+                    type: dataType,
+                    nullable,
+                    isPrimaryKey,
+                    isIdentity
+                });
+            }
+            
+            return {
+                name: tableName,
+                columns
+            };
+        }
+        
+        /**
+         * 生成Java类定义
+         * @param {Object} tableInfo - 表信息对象
+         * @param {Object} options - 生成选项
+         * @returns {string} Java类定义代码
+         */
+        function generateJavaClass(tableInfo, options) {
+            const { addAnnotations, addLombok, camelCase, addGettersSetters } = options;
+            
+            let result = '';
+            
+            // 添加必要的import语句
+            if (addAnnotations) {
+                result += 'import javax.persistence.*;
+';
+                result += 'import java.io.Serializable;\n';
+            }
+            
+            if (addLombok) {
+                result += 'import lombok.Data;\n';
+                if (!addGettersSetters) {
+                    result += 'import lombok.Getter;\n';
+                    result += 'import lombok.Setter;\n';
+                }
+                result += 'import lombok.NoArgsConstructor;\n';
+                result += 'import lombok.AllArgsConstructor;\n';
+            }
+            
+            result += 'import java.util.Date;\n\n';
+            
+            // 添加Lombok注解
+            if (addLombok) {
+                result += '@Data\n';
+                result += '@NoArgsConstructor\n';
+                result += '@AllArgsConstructor\n';
+            }
+            
+            // 添加JPA注解
+            if (addAnnotations) {
+                result += '@Entity\n';
+                result += `@Table(name = "${tableInfo.name}")\n`;
+            }
+            
+            // 生成类定义
+            const className = camelCase ? toPascalCase(tableInfo.name) : tableInfo.name;
+            result += `public class ${className} implements Serializable {\n\n`;
+            
+            // 添加序列化ID
+            result += '    private static final long serialVersionUID = 1L;\n\n';
+            
+            // 生成字段
+            for (const column of tableInfo.columns) {
+                const fieldName = camelCase ? toCamelCase(column.name) : column.name;
+                const javaType = sqlTypeToJavaType(column.type);
+                
+                // 添加JPA注解
+                if (addAnnotations) {
+                    if (column.isPrimaryKey) {
+                        result += '    @Id\n';
+                        if (column.isIdentity) {
+                            result += '    @GeneratedValue(strategy = GenerationType.IDENTITY)\n';
+                        }
+                    }
+                    result += `    @Column(name = "${column.name}"${!column.nullable ? ', nullable = false' : ''})\n`;
+                }
+                
+                // 添加Lombok字段级注解
+                if (addLombok && !addGettersSetters) {
+                    result += '    @Getter\n';
+                    result += '    @Setter\n';
+                }
+                
+                // 生成字段
+                result += `    private ${javaType} ${fieldName};\n\n`;
+            }
+            
+            // 如果不使用Lombok，生成getter和setter方法
+            if (!addLombok && addGettersSetters) {
+                for (const column of tableInfo.columns) {
+                    const fieldName = camelCase ? toCamelCase(column.name) : column.name;
+                    const javaType = sqlTypeToJavaType(column.type);
+                    const pascalFieldName = toPascalCase(fieldName);
+                    
+                    // Getter方法
+                    result += `    public ${javaType} get${pascalFieldName}() {\n`;
+                    result += `        return ${fieldName};\n`;
+                    result += '    }\n\n';
+                    
+                    // Setter方法
+                    result += `    public void set${pascalFieldName}(${javaType} ${fieldName}) {\n`;
+                    result += `        this.${fieldName} = ${fieldName};\n`;
+                    result += '    }\n\n';
+                }
+            }
+            
+            result += '}';
+            
+            return result;
+        }
+        
+        /**
+         * 将SQL类型转换为Java类型
+         * @param {string} sqlType - SQL数据类型
+         * @returns {string} Java类型名称
+         */
+        function sqlTypeToJavaType(sqlType) {
+            const type = sqlType.toUpperCase().split('(')[0].trim();
+            
+            switch (type) {
+                case 'INT':
+                case 'INTEGER':
+                case 'SMALLINT':
+                case 'TINYINT':
+                    return 'Integer';
+                case 'BIGINT':
+                    return 'Long';
+                case 'DECIMAL':
+                case 'NUMERIC':
+                case 'MONEY':
+                    return 'BigDecimal';
+                case 'FLOAT':
+                    return 'Float';
+                case 'REAL':
+                case 'DOUBLE':
+                    return 'Double';
+                case 'BIT':
+                case 'BOOLEAN':
+                    return 'Boolean';
+                case 'DATE':
+                case 'DATETIME':
+                case 'DATETIME2':
+                case 'SMALLDATETIME':
+                case 'TIMESTAMP':
+                    return 'Date';
+                case 'TIME':
+                    return 'Time';
+                case 'CHAR':
+                case 'VARCHAR':
+                case 'NCHAR':
+                case 'NVARCHAR':
+                case 'TEXT':
+                case 'NTEXT':
+                case 'LONGTEXT':
+                case 'LONGVARCHAR':
+                    return 'String';
+                case 'BINARY':
+                case 'VARBINARY':
+                case 'BLOB':
+                case 'LONGVARBINARY':
+                case 'IMAGE':
+                    return 'byte[]';
+                case 'UNIQUEIDENTIFIER':
+                    return 'UUID';
+                default:
+                    return 'Object';
+            }
+        }
+        
+        /**
+         * 将字符串转换为Pascal命名风格（首字母大写）
+         * @param {string} str - 输入字符串
+         * @returns {string} Pascal命名风格的字符串
+         */
+        function toPascalCase(str) {
+            // 处理特殊字符和空格
+            const words = str.replace(/[^a-zA-Z0-9]+/g, ' ')
+                .trim()
+                .split(' ');
+            
+            // 转换为Pascal命名风格
+            return words.map(word => {
+                if (word.length === 0) return '';
+                return word[0].toUpperCase() + word.substring(1).toLowerCase();
+            }).join('');
+        }
+        
+        /**
+         * 将字符串转换为驼峰命名风格（首字母小写）
+         * @param {string} str - 输入字符串
+         * @returns {string} 驼峰命名风格的字符串
+         */
+        function toCamelCase(str) {
+            const pascal = toPascalCase(str);
+            if (pascal.length === 0) return '';
+            return pascal[0].toLowerCase() + pascal.substring(1);
+        }
+        
+        function clearAll() {
+            document.getElementById('sql-input').value = '';
+            document.getElementById('sql-output').value = '';
+        }
+        
+        // 页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            // 设置自动保存功能
+            setupAutoSave(TOOL_ID, 'sql-input', 'input');
+            
+            // 加载上次的SQL输入
+            const savedInput = getOption(TOOL_ID, 'sql-input', '');
+            if (savedInput) {
+                document.getElementById('sql-input').value = savedInput;
+            }
+            
+            // 加载上次的选项设置
+            const addAnnotations = getOption(TOOL_ID, 'add-annotations', true);
+            const addLombok = getOption(TOOL_ID, 'add-lombok', true);
+            const camelCase = getOption(TOOL_ID, 'camel-case', true);
+            const addGettersSetters = getOption(TOOL_ID, 'add-getters-setters', true);
+            
+            document.getElementById('add-annotations').checked = addAnnotations;
+            document.getElementById('add-lombok').checked = addLombok;
+            document.getElementById('camel-case').checked = camelCase;
+            document.getElementById('add-getters-setters').checked = addGettersSetters;
+        });
+    </script>
+</body>
+</html>
