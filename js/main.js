@@ -153,7 +153,6 @@ function createFrequentToolsMenu() {
             toolCard.className = 'tool-card';
             toolCard.innerHTML = `
                 <h3><a href="${tool.url}">${tool.name}</a></h3>
-                <p>使用次数: ${tool.count}</p>
             `;
             existingToolGrid.appendChild(toolCard);
             
