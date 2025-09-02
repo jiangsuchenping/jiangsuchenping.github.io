@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /bak.zip
+Disallow: /*.bat$
+
+Sitemap: https://jiangsuchenping.github.io/sitemap.xml
