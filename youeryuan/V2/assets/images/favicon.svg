@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+  <!-- Favicon图标 - V2版本 -->
+  <!-- 儿童教育图标 - 书本和星星 -->
+  <rect x="2" y="4" width="12" height="8" rx="1" fill="#4CAF50"/>
+  <rect x="3" y="3" width="10" height="8" rx="1" fill="#8BC34A"/>
+  <path d="M8 1 L9.5 5.5 L14.5 5.5 L11 8.5 L12.5 13 L8 10.5 L3.5 13 L5 8.5 L1.5 5.5 L6.5 5.5 Z" fill="#FFD700"/>
+</svg>

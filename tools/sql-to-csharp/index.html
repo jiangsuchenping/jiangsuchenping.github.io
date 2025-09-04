@@ -3,364 +3,371 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SQL转C#类 - 在线工具箱</title>
-    <link rel="stylesheet" href="../../css/style.css">
-    <style>
-        .tool-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        
-        .input-group {
-            margin-bottom: 20px;
-        }
-        
-        .input-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        
-        .input-group textarea {
-            width: 100%;
-            min-height: 200px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-family: 'Courier New', monospace;
-            resize: vertical;
-        }
-        
-        .button-group {
-            margin-bottom: 20px;
-        }
-        
-        .button-group button {
-            background-color: #3498db;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            margin-right: 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        
-        .button-group button:hover {
-            background-color: #2980b9;
-        }
-        
-        .result-container {
-            background-color: #f8f9fa;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            padding: 15px;
-            min-height: 100px;
-        }
-        
-        .error {
-            color: #e74c3c;
-            background-color: #fdf2f2;
-            border: 1px solid #f5c6cb;
-            padding: 10px;
-            border-radius: 4px;
-            margin-bottom: 15px;
-        }
-        
-        .options-group {
-            margin-bottom: 20px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-        
-        .option-item {
-            display: flex;
-            align-items: center;
-        }
-        
-        .option-item input {
-            margin-right: 5px;
-        }
-    </style>
+    <title>SQL转C#类 - 在线工具</title>
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <script src="../js/common.js"></script>
 </head>
 <body>
-    <header>
-        <div class="container">
-            <h1>SQL转C#类</h1>
-            <p>在线将SQL表结构转换为C#实体类</p>
-        </div>
-    </header>
-
-    <nav>
-        <div class="container">
-            <ul>
-                <li><a href="../../index.html">首页</a></li>
-                <li><a href="../sql-to-csharp/index.html">SQL转C#类</a></li>
-            </ul>
-        </div>
-    </nav>
-
-    <main class="tool-container">
-        <div class="input-group">
-            <label for="sql-input">输入SQL建表语句：</label>
-            <textarea id="sql-input" placeholder="CREATE TABLE Users (\n    Id INT PRIMARY KEY,\n    Username VARCHAR(50) NOT NULL,\n    Email VARCHAR(100),\n    CreatedAt DATETIME\n);\n"></textarea>
-        </div>
-
-        <div class="options-group">
-            <div class="option-item">
-                <input type="checkbox" id="add-data-annotations" checked>
-                <label for="add-data-annotations">添加数据注解</label>
+    <div class="container">
+        <h1 class="my-4">SQL转C#类</h1>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="sql-input">SQL建表语句：</label>
+                    <textarea id="sql-input" class="form-control" rows="15" placeholder="请输入SQL CREATE TABLE语句..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="add-data-annotations" checked>
+                        <label class="form-check-label" for="add-data-annotations">添加数据注解</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="add-properties" checked>
+                        <label class="form-check-label" for="add-properties">生成属性而非字段</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="pascal-case" checked>
+                        <label class="form-check-label" for="pascal-case">使用Pascal命名法</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="nullable-reference-types">
+                        <label class="form-check-label" for="nullable-reference-types">使用可空引用类型</label>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <button class="btn btn-primary" onclick="convertToCSharp()">转换为C#类</button>
+                    <button class="btn btn-secondary" onclick="clearAll()">清空</button>
+                </div>
             </div>
-            <div class="option-item">
-                <input type="checkbox" id="add-properties" checked>
-                <label for="add-properties">生成属性而非字段</label>
-            </div>
-            <div class="option-item">
-                <input type="checkbox" id="pascal-case" checked>
-                <label for="pascal-case">使用Pascal命名法</label>
-            </div>
-            <div class="option-item">
-                <input type="checkbox" id="nullable-reference-types">
-                <label for="nullable-reference-types">使用可空引用类型</label>
-            </div>
-        </div>
-
-        <div class="button-group">
-            <button onclick="convertToCSharp()">转换为C#类</button>
-            <button onclick="clearAll()">清空</button>
-        </div>
-
-        <div id="result-container">
-            <div class="input-group">
-                <label for="sql-output">C#类定义：</label>
-                <textarea id="sql-output" readonly></textarea>
+            
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="sql-output">C#类代码：</label>
+                    <textarea id="sql-output" class="form-control" rows="20" readonly></textarea>
+                </div>
             </div>
         </div>
-    </main>
-
-    <footer>
-        <div class="container">
-            <p>&copy; 2025 在线工具箱 - SQL转C#类工具</p>
+        
+        <div class="card mt-4">
+            <div class="card-header">说明</div>
+            <div class="card-body">
+                <p>此工具可将SQL建表语句转换为C#类定义。支持以下功能：</p>
+                <ul>
+                    <li>自动将SQL数据类型映射为C#类型</li>
+                    <li>支持添加数据注解（Table、Column、Key等）</li>
+                    <li>支持生成属性或字段</li>
+                    <li>支持Pascal命名法转换</li>
+                    <li>支持可空引用类型（C# 8.0+）</li>
+                </ul>
+                <p>示例SQL：</p>
+                <pre>CREATE TABLE Users (
+    user_id INT PRIMARY KEY IDENTITY,
+    username VARCHAR(50) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    password_hash VARCHAR(100) NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT GETDATE(),
+    is_active BIT NOT NULL DEFAULT 1
+);</pre>
+            </div>
         </div>
-    </footer>
-
-    <script src="../../js/main.js"></script>
+    </div>
+    
     <script>
-        // 工具ID，用于保存选项
         const TOOL_ID = 'sql-to-csharp';
+        
         /**
-         * 将SQL转换为C#类定义
-         * 根据SQL表结构生成对应的C#实体类
+         * 将SQL建表语句转换为C#类
          */
         function convertToCSharp() {
-            const input = document.getElementById('sql-input').value;
-            const output = document.getElementById('sql-output');
+            // 获取输入和选项
+            const sqlInput = document.getElementById('sql-input').value.trim();
             const addDataAnnotations = document.getElementById('add-data-annotations').checked;
             const addProperties = document.getElementById('add-properties').checked;
             const pascalCase = document.getElementById('pascal-case').checked;
             const nullableReferenceTypes = document.getElementById('nullable-reference-types').checked;
             
-            if (!input.trim()) {
-                output.value = '请输入SQL建表语句';
+            // 保存选项设置
+            setOption(TOOL_ID, 'add-data-annotations', addDataAnnotations);
+            setOption(TOOL_ID, 'add-properties', addProperties);
+            setOption(TOOL_ID, 'pascal-case', pascalCase);
+            setOption(TOOL_ID, 'nullable-reference-types', nullableReferenceTypes);
+            
+            // 检查输入是否为空
+            if (!sqlInput) {
+                document.getElementById('sql-output').value = '请输入SQL建表语句';
                 return;
             }
             
             try {
-                // 解析SQL语句
-                const tableInfo = parseSqlCreateTable(input);
+                // 解析SQL建表语句
+                const tableInfo = parseSqlCreateTable(sqlInput);
+                
                 if (!tableInfo) {
-                    output.value = '无法解析SQL语句，请确保输入了正确的CREATE TABLE语句';
+                    document.getElementById('sql-output').value = '无法解析SQL建表语句，请确保输入了有效的CREATE TABLE语句';
                     return;
                 }
                 
                 // 生成C#类
-                const result = generateCSharpClass(tableInfo, {
+                const options = {
                     addDataAnnotations,
                     addProperties,
                     pascalCase,
                     nullableReferenceTypes
-                });
+                };
                 
-                output.value = result;
+                const csharpClass = generateCSharpClass(tableInfo, options);
+                document.getElementById('sql-output').value = csharpClass;
                 
-                // 保存选项设置
-                saveOption(TOOL_ID, 'add-data-annotations', addDataAnnotations);
-                saveOption(TOOL_ID, 'add-properties', addProperties);
-                saveOption(TOOL_ID, 'pascal-case', pascalCase);
-                saveOption(TOOL_ID, 'nullable-reference-types', nullableReferenceTypes);
-                
-                // 记录工具使用频次
-                if (typeof recordToolUsage === 'function') {
-                    recordToolUsage('tools/sql-to-csharp/index.html');
-                }
+                // 记录工具使用次数
+                recordToolUsage(TOOL_ID);
             } catch (error) {
-                output.value = 'SQL解析错误或转换失败: ' + error.message;
+                document.getElementById('sql-output').value = '转换过程中发生错误：' + error.message;
             }
         }
-
+        
         /**
-         * 清空输入和输出
+         * 解析SQL CREATE TABLE语句
+         * @param {string} sql - SQL建表语句
+         * @returns {Object|null} 表信息对象或null（如果解析失败）
          */
+        function parseSqlCreateTable(sql) {
+            // 匹配CREATE TABLE语句
+            const tableRegex = /CREATE\s+TABLE\s+(?:\[|`|"|')?(\w+)(?:\]|`|"|')?\s*\(([\s\S]+?)\)\s*;?/i;
+            const tableMatch = sql.match(tableRegex);
+            
+            if (!tableMatch) {
+                return null;
+            }
+            
+            const tableName = tableMatch[1];
+            const columnsText = tableMatch[2];
+            
+            // 解析列定义
+            const columns = [];
+            const columnRegex = /\s*(?:\[|`|"|')?(\w+)(?:\]|`|"|')?\s+([\w\(\)]+)(?:\s+(NOT\s+NULL|NULL))?(?:\s+(?:DEFAULT\s+([^,]+)))?(?:\s+(PRIMARY\s+KEY))?(?:\s+(IDENTITY(?:\([^)]+\))?))?[^,]*(?:,|$)/gi;
+            
+            let columnMatch;
+            while ((columnMatch = columnRegex.exec(columnsText)) !== null) {
+                const columnName = columnMatch[1];
+                const dataType = columnMatch[2];
+                const nullable = !(columnMatch[3] && columnMatch[3].toUpperCase() === 'NOT NULL');
+                const isPrimaryKey = !!(columnMatch[5] && columnMatch[5].toUpperCase() === 'PRIMARY KEY');
+                const isIdentity = !!(columnMatch[6] && columnMatch[6].toUpperCase().includes('IDENTITY'));
+                
+                columns.push({
+                    name: columnName,
+                    type: dataType,
+                    nullable,
+                    isPrimaryKey,
+                    isIdentity
+                });
+            }
+            
+            return {
+                name: tableName,
+                columns
+            };
+        }
+        
+        /**
+         * 生成C#类定义
+         * @param {Object} tableInfo - 表信息对象
+         * @param {Object} options - 生成选项
+         * @returns {string} C#类定义代码
+         */
+        function generateCSharpClass(tableInfo, options) {
+            const { addDataAnnotations, addProperties, pascalCase, nullableReferenceTypes } = options;
+            
+            let result = '';
+            
+            // 添加必要的using语句
+            if (addDataAnnotations) {
+                result += 'using System.ComponentModel.DataAnnotations;\n';
+                result += 'using System.ComponentModel.DataAnnotations.Schema;\n';
+            }
+            result += 'using System;\n\n';
+            
+            // 生成类定义
+            const className = pascalCase ? toPascalCase(tableInfo.name) : tableInfo.name;
+            
+            if (addDataAnnotations) {
+                result += `[Table("${tableInfo.name}")]\n`;
+            }
+            result += `public class ${className}\n{\n`;
+            
+            // 生成属性
+            for (const column of tableInfo.columns) {
+                const propertyName = pascalCase ? toPascalCase(column.name) : column.name;
+                const csharpType = sqlTypeToCSharpType(column.type, column.nullable, nullableReferenceTypes);
+                
+                // 添加数据注解
+                if (addDataAnnotations) {
+                    if (column.isPrimaryKey) {
+                        result += '    [Key]\n';
+                    }
+                    if (column.name !== propertyName) {
+                        result += `    [Column("${column.name}")]\n`;
+                    }
+                    
+                    // 添加字符串长度限制
+                    if (column.type.toUpperCase().includes('VARCHAR') || column.type.toUpperCase().includes('NVARCHAR')) {
+                        const lengthMatch = column.type.match(/(\d+)/);
+                        if (lengthMatch) {
+                            result += `    [StringLength(${lengthMatch[1]})]\n`;
+                        }
+                    }
+                    
+                    // 添加Required注解
+                    if (!column.nullable && !column.isPrimaryKey && !isPrimitiveType(csharpType)) {
+                        result += '    [Required]\n';
+                    }
+                }
+                
+                // 生成属性或字段
+                if (addProperties) {
+                    result += `    public ${csharpType} ${propertyName} { get; set; }\n\n`;
+                } else {
+                    result += `    public ${csharpType} ${propertyName};\n\n`;
+                }
+            }
+            
+            result += '}';
+            
+            return result;
+        }
+        
+        /**
+         * 将SQL类型转换为C#类型
+         * @param {string} sqlType - SQL数据类型
+         * @param {boolean} nullable - 是否可为空
+         * @param {boolean} nullableReferenceTypes - 是否使用可空引用类型
+         * @returns {string} C#类型名称
+         */
+        function sqlTypeToCSharpType(sqlType, nullable, nullableReferenceTypes) {
+            const type = sqlType.toUpperCase().split('(')[0].trim();
+            let csharpType;
+            
+            switch (type) {
+                case 'INT':
+                case 'INTEGER':
+                case 'SMALLINT':
+                case 'TINYINT':
+                    csharpType = 'int';
+                    break;
+                case 'BIGINT':
+                    csharpType = 'long';
+                    break;
+                case 'DECIMAL':
+                case 'NUMERIC':
+                case 'MONEY':
+                    csharpType = 'decimal';
+                    break;
+                case 'FLOAT':
+                    csharpType = 'float';
+                    break;
+                case 'REAL':
+                case 'DOUBLE':
+                    csharpType = 'double';
+                    break;
+                case 'BIT':
+                    csharpType = 'bool';
+                    break;
+                case 'DATE':
+                case 'DATETIME':
+                case 'DATETIME2':
+                case 'SMALLDATETIME':
+                    csharpType = 'DateTime';
+                    break;
+                case 'TIME':
+                    csharpType = 'TimeSpan';
+                    break;
+                case 'CHAR':
+                case 'VARCHAR':
+                case 'NCHAR':
+                case 'NVARCHAR':
+                case 'TEXT':
+                case 'NTEXT':
+                    csharpType = nullableReferenceTypes && !nullable ? 'string' : 'string?';
+                    return csharpType; // 直接返回，不需要后续处理
+                case 'BINARY':
+                case 'VARBINARY':
+                case 'IMAGE':
+                    csharpType = 'byte[]';
+                    return nullable ? 'byte[]?' : 'byte[]'; // 直接返回，不需要后续处理
+                case 'UNIQUEIDENTIFIER':
+                    csharpType = 'Guid';
+                    break;
+                default:
+                    csharpType = 'object';
+                    break;
+            }
+            
+            // 处理可空类型
+            if (nullable && isPrimitiveType(csharpType)) {
+                return csharpType + '?';
+            }
+            
+            return csharpType;
+        }
+        
+        /**
+         * 判断是否为C#基本类型
+         * @param {string} type - C#类型名称
+         * @returns {boolean} 是否为基本类型
+         */
+        function isPrimitiveType(type) {
+            const primitiveTypes = ['int', 'long', 'float', 'double', 'decimal', 'bool', 'DateTime', 'TimeSpan', 'Guid'];
+            return primitiveTypes.includes(type);
+        }
+        
+        /**
+         * 将字符串转换为Pascal命名风格（首字母大写）
+         * @param {string} str - 输入字符串
+         * @returns {string} Pascal命名风格的字符串
+         */
+        function toPascalCase(str) {
+            // 处理特殊字符和空格
+            const words = str.replace(/[^a-zA-Z0-9]+/g, ' ')
+                .trim()
+                .split(' ');
+            
+            // 转换为Pascal命名风格
+            return words.map(word => {
+                if (word.length === 0) return '';
+                return word[0].toUpperCase() + word.substring(1).toLowerCase();
+            }).join('');
+        }
+        
         function clearAll() {
             document.getElementById('sql-input').value = '';
             document.getElementById('sql-output').value = '';
-            // 记录工具使用频次
-            if (typeof recordToolUsage === 'function') {
-                recordToolUsage('tools/sql-to-csharp/index.html');
-            }
         }
-
-        /**
-         * 解析SQL CREATE TABLE语句
-         * @param {string} sql - SQL CREATE TABLE语句
-         * @returns {object} - 包含表名和列信息的对象
-         */
-        function parseSqlCreateTable(sql) {
-            const tableNameMatch = /CREATE TABLE\s+(`?)([^`\s]+)\1\s*\(/i.exec(sql);
-            if (!tableNameMatch) {
-                return null;
-            }
-            const tableName = tableNameMatch[2];
-
-            const columns = [];
-            // 匹配列定义，考虑了各种数据类型、约束和默认值
-            const columnRegex = /\s*(`?)([^`\s]+)\1\s+([a-zA-Z0-9_]+(?:\([^)]+\))?)(?:\s+NOT NULL)?(?:\s+PRIMARY KEY)?(?:\s+DEFAULT\s+[^,\s]+)?(?:\s+AUTO_INCREMENT)?(?:\s+COMMENT\s+'[^']+')?(?:\s*,|$)/gi;
-            let match;
-            let remainingSql = sql.substring(sql.indexOf('(') + 1);
-            remainingSql = remainingSql.substring(0, remainingSql.lastIndexOf(')'));
-
-            while ((match = columnRegex.exec(remainingSql)) !== null) {
-                if (match[2]) { // 确保匹配到列名
-                    const columnName = match[2];
-                    const columnType = match[3].toLowerCase();
-                    const isNullable = !/NOT NULL/i.test(match[0]);
-                    const isPrimaryKey = /PRIMARY KEY/i.test(match[0]);
-                    columns.push({ name: columnName, type: columnType, isNullable, isPrimaryKey });
-                }
-            }
-            return { tableName, columns };
-        }
-
-        /**
-         * 将SQL数据类型映射到C#数据类型
-         * @param {string} sqlType - SQL数据类型
-         * @returns {string} - 对应的C#数据类型
-         */
-        function mapSqlTypeToCSharpType(sqlType) {
-            switch (sqlType) {
-                case 'int':
-                case 'integer':
-                case 'tinyint':
-                case 'smallint':
-                case 'mediumint':
-                    return 'int';
-                case 'bigint':
-                    return 'long';
-                case 'float':
-                    return 'float';
-                case 'double':
-                case 'decimal':
-                case 'numeric':
-                    return 'decimal';
-                case 'bit':
-                case 'boolean':
-                    return 'bool';
-                case 'char':
-                case 'varchar':
-                case 'text':
-                case 'nchar':
-                case 'nvarchar':
-                case 'ntext':
-                case 'uniqueidentifier':
-                    return 'string';
-                case 'date':
-                case 'datetime':
-                case 'timestamp':
-                case 'smalldatetime':
-                    return 'DateTime';
-                case 'time':
-                    return 'TimeSpan';
-                case 'binary':
-                case 'varbinary':
-                case 'image':
-                    return 'byte[]';
-                case 'json':
-                    return 'string'; // JSON通常作为字符串处理
-                default:
-                    return 'object'; // 未知类型默认为object
-            }
-        }
-
-        /**
-         * 将字符串转换为PascalCase
-         * @param {string} str - 输入字符串
-         * @returns {string} - PascalCase字符串
-         */
-        function toPascalCase(str) {
-            return str.replace(/(?:^|_)([a-z])/g, (_, c) => c.toUpperCase());
-        }
-
-        /**
-         * 生成C#类定义
-         * @param {object} tableInfo - 表信息对象
-         * @param {object} options - 选项
-         * @param {boolean} options.addDataAnnotations - 是否添加数据注解
-         * @param {boolean} options.addProperties - 是否生成属性而非字段
-         * @param {boolean} options.pascalCase - 是否使用Pascal命名法
-         * @param {boolean} options.nullableReferenceTypes - 是否使用可空引用类型
-         * @returns {string} - C#类定义字符串
-         */
-        function generateCSharpClass(tableInfo, options) {
-            const className = options.pascalCase ? toPascalCase(tableInfo.tableName) : tableInfo.tableName;
-            let classDefinition = `public class ${className}\n{\n`;
-
-            tableInfo.columns.forEach(col => {
-                let cSharpType = mapSqlTypeToCSharpType(col.type);
-                let memberName = options.pascalCase ? toPascalCase(col.name) : col.name;
-
-                // 处理可空类型
-                if (col.isNullable && cSharpType !== 'string' && cSharpType !== 'byte[]' && cSharpType !== 'object') {
-                    cSharpType += '?';
-                }
-                // 处理可空引用类型
-                if (options.nullableReferenceTypes && cSharpType === 'string' && col.isNullable) {
-                    cSharpType += '?';
-                }
-
-                if (options.addDataAnnotations) {
-                    if (col.isPrimaryKey) {
-                        classDefinition += `    [Key]\n`;
-                    }
-                    if (!col.isNullable && cSharpType !== 'string') { // string类型默认可空，除非明确指定Required
-                        classDefinition += `    [Required]\n`;
-                    }
-                    // 可以添加更多注解，例如 [Column("OriginalColumnName")]
-                    if (memberName !== col.name) { // 如果列名被转换了，添加Column注解
-                        classDefinition += `    [Column("${col.name}")]\n`;
-                    }
-                }
-
-                if (options.addProperties) {
-                    classDefinition += `    public ${cSharpType} ${memberName} { get; set; }\n`;
-                } else {
-                    classDefinition += `    public ${cSharpType} ${memberName};\n`;
-                }
-                classDefinition += `\n`;
-            });
-
-            classDefinition += `}`; 
-            return classDefinition;
-        }
-
-        // 页面加载时恢复选项设置
+        
+        // 页面加载完成后执行
         document.addEventListener('DOMContentLoaded', function() {
-            loadOption(TOOL_ID, 'add-data-annotations', true);
-            loadOption(TOOL_ID, 'add-properties', true);
-            loadOption(TOOL_ID, 'pascal-case', true);
-            loadOption(TOOL_ID, 'nullable-reference-types', false);
-            console.log('SQL转C#类工具已加载');
+            // 设置自动保存功能
+            setupAutoSave(TOOL_ID, 'sql-input', 'input');
+            
+            // 加载上次的SQL输入
+            const savedInput = getOption(TOOL_ID, 'sql-input', '');
+            if (savedInput) {
+                document.getElementById('sql-input').value = savedInput;
+            }
+            
+            // 加载上次的选项设置
+            const addDataAnnotations = getOption(TOOL_ID, 'add-data-annotations', true);
+            const addProperties = getOption(TOOL_ID, 'add-properties', true);
+            const pascalCase = getOption(TOOL_ID, 'pascal-case', true);
+            const nullableReferenceTypes = getOption(TOOL_ID, 'nullable-reference-types', false);
+            
+            document.getElementById('add-data-annotations').checked = addDataAnnotations;
+            document.getElementById('add-properties').checked = addProperties;
+            document.getElementById('pascal-case').checked = pascalCase;
+            document.getElementById('nullable-reference-types').checked = nullableReferenceTypes;
         });
     </script>
 </body>

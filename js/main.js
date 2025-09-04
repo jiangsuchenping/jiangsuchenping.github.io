@@ -153,12 +153,15 @@ function createFrequentToolsMenu() {
             toolCard.className = 'tool-card';
             toolCard.innerHTML = `
                 <h3><a href="${tool.url}">${tool.name}</a></h3>
+                <p>使用次数: ${tool.count}</p>
             `;
             existingToolGrid.appendChild(toolCard);
             
             // 为动态创建的工具卡片添加点击事件，记录使用频次
+            // 使用自定义属性标记已添加事件的链接，防止重复添加
             const link = toolCard.querySelector('h3 a');
-            if (link) {
+            if (link && !link.hasAttribute('data-event-added')) {
+                link.setAttribute('data-event-added', 'true');
                 link.addEventListener('click', function(e) {
                     recordToolUsage(tool.name, tool.url);
                 });
@@ -209,8 +212,10 @@ function createFrequentToolsMenu() {
             toolGrid.appendChild(toolCard);
             
             // 为动态创建的工具卡片添加点击事件，记录使用频次
+            // 使用自定义属性标记已添加事件的链接，防止重复添加
             const link = toolCard.querySelector('h3 a');
-            if (link) {
+            if (link && !link.hasAttribute('data-event-added')) {
+                link.setAttribute('data-event-added', 'true');
                 link.addEventListener('click', function(e) {
                     recordToolUsage(tool.name, tool.url);
                 });
@@ -246,7 +251,8 @@ document.addEventListener('DOMContentLoaded', function() {
     createFrequentToolsMenu();
     
     // 为所有工具链接添加点击事件，记录使用频次
-    document.querySelectorAll('.tool-card h3 a').forEach(link => {
+    // 排除常用工具区域，因为它们已经在createFrequentToolsMenu函数中添加了点击事件
+    document.querySelectorAll('.tool-card h3 a:not(#frequent-tools-grid .tool-card h3 a)').forEach(link => {
         link.addEventListener('click', function(e) {
             const toolName = this.textContent;
             const toolUrl = this.getAttribute('href');

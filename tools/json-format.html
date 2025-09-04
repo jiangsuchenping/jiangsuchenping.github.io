@@ -193,7 +193,7 @@
                 const jsonObj = JSON.parse(input);
                 output.value = JSON.stringify(jsonObj, null, 4);
                 // 记录使用频次
-                recordToolUsage('JSON格式化', 'tools/json-format.html');
+                recordToolUsage('JSON格式化', window.location.href);
             } catch (error) {
                 output.value = 'JSON格式错误: ' + error.message;
             }
@@ -212,7 +212,7 @@
                 const jsonObj = JSON.parse(input);
                 output.value = JSON.stringify(jsonObj);
                 // 记录使用频次
-                recordToolUsage('JSON格式化', 'tools/json-format.html');
+                recordToolUsage('JSON格式化', window.location.href);
             } catch (error) {
                 output.value = 'JSON格式错误: ' + error.message;
             }
@@ -231,7 +231,7 @@
                 JSON.parse(input);
                 output.value = 'JSON格式正确！';
                 // 记录使用频次
-                recordToolUsage('JSON格式化', 'tools/json-format.html');
+                recordToolUsage('JSON格式化', window.location.href);
             } catch (error) {
                 output.value = 'JSON格式错误: ' + error.message;
             }
@@ -270,7 +270,7 @@
                 output.value = result;
                 
                 // 记录使用频次
-                recordToolUsage('JSON格式化', 'tools/json-format.html');
+                recordToolUsage('JSON格式化', window.location.href);
             } catch (error) {
                 output.value = 'JSON格式错误或转换失败: ' + error.message;
             }
@@ -414,7 +414,7 @@
             document.getElementById('json-output').value = '';
             
             // 记录使用频次
-            recordToolUsage('JSON格式化', 'tools/json-format.html');
+            recordToolUsage('JSON格式化', window.location.href);
         }
     </script>
 </body>

@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# 网站地图
+Sitemap: https://jiangsuchenping.github.io/yijiafangchan/sitemap.xml
+
+# 宜家房产官方网站
+# 盐城市大丰区专业房地产服务
+# 联系电话：0515-8888-8888

@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -151,20 +152,6 @@
     </footer>
 
     <script>
-        function recordToolUsage(toolName) {
-            // 检查浏览器是否支持 navigator.sendBeacon 或 XMLHttpRequest
-            if (navigator.sendBeacon) {
-                // 使用 sendBeacon 异步发送数据，不影响页面卸载
-                navigator.sendBeacon('https://jiangsuchenping.github.io/recordToolUsage.html?tool=' + toolName);
-            } else {
-                // 降级方案：使用 XMLHttpRequest
-                var xhr = new XMLHttpRequest();
-                xhr.open('GET', 'https://jiangsuchenping.github.io/recordToolUsage.html?tool=' + toolName, true);
-                xhr.send();
-            }
-        }
-        recordToolUsage('tools/timestamp/index.html');
-
         function timestampToDate() {
             const timestampInput = document.getElementById('timestamp-input').value;
             const resultElement = document.getElementById('timestamp-result');
@@ -197,7 +184,7 @@
                 
                 // 记录工具使用频次
                 if (typeof recordToolUsage === 'function') {
-                    recordToolUsage('时间戳转换', 'tools/timestamp/index.html');
+                    recordToolUsage('时间戳转换', window.location.href);
                 }
             } catch (error) {
                 resultElement.innerHTML = `<div class="error">转换错误: ${error.message}</div>`;
@@ -217,33 +204,37 @@
                 const date = new Date(dateInput);
                 
                 if (isNaN(date.getTime())) {
-                    throw new Error('无效的日期时间格式');
+                    throw new Error('无效的日期格式');
                 }
                 
-                const timestamp = Math.floor(date.getTime() / 1000); // 转换为秒级时间戳
-                resultElement.innerHTML = `<p><strong>Unix时间戳：</strong> ${timestamp}</p>`;
-
+                const timestamp = Math.floor(date.getTime() / 1000);
+                resultElement.innerHTML = `
+                    <p><strong>Unix时间戳：</strong> ${timestamp}</p>
+                    <p><strong>毫秒时间戳：</strong> ${date.getTime()}</p>
+                `;
+                
                 // 记录工具使用频次
                 if (typeof recordToolUsage === 'function') {
-                    recordToolUsage('时间戳转换', 'tools/timestamp/index.html');
+                    recordToolUsage('时间戳转换', window.location.href);
                 }
             } catch (error) {
                 resultElement.innerHTML = `<div class="error">转换错误: ${error.message}</div>`;
             }
         }
-
+        
         function getCurrentTimestamp() {
-            const timestampInput = document.getElementById('timestamp-input');
-            timestampInput.value = Math.floor(Date.now() / 1000); // 秒级时间戳
-            timestampToDate(); // 自动转换
+            const now = new Date();
+            const timestamp = Math.floor(now.getTime() / 1000);
+            document.getElementById('timestamp-input').value = timestamp;
+            timestampToDate();
         }
-
+        
         function getCurrentDate() {
-            const dateInput = document.getElementById('date-input');
-            dateInput.value = formatDate(new Date());
-            dateToTimestamp(); // 自动转换
+            const now = new Date();
+            document.getElementById('date-input').value = formatDate(now);
+            dateToTimestamp();
         }
-
+        
         function formatDate(date) {
             const year = date.getFullYear();
             const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -251,8 +242,27 @@
             const hours = String(date.getHours()).padStart(2, '0');
             const minutes = String(date.getMinutes()).padStart(2, '0');
             const seconds = String(date.getSeconds()).padStart(2, '0');
+            
             return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
         }
+        
+        // 页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('时间戳转换工具已加载');
+            
+            // 为按钮添加事件监听器以记录使用频次
+            document.getElementById('timestamp-input').addEventListener('input', function() {
+                if (typeof recordToolUsage === 'function') {
+                    recordToolUsage('时间戳转换', window.location.href);
+                }
+            });
+            
+            document.getElementById('date-input').addEventListener('input', function() {
+                if (typeof recordToolUsage === 'function') {
+                    recordToolUsage('时间戳转换', window.location.href);
+                }
+            });
+        });
     </script>
 </body>
 </html>

@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -115,20 +116,6 @@
         // 工具ID，用于保存选项
         const TOOL_ID = 'json-to-java';
         
-        function recordToolUsage(toolName) {
-            // 检查浏览器是否支持 navigator.sendBeacon 或 XMLHttpRequest
-            if (navigator.sendBeacon) {
-                // 使用 sendBeacon 异步发送数据，不影响页面卸载
-                navigator.sendBeacon('https://jiangsuchenping.github.io/recordToolUsage.html?tool=' + toolName);
-            } else {
-                // 降级方案：使用 XMLHttpRequest
-                var xhr = new XMLHttpRequest();
-                xhr.open('GET', 'https://jiangsuchenping.github.io/recordToolUsage.html?tool=' + toolName, true);
-                xhr.send();
-            }
-        }
-        recordToolUsage('tools/json-to-java/index.html');
-
         /**
          * 将JSON转换为Java类定义
          * 根据JSON结构生成对应的Java类
@@ -149,7 +136,7 @@
                 output.value = result;
                 
                 // 记录使用频次
-                recordToolUsage('JSON转Java', 'tools/json-to-java/index.html');
+                recordToolUsage('JSON转Java', window.location.href);
             } catch (error) {
                 output.value = 'JSON格式错误或转换失败: ' + error.message;
             }
@@ -211,91 +198,136 @@
                     const propertyType = getJavaType(value, className + toPascalCase(key));
                     
                     // 添加属性
-                    result += indent + '    public ' + propertyType + ' ' + propertyName + ';\n';
+                    result += indent + '    private ' + propertyType + ' ' + propertyName + ';\n';
                     
                     // 如果是复杂类型，递归生成嵌套类
                     if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
                         nestedClasses += generateJavaClasses(value, className + toPascalCase(key), generatedClasses, indentLevel + 1);
                     } else if (Array.isArray(value) && value.length > 0 && typeof value[0] === 'object' && value[0] !== null) {
+                        // 数组中的对象类型
                         nestedClasses += generateJavaClasses(value[0], className + toPascalCase(key) + 'Item', generatedClasses, indentLevel + 1);
                     }
                 }
             }
             
-            result += indent + '}\n';
+            // 生成getter和setter方法
+            result += '\n';
+            for (const key in obj) {
+                if (obj.hasOwnProperty(key)) {
+                    const value = obj[key];
+                    const propertyName = toCamelCase(key);
+                    const pascalPropertyName = toPascalCase(key);
+                    const propertyType = getJavaType(value, className + pascalPropertyName);
+                    
+                    // Getter方法
+                    result += indent + '    public ' + propertyType + ' get' + pascalPropertyName + '() {\n';
+                    result += indent + '        return ' + propertyName + ';\n';
+                    result += indent + '    }\n\n';
+                    
+                    // Setter方法
+                    result += indent + '    public void set' + pascalPropertyName + '(' + propertyType + ' ' + propertyName + ') {\n';
+                    result += indent + '        this.' + propertyName + ' = ' + propertyName + ';\n';
+                    result += indent + '    }\n\n';
+                }
+            }
             
-            return result + nestedClasses;
+            result += indent + '}\n\n';
+            
+            // 添加嵌套类
+            if (nestedClasses) {
+                result += nestedClasses;
+            }
+            
+            return result;
         }
         
         /**
-         * 获取Java数据类型
-         * @param {*} value - 属性值
-         * @param {string} nestedClassName - 嵌套类名
-         * @returns {string} Java数据类型字符串
+         * 获取Java类型
+         * @param {*} value - JSON值
+         * @param {string} className - 如果是对象，则使用的类名
+         * @returns {string} Java类型名称
          */
-        function getJavaType(value, nestedClassName) {
+        function getJavaType(value, className) {
             if (value === null) {
                 return 'Object';
-            } else if (typeof value === 'string') {
-                // 尝试判断是否为日期字符串
-                if (!isNaN(new Date(value).getTime())) {
-                    return 'Date';
-                }
-                return 'String';
-            } else if (typeof value === 'number') {
-                if (Number.isInteger(value)) {
-                    // 根据数值大小判断int, long
-                    if (value > -2147483648 && value < 2147483647) {
-                        return 'int';
-                    } else {
-                        return 'long';
-                    }
-                } else {
-                    return 'double';
-                }
-            } else if (typeof value === 'boolean') {
-                return 'boolean';
-            } else if (Array.isArray(value)) {
-                if (value.length === 0) {
-                    return 'List<Object>';
-                } else {
-                    const itemType = getJavaType(value[0], nestedClassName + 'Item');
-                    return `List<${itemType}>`;
-                }
-            } else if (typeof value === 'object') {
-                return nestedClassName;
             }
-            return 'Object';
+            
+            const type = typeof value;
+            
+            switch (type) {
+                case 'string':
+                    // 检查是否是日期格式
+                    if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/.test(value)) {
+                        return 'Date';
+                    }
+                    return 'String';
+                case 'number':
+                    // 检查是否是整数
+                    return Number.isInteger(value) ? 'int' : 'double';
+                case 'boolean':
+                    return 'boolean';
+                case 'object':
+                    if (Array.isArray(value)) {
+                        if (value.length === 0) {
+                            return 'List<Object>';
+                        }
+                        const firstItem = value[0];
+                        if (typeof firstItem === 'object' && firstItem !== null) {
+                            return 'List<' + className + 'Item>';
+                        } else {
+                            return 'List<' + getJavaType(firstItem) + '>';
+                        }
+                    }
+                    return className;
+                default:
+                    return 'Object';
+            }
         }
         
         /**
-         * 将字符串转换为camelCase (小驼峰命名法)
+         * 将字符串转换为Pascal命名风格（首字母大写）
          * @param {string} str - 输入字符串
-         * @returns {string} camelCase字符串
-         */
-        function toCamelCase(str) {
-            return str.replace(/_([a-z])/g, (g) => g[1].toUpperCase());
-        }
-
-        /**
-         * 将字符串转换为PascalCase (大驼峰命名法)
-         * @param {string} str - 输入字符串
-         * @returns {string} PascalCase字符串
+         * @returns {string} Pascal命名风格的字符串
          */
         function toPascalCase(str) {
-            return str.replace(/(?:^|[-_\s])(\w)/g, (_, c) => c.toUpperCase());
+            // 处理特殊字符和空格
+            const words = str.replace(/[^a-zA-Z0-9]+/g, ' ')
+                .trim()
+                .split(' ');
+            
+            // 转换为Pascal命名风格
+            return words.map(word => {
+                if (word.length === 0) return '';
+                return word[0].toUpperCase() + word.substring(1);
+            }).join('');
         }
-
+        
+        /**
+         * 将字符串转换为驼峰命名风格（首字母小写）
+         * @param {string} str - 输入字符串
+         * @returns {string} 驼峰命名风格的字符串
+         */
+        function toCamelCase(str) {
+            const pascal = toPascalCase(str);
+            if (pascal.length === 0) return '';
+            return pascal[0].toLowerCase() + pascal.substring(1);
+        }
+        
         function clearAll() {
             document.getElementById('json-input').value = '';
             document.getElementById('json-output').value = '';
-            // 记录使用频次
-            recordToolUsage('JSON转Java', 'tools/json-to-java/index.html');
         }
-
+        
         // 页面加载完成后执行
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('JSON转Java类工具已加载');
+            // 设置自动保存功能
+            setupAutoSave(TOOL_ID, 'json-input', 'input');
+            
+            // 加载上次的JSON输入
+            const savedInput = getOption(TOOL_ID, 'json-input', '');
+            if (savedInput) {
+                document.getElementById('json-input').value = savedInput;
+            }
         });
     </script>
 </body>

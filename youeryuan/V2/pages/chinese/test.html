@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>识字测试 - 幼儿园大班学习乐园</title>
+  
+  <!-- 智能资源管理器 -->
+  <script src="../../assets/js/smart-resource-manager.js"></script>
+  <script src="../../assets/js/cdn-manager.js"></script>
+  
+  <!-- 样式表 -->
+  <link rel="stylesheet" href="../../css/common.css">
+  <link rel="stylesheet" href="../../css/chinese.css">
+</head>
+<body>
+  <!-- 导航栏 -->
+  <nav class="navbar">
+    <div class="container navbar-container">
+      <a href="../index.html" class="navbar-brand">幼儿园大班学习乐园</a>
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a href="../index.html" class="nav-link">首页</a>
+        </li>
+        <li class="nav-item">
+          <a href="../chinese/index.html" class="nav-link active">语文</a>
+        </li>
+        <li class="nav-item">
+          <a href="../math/index.html" class="nav-link">数学</a>
+        </li>
+        <li class="nav-item">
+          <a href="../english/index.html" class="nav-link">英语</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <header class="subject-header">
+    <div class="container">
+      <h1>识字测试</h1>
+      <p class="tagline">测试你的汉字认知能力</p>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- 返回按钮 -->
+    <div class="back-btn-container">
+      <a href="index.html" class="back-btn">
+        <i class="bi bi-arrow-left"></i> 返回语文学习
+      </a>
+    </div>
+
+    <!-- 识字测试内容 -->
+    <div class="content-tabs">
+      <div class="tab-buttons">
+        <button class="tab-btn active" data-tab="recognition">汉字识别</button>
+        <button class="tab-btn" data-tab="matching">汉字匹配</button>
+        <button class="tab-btn" data-tab="writing">汉字书写</button>
+        <button class="tab-btn" data-tab="results">测试结果</button>
+      </div>
+
+      <!-- 汉字识别内容 -->
+      <div class="tab-content active" id="recognition">
+        <h2>汉字识别</h2>
+        <p class="intro-text">看到汉字，选择正确的读音和含义。</p>
+        
+        <div class="test-controls">
+          <div class="difficulty-selector">
+            <label>难度：</label>
+            <div class="difficulty-options">
+              <button class="difficulty-btn active" data-level="easy">简单</button>
+              <button class="difficulty-btn" data-level="medium">中等</button>
+              <button class="difficulty-btn" data-level="hard">困难</button>
+            </div>
+          </div>
+          
+          <button class="btn-primary" id="startRecognitionBtn">开始测试</button>
+        </div>
+        
+        <div class="test-area" id="recognitionTestArea">
+          <div class="test-intro active">
+            <h3>汉字识别测试说明</h3>
+            <p>这个测试将展示一个汉字，你需要从四个选项中选择正确的读音或含义。</p>
+            <p>测试共10题，每题10分，满分100分。</p>
+            <p>点击"开始测试"按钮开始。</p>
+          </div>
+          
+          <div class="test-question">
+            <div class="question-number">第 <span id="recognitionQuestionNumber">1</span> 题 / 共 <span id="recognitionTotalQuestions">10</span> 题</div>
+            <div class="character-display" id="recognitionCharacter">字</div>
+            <div class="question-prompt" id="recognitionPrompt">这个字的读音是？</div>
+            
+            <div class="test-options" id="recognitionOptions">
+              <!-- 选项将通过JavaScript动态生成 -->
+            </div>
+            
+            <div class="test-feedback" id="recognitionFeedback">
+              <!-- 反馈将通过JavaScript显示 -->
+            </div>
+            
+            <div class="test-navigation">
+              <button class="btn-secondary" id="recognitionPrevBtn" disabled>上一题</button>
+              <button class="btn-primary" id="recognitionNextBtn">下一题</button>
+              <button class="btn-primary" id="recognitionFinishBtn" style="display: none;">完成测试</button>
+            </div>
+          </div>
+          
+          <div class="test-summary" id="recognitionSummary">
+            <!-- 测试结果将通过JavaScript显示 -->
+          </div>
+        </div>
+      </div>
+
+      <!-- 汉字匹配内容 -->
+      <div class="tab-content" id="matching">
+        <h2>汉字匹配</h2>
+        <p class="intro-text">将汉字与对应的图片或含义匹配起来。</p>
+        
+        <div class="test-controls">
+          <div class="difficulty-selector">
+            <label>难度：</label>
+            <div class="difficulty-options">
+              <button class="difficulty-btn active" data-level="easy">简单</button>
+              <button class="difficulty-btn" data-level="medium">中等</button>
+              <button class="difficulty-btn" data-level="hard">困难</button>
+            </div>
+          </div>
+          
+          <button class="btn-primary" id="startMatchingBtn">开始测试</button>
+        </div>
+        
+        <div class="test-area" id="matchingTestArea">
+          <div class="test-intro active">
+            <h3>汉字匹配测试说明</h3>
+            <p>这个测试将展示多个汉字和图片，你需要将汉字拖动到对应的图片上。</p>
+            <p>测试共5组，每组匹配正确得20分，满分100分。</p>
+            <p>点击"开始测试"按钮开始。</p>
+          </div>
+          
+          <div class="matching-game">
+            <div class="matching-progress">
+              <div class="progress-bar">
+                <div class="progress-fill" id="matchingProgress"></div>
+              </div>
+              <div class="progress-text">已完成：<span id="matchingCompleted">0</span> / <span id="matchingTotal">5</span></div>
+            </div>
+            
+            <div class="matching-container">
+              <div class="characters-container" id="charactersContainer">
+                <!-- 汉字将通过JavaScript动态生成 -->
+              </div>
+              
+              <div class="images-container" id="imagesContainer">
+                <!-- 图片将通过JavaScript动态生成 -->
+              </div>
+            </div>
+            
+            <div class="matching-feedback" id="matchingFeedback">
+              <!-- 反馈将通过JavaScript显示 -->
+            </div>
+            
+            <button class="btn-primary" id="matchingFinishBtn" style="display: none;">完成测试</button>
+          </div>
+          
+          <div class="test-summary" id="matchingSummary">
+            <!-- 测试结果将通过JavaScript显示 -->
+          </div>
+        </div>
+      </div>
+
+      <!-- 汉字书写内容 -->
+      <div class="tab-content" id="writing">
+        <h2>汉字书写</h2>
+        <p class="intro-text">跟随笔画顺序，练习汉字书写。</p>
+        
+        <div class="test-controls">
+          <div class="character-selector">
+            <label for="writingCharacterSelect">选择汉字：</label>
+            <select id="writingCharacterSelect">
+              <option value="">-- 请选择 --</option>
+              <!-- 汉字选项将通过JavaScript动态生成 -->
+            </select>
+          </div>
+          
+          <button class="btn-primary" id="startWritingBtn" disabled>开始练习</button>
+        </div>
+        
+        <div class="writing-area">
+          <div class="writing-instruction active">
+            <h3>汉字书写练习说明</h3>
+            <p>选择一个汉字，然后按照笔画顺序在画布上书写。</p>
+            <p>系统会显示笔画顺序和书写指导。</p>
+            <p>点击"开始练习"按钮开始。</p>
+          </div>
+          
+          <div class="writing-practice">
+            <div class="writing-example">
+              <div class="character-display" id="writingCharacter">字</div>
+              <div class="stroke-order" id="strokeOrder">
+                <!-- 笔画顺序将通过JavaScript动态生成 -->
+              </div>
+              <div class="stroke-instruction" id="strokeInstruction">请按照笔画顺序书写</div>
+            </div>
+            
+            <div class="writing-canvas-container">
+              <canvas id="writingCanvas" width="300" height="300"></canvas>
+              <div class="canvas-controls">
+                <button class="btn-secondary" id="clearCanvasBtn">清除</button>
+                <button class="btn-secondary" id="nextStrokeBtn">下一笔</button>
+                <button class="btn-primary" id="completeCharacterBtn">完成</button>
+              </div>
+            </div>
+          </div>
+          
+          <div class="writing-feedback" id="writingFeedback">
+            <!-- 反馈将通过JavaScript显示 -->
+          </div>
+        </div>
+      </div>
+
+      <!-- 测试结果内容 -->
+      <div class="tab-content" id="results">
+        <h2>测试结果</h2>
+        <p class="intro-text">查看你的测试成绩和学习进度。</p>
+        
+        <div class="results-container">
+          <div class="results-summary">
+            <h3>总体成绩</h3>
+            <div class="score-display">
+              <div class="score-circle">
+                <div class="score-number" id="totalScore">0</div>
+                <div class="score-label">总分</div>
+              </div>
+            </div>
+            
+            <div class="progress-stats">
+              <div class="stat-item">
+                <div class="stat-label">已完成测试</div>
+                <div class="stat-value" id="completedTests">0</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-label">正确率</div>
+                <div class="stat-value" id="accuracyRate">0%</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-label">掌握汉字</div>
+                <div class="stat-value" id="masteredCharacters">0</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="results-details">
+            <h3>详细记录</h3>
+            <div class="results-tabs">
+              <button class="result-tab-btn active" data-result="recognition">汉字识别</button>
+              <button class="result-tab-btn" data-result="matching">汉字匹配</button>
+              <button class="result-tab-btn" data-result="writing">汉字书写</button>
+            </div>
+            
+            <div class="result-content active" id="recognitionResult">
+              <table class="result-table">
+                <thead>
+                  <tr>
+                    <th>日期</th>
+                    <th>难度</th>
+                    <th>得分</th>
+                    <th>用时</th>
+                  </tr>
+                </thead>
+                <tbody id="recognitionResultBody">
+                  <!-- 结果将通过JavaScript动态生成 -->
+                </tbody>
+              </table>
+            </div>
+            
+            <div class="result-content" id="matchingResult">
+              <table class="result-table">
+                <thead>
+                  <tr>
+                    <th>日期</th>
+                    <th>难度</th>
+                    <th>得分</th>
+                    <th>用时</th>
+                  </tr>
+                </thead>
+                <tbody id="matchingResultBody">
+                  <!-- 结果将通过JavaScript动态生成 -->
+                </tbody>
+              </table>
+            </div>
+            
+            <div class="result-content" id="writingResult">
+              <table class="result-table">
+                <thead>
+                  <tr>
+                    <th>日期</th>
+                    <th>汉字</th>
+                    <th>完成度</th>
+                    <th>评分</th>
+                  </tr>
+                </thead>
+                <tbody id="writingResultBody">
+                  <!-- 结果将通过JavaScript动态生成 -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="main-footer">
+    <div class="container">
+      <p>&copy; 2025 幼儿园大班学习乐园 - V2版本</p>
+    </div>
+  </footer>
+
+  <!-- 返回顶部按钮 -->
+  <div class="back-to-top" id="backToTop">
+    <i class="bi bi-arrow-up"></i>
+  </div>
+
+  <!-- 引入Bootstrap图标库 -->
+  <script>
+    // 使用智能CDN管理器加载Bootstrap图标
+    if (window.CDNManager) {
+      CDNManager.loadCSS('bootstrap-icons', '../../assets/css/bootstrap-icons.min.css', 'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.min.css');
+    }
+
+    // 加载测试数据
+    const loadTestData = async () => {
+      try {
+        const response = await fetch('../../data/chinese/test.json');
+        if (!response.ok) {
+          throw new Error('无法加载测试数据');
+        }
+        return await response.json();
+      } catch (error) {
+        console.error('加载测试数据失败:', error);
+        return null;
+      }
+    };
+
+    // 页面加载完成后执行
+    document.addEventListener('DOMContentLoaded', async function() {
+      // 返回顶部按钮功能
+      const backToTopButton = document.getElementById('backToTop');
+      
+      // 监听滚动事件
+      window.addEventListener('scroll', function() {
+        if (window.scrollY > 300) {
+          backToTopButton.classList.add('visible');
+        } else {
+          backToTopButton.classList.remove('visible');
+        }
+      });
+      
+      // 点击返回顶部
+      backToTopButton.addEventListener('click', function() {
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
+      });
+
+      // 标签页切换功能
+      const tabButtons = document.querySelectorAll('.tab-btn');
+      const tabContents = document.querySelectorAll('.tab-content');
+      
+      tabButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          // 移除所有按钮的active类
+          tabButtons.forEach(btn => btn.classList.remove('active'));
+          // 给当前按钮添加active类
+          this.classList.add('active');
+          
+          // 获取当前按钮对应的标签页ID
+          const tabId = this.getAttribute('data-tab');
+          
+          // 隐藏所有标签页内容
+          tabContents.forEach(content => content.classList.remove('active'));
+          
+          // 显示当前标签页内容
+          document.getElementById(tabId).classList.add('active');
+        });
+      });
+
+      // 结果标签页切换功能
+      const resultTabButtons = document.querySelectorAll('.result-tab-btn');
+      const resultContents = document.querySelectorAll('.result-content');
+      
+      resultTabButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          // 移除所有按钮的active类
+          resultTabButtons.forEach(btn => btn.classList.remove('active'));
+          // 给当前按钮添加active类
+          this.classList.add('active');
+          
+          // 获取当前按钮对应的结果ID
+          const resultId = this.getAttribute('data-result') + 'Result';
+          
+          // 隐藏所有结果内容
+          resultContents.forEach(content => content.classList.remove('active'));
+          
+          // 显示当前结果内容
+          document.getElementById(resultId).classList.add('active');
+        });
+      });
+
+      // 加载测试数据
+      const testData = await loadTestData();
+      if (testData) {
+        initRecognitionTest(testData);
+        initMatchingTest(testData);
+        initWritingPractice(testData);
+        initTestResults(testData);
+      }
+    });
+
+    // 初始化汉字识别测试
+    function initRecognitionTest(testData) {
+      const startRecognitionBtn = document.getElementById('startRecognitionBtn');
+      const recognitionTestArea = document.getElementById('recognitionTestArea');
+      const recognitionQuestionNumber = document.getElementById('recognitionQuestionNumber');
+      const recognitionTotalQuestions = document.getElementById('recognitionTotalQuestions');
+      const recognitionCharacter = document.getElementById('recognitionCharacter');
+      const recognitionPrompt = document.getElementById('recognitionPrompt');
+      const recognitionOptions = document.getElementById('recognitionOptions');
+      const recognitionFeedback = document.getElementById('recognitionFeedback');
+      const recognitionPrevBtn = document.getElementById('recognitionPrevBtn');
+      const recognitionNextBtn = document.getElementById('recognitionNextBtn');
+      const recognitionFinishBtn = document.getElementById('recognitionFinishBtn');
+      const recognitionSummary = document.getElementById('recognitionSummary');
+      
+      // 难度选择
+      const difficultyButtons = document.querySelectorAll('#recognition .difficulty-btn');
+      let currentDifficulty = 'easy';
+      
+      difficultyButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          difficultyButtons.forEach(btn => btn.classList.remove('active'));
+          this.classList.add('active');
+          currentDifficulty = this.getAttribute('data-level');
+        });
+      });
+      
+      // 测试状态
+      let currentQuestions = [];
+      let currentQuestionIndex = 0;
+      let userAnswers = [];
+      let startTime = 0;
+      
+      // 开始测试
+      startRecognitionBtn.addEventListener('click', function() {
+        // 根据难度选择题目
+        const questions = testData.recognition[currentDifficulty];
+        
+        // 随机选择10道题目
+        currentQuestions = getRandomQuestions(questions, 10);
+        currentQuestionIndex = 0;
+        userAnswers = new Array(currentQuestions.length).fill(null);
+        startTime = Date.now();
+        
+        // 更新总题数
+        recognitionTotalQuestions.textContent = currentQuestions.length;
+        
+        // 显示第一题
+        showRecognitionQuestion(currentQuestionIndex);
+        
+        // 隐藏介绍，显示题目
+        recognitionTestArea.querySelector('.test-intro').classList.remove('active');
+        recognitionTestArea.querySelector('.test-question').classList.add('active');
+        recognitionSummary.classList.remove('active');
+      });
+      
+      // 显示题目
+      function showRecognitionQuestion(index) {
+        const question = currentQuestions[index];
+        
+        // 更新题号
+        recognitionQuestionNumber.textContent = index + 1;
+        
+        // 更新汉字
+        recognitionCharacter.textContent = question.character;
+        
+        // 更新提示
+        recognitionPrompt.textContent = question.type === 'pinyin' ? 
+          '这个字的读音是？' : '这个字的含义是？';
+        
+        // 更新选项
+        recognitionOptions.innerHTML = '';
+        question.options.forEach((option, optionIndex) => {
+          const optionElement = document.createElement('div');
+          optionElement.className = 'test-option';
+          optionElement.textContent = option;
+          
+          // 如果已经回答过，显示正确或错误
+          if (userAnswers[index] !== null) {
+            if (userAnswers[index] === optionIndex) {
+              optionElement.classList.add(userAnswers[index] === question.correctIndex ? 'correct' : 'incorrect');
+            }
+            if (optionIndex === question.correctIndex && userAnswers[index] !== question.correctIndex) {
+              optionElement.classList.add('correct');
+            }
+          } else {
+            // 添加点击事件
+            optionElement.addEventListener('click', function() {
+              // 记录答案
+              userAnswers[index] = optionIndex;
+              
+              // 显示正确或错误
+              recognitionOptions.querySelectorAll('.test-option').forEach((opt, idx) => {
+                if (idx === optionIndex) {
+                  opt.classList.add(optionIndex === question.correctIndex ? 'correct' : 'incorrect');
+                }
+                if (idx === question.correctIndex && optionIndex !== question.correctIndex) {
+                  opt.classList.add('correct');
+                }
+              });
+              
+              // 显示反馈
+              if (optionIndex === question.correctIndex) {
+                recognitionFeedback.innerHTML = '<div class="feedback-correct">回答正确！</div>';
+              } else {
+                recognitionFeedback.innerHTML = `<div class="feedback-incorrect">回答错误！正确答案是：${question.options[question.correctIndex]}</div>`;
+              }
+              
+              // 启用下一题按钮
+              recognitionNextBtn.disabled = false;
+              if (index === currentQuestions.length - 1) {
+                recognitionNextBtn.style.display = 'none';
+                recognitionFinishBtn.style.display = 'inline-block';
+              }
+            });
+          }
+          
+          recognitionOptions.appendChild(optionElement);
+        });
+        
+        // 更新按钮状态
+        recognitionPrevBtn.disabled = index === 0;
+        recognitionNextBtn.disabled = userAnswers[index] === null;
+        
+        if (index === currentQuestions.length - 1) {
+          recognitionNextBtn.style.display = 'none';
+          recognitionFinishBtn.style.display = 'inline-block';
+        } else {
+          recognitionNextBtn.style.display = 'inline-block';
+          recognitionFinishBtn.style.display = 'none';
+        }
+        
+        // 显示反馈
+        recognitionFeedback.innerHTML = '';
+        if (userAnswers[index] !== null) {
+          const isCorrect = userAnswers[index] === question.correctIndex;
+          if (isCorrect) {
+            recognitionFeedback.innerHTML = '<div class="feedback-correct">回答正确！</div>';
+          } else {
+            recognitionFeedback.innerHTML = `<div class="feedback-incorrect">回答错误！正确答案是：${question.options[question.correctIndex]}</div>`;
+          }
+        }
+      }
+      
+      // 上一题
+      recognitionPrevBtn.addEventListener('click', function() {
+        if (currentQuestionIndex > 0) {
+          currentQuestionIndex--;
+          showRecognitionQuestion(currentQuestionIndex);
+        }
+      });
+      
+      // 下一题
+      recognitionNextBtn.addEventListener('click', function() {
+        if (currentQuestionIndex < currentQuestions.length - 1) {
+          currentQuestionIndex++;
+          showRecognitionQuestion(currentQuestionIndex);
+        }
+      });
+      
+      // 完成测试
+      recognitionFinishBtn.addEventListener('click', function() {
+        // 计算得分
+        let score = 0;
+        userAnswers.forEach((answer, index) => {
+          if (answer === currentQuestions[index].correctIndex) {
+            score += 10;
+          }
+        });
+        
+        // 计算用时
+        const timeUsed = Math.floor((Date.now() - startTime) / 1000);
+        const minutes = Math.floor(timeUsed / 60);
+        const seconds = timeUsed % 60;
+        
+        // 显示结果
+        recognitionSummary.innerHTML = `
+          <h3>测试结果</h3>
+          <div class="test-result">
+            <div class="result-score">
+              <div class="score-circle">
+                <div class="score-number">${score}</div>
+                <div class="score-label">分数</div>
+              </div>
+            </div>
+            <div class="result-details">
+              <div class="result-item">
+                <div class="result-label">正确题数</div>
+                <div class="result-value">${userAnswers.filter((answer, index) => answer === currentQuestions[index].correctIndex).length} / ${currentQuestions.length}</div>
+              </div>
+              <div class="result-item">
+                <div class="result-label">用时</div>
+                <div class="result-value">${minutes}分${seconds}秒</div>
+              </div>
+              <div class="result-item">
+                <div class="result-label">难度</div>
+                <div class="result-value">${{'easy': '简单', 'medium': '中等', 'hard': '困难'}[currentDifficulty]}</div>
+              </div>
+            </div>
+          </div>
+          <div class="result-actions">
+            <button class="btn-primary" id="recognitionRetryBtn">重新测试</button>
+            <button class="btn-secondary" id="recognitionReviewBtn">查看答案</button>
+          </div>
+        `;
+        
+        // 隐藏题目，显示结果
+        recognitionTestArea.querySelector('.test-question').classList.remove('active');
+        recognitionSummary.classList.add('active');
+        
+        // 重新测试
+        document.getElementById('recognitionRetryBtn').addEventListener('click', function() {
+          startRecognitionBtn.click();
+        });
+        
+        // 查看答案
+        document.getElementById('recognitionReviewBtn').addEventListener('click', function() {
+          // 显示题目
+          recognitionTestArea.querySelector('.test-question').classList.add('active');
+          recognitionSummary.classList.remove('active');
+          
+          // 显示第一题
+          currentQuestionIndex = 0;
+          showRecognitionQuestion(currentQuestionIndex);
+        });
+        
+        // 保存结果
+        saveTestResult('recognition', {
+          date: new Date().toLocaleDateString(),
+          difficulty: currentDifficulty,
+          score: score,
+          timeUsed: timeUsed
+        });
+        
+        // 更新总体结果
+        updateTotalResults();
+      });
+      
+      // 获取随机题目
+      function getRandomQuestions(questions, count) {
+        const shuffled = [...questions].sort(() => 0.5 - Math.random());
+        return shuffled.slice(0, count);
+      }
+    }
+
+    // 初始化汉字匹配测试
+    function initMatchingTest(testData) {
+      const startMatchingBtn = document.getElementById('startMatchingBtn');
+      const matchingTestArea = document.getElementById('matchingTestArea');
+      const charactersContainer = document.getElementById('charactersContainer');
+      const imagesContainer = document.getElementById('imagesContainer');
+      const matchingProgress = document.getElementById('matchingProgress');
+      const matchingCompleted = document.getElementById('matchingCompleted');
+      const matchingTotal = document.getElementById('matchingTotal');
+      const matchingFeedback = document.getElementById('matchingFeedback');
+      const matchingFinishBtn = document.getElementById('matchingFinishBtn');
+      const matchingSummary = document.getElementById('matchingSummary');
+      
+      // 难度选择
+      const difficultyButtons = document.querySelectorAll('#matching .difficulty-btn');
+      let currentDifficulty = 'easy';
+      
+      difficultyButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          difficultyButtons.forEach(btn => btn.classList.remove('active'));
+          this.classList.add('active');
+          currentDifficulty = this.getAttribute('data-level');
+        });
+      });
+      
+      // 测试状态
+      let currentPairs = [];
+      let matchedPairs = 0;
+      let startTime = 0;
+      let draggedElement = null;
+      
+      // 开始测试
+      startMatchingBtn.addEventListener('click', function() {
+        // 根据难度选择题目
+        const pairs = testData.matching[currentDifficulty];
+        
+        // 随机选择5组
+        currentPairs = getRandomPairs(pairs, 5);
+        matchedPairs = 0;
+        startTime = Date.now();
+        
+        // 更新总组数
+        matchingTotal.textContent = currentPairs.length;
+        matchingCompleted.textContent = matchedPairs;
+        
+        // 更新进度条
+        matchingProgress.style.width = '0%';
+        
+        // 创建汉字和图片
+        createMatchingGame();
+        
+        // 隐藏介绍，显示游戏
+        matchingTestArea.querySelector('.test-intro').classList.remove('active');
+        matchingTestArea.querySelector('.matching-game').classList.add('active');
+        matchingSummary.classList.remove('active');
+        
+        // 隐藏完成按钮
+        matchingFinishBtn.style.display = 'none';
+      });
+      
+      // 创建匹配游戏
+      function createMatchingGame() {
+        // 清空容器
+        charactersContainer.innerHTML = '';
+        imagesContainer.innerHTML = '';
+        matchingFeedback.innerHTML = '';
+        
+        // 打乱顺序
+        const shuffledPairs = [...currentPairs].sort(() => 0.5 - Math.random());
+        const shuffledImages = [...currentPairs].sort(() => 0.5 - Math.random());
+        
+        // 创建汉字
+        shuffledPairs.forEach(pair => {
+          const characterElement = document.createElement('div');
+          characterElement.className = 'draggable-character';
+          characterElement.textContent = pair.character;
+          characterElement.dataset.id = pair.id;
+          characterElement.draggable = true;
+          
+          // 拖拽事件
+          characterElement.addEventListener('dragstart', function(e) {
+            draggedElement = this;
+            this.classList.add('dragging');
+            e.dataTransfer.setData('text/plain', this.dataset.id);
+          });
+          
+          characterElement.addEventListener('dragend', function() {
+            this.classList.remove('dragging');
+          });
+          
+          charactersContainer.appendChild(characterElement);
+        });
+        
+        // 创建图片
+        shuffledImages.forEach(pair => {
+          const imageContainer = document.createElement('div');
+          imageContainer.className = 'image-container';
+          imageContainer.dataset.id = pair.id;
+          
+          const imageElement = document.createElement('div');
+          imageElement.className = 'character-image';
+          imageElement.style.backgroundImage = `url(${pair.image})`;
+          
+          // 放置事件
+          imageContainer.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('dragover');
+          });
+          
+          imageContainer.addEventListener('dragleave', function() {
+            this.classList.remove('dragover');
+          });
+          
+          imageContainer.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('dragover');
+            
+            const characterId = e.dataTransfer.getData('text/plain');
+            const character = document.querySelector(`.draggable-character[data-id="${characterId}"]`);
+            
+            if (character && this.dataset.id === characterId) {
+              // 匹配成功
+              character.classList.add('matched');
+              this.classList.add('matched');
+              this.appendChild(character.cloneNode(true));
+              character.style.visibility = 'hidden';
+              
+              // 更新匹配数
+              matchedPairs++;
+              matchingCompleted.textContent = matchedPairs;
+              
+              // 更新进度条
+              matchingProgress.style.width = `${(matchedPairs / currentPairs.length) * 100}%`;
+              
+              // 显示反馈
+              matchingFeedback.innerHTML = '<div class="feedback-correct">匹配正确！</div>';
+              
+              // 检查是否完成所有匹配
+              if (matchedPairs === currentPairs.length) {
+                // 显示完成按钮
+                matchingFinishBtn.style.display = 'block';
+                
+                // 显示反馈
+                matchingFeedback.innerHTML = '<div class="feedback-correct">恭喜！你已完成所有匹配！</div>';
+              }
+            } else {
+              // 匹配失败
+              matchingFeedback.innerHTML = '<div class="feedback-incorrect">匹配错误，请重试！</div>';
+            }
+          });
+          
+          imageContainer.appendChild(imageElement);
+          imagesContainer.appendChild(imageContainer);
+        });
+      }
+      
+      // 完成测试
+      matchingFinishBtn.addEventListener('click', function() {
+        // 计算得分
+        const score = Math.floor((matchedPairs / currentPairs.length) * 100);
+        
+        // 计算用时
+        const timeUsed = Math.floor((Date.now() - startTime) / 1000);
+        const minutes = Math.floor(timeUsed / 60);
+        const seconds = timeUsed % 60;
+        
+        // 显示结果
+        matchingSummary.innerHTML = `
+          <h3>测试结果</h3>
+          <div class="test-result">
+            <div class="result-score">
+              <div class="score-circle">
+                <div class="score-number">${score}</div>
+                <div class="score-label">分数</div>
+              </div>
+            </div>
+            <div class="result-details">
+              <div class="result-item">
+                <div class="result-label">匹配成功</div>
+                <div class="result-value">${matchedPairs} / ${currentPairs.length}</div>
+              </div>
+              <div class="result-item">
+                <div class="result-label">用时</div>
+                <div class="result-value">${minutes}分${seconds}秒</div>
+              </div>
+              <div class="result-item">
+                <div class="result-label">难度</div>
+                <div class="result-value">${{'easy': '简单', 'medium': '中等', 'hard': '困难'}[currentDifficulty]}</div>
+              </div>
+            </div>
+          </div>
+          <div class="result-actions">
+            <button class="btn-primary" id="matchingRetryBtn">重新测试</button>
+          </div>
+        `;
+        
+        // 隐藏游戏，显示结果
+        matchingTestArea.querySelector('.matching-game').classList.remove('active');
+        matchingSummary.classList.add('active');
+        
+        // 重新测试
+        document.getElementById('matchingRetryBtn').addEventListener('click', function() {
+          startMatchingBtn.click();
+        });
+        
+        // 保存结果
+        saveTestResult('matching', {
+          date: new Date().toLocaleDateString(),
+          difficulty: currentDifficulty,
+          score: score,
+          timeUsed: timeUsed
+        });
+        
+        // 更新总体结果
+        updateTotalResults();
+      });
+      
+      // 获取随机配对
+      function getRandomPairs(pairs, count) {
+        const shuffled = [...pairs].sort(() => 0.5 - Math.random());
+        return shuffled.slice(0, count);
+      }
+    }
+
+    // 初始化汉字书写练习
+    function initWritingPractice(testData) {
+      const writingCharacterSelect = document.getElementById('writingCharacterSelect');
+      const startWritingBtn = document.getElementById('startWritingBtn');
+      const writingCharacter = document.getElementById('writingCharacter');
+      const strokeOrder = document.getElementById('strokeOrder');
+      const strokeInstruction = document.getElementById('strokeInstruction');
+      const writingCanvas = document.getElementById('writingCanvas');
+      const clearCanvasBtn = document.getElementById('clearCanvasBtn');
+      const nextStrokeBtn = document.getElementById('nextStrokeBtn');
+      const completeCharacterBtn = document.getElementById('completeCharacterBtn');
+      const writingFeedback = document.getElementById('writingFeedback');
+      
+      // 初始化画布
+      const ctx = writingCanvas.getContext('2d');
+      let isDrawing = false;
+      let lastX = 0;
+      let lastY = 0;
+      let currentStroke = 0;
+      let currentCharacter = null;
+      
+      // 填充汉字选择
+      testData.writing.forEach(char => {
+        const option = document.createElement('option');
+        option.value = char.id;
+        option.textContent = `${char.character} (${char.pinyin})`;
+        writingCharacterSelect.appendChild(option);
+      });
+      
+      // 选择汉字
+      writingCharacterSelect.addEventListener('change', function() {
+        startWritingBtn.disabled = !this.value;
+      });
+      
+      // 开始练习
+      startWritingBtn.addEventListener('click', function() {
+        const selectedId = writingCharacterSelect.value;
+        currentCharacter = testData.writing.find(char => char.id == selectedId);
+        
+        if (currentCharacter) {
+          // 显示汉字
+          writingCharacter.textContent = currentCharacter.character;
+          
+          // 重置笔画
+          currentStroke = 0;
+          
+          // 显示笔画顺序
+          updateStrokeOrder();
+          
+          // 清空画布
+          clearCanvas();
+          
+          // 显示练习区域
+          document.querySelector('.writing-instruction').classList.remove('active');
+          document.querySelector('.writing-practice').classList.add('active');
+          
+          // 清空反馈
+          writingFeedback.innerHTML = '';
+        }
+      });
+      
+      // 更新笔画顺序
+      function updateStrokeOrder() {
+        strokeOrder.innerHTML = '';
+        
+        currentCharacter.strokes.forEach((stroke, index) => {
+          const strokeElement = document.createElement('div');
+          strokeElement.className = 'stroke';
+          strokeElement.textContent = index + 1;
+          
+          if (index < currentStroke) {
+            strokeElement.classList.add('completed');
+          } else if (index === currentStroke) {
+            strokeElement.classList.add('current');
+          }
+          
+          strokeOrder.appendChild(strokeElement);
+        });
+        
+        // 更新指导
+        if (currentStroke < currentCharacter.strokes.length) {
+          strokeInstruction.textContent = `请书写第 ${currentStroke + 1} 笔：${currentCharacter.strokes[currentStroke].name}`;
+        } else {
+          strokeInstruction.textContent = '汉字书写完成！';
+        }
+      }
+      
+      // 清空画布
+      function clearCanvas() {
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(0, 0, writingCanvas.width, writingCanvas.height);
+        
+        // 绘制辅助线
+        ctx.strokeStyle = '#ddd';
+        ctx.lineWidth = 1;
+        
+        // 横线
+        ctx.beginPath();
+        ctx.moveTo(0, writingCanvas.height / 2);
+        ctx.lineTo(writingCanvas.width, writingCanvas.height / 2);
+        ctx.stroke();
+        
+        // 竖线
+        ctx.beginPath();
+        ctx.moveTo(writingCanvas.width / 2, 0);
+        ctx.lineTo(writingCanvas.width / 2, writingCanvas.height);
+        ctx.stroke();
+      }
+      
+      // 画布事件
+      writingCanvas.addEventListener('mousedown', function(e) {
+        isDrawing = true;
+        [lastX, lastY] = [e.offsetX, e.offsetY];
+      });
+      
+      writingCanvas.addEventListener('mousemove', function(e) {
+        if (!isDrawing) return;
+        
+        ctx.beginPath();
+        ctx.moveTo(lastX, lastY);
+        ctx.lineTo(e.offsetX, e.offsetY);
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 5;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+        
+        [lastX, lastY] = [e.offsetX, e.offsetY];
+      });
+      
+      writingCanvas.addEventListener('mouseup', () => isDrawing = false);
+      writingCanvas.addEventListener('mouseout', () => isDrawing = false);
+      
+      // 清除画布
+      clearCanvasBtn.addEventListener('click', clearCanvas);
+      
+      // 下一笔
+      nextStrokeBtn.addEventListener('click', function() {
+        if (currentStroke < currentCharacter.strokes.length - 1) {
+          currentStroke++;
+          updateStrokeOrder();
+        }
+      });
+      
+      // 完成汉字
+      completeCharacterBtn.addEventListener('click', function() {
+        // 计算完成度
+        const completion = Math.floor(((currentStroke + 1) / currentCharacter.strokes.length) * 100);
+        
+        // 显示反馈
+        writingFeedback.innerHTML = `
+          <h3>书写评价</h3>
+          <div class="writing-evaluation">
+            <div class="evaluation-item">
+              <div class="evaluation-label">完成度</div>
+              <div class="evaluation-value">${completion}%</div>
+            </div>
+            <div class="evaluation-item">
+              <div class="evaluation-label">评分</div>
+              <div class="evaluation-value">${getWritingScore(completion)}</div>
+            </div>
+          </div>
+          <div class="evaluation-comment">
+            ${getWritingComment(completion)}
+          </div>
+          <div class="evaluation-actions">
+            <button class="btn-primary" id="tryAnotherBtn">练习其他汉字</button>
+            <button class="btn-secondary" id="retryCurrentBtn">重新练习</button>
+          </div>
+        `;
+        
+        // 练习其他汉字
+        document.getElementById('tryAnotherBtn').addEventListener('click', function() {
+          document.querySelector('.writing-practice').classList.remove('active');
+          document.querySelector('.writing-instruction').classList.add('active');
+          writingCharacterSelect.value = '';
+          startWritingBtn.disabled = true;
+          writingFeedback.innerHTML = '';
+        });
+        
+        // 重新练习
+        document.getElementById('retryCurrentBtn').addEventListener('click', function() {
+          currentStroke = 0;
+          updateStrokeOrder();
+          clearCanvas();
+          writingFeedback.innerHTML = '';
+        });
+        
+        // 保存结果
+        saveTestResult('writing', {
+          date: new Date().toLocaleDateString(),
+          character: currentCharacter.character,
+          completion: completion,
+          score: getWritingScore(completion)
+        });
+        
+        // 更新总体结果
+        updateTotalResults();
+      });
+      
+      // 获取书写评分
+      function getWritingScore(completion) {
+        if (completion >= 90) return 'A';
+        if (completion >= 70) return 'B';
+        if (completion >= 50) return 'C';
+        return 'D';
+      }
+      
+      // 获取书写评语
+      function getWritingComment(completion) {
+        if (completion >= 90) return '非常棒！你的书写非常认真，笔画顺序掌握得很好。';
+        if (completion >= 70) return '做得不错！继续练习，注意笔画顺序。';
+        if (completion >= 50) return '有进步空间，多加练习笔画顺序。';
+        return '需要更多练习，建议先熟悉笔画顺序再进行书写。';
+      }
+    }
+
+    // 初始化测试结果
+    function initTestResults(testData) {
+      updateTotalResults();
+      
+      // 加载保存的结果
+      loadTestResults();
+    }
+
+    // 保存测试结果
+    function saveTestResult(type, result) {
+      // 从本地存储获取现有结果
+      const results = JSON.parse(localStorage.getItem('testResults') || '{}');
+      
+      // 确保类型存在
+      if (!results[type]) {
+        results[type] = [];
+      }
+      
+      // 添加新结果
+      results[type].push(result);
+      
+      // 保存回本地存储
+      localStorage.setItem('testResults', JSON.stringify(results));
+    }
+
+    // 加载测试结果
+    function loadTestResults() {
+      // 从本地存储获取结果
+      const results = JSON.parse(localStorage.getItem('testResults') || '{}');
+      
+      // 加载汉字识别结果
+      const recognitionResultBody = document.getElementById('recognitionResultBody');
+      recognitionResultBody.innerHTML = '';
+      
+      if (results.recognition && results.recognition.length > 0) {
+        results.recognition.forEach(result => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${result.date}</td>
+            <td>${{'easy': '简单', 'medium': '中等', 'hard': '困难'}[result.difficulty]}</td>
+            <td>${result.score}</td>
+            <td>${Math.floor(result.timeUsed / 60)}分${result.timeUsed % 60}秒</td>
+          `;
+          recognitionResultBody.appendChild(row);
+        });
+      } else {
+        recognitionResultBody.innerHTML = '<tr><td colspan="4">暂无记录</td></tr>';
+      }
+      
+      // 加载汉字匹配结果
+      const matchingResultBody = document.getElementById('matchingResultBody');
+      matchingResultBody.innerHTML = '';
+      
+      if (results.matching && results.matching.length > 0) {
+        results.matching.forEach(result => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${result.date}</td>
+            <td>${{'easy': '简单', 'medium': '中等', 'hard': '困难'}[result.difficulty]}</td>
+            <td>${result.score}</td>
+            <td>${Math.floor(result.timeUsed / 60)}分${result.timeUsed % 60}秒</td>
+          `;
+          matchingResultBody.appendChild(row);
+        });
+      } else {
+        matchingResultBody.innerHTML = '<tr><td colspan="4">暂无记录</td></tr>';
+      }
+      
+      // 加载汉字书写结果
+      const writingResultBody = document.getElementById('writingResultBody');
+      writingResultBody.innerHTML = '';
+      
+      if (results.writing && results.writing.length > 0) {
+        results.writing.forEach(result => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${result.date}</td>
+            <td>${result.character}</td>
+            <td>${result.completion}%</td>
+            <td>${result.score}</td>
+          `;
+          writingResultBody.appendChild(row);
+        });
+      } else {
+        writingResultBody.innerHTML = '<tr><td colspan="4">暂无记录</td></tr>';
+      }
+    }
+
+    // 更新总体结果
+    function updateTotalResults() {
+      // 从本地存储获取结果
+      const results = JSON.parse(localStorage.getItem('testResults') || '{}');
+      
+      // 计算总分
+      let totalScore = 0;
+      let totalTests = 0;
+      let correctAnswers = 0;
+      let totalAnswers = 0;
+      let masteredChars = new Set();
+      
+      // 汉字识别
+      if (results.recognition) {
+        results.recognition.forEach(result => {
+          totalScore += result.score;
+          totalTests++;
+          correctAnswers += result.score / 10;
+          totalAnswers += 10;
+        });
+      }
+      
+      // 汉字匹配
+      if (results.matching) {
+        results.matching.forEach(result => {
+          totalScore += result.score;
+          totalTests++;
+          correctAnswers += result.score / 20;
+          totalAnswers += 5;
+        });
+      }
+      
+      // 汉字书写
+      if (results.writing) {
+        results.writing.forEach(result => {
+          if (result.completion >= 70) {
+            masteredChars.add(result.character);
+          }
+        });
+      }
+      
+      // 更新显示
+      document.getElementById('totalScore').textContent = totalTests > 0 ? Math.floor(totalScore / totalTests) : 0;
+      document.getElementById('completedTests').textContent = totalTests;
+      document.getElementById('accuracyRate').textContent = totalAnswers > 0 ? Math.floor((correctAnswers / totalAnswers) * 100) + '%' : '0%';
+      document.getElementById('masteredCharacters').textContent = masteredChars.size;
+    }
+  </script>
+</body>
+</html>

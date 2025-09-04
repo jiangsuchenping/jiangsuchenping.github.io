@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -130,8 +131,6 @@
 
     <script src="../../js/main.js"></script>
     <script>
-        recordToolUsage('tools/md5-encrypt/index.html');
-
         // 简单的MD5实现
         function md5(string) {
             function md5_RotateLeft(lValue, iShiftBits) {
@@ -154,8 +153,7 @@
                     } else {
                         return (lResult ^ 0x40000000 ^ lX8 ^ lY8);
                     }
-                }
-                else {
+                } else {
                     return (lResult ^ lX8 ^ lY8);
                 }
             }
@@ -209,11 +207,8 @@
             }
             
             function md5_WordToHex(lValue) {
-                var WordToHexValue="";
-                var WordToHexValue_temp="";
-                var lByte;
-                var lCount;
-                for (lCount=0;lCount<=3;lCount++) {
+                var WordToHexValue="",WordToHexValue_temp="",lByte,lCount;
+                for (lCount = 0;lCount<=3;lCount++) {
                     lByte = (lValue>>>(lCount*8)) & 255;
                     WordToHexValue_temp = "0" + lByte.toString(16);
                     WordToHexValue = WordToHexValue + WordToHexValue_temp.substr(WordToHexValue_temp.length-2,2);
@@ -224,21 +219,21 @@
             function md5_Utf8Encode(string) {
                 string = string.replace(/\r\n/g,"\n");
                 var utftext = "";
+                
                 for (var n = 0; n < string.length; n++) {
                     var c = string.charCodeAt(n);
                     if (c < 128) {
                         utftext += String.fromCharCode(c);
-                    }
-                    else if((c > 127) && (c < 2048)) {
+                    } else if((c > 127) && (c < 2048)) {
                         utftext += String.fromCharCode((c >> 6) | 192);
                         utftext += String.fromCharCode((c & 63) | 128);
-                    }
-                    else {
+                    } else {
                         utftext += String.fromCharCode((c >> 12) | 224);
                         utftext += String.fromCharCode(((c >> 6) & 63) | 128);
                         utftext += String.fromCharCode((c & 63) | 128);
                     }
                 }
+                
                 return utftext;
             }
             
@@ -326,34 +321,50 @@
                 c=md5_AddUnsigned(c,CC);
                 d=md5_AddUnsigned(d,DD);
             }
+            
             return (md5_WordToHex(a)+md5_WordToHex(b)+md5_WordToHex(c)+md5_WordToHex(d)).toLowerCase();
         }
-
-        /**
-         * MD5加密函数
-         */
+        
         function encryptMD5() {
-            recordToolUsage('tools/md5-encrypt/index.html');
-            const inputText = document.getElementById('input-text').value;
+            const input = document.getElementById('input-text').value;
             const salt = document.getElementById('salt').value;
-            let textToEncrypt = inputText;
-
-            if (salt) {
-                textToEncrypt = inputText + salt;
+            const output = document.getElementById('output-text');
+            
+            if (!input.trim()) {
+                output.value = '请输入要加密的文本';
+                return;
             }
-
-            const md5Result = md5(textToEncrypt);
-            document.getElementById('output-text').value = md5Result;
+            
+            try {
+                const textToHash = input + salt;
+                const hash = md5(textToHash);
+                output.value = hash;
+                
+                // 记录工具使用频次
+                recordToolUsage('MD5加密', window.location.href);
+            } catch (error) {
+                output.value = '加密错误: ' + error.message;
+            }
         }
-
-        /**
-         * 清空输入和输出
-         */
+        
         function clearAll() {
             document.getElementById('input-text').value = '';
             document.getElementById('salt').value = '';
             document.getElementById('output-text').value = '';
+            
+            // 记录工具使用频次
+            recordToolUsage('MD5加密', window.location.href);
         }
+        
+        // 页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('MD5加密工具已加载');
+            
+            // 为输入框添加事件监听器以记录使用频次
+            document.getElementById('input-text').addEventListener('input', function() {
+                recordToolUsage('MD5加密', window.location.href);
+            });
+        });
     </script>
 </body>
 </html>

@@ -127,7 +127,7 @@
                 
                 // 记录工具使用频次
                 if (typeof recordToolUsage === 'function') {
-                    recordToolUsage('tools/json-to-xml.html');
+                    recordToolUsage('JSON转XML', window.location.href);
                 }
             } catch (error) {
                 output.value = 'JSON格式错误: ' + error.message;
@@ -162,7 +162,7 @@
             
             // 记录工具使用频次
             if (typeof recordToolUsage === 'function') {
-                recordToolUsage('tools/json-to-xml.html');
+                recordToolUsage('JSON转XML', window.location.href);
             }
         }
         
@@ -173,7 +173,7 @@
             // 为输入框添加事件监听器以记录使用频次
             document.getElementById('json-input').addEventListener('input', function() {
                 if (typeof recordToolUsage === 'function') {
-                    recordToolUsage('tools/json-to-xml.html');
+                    recordToolUsage('JSON转XML', window.location.href);
                 }
             });
         });

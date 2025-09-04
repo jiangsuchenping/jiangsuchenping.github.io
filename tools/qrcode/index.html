@@ -1,178 +1,93 @@
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="免费在线二维码生成工具，支持自定义尺寸、颜色和内容，快速生成高质量二维码图片，适用于网址、文本、名片等多种信息。">
-    <meta name="keywords" content="二维码生成器,在线工具,QR码生成,二维码制作,自定义二维码,开发工具">
-    <meta name="author" content="在线工具箱">
-    <link rel="canonical" href="https://jiangsuchenping.github.io/tools/qrcode/index.html">
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://jiangsuchenping.github.io/tools/qrcode/index.html">
-    <meta property="og:title" content="二维码生成工具 | 自定义尺寸和颜色的QR码生成器 - 在线工具箱">
-    <meta property="og:description" content="免费在线二维码生成工具，支持自定义尺寸、颜色和内容，快速生成高质量二维码图片，适用于网址、文本、名片等多种信息。">
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://jiangsuchenping.github.io/tools/qrcode/index.html">
-    <meta property="twitter:title" content="二维码生成工具 | 自定义尺寸和颜色的QR码生成器 - 在线工具箱">
-    <meta property="twitter:description" content="免费在线二维码生成工具，支持自定义尺寸、颜色和内容，快速生成高质量二维码图片，适用于网址、文本、名片等多种信息。">
-    <title>二维码生成工具 | 自定义尺寸和颜色的QR码生成器 - 在线工具箱</title>
-    <!-- 预加载关键资源 -->
-    <link rel="preload" href="../../css/style.css" as="style">
-    <link rel="preload" href="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js" as="script">
-    <!-- 关键CSS优先加载 -->
-    <link rel="stylesheet" href="../../css/style.css" media="print" onload="this.media='all'">
-    <!-- 内联关键CSS以提高首屏渲染速度 -->
+    <meta name="description" content="在线二维码生成工具，支持自定义尺寸、颜色和内容，可生成文本、URL、联系方式等信息的二维码">
+    <meta name="keywords" content="二维码生成器,QR码,在线工具,二维码制作,二维码生成">
+    <title>在线二维码生成工具 - 在线工具箱</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="icon" href="../../favicon.ico" type="image/x-icon">
     <style>
-        /* 内联关键CSS */
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            margin: 0;
-            padding: 0;
-            background-color: #f8f9fa;
-        }
-        header {
-            background-color: #3498db;
-            color: white;
-            padding: 1rem 0;
-            text-align: center;
-        }
-        nav {
-            background-color: #2980b9;
-            padding: 0.5rem 0;
-        }
-        .container {
-            width: 90%;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-    </style>
-    <!-- 结构化数据 Schema.org -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "二维码生成工具",
-      "url": "https://jiangsuchenping.github.io/tools/qrcode/index.html",
-      "description": "免费在线二维码生成工具，支持自定义尺寸、颜色和内容，快速生成高质量二维码图片，适用于网址、文本、名片等多种信息。",
-      "applicationCategory": "UtilityApplication",
-      "operatingSystem": "Web",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "CNY"
-      }
-    }
-    </script>
-    <style>
-        /* 关键渲染路径CSS */
-        .tool-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        
-        .input-group {
-            margin-bottom: 20px;
-        }
-        
-        .input-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-        }
-        
-        .input-group textarea, .input-group input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-family: 'Courier New', monospace;
-            resize: vertical;
-        }
-        
-        .input-group input {
-            height: 40px;
-        }
-        
-        .input-group textarea {
-            min-height: 100px;
-        }
-        
-        .options-group {
-            background-color: #f8f9fa;
-            padding: 15px;
-            border-radius: 4px;
-            margin-bottom: 20px;
-        }
-        
-        .options-group label {
-            margin-right: 15px;
-            display: inline-block;
-            margin-bottom: 10px;
-        }
-        
-        .button-group {
-            margin-bottom: 20px;
-        }
-        
-        .button-group button {
-            background-color: #3498db;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            margin-right: 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        
-        .button-group button:hover {
-            background-color: #2980b9;
-        }
-        
         .qr-container {
-            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             margin: 20px 0;
         }
         
         #qr-canvas {
             border: 1px solid #ddd;
-            padding: 10px;
+            margin-bottom: 15px;
             background-color: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .options-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .options-group label {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .options-group input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .options-group input[type="color"] {
+            width: 100%;
+            height: 40px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 2px;
+            cursor: pointer;
         }
         
         .download-link {
             display: inline-block;
-            margin-top: 15px;
-            padding: 10px 20px;
-            background-color: #28a745;
+            margin-top: 10px;
+            padding: 8px 15px;
+            background-color: #3498db;
             color: white;
             text-decoration: none;
             border-radius: 4px;
+            transition: background-color 0.3s;
         }
         
         .download-link:hover {
-            background-color: #218838;
+            background-color: #2980b9;
         }
         
         .error {
             color: #e74c3c;
-            background-color: #fdf2f2;
-            border: 1px solid #f5c6cb;
+            background-color: #fadbd8;
+            border: 1px solid #e74c3c;
             padding: 10px;
             border-radius: 4px;
             margin-bottom: 15px;
+        }
+        
+        @media (max-width: 768px) {
+            .options-group {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
     <header>
         <div class="container">
-            <h1>二维码生成工具</h1>
-            <p>在线二维码生成工具</p>
+            <h1>在线二维码生成工具</h1>
+            <p>快速生成自定义二维码，支持文本、URL、联系方式等多种内容</p>
         </div>
     </header>
 
@@ -180,65 +95,82 @@
         <div class="container">
             <ul>
                 <li><a href="../../index.html">首页</a></li>
-                <li><a href="#generate">生成</a></li>
+                <li><a href="../../tools.html">工具箱</a></li>
+                <li><a href="../../about.html">关于</a></li>
             </ul>
         </div>
     </nav>
 
-    <div class="breadcrumb">
-        <div class="container">
+    <main class="container">
+        <div class="tool-description">
+            <p>这是一个简单易用的在线二维码生成工具，可以快速生成自定义二维码。支持文本、URL、联系方式等多种内容，可自定义二维码尺寸和颜色。</p>
+            
+            <h2>功能导航</h2>
             <ul>
-                <li><a href="../../index.html">首页</a></li>
-                <li>实用开发辅助工具</li>
-                <li>二维码生成工具</li>
+                <li><a href="#input-section">输入内容</a></li>
+                <li><a href="#options-section">二维码选项</a></li>
+                <li><a href="#generate-section">生成二维码</a></li>
+                <li><a href="#result-section">结果预览</a></li>
+                <li><a href="#info-section">使用说明</a></li>
             </ul>
         </div>
-    </div>
-
-    <main class="tool-container">
-        <div class="page-nav">
+        
+        <div id="input-section" class="tool-section">
+            <h2>输入内容</h2>
             <div class="input-group">
-                <label for="qr-content">二维码内容：</label>
-                <textarea id="qr-content" placeholder="请输入要生成二维码的内容，例如网址、文本等"></textarea>
+                <label for="text-input">输入文本或URL：</label>
+                <textarea id="text-input" placeholder="输入要生成二维码的文本或URL，例如：https://www.example.com"></textarea>
             </div>
-            
+        </div>
+        
+        <div id="options-section" class="tool-section">
+            <h2>二维码选项</h2>
             <div class="options-group">
-                <label for="qr-size">尺寸：</label>
-                <input type="number" id="qr-size" value="256" min="64" max="1024">
-                
-                <label for="qr-color">颜色：</label>
-                <input type="color" id="qr-color" value="#000000">
-                
-                <label for="qr-background">背景色：</label>
-                <input type="color" id="qr-background" value="#ffffff">
-                
-                <label for="qr-error-correction">容错率：</label>
-                <select id="qr-error-correction">
-                    <option value="L">L (7%)</option>
-                    <option value="M">M (15%)</option>
-                    <option value="Q">Q (25%)</option>
-                    <option value="H">H (30%)</option>
-                </select>
+                <h3>二维码选项</h3>
+                <label>
+                    宽度:
+                    <input type="number" id="qr-width" value="200" min="100" max="500">
+                </label>
+                <label>
+                    高度:
+                    <input type="number" id="qr-height" value="200" min="100" max="500">
+                </label>
+                <label>
+                    前景色:
+                    <input type="color" id="qr-fg-color" value="#000000">
+                </label>
+                <label>
+                    背景色:
+                    <input type="color" id="qr-bg-color" value="#ffffff">
+                </label>
             </div>
+        </div>
 
+        <div id="generate-section" class="tool-section">
+            <h2>生成二维码</h2>
             <div class="button-group">
                 <button onclick="generateQRCode()">生成二维码</button>
                 <button onclick="clearAll()">清空</button>
             </div>
+        </div>
 
+        <div id="result-section" class="tool-section">
+            <h2>结果预览</h2>
             <div class="qr-container">
                 <canvas id="qr-canvas"></canvas>
-                <a id="download-link" class="download-link" download="qrcode.png" style="display:none;">下载二维码</a>
-            </div>
-            
+                <div id="qr-result"></div>
+            <a id="download-link" class="download-link" style="display: none;">下载二维码</a>
+        </div>
+        
+        <div id="info-section" class="tool-section">
+            <h2>使用说明</h2>
             <div class="info">
                 <h3>说明</h3>
                 <ul>
-                    <li>二维码内容：支持文本、网址、电话号码、短信、邮件、名片等多种信息。</li>
-                    <li>尺寸：设置二维码的像素大小，建议使用2的幂次方，如256、512等。</li>
-                    <li>颜色和背景色：自定义二维码的前景色和背景色。</li>
-                    <li>容错率：容错率越高，二维码的抗损坏能力越强，但同时二维码的密度也会增加。</li>
-                    <li>下载：生成二维码后，可以点击“下载二维码”按钮保存为PNG图片。</li>
+                    <li>支持生成文本、URL、联系方式等信息的二维码</li>
+                    <li>可以自定义二维码的尺寸和颜色</li>
+                    <li>生成的二维码可以下载保存为PNG图片</li>
+                    <li>二维码支持多种编码格式，可以存储最多4296个字符</li>
                 </ul>
             </div>
         </div>
@@ -250,46 +182,257 @@
         </div>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
-    <script src="../../js/main.js"></script>
-    <script>
-        recordToolUsage('tools/qrcode/index.html');
-
-        /**
-         * 生成二维码
-         */
-        function generateQRCode() {
-            const content = document.getElementById('qr-content').value;
-            const size = parseInt(document.getElementById('qr-size').value);
-            const color = document.getElementById('qr-color').value;
-            const background = document.getElementById('qr-background').value;
-            const errorCorrection = document.getElementById('qr-error-correction').value;
-            const canvas = document.getElementById('qr-canvas');
-            const downloadLink = document.getElementById('download-link');
-
-            if (!content) {
-                alert('请输入二维码内容！');
+    <!-- 引入QRCode.js库（带备用CDN） -->
+    <script async>
+        // 加载QRCode.js库的函数
+        function loadQRCodeLibrary() {
+            // 主要CDN和备用CDN列表
+            const cdnUrls = [
+                "https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js",
+                "https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js",
+                "https://unpkg.com/qrcode-generator@1.4.4/qrcode.min.js"
+            ];
+            
+            // 尝试加载第一个CDN
+            loadScript(cdnUrls, 0);
+        }
+        
+        // 递归加载脚本，如果失败则尝试下一个CDN
+        function loadScript(urls, index) {
+            if (index >= urls.length) {
+                console.error("所有CDN加载失败");
+                document.getElementById('qr-result').innerHTML = '<div class="error">无法加载二维码生成库，请检查网络连接或稍后再试</div>';
                 return;
             }
-
+            
+            const script = document.createElement('script');
+            script.src = urls[index];
+            script.async = true; // 异步加载
+            
+            // 设置超时处理
+            const timeoutId = setTimeout(() => {
+                console.warn(`CDN ${urls[index]} 加载超时，尝试下一个...`);
+                script.onload = script.onerror = null; // 移除事件监听器
+                loadScript(urls, index + 1);
+            }, 5000); // 5秒超时
+            
+            // 添加加载成功回调
+            script.onload = function() {
+                clearTimeout(timeoutId); // 清除超时计时器
+                console.log(`CDN ${urls[index]} 加载成功`);
+                // 调用加载成功回调
+                onQRCodeLibraryLoaded();
+                                
+                // 记录工具加载完成
+                if (typeof recordToolUsage === 'function') {
+                    recordToolUsage('二维码生成', window.location.href);
+                }
+            };
+            
+            script.onerror = function() {
+                clearTimeout(timeoutId); // 清除超时计时器
+                console.warn(`CDN ${urls[index]} 加载失败，尝试下一个...`);
+                loadScript(urls, index + 1);
+            };
+            
+            document.head.appendChild(script);
+        }
+        
+        // 页面加载完成后执行
+        window.addEventListener('DOMContentLoaded', function() {
+            // 初始禁用生成按钮，直到库加载完成
+            const generateButton = document.querySelector('.button-group button:first-child');
+            if (generateButton) {
+                generateButton.disabled = true;
+                generateButton.title = "正在加载二维码生成库...";
+            }
+            
+            // 显示加载提示
+            const resultDiv = document.getElementById('qr-result');
+            if (resultDiv) {
+                resultDiv.innerHTML = '<div style="color: #3498db;">正在加载二维码生成库...</div>';
+            }
+            
+            // 使用requestIdleCallback在浏览器空闲时加载库（如果支持）
+            if ('requestIdleCallback' in window) {
+                requestIdleCallback(() => {
+                    loadQRCodeLibrary();
+                }, { timeout: 2000 }); // 设置2秒超时，确保即使浏览器繁忙也会执行
+            } else {
+                // 降级处理：使用setTimeout
+                setTimeout(loadQRCodeLibrary, 100);
+            }
+        });
+    </script>
+    
+    <!-- 工具使用统计容器 -->
+    <div id="tool-usage-stats" style="display: none;"></div>
+    
+    <script>
+        // 标记库是否已加载
+        let qrcodeLibraryLoaded = false;
+        
+        // 添加库加载成功的回调
+        function onQRCodeLibraryLoaded() {
+            qrcodeLibraryLoaded = true;
+            console.log('二维码库加载成功');
+            // 启用生成按钮
+            document.querySelector('.button-group button:first-child').disabled = false;
+            
+            // 记录工具使用频次
+            if (typeof recordToolUsage === 'function') {
+                recordToolUsage('二维码生成', window.location.href);
+            }
+        }
+        
+        /**
+         * 生成二维码并显示在画布上
+         * 使用专业的QRCode库生成标准二维码
+         */
+        function generateQRCode() {
+            const textInput = document.getElementById('text-input').value;
+            const width = parseInt(document.getElementById('qr-width').value);
+            const height = parseInt(document.getElementById('qr-height').value);
+            const fgColor = document.getElementById('qr-fg-color').value;
+            const bgColor = document.getElementById('qr-bg-color').value;
+            const canvas = document.getElementById('qr-canvas');
+            const ctx = canvas.getContext('2d');
+            const resultDiv = document.getElementById('qr-result');
+            const downloadLink = document.getElementById('download-link');
+            
+            // 检查库是否已加载
+            if (!qrcodeLibraryLoaded) {
+                resultDiv.innerHTML = '<div class="error">二维码生成库尚未加载完成，请稍后再试</div>';
+                downloadLink.style.display = 'none';
+                return;
+            }
+            
+            if (!textInput.trim()) {
+                resultDiv.innerHTML = '<div class="error">请输入文本或URL</div>';
+                downloadLink.style.display = 'none';
+                return;
+            }
+            
+            // 检查文本长度是否超过最大限制（4296个字符）
+            if (textInput.length > 4296) {
+                resultDiv.innerHTML = '<div class="error">文本长度超过限制（最大4296个字符），当前长度：' + textInput.length + '个字符</div>';
+                downloadLink.style.display = 'none';
+                return;
+            }
+            
+            // 检查文本长度是否接近限制，给出警告但仍然生成
+            if (textInput.length > 3500) {
+                resultDiv.innerHTML = '<div style="color: #f39c12; background-color: #fef9e7; border: 1px solid #f8c471; padding: 10px; border-radius: 4px; margin-bottom: 15px;">警告：文本长度接近限制（当前' + textInput.length + '/4296个字符），可能影响二维码识别率</div>';
+            } else {
+                resultDiv.innerHTML = '';
+            }
+            
             try {
-                const qr = qrcode(0, errorCorrection);
-                qr.addData(content);
+                // 设置画布尺寸
+                canvas.width = width;
+                canvas.height = height;
+                
+                // 清空画布
+                ctx.fillStyle = bgColor;
+                ctx.fillRect(0, 0, width, height);
+                
+                // 使用QRCode库生成二维码
+                // 计算合适的二维码类型（1-40，数字越大，容量越大）
+                const qrTypeNumber = calculateQRTypeNumber(textInput);
+                
+                // 创建QRCode对象
+                const qr = qrcode(qrTypeNumber, 'L'); // L = 低纠错级别
+                qr.addData(textInput);
                 qr.make();
-
-                const scale = 2; // 增加缩放因子以提高清晰度
-                const cellSize = size / qr.getModuleCount();
-                canvas.width = canvas.height = size;
-                const ctx = canvas.getContext('2d');
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-                // 绘制背景
-                ctx.fillStyle = background;
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-
+                
+                // 获取模块数量（二维码矩阵大小）
+                const moduleCount = qr.getModuleCount();
+                
+                // 计算每个模块的大小
+                const cellSize = Math.min(width, height) / moduleCount;
+                
+                // 计算偏移量，使二维码居中
+                const offsetX = (width - moduleCount * cellSize) / 2;
+                const offsetY = (height - moduleCount * cellSize) / 2;
+                
+                // 设置前景色
+                ctx.fillStyle = fgColor;
+                
                 // 绘制二维码
-                for (let r = 0; r < qr.getModuleCount(); r++) {
-                    for (let c = 0; c < qr.getModuleCount(); c++) {
-                        if (qr.is </script>
+                for (let row = 0; row < moduleCount; row++) {
+                    for (let col = 0; col < moduleCount; col++) {
+                        if (qr.isDark(row, col)) {
+                            ctx.fillRect(
+                                col * cellSize + offsetX,
+                                row * cellSize + offsetY,
+                                cellSize,
+                                cellSize
+                            );
+                        }
+                    }
+                }
+                
+                // 显示成功消息
+                resultDiv.innerHTML = '<p style="color: green;">二维码生成成功！</p>';
+                
+                // 设置下载链接
+                downloadLink.href = canvas.toDataURL('image/png');
+                downloadLink.download = 'qrcode.png';
+                downloadLink.style.display = 'inline-block';
+                
+                // 记录工具使用频次
+                if (typeof recordToolUsage === 'function') {
+                    recordToolUsage('二维码生成', window.location.href);
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">生成错误: ${error.message}</div>`;
+                downloadLink.style.display = 'none';
+                console.error('二维码生成错误:', error);
+            }
+        }
+        
+        /**
+         * 根据输入文本长度计算合适的二维码类型
+         * @param {string} text - 输入文本
+         * @returns {number} - 二维码类型（1-40）
+         */
+        function calculateQRTypeNumber(text) {
+            const length = text.length;
+            
+            // 根据文本长度选择合适的二维码类型
+            if (length <= 25) return 1;      // 最多存储25个字符
+            if (length <= 47) return 2;      // 最多存储47个字符
+            if (length <= 77) return 3;      // 最多存储77个字符
+            if (length <= 114) return 4;     // 最多存储114个字符
+            if (length <= 154) return 5;     // 最多存储154个字符
+            if (length <= 195) return 6;     // 最多存储195个字符
+            if (length <= 224) return 7;     // 最多存储224个字符
+            if (length <= 279) return 8;     // 最多存储279个字符
+            if (length <= 335) return 9;     // 最多存储335个字符
+            if (length <= 395) return 10;    // 最多存储395个字符
+            
+            // 对于更长的文本，使用更高级别的二维码类型
+            return Math.min(Math.ceil(length / 40) + 10, 40); // 最大为40
+        }
+        
+        /**
+         * 清空所有输入和输出
+         */
+        function clearAll() {
+            document.getElementById('text-input').value = '';
+            document.getElementById('qr-result').innerHTML = '';
+            document.getElementById('download-link').style.display = 'none';
+            
+            // 清空画布
+            const canvas = document.getElementById('qr-canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 记录工具使用频次
+            if (typeof recordToolUsage === 'function') {
+                recordToolUsage('二维码生成', window.location.href);
+            }
+        }
+    </script>
 </body>
 </html>

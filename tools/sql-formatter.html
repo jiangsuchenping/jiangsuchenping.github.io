@@ -176,7 +176,7 @@
                 
                 // 记录工具使用频次
                 if (typeof recordToolUsage === 'function') {
-                    recordToolUsage('tools/sql-formatter.html');
+                    recordToolUsage('SQL格式化', window.location.href);
                 }
             } catch (error) {
                 output.value = '格式化错误: ' + error.message;
@@ -270,7 +270,7 @@
             
             // 记录工具使用频次
             if (typeof recordToolUsage === 'function') {
-                recordToolUsage('tools/sql-formatter.html');
+                recordToolUsage('SQL格式化', window.location.href);
             }
         }
         
@@ -281,7 +281,7 @@
             // 为输入框添加事件监听器以记录使用频次
             document.getElementById('sql-input').addEventListener('input', function() {
                 if (typeof recordToolUsage === 'function') {
-                    recordToolUsage('tools/sql-formatter.html');
+                    recordToolUsage('SQL格式化', window.location.href);
                 }
             });
         });

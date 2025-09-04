@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -118,7 +119,7 @@
         <div class="container">
             <ul>
                 <li><a href="../../index.html">首页</a></li>
-                <li><a href="../number-convert/index.html">进制转换</a></li>
+                <li><a href="#convert">转换</a></li>
             </ul>
         </div>
     </nav>
@@ -201,6 +202,16 @@
                 </div>
             </div>
         </div>
+        
+        <div class="info">
+            <h3>说明</h3>
+            <ul>
+                <li><strong>二进制</strong>：由0和1组成，计算机内部使用的数制</li>
+                <li><strong>八进制</strong>：由0-7组成，常用于Unix/Linux文件权限设置</li>
+                <li><strong>十进制</strong>：由0-9组成，我们日常生活中最常用的数制</li>
+                <li><strong>十六进制</strong>：由0-9和A-F组成，常用于编程中表示内存地址和颜色值</li>
+            </ul>
+        </div>
     </main>
 
     <footer>
@@ -211,77 +222,63 @@
 
     <script src="../../js/main.js"></script>
     <script>
-        // 工具ID，用于保存选项
-        const TOOL_ID = 'number-convert';
-        
-        function recordToolUsage(toolName) {
-            // 检查浏览器是否支持 navigator.sendBeacon 或 XMLHttpRequest
-            if (navigator.sendBeacon) {
-                // 使用 sendBeacon 异步发送数据，不影响页面卸载
-                navigator.sendBeacon('https://jiangsuchenping.github.io/recordToolUsage.html?tool=' + toolName);
-            } else {
-                // 降级方案：使用 XMLHttpRequest
-                var xhr = new XMLHttpRequest();
-                xhr.open('GET', 'https://jiangsuchenping.github.io/recordToolUsage.html?tool=' + toolName, true);
-                xhr.send();
-            }
-        }
-        recordToolUsage('tools/number-convert/index.html');
-
         function convertNumber() {
             const numberInput = document.getElementById('number-input').value;
             const fromBase = parseInt(document.getElementById('from-base').value);
             const toBase = parseInt(document.getElementById('to-base').value);
-            const resultDiv = document.getElementById('conversion-result');
-
-            if (!numberInput) {
-                resultDiv.textContent = '请输入数字';
+            const resultElement = document.getElementById('conversion-result');
+            
+            if (!numberInput.trim()) {
+                resultElement.innerHTML = '<div class="error">请输入数字</div>';
                 return;
             }
-
+            
             try {
-                const decimalValue = parseInt(numberInput, fromBase);
-                if (isNaN(decimalValue)) {
-                    resultDiv.textContent = '输入数字或源进制不合法';
-                    return;
+                // 验证输入是否符合源进制
+                const parsed = parseInt(numberInput, fromBase);
+                if (isNaN(parsed) || parsed.toString(fromBase).toLowerCase() !== numberInput.toLowerCase()) {
+                    throw new Error('输入的数字不符合指定的进制格式');
                 }
-                resultDiv.textContent = `转换结果: ${decimalValue.toString(toBase).toUpperCase()}`;
-                recordToolUsage('进制转换', 'tools/number-convert/index.html');
+                
+                // 转换为目标进制
+                const result = parsed.toString(toBase).toUpperCase();
+                resultElement.innerHTML = `<p><strong>转换结果：</strong> ${result}</p>`;
+                
+                // 记录工具使用频次
+                recordToolUsage('进制转换', window.location.href);
             } catch (error) {
-                resultDiv.textContent = '转换失败: ' + error.message;
+                resultElement.innerHTML = `<div class="error">转换错误: ${error.message}</div>`;
             }
         }
-
+        
         function showAllBases() {
-            const multiInput = document.getElementById('multi-input').value;
+            const input = document.getElementById('multi-input').value;
             const binaryValue = document.getElementById('binary-value');
             const octalValue = document.getElementById('octal-value');
             const decimalValue = document.getElementById('decimal-value');
             const hexValue = document.getElementById('hex-value');
-
-            if (!multiInput) {
+            
+            if (!input.trim()) {
                 binaryValue.textContent = '-';
                 octalValue.textContent = '-';
                 decimalValue.textContent = '-';
                 hexValue.textContent = '-';
                 return;
             }
-
+            
             try {
-                const decimal = parseInt(multiInput, 10);
-                if (isNaN(decimal)) {
-                    binaryValue.textContent = '无效输入';
-                    octalValue.textContent = '无效输入';
-                    decimalValue.textContent = '无效输入';
-                    hexValue.textContent = '无效输入';
-                    return;
+                const number = parseInt(input, 10);
+                if (isNaN(number)) {
+                    throw new Error('请输入有效的十进制数字');
                 }
-
-                binaryValue.textContent = decimal.toString(2);
-                octalValue.textContent = decimal.toString(8);
-                decimalValue.textContent = decimal.toString(10);
-                hexValue.textContent = decimal.toString(16).toUpperCase();
-                recordToolUsage('多进制显示', 'tools/number-convert/index.html');
+                
+                binaryValue.textContent = number.toString(2);
+                octalValue.textContent = number.toString(8);
+                decimalValue.textContent = number.toString(10);
+                hexValue.textContent = number.toString(16).toUpperCase();
+                
+                // 记录工具使用频次
+                recordToolUsage('进制转换', window.location.href);
             } catch (error) {
                 binaryValue.textContent = '错误';
                 octalValue.textContent = '错误';
@@ -289,20 +286,32 @@
                 hexValue.textContent = '错误';
             }
         }
-
+        
         function clearAll() {
             document.getElementById('number-input').value = '';
-            document.getElementById('conversion-result').textContent = '';
+            document.getElementById('conversion-result').innerHTML = '';
             document.getElementById('multi-input').value = '';
             document.getElementById('binary-value').textContent = '-';
             document.getElementById('octal-value').textContent = '-';
             document.getElementById('decimal-value').textContent = '-';
             document.getElementById('hex-value').textContent = '-';
-            recordToolUsage('进制转换', 'tools/number-convert/index.html');
+            
+            // 记录工具使用频次
+            recordToolUsage('进制转换', window.location.href);
         }
-
+        
+        // 页面加载完成后执行
         document.addEventListener('DOMContentLoaded', function() {
             console.log('进制转换工具已加载');
+            
+            // 为输入框添加事件监听器以记录使用频次
+            document.getElementById('number-input').addEventListener('input', function() {
+                recordToolUsage('进制转换', window.location.href);
+            });
+            
+            document.getElementById('multi-input').addEventListener('input', function() {
+                recordToolUsage('进制转换', window.location.href);
+            });
         });
     </script>
 </body>

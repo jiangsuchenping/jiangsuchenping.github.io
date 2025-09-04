@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -113,20 +114,6 @@
     </footer>
 
     <script>
-        function recordToolUsage(toolName) {
-            // 检查浏览器是否支持 navigator.sendBeacon 或 XMLHttpRequest
-            if (navigator.sendBeacon) {
-                // 使用 sendBeacon 异步发送数据，不影响页面卸载
-                navigator.sendBeacon('https://jiangsuchenping.github.io/recordToolUsage.html?tool=' + toolName);
-            } else {
-                // 降级方案：使用 XMLHttpRequest
-                var xhr = new XMLHttpRequest();
-                xhr.open('GET', 'https://jiangsuchenping.github.io/recordToolUsage.html?tool=' + toolName, true);
-                xhr.send();
-            }
-        }
-        recordToolUsage('tools/unicode-encode/index.html');
-
         function encodeUnicode() {
             const input = document.getElementById('input-text').value;
             const output = document.getElementById('output-text');
@@ -146,7 +133,7 @@
                 
                 // 记录工具使用频次
                 if (typeof recordToolUsage === 'function') {
-                    recordToolUsage('Unicode编码', 'tools/unicode-encode/index.html');
+                    recordToolUsage('Unicode编码', window.location.href);
                 }
             } catch (error) {
                 output.value = '编码错误: ' + error.message;
@@ -171,7 +158,7 @@
                 
                 // 记录工具使用频次
                 if (typeof recordToolUsage === 'function') {
-                    recordToolUsage('Unicode解码', 'tools/unicode-encode/index.html');
+                    recordToolUsage('Unicode解码', window.location.href);
                 }
             } catch (error) {
                 output.value = '解码错误: 输入的Unicode字符串可能无效';
@@ -184,7 +171,7 @@
             
             // 记录工具使用频次
             if (typeof recordToolUsage === 'function') {
-                recordToolUsage('Unicode编码/解码', 'tools/unicode-encode/index.html');
+                recordToolUsage('Unicode编码/解码', window.location.href);
             }
         }
         
@@ -195,7 +182,7 @@
             // 为输入框添加事件监听器以记录使用频次
             document.getElementById('input-text').addEventListener('input', function() {
                 if (typeof recordToolUsage === 'function') {
-                    recordToolUsage('Unicode编码/解码', 'tools/unicode-encode/index.html');
+                    recordToolUsage('Unicode编码/解码', window.location.href);
                 }
             });
         });

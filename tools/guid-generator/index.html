@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -161,7 +162,6 @@
     <script>
         // 工具ID，用于保存选项
         const TOOL_ID = 'guid-generator';
-        recordToolUsage('tools/guid-generator/index.html');
         
         // 页面加载完成后执行
         document.addEventListener('DOMContentLoaded', function() {
@@ -196,3 +196,92 @@
             const guid = formatGuidWithHyphens().replace(/-/g, '');
             return '0x' + guid;
         }
+        
+        /**
+         * 生成多个GUID并显示在页面上
+         */
+        function generateGUIDs() {
+            const count = parseInt(document.getElementById('guid-count').value);
+            const format = document.getElementById('guid-format').value;
+            const resultContainer = document.getElementById('guid-results');
+            resultContainer.innerHTML = '';
+            
+            // 保存选项设置
+            saveOption(TOOL_ID, 'guid-count', count);
+            saveOption(TOOL_ID, 'guid-format', format);
+            
+            // 记录使用频次
+            recordToolUsage('GUID生成器', window.location.href);
+            
+            for (let i = 0; i < count; i++) {
+                let guid = '';
+                if (format === 'standard') {
+                    guid = formatGuidWithHyphens();
+                } else if (format === 'nohyphens') {
+                    guid = formatGuidWithHyphens().replace(/-/g, '');
+                } else if (format === 'braces') {
+                    guid = '{' + formatGuidWithHyphens() + '}';
+                } else if (format === 'hex') {
+                    guid = formatGuidAsHex();
+                }
+                
+                const resultItem = document.createElement('div');
+                resultItem.className = 'guid-result';
+                resultItem.innerHTML = `
+                    <div class="guid-text">${guid}</div>
+                    <button class="copy-btn" onclick="copyToClipboard('${guid}')">复制</button>
+                `;
+                
+                resultContainer.appendChild(resultItem);
+            }
+        }
+
+        /**
+         * 复制指定的GUID到剪贴板
+         * @param {string} text 要复制的GUID文本
+         */
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('GUID已复制到剪贴板: ' + text);
+            }).catch(err => {
+                console.error('复制失败: ', err);
+                // 降级方案
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('GUID已复制到剪贴板: ' + text);
+            });
+        }
+        
+        /**
+         * 复制所有生成的GUID到剪贴板
+         */
+        function copyAllToClipboard() {
+            const resultElements = document.querySelectorAll('.guid-text');
+            if (resultElements.length === 0) {
+                alert('请先生成GUID');
+                return;
+            }
+            
+            const allGuids = Array.from(resultElements).map(el => el.textContent).join('\n');
+            
+            navigator.clipboard.writeText(allGuids).then(() => {
+                alert('所有GUID已复制到剪贴板');
+            }).catch(err => {
+                console.error('复制失败: ', err);
+                // 降级方案
+                const textArea = document.createElement('textarea');
+                textArea.value = allGuids;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('所有GUID已复制到剪贴板');
+            });
+         }
+      </script>
+</body>
+</html>

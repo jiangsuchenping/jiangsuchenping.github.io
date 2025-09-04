@@ -191,10 +191,8 @@
                 saveOption(TOOL_ID, 'pascal-case', pascalCase);
                 saveOption(TOOL_ID, 'nullable-reference-types', nullableReferenceTypes);
                 
-                // 记录工具使用频次
-                if (typeof recordToolUsage === 'function') {
-                    recordToolUsage('tools/sql-to-csharp.html');
-                }
+                // 记录使用频次
+                recordToolUsage('SQL转C#', window.location.href);
             } catch (error) {
                 output.value = 'SQL解析错误或转换失败: ' + error.message;
             }

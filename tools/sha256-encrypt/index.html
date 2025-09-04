@@ -84,7 +84,7 @@
         <div class="container">
             <ul>
                 <li><a href="../../index.html">首页</a></li>
-                <li><a href="../sha256-encrypt/index.html">SHA256加密</a></li>
+                <li><a href="#encrypt">加密</a></li>
             </ul>
         </div>
     </nav>
@@ -130,23 +130,6 @@
     </footer>
 
     <script>
-        // 工具ID，用于保存选项
-        const TOOL_ID = 'sha256-encrypt';
-        
-        function recordToolUsage(toolName) {
-            // 检查浏览器是否支持 navigator.sendBeacon 或 XMLHttpRequest
-            if (navigator.sendBeacon) {
-                // 使用 sendBeacon 异步发送数据，不影响页面卸载
-                navigator.sendBeacon('https://jiangsuchenping.github.io/recordToolUsage.html?tool=' + toolName);
-            } else {
-                // 降级方案：使用 XMLHttpRequest
-                var xhr = new XMLHttpRequest();
-                xhr.open('GET', 'https://jiangsuchenping.github.io/recordToolUsage.html?tool=' + toolName, true);
-                xhr.send();
-            }
-        }
-        recordToolUsage('tools/sha256-encrypt/index.html');
-
         // SHA256实现
         function sha256(msg) {
             // 将字符串转换为UTF-8编码的字节数组
@@ -222,25 +205,60 @@
                 0x682e6ff3, 0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208,
                 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
             ];
-
-            const utf8Msg = strToUtf8Bytes(msg);
-            const msgLen = utf8Msg.length * 8; // 消息长度（位）
-
+            
+            // 将字节数组转换为32位整数数组
+            function bytesToWords(bytes) {
+                const words = [];
+                for (let i = 0; i < bytes.length; i++) {
+                    words[i >>> 2] |= bytes[i] << (24 - (i % 4) * 8);
+                }
+                return words;
+            }
+            
+            // 将32位整数数组转换为字节数组
+            function wordsToBytes(words) {
+                const bytes = [];
+                for (let i = 0; i < words.length * 32; i++) {
+                    bytes.push((words[i >>> 5] >>> (24 - (i % 32))) & 0xff);
+                }
+                return bytes;
+            }
+            
+            // 将字节数组转换为十六进制字符串
+            function bytesToHex(bytes) {
+                const hex = [];
+                for (let i = 0; i < bytes.length; i++) {
+                    hex.push((bytes[i] >>> 4).toString(16));
+                    hex.push((bytes[i] & 0xf).toString(16));
+                }
+                return hex.join('');
+            }
+            
+            // 主要的SHA256算法实现
+            const bytes = strToUtf8Bytes(msg);
+            
             // 填充消息
-            utf8Msg.push(0x80); // 附加位 '1'
-            while ((utf8Msg.length * 8) % 512 !== 448) {
-                utf8Msg.push(0x00); // 附加位 '0'
+            bytes.push(0x80);
+            const l = bytes.length / 4 + 2;
+            const N = Math.ceil(l / 16);
+            const M = new Array(N);
+            
+            for (let i = 0; i < N; i++) {
+                M[i] = new Array(16);
+                for (let j = 0; j < 16; j++) {
+                    M[i][j] = 
+                        bytes[i * 64 + j * 4] << 24 |
+                        bytes[i * 64 + j * 4 + 1] << 16 |
+                        bytes[i * 64 + j * 4 + 2] << 8 |
+                        bytes[i * 64 + j * 4 + 3];
+                }
             }
-            // 附加原始消息长度
-            for (let i = 0; i < 8; i++) {
-                utf8Msg.push((msgLen >>> (56 - i * 8)) & 0xff);
-            }
-
-            const M = [];
-            for (let i = 0; i < utf8Msg.length; i += 4) {
-                M.push((utf8Msg[i] << 24) | (utf8Msg[i + 1] << 16) | (utf8Msg[i + 2] << 8) | utf8Msg[i + 3]);
-            }
-
+            
+            // 添加长度
+            M[N - 1][14] = ((bytes.length - 1) * 8) / Math.pow(2, 32);
+            M[N - 1][14] = Math.floor(M[N - 1][14]);
+            M[N - 1][15] = ((bytes.length - 1) * 8) & 0xffffffff;
+            
             // 初始化哈希值
             let H0 = 0x6a09e667;
             let H1 = 0xbb67ae85;
@@ -250,17 +268,19 @@
             let H5 = 0x9b05688c;
             let H6 = 0x1f83d9ab;
             let H7 = 0x5be0cd19;
-
-            for (let i = 0; i < M.length; i += 16) {
-                const W = [];
-                for (let j = 0; j < 16; j++) {
-                    W[j] = M[i + j];
+            
+            // 主循环
+            for (let i = 0; i < N; i++) {
+                const W = new Array(64);
+                
+                for (let t = 0; t < 16; t++) {
+                    W[t] = M[i][t];
                 }
-
-                for (let j = 16; j < 64; j++) {
-                    W[j] = (gamma1(W[j - 2]) + W[j - 7] + gamma0(W[j - 15]) + W[j - 16]) | 0;
+                
+                for (let t = 16; t < 64; t++) {
+                    W[t] = (gamma1(W[t - 2]) + W[t - 7] + gamma0(W[t - 15]) + W[t - 16]) | 0;
                 }
-
+                
                 let a = H0;
                 let b = H1;
                 let c = H2;
@@ -269,11 +289,10 @@
                 let f = H5;
                 let g = H6;
                 let h = H7;
-
-                for (let j = 0; j < 64; j++) {
-                    const T1 = (h + sigma1(e) + ch(e, f, g) + K[j] + W[j]) | 0;
-                    const T2 = (sigma0(a) + maj(a, b, c)) | 0;
-
+                
+                for (let t = 0; t < 64; t++) {
+                    const T1 = h + sigma1(e) + ch(e, f, g) + K[t] + W[t];
+                    const T2 = sigma0(a) + maj(a, b, c);
                     h = g;
                     g = f;
                     f = e;
@@ -283,7 +302,7 @@
                     b = a;
                     a = (T1 + T2) | 0;
                 }
-
+                
                 H0 = (H0 + a) | 0;
                 H1 = (H1 + b) | 0;
                 H2 = (H2 + c) | 0;
@@ -293,50 +312,56 @@
                 H6 = (H6 + g) | 0;
                 H7 = (H7 + h) | 0;
             }
-
-            const result = [
-                (H0 >>> 0).toString(16).padStart(8, '0'),
-                (H1 >>> 0).toString(16).padStart(8, '0'),
-                (H2 >>> 0).toString(16).padStart(8, '0'),
-                (H3 >>> 0).toString(16).padStart(8, '0'),
-                (H4 >>> 0).toString(16).padStart(8, '0'),
-                (H5 >>> 0).toString(16).padStart(8, '0'),
-                (H6 >>> 0).toString(16).padStart(8, '0'),
-                (H7 >>> 0).toString(16).padStart(8, '0')
-            ].join('');
-
-            return result;
+            
+            // 返回十六进制字符串
+            return bytesToHex(wordsToBytes([H0, H1, H2, H3, H4, H5, H6, H7]));
         }
-
+        
         function encryptSHA256() {
-            const inputText = document.getElementById('input-text').value;
+            const input = document.getElementById('input-text').value;
             const salt = document.getElementById('salt').value;
-            const outputText = document.getElementById('output-text');
-
-            if (!inputText.trim()) {
-                outputText.value = '请输入要加密的文本';
+            const output = document.getElementById('output-text');
+            
+            if (!input.trim()) {
+                output.value = '请输入要加密的文本';
                 return;
             }
-
+            
             try {
-                const combinedText = inputText + salt; // 文本和盐值组合
-                const hash = sha256(combinedText);
-                outputText.value = hash;
-                recordToolUsage('SHA256加密', 'tools/sha256-encrypt/index.html');
+                const textToHash = input + salt;
+                const hash = sha256(textToHash);
+                output.value = hash;
+                
+                // 记录工具使用频次
+                if (typeof recordToolUsage === 'function') {
+                    recordToolUsage('SHA256加密', window.location.href);
+                }
             } catch (error) {
-                outputText.value = '加密失败: ' + error.message;
+                output.value = '加密错误: ' + error.message;
             }
         }
-
+        
         function clearAll() {
             document.getElementById('input-text').value = '';
             document.getElementById('salt').value = '';
             document.getElementById('output-text').value = '';
-            recordToolUsage('SHA256加密', 'tools/sha256-encrypt/index.html');
+            
+            // 记录工具使用频次
+            if (typeof recordToolUsage === 'function') {
+                recordToolUsage('SHA256加密', window.location.href);
+            }
         }
-
+        
+        // 页面加载完成后执行
         document.addEventListener('DOMContentLoaded', function() {
             console.log('SHA256加密工具已加载');
+            
+            // 为输入框添加事件监听器以记录使用频次
+            document.getElementById('input-text').addEventListener('input', function() {
+                if (typeof recordToolUsage === 'function') {
+                    recordToolUsage('SHA256加密', window.location.href);
+                }
+            });
         });
     </script>
 </body>

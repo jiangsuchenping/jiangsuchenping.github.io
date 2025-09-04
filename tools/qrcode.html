@@ -318,7 +318,7 @@
                                 
                 // 记录工具加载完成
                 if (typeof recordToolUsage === 'function') {
-                    recordToolUsage('tools/qrcode.html');
+                    recordToolUsage('二维码生成', window.location.href);
                 }
             };
             
@@ -374,7 +374,7 @@
             
             // 记录工具使用频次
             if (typeof recordToolUsage === 'function') {
-                recordToolUsage('tools/qrcode.html');
+                recordToolUsage('二维码生成', window.location.href);
             }
         }
         
@@ -475,7 +475,7 @@
                 
                 // 记录工具使用频次
                 if (typeof recordToolUsage === 'function') {
-                    recordToolUsage('tools/qrcode.html');
+                    recordToolUsage('二维码生成', window.location.href);
                 }
             } catch (error) {
                 resultDiv.innerHTML = `<div class="error">生成错误: ${error.message}</div>`;
@@ -523,7 +523,7 @@
             
             // 记录工具使用频次
             if (typeof recordToolUsage === 'function') {
-                recordToolUsage('tools/qrcode.html');
+                recordToolUsage('二维码生成', window.location.href);
             }
         }
     </script>

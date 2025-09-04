@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -80,7 +81,7 @@
         <div class="container">
             <ul>
                 <li><a href="../../index.html">首页</a></li>
-                <li><a href="../json-format/index.html">JSON格式化</a></li>
+                <li><a href="#convert">转换</a></li>
             </ul>
         </div>
     </nav>
@@ -112,23 +113,6 @@
 
     <script src="../../js/main.js"></script>
     <script>
-        // 工具ID，用于保存选项
-        const TOOL_ID = 'json-to-yaml';
-        
-        function recordToolUsage(toolName) {
-            // 检查浏览器是否支持 navigator.sendBeacon 或 XMLHttpRequest
-            if (navigator.sendBeacon) {
-                // 使用 sendBeacon 异步发送数据，不影响页面卸载
-                navigator.sendBeacon('https://jiangsuchenping.github.io/recordToolUsage.html?tool=' + toolName);
-            } else {
-                // 降级方案：使用 XMLHttpRequest
-                var xhr = new XMLHttpRequest();
-                xhr.open('GET', 'https://jiangsuchenping.github.io/recordToolUsage.html?tool=' + toolName, true);
-                xhr.send();
-            }
-        }
-        recordToolUsage('tools/json-to-yaml/index.html');
-
         function convertJSONtoYAML() {
             const input = document.getElementById('json-input').value;
             const output = document.getElementById('yaml-output');
@@ -143,7 +127,7 @@
                 output.value = jsonToYaml(jsonObj);
                 
                 // 记录工具使用频次
-                recordToolUsage('JSON转YAML', 'tools/json-to-yaml/index.html');
+                recordToolUsage('JSON转YAML', window.location.href);
             } catch (error) {
                 output.value = 'JSON格式错误: ' + error.message;
             }
@@ -181,12 +165,17 @@
             document.getElementById('yaml-output').value = '';
             
             // 记录工具使用频次
-            recordToolUsage('JSON转YAML', 'tools/json-to-yaml/index.html');
+            recordToolUsage('JSON转YAML', window.location.href);
         }
         
         // 页面加载完成后执行
         document.addEventListener('DOMContentLoaded', function() {
             console.log('JSON转YAML工具已加载');
+            
+            // 为输入框添加事件监听器以记录使用频次
+            document.getElementById('json-input').addEventListener('input', function() {
+                recordToolUsage('JSON转YAML', window.location.href);
+            });
         });
     </script>
 </body>

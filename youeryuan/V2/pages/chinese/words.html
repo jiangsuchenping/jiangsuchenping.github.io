@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>词语学习 - 幼儿园大班学习乐园</title>
+  
+  <!-- 智能资源管理器 -->
+  <script src="../../assets/js/smart-resource-manager.js"></script>
+  <script src="../../assets/js/cdn-manager.js"></script>
+  
+  <!-- 样式表 -->
+  <link rel="stylesheet" href="../../css/common.css">
+  <link rel="stylesheet" href="../../css/chinese.css">
+</head>
+<body>
+  <!-- 导航栏 -->
+  <nav class="navbar">
+    <div class="container navbar-container">
+      <a href="../index.html" class="navbar-brand">幼儿园大班学习乐园</a>
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a href="../index.html" class="nav-link">首页</a>
+        </li>
+        <li class="nav-item">
+          <a href="../chinese/index.html" class="nav-link active">语文</a>
+        </li>
+        <li class="nav-item">
+          <a href="../math/index.html" class="nav-link">数学</a>
+        </li>
+        <li class="nav-item">
+          <a href="../english/index.html" class="nav-link">英语</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <header class="subject-header">
+    <div class="container">
+      <h1>词语学习</h1>
+      <p class="tagline">学习常用词语，提高语言表达能力</p>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- 返回按钮 -->
+    <div class="back-btn-container">
+      <a href="index.html" class="back-btn">
+        <i class="bi bi-arrow-left"></i> 返回语文学习
+      </a>
+    </div>
+
+    <!-- 词语学习内容 -->
+    <div class="content-tabs">
+      <div class="tab-buttons">
+        <button class="tab-btn active" data-tab="common">常用词语</button>
+        <button class="tab-btn" data-tab="opposites">反义词</button>
+        <button class="tab-btn" data-tab="synonyms">近义词</button>
+        <button class="tab-btn" data-tab="practice">词语练习</button>
+      </div>
+
+      <!-- 常用词语内容 -->
+      <div class="tab-content active" id="common">
+        <h2>常用词语</h2>
+        <p class="intro-text">以下是幼儿园大班应掌握的常用词语，按照类别分类。</p>
+        
+        <div class="word-filter">
+          <label>按类别筛选：</label>
+          <select id="wordCategoryFilter">
+            <option value="all">全部</option>
+            <option value="daily">日常生活</option>
+            <option value="nature">自然环境</option>
+            <option value="emotion">情感表达</option>
+            <option value="action">动作行为</option>
+            <option value="description">描述词语</option>
+          </select>
+        </div>
+        
+        <div class="words-grid" id="wordsGrid">
+          <!-- 词语卡片将通过JavaScript动态生成 -->
+          <div class="word-card">
+            <div class="word">早上好</div>
+            <div class="pinyin">zǎo shang hǎo</div>
+            <div class="meaning">早晨问候语</div>
+          </div>
+          <div class="word-card">
+            <div class="word">谢谢你</div>
+            <div class="pinyin">xiè xiè nǐ</div>
+            <div class="meaning">表示感谢</div>
+          </div>
+          <div class="word-card">
+            <div class="word">对不起</div>
+            <div class="pinyin">duì bù qǐ</div>
+            <div class="meaning">表示歉意</div>
+          </div>
+          <div class="word-card">
+            <div class="word">没关系</div>
+            <div class="pinyin">méi guān xì</div>
+            <div class="meaning">表示原谅</div>
+          </div>
+          <div class="word-card">
+            <div class="word">高高兴兴</div>
+            <div class="pinyin">gāo gāo xìng xìng</div>
+            <div class="meaning">形容非常开心</div>
+          </div>
+          <div class="word-card">
+            <div class="word">漂漂亮亮</div>
+            <div class="pinyin">piào piào liang liang</div>
+            <div class="meaning">形容非常漂亮</div>
+          </div>
+          <!-- 更多词语卡片将通过JavaScript动态生成 -->
+        </div>
+        
+        <div class="pagination" id="wordsPagination">
+          <button class="pagination-btn" data-page="1">1</button>
+          <button class="pagination-btn" data-page="2">2</button>
+          <button class="pagination-btn" data-page="3">3</button>
+        </div>
+      </div>
+
+      <!-- 反义词内容 -->
+      <div class="tab-content" id="opposites">
+        <h2>反义词</h2>
+        <p class="intro-text">反义词是意思相反的词语，学习反义词可以帮助理解词语的含义。</p>
+        
+        <div class="opposites-container">
+          <div class="opposites-grid" id="oppositesGrid">
+            <!-- 反义词对将通过JavaScript动态生成 -->
+            <div class="opposites-pair">
+              <div class="word-pair">
+                <div class="word-left">大</div>
+                <div class="word-separator">⟷</div>
+                <div class="word-right">小</div>
+              </div>
+              <div class="pinyin-pair">
+                <div class="pinyin-left">dà</div>
+                <div class="pinyin-separator"></div>
+                <div class="pinyin-right">xiǎo</div>
+              </div>
+            </div>
+            <div class="opposites-pair">
+              <div class="word-pair">
+                <div class="word-left">高</div>
+                <div class="word-separator">⟷</div>
+                <div class="word-right">矮</div>
+              </div>
+              <div class="pinyin-pair">
+                <div class="pinyin-left">gāo</div>
+                <div class="pinyin-separator"></div>
+                <div class="pinyin-right">ǎi</div>
+              </div>
+            </div>
+            <div class="opposites-pair">
+              <div class="word-pair">
+                <div class="word-left">多</div>
+                <div class="word-separator">⟷</div>
+                <div class="word-right">少</div>
+              </div>
+              <div class="pinyin-pair">
+                <div class="pinyin-left">duō</div>
+                <div class="pinyin-separator"></div>
+                <div class="pinyin-right">shǎo</div>
+              </div>
+            </div>
+            <div class="opposites-pair">
+              <div class="word-pair">
+                <div class="word-left">快</div>
+                <div class="word-separator">⟷</div>
+                <div class="word-right">慢</div>
+              </div>
+              <div class="pinyin-pair">
+                <div class="pinyin-left">kuài</div>
+                <div class="pinyin-separator"></div>
+                <div class="pinyin-right">màn</div>
+              </div>
+            </div>
+            <div class="opposites-pair">
+              <div class="word-pair">
+                <div class="word-left">冷</div>
+                <div class="word-separator">⟷</div>
+                <div class="word-right">热</div>
+              </div>
+              <div class="pinyin-pair">
+                <div class="pinyin-left">lěng</div>
+                <div class="pinyin-separator"></div>
+                <div class="pinyin-right">rè</div>
+              </div>
+            </div>
+            <div class="opposites-pair">
+              <div class="word-pair">
+                <div class="word-left">轻</div>
+                <div class="word-separator">⟷</div>
+                <div class="word-right">重</div>
+              </div>
+              <div class="pinyin-pair">
+                <div class="pinyin-left">qīng</div>
+                <div class="pinyin-separator"></div>
+                <div class="pinyin-right">zhòng</div>
+              </div>
+            </div>
+            <!-- 更多反义词对将通过JavaScript动态生成 -->
+          </div>
+          
+          <div class="pagination" id="oppositesPagination">
+            <button class="pagination-btn" data-page="1">1</button>
+            <button class="pagination-btn" data-page="2">2</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 近义词内容 -->
+      <div class="tab-content" id="synonyms">
+        <h2>近义词</h2>
+        <p class="intro-text">近义词是意思相近的词语，学习近义词可以丰富词汇量。</p>
+        
+        <div class="synonyms-container">
+          <div class="synonyms-grid" id="synonymsGrid">
+            <!-- 近义词组将通过JavaScript动态生成 -->
+            <div class="synonyms-group">
+              <div class="synonyms-words">
+                <div class="word-main">漂亮</div>
+                <div class="word-separator">≈</div>
+                <div class="word-similar">美丽、好看</div>
+              </div>
+              <div class="synonyms-pinyin">
+                <div class="pinyin-main">piào liang</div>
+                <div class="pinyin-separator"></div>
+                <div class="pinyin-similar">měi lì, hǎo kàn</div>
+              </div>
+            </div>
+            <div class="synonyms-group">
+              <div class="synonyms-words">
+                <div class="word-main">快乐</div>
+                <div class="word-separator">≈</div>
+                <div class="word-similar">高兴、开心</div>
+              </div>
+              <div class="synonyms-pinyin">
+                <div class="pinyin-main">kuài lè</div>
+                <div class="pinyin-separator"></div>
+                <div class="pinyin-similar">gāo xìng, kāi xīn</div>
+              </div>
+            </div>
+            <div class="synonyms-group">
+              <div class="synonyms-words">
+                <div class="word-main">聪明</div>
+                <div class="word-separator">≈</div>
+                <div class="word-similar">智慧、伶俐</div>
+              </div>
+              <div class="synonyms-pinyin">
+                <div class="pinyin-main">cōng ming</div>
+                <div class="pinyin-separator"></div>
+                <div class="pinyin-similar">zhì huì, líng lì</div>
+              </div>
+            </div>
+            <div class="synonyms-group">
+              <div class="synonyms-words">
+                <div class="word-main">勇敢</div>
+                <div class="word-separator">≈</div>
+                <div class="word-similar">无畏、胆大</div>
+              </div>
+              <div class="synonyms-pinyin">
+                <div class="pinyin-main">yǒng gǎn</div>
+                <div class="pinyin-separator"></div>
+                <div class="pinyin-similar">wú wèi, dǎn dà</div>
+              </div>
+            </div>
+            <div class="synonyms-group">
+              <div class="synonyms-words">
+                <div class="word-main">干净</div>
+                <div class="word-separator">≈</div>
+                <div class="word-similar">整洁、清洁</div>
+              </div>
+              <div class="synonyms-pinyin">
+                <div class="pinyin-main">gān jìng</div>
+                <div class="pinyin-separator"></div>
+                <div class="pinyin-similar">zhěng jié, qīng jié</div>
+              </div>
+            </div>
+            <div class="synonyms-group">
+              <div class="synonyms-words">
+                <div class="word-main">喜欢</div>
+                <div class="word-separator">≈</div>
+                <div class="word-similar">爱好、喜爱</div>
+              </div>
+              <div class="synonyms-pinyin">
+                <div class="pinyin-main">xǐ huan</div>
+                <div class="pinyin-separator"></div>
+                <div class="pinyin-similar">ài hào, xǐ ài</div>
+              </div>
+            </div>
+            <!-- 更多近义词组将通过JavaScript动态生成 -->
+          </div>
+          
+          <div class="pagination" id="synonymsPagination">
+            <button class="pagination-btn" data-page="1">1</button>
+            <button class="pagination-btn" data-page="2">2</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 词语练习内容 -->
+      <div class="tab-content" id="practice">
+        <h2>词语练习</h2>
+        <p class="intro-text">通过练习巩固词语知识，提高词语运用能力。</p>
+        
+        <div class="practice-container">
+          <div class="practice-controls">
+            <button class="btn-primary" id="newWordPracticeBtn">生成新练习</button>
+            <div class="practice-options">
+              <label>
+                <input type="checkbox" id="commonOption" checked> 常用词语
+              </label>
+              <label>
+                <input type="checkbox" id="oppositesOption" checked> 反义词
+              </label>
+              <label>
+                <input type="checkbox" id="synonymsOption" checked> 近义词
+              </label>
+            </div>
+          </div>
+          
+          <div class="practice-area">
+            <div class="practice-question">
+              <h3 id="practiceQuestionTitle">请选择下列选项中的正确答案：</h3>
+              <div class="question-content" id="wordQuestionContent">
+                点击"生成新练习"按钮开始练习
+              </div>
+            </div>
+            
+            <div class="practice-options" id="wordPracticeOptions">
+              <!-- 选项将通过JavaScript动态生成 -->
+            </div>
+            
+            <div class="practice-result" id="wordPracticeResult">
+              <!-- 结果将通过JavaScript显示 -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="main-footer">
+    <div class="container">
+      <p>&copy; 2025 幼儿园大班学习乐园 - V2版本</p>
+    </div>
+  </footer>
+
+  <!-- 返回顶部按钮 -->
+  <div class="back-to-top" id="backToTop">
+    <i class="bi bi-arrow-up"></i>
+  </div>
+
+  <!-- 引入Bootstrap图标库 -->
+  <script>
+    // 使用智能CDN管理器加载Bootstrap图标
+    if (window.CDNManager) {
+      CDNManager.loadCSS('bootstrap-icons', '../../assets/css/bootstrap-icons.min.css', 'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.min.css');
+    }
+
+    // 加载词语数据
+    const loadWordsData = async () => {
+      try {
+        const response = await fetch('../../data/chinese/words.json');
+        if (!response.ok) {
+          throw new Error('无法加载词语数据');
+        }
+        return await response.json();
+      } catch (error) {
+        console.error('加载词语数据失败:', error);
+        return null;
+      }
+    };
+
+    // 页面加载完成后执行
+    document.addEventListener('DOMContentLoaded', async function() {
+      // 返回顶部按钮功能
+      const backToTopButton = document.getElementById('backToTop');
+      
+      // 监听滚动事件
+      window.addEventListener('scroll', function() {
+        if (window.scrollY > 300) {
+          backToTopButton.classList.add('visible');
+        } else {
+          backToTopButton.classList.remove('visible');
+        }
+      });
+      
+      // 点击返回顶部
+      backToTopButton.addEventListener('click', function() {
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
+      });
+
+      // 标签页切换功能
+      const tabButtons = document.querySelectorAll('.tab-btn');
+      const tabContents = document.querySelectorAll('.tab-content');
+      
+      tabButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          // 移除所有按钮的active类
+          tabButtons.forEach(btn => btn.classList.remove('active'));
+          // 给当前按钮添加active类
+          this.classList.add('active');
+          
+          // 获取当前按钮对应的标签页ID
+          const tabId = this.getAttribute('data-tab');
+          
+          // 隐藏所有标签页内容
+          tabContents.forEach(content => content.classList.remove('active'));
+          
+          // 显示当前标签页内容
+          document.getElementById(tabId).classList.add('active');
+        });
+      });
+
+      // 加载词语数据
+      const wordsData = await loadWordsData();
+      if (wordsData) {
+        initWordsGrid(wordsData);
+        initOppositesGrid(wordsData);
+        initSynonymsGrid(wordsData);
+        initWordsPractice(wordsData);
+      }
+    });
+
+    // 初始化常用词语网格
+    function initWordsGrid(wordsData) {
+      const wordsGrid = document.getElementById('wordsGrid');
+      const pagination = document.getElementById('wordsPagination');
+      const categoryFilter = document.getElementById('wordCategoryFilter');
+      
+      const itemsPerPage = 12;
+      let currentPage = 1;
+      let currentCategory = 'all';
+      
+      // 筛选词语函数
+      function filterWords() {
+        if (currentCategory === 'all') {
+          return wordsData.commonWords;
+        } else {
+          return wordsData.commonWords.filter(word => word.category === currentCategory);
+        }
+      }
+      
+      // 渲染词语网格
+      function renderWordsGrid() {
+        const filteredWords = filterWords();
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = Math.min(startIndex + itemsPerPage, filteredWords.length);
+        
+        wordsGrid.innerHTML = '';
+        
+        for (let i = startIndex; i < endIndex; i++) {
+          const word = filteredWords[i];
+          const wordCard = document.createElement('div');
+          wordCard.className = 'word-card';
+          
+          wordCard.innerHTML = `
+            <div class="word">${word.word}</div>
+            <div class="pinyin">${word.pinyin}</div>
+            <div class="meaning">${word.meaning}</div>
+          `;
+          
+          wordsGrid.appendChild(wordCard);
+        }
+        
+        // 更新分页
+        const totalPages = Math.ceil(filteredWords.length / itemsPerPage);
+        pagination.innerHTML = '';
+        
+        for (let i = 1; i <= totalPages; i++) {
+          const pageBtn = document.createElement('button');
+          pageBtn.className = 'pagination-btn' + (i === currentPage ? ' active' : '');
+          pageBtn.textContent = i;
+          pageBtn.dataset.page = i;
+          
+          pageBtn.addEventListener('click', function() {
+            currentPage = parseInt(this.dataset.page);
+            renderWordsGrid();
+          });
+          
+          pagination.appendChild(pageBtn);
+        }
+      }
+      
+      // 类别筛选事件
+      categoryFilter.addEventListener('change', function() {
+        currentCategory = this.value;
+        currentPage = 1;
+        renderWordsGrid();
+      });
+      
+      // 初始渲染
+      renderWordsGrid();
+    }
+
+    // 初始化反义词网格
+    function initOppositesGrid(wordsData) {
+      const oppositesGrid = document.getElementById('oppositesGrid');
+      const pagination = document.getElementById('oppositesPagination');
+      
+      const itemsPerPage = 12;
+      let currentPage = 1;
+      
+      // 渲染反义词网格
+      function renderOppositesGrid() {
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = Math.min(startIndex + itemsPerPage, wordsData.opposites.length);
+        
+        oppositesGrid.innerHTML = '';
+        
+        for (let i = startIndex; i < endIndex; i++) {
+          const pair = wordsData.opposites[i];
+          const pairElement = document.createElement('div');
+          pairElement.className = 'opposites-pair';
+          
+          pairElement.innerHTML = `
+            <div class="word-pair">
+              <div class="word-left">${pair.word1}</div>
+              <div class="word-separator">⟷</div>
+              <div class="word-right">${pair.word2}</div>
+            </div>
+            <div class="pinyin-pair">
+              <div class="pinyin-left">${pair.pinyin1}</div>
+              <div class="pinyin-separator"></div>
+              <div class="pinyin-right">${pair.pinyin2}</div>
+            </div>
+          `;
+          
+          oppositesGrid.appendChild(pairElement);
+        }
+        
+        // 更新分页
+        const totalPages = Math.ceil(wordsData.opposites.length / itemsPerPage);
+        pagination.innerHTML = '';
+        
+        for (let i = 1; i <= totalPages; i++) {
+          const pageBtn = document.createElement('button');
+          pageBtn.className = 'pagination-btn' + (i === currentPage ? ' active' : '');
+          pageBtn.textContent = i;
+          pageBtn.dataset.page = i;
+          
+          pageBtn.addEventListener('click', function() {
+            currentPage = parseInt(this.dataset.page);
+            renderOppositesGrid();
+          });
+          
+          pagination.appendChild(pageBtn);
+        }
+      }
+      
+      // 初始渲染
+      renderOppositesGrid();
+    }
+
+    // 初始化近义词网格
+    function initSynonymsGrid(wordsData) {
+      const synonymsGrid = document.getElementById('synonymsGrid');
+      const pagination = document.getElementById('synonymsPagination');
+      
+      const itemsPerPage = 12;
+      let currentPage = 1;
+      
+      // 渲染近义词网格
+      function renderSynonymsGrid() {
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = Math.min(startIndex + itemsPerPage, wordsData.synonyms.length);
+        
+        synonymsGrid.innerHTML = '';
+        
+        for (let i = startIndex; i < endIndex; i++) {
+          const group = wordsData.synonyms[i];
+          const groupElement = document.createElement('div');
+          groupElement.className = 'synonyms-group';
+          
+          groupElement.innerHTML = `
+            <div class="synonyms-words">
+              <div class="word-main">${group.mainWord}</div>
+              <div class="word-separator">≈</div>
+              <div class="word-similar">${group.similarWords.join('、')}</div>
+            </div>
+            <div class="synonyms-pinyin">
+              <div class="pinyin-main">${group.mainPinyin}</div>
+              <div class="pinyin-separator"></div>
+              <div class="pinyin-similar">${group.similarPinyin.join(', ')}</div>
+            </div>
+          `;
+          
+          synonymsGrid.appendChild(groupElement);
+        }
+        
+        // 更新分页
+        const totalPages = Math.ceil(wordsData.synonyms.length / itemsPerPage);
+        pagination.innerHTML = '';
+        
+        for (let i = 1; i <= totalPages; i++) {
+          const pageBtn = document.createElement('button');
+          pageBtn.className = 'pagination-btn' + (i === currentPage ? ' active' : '');
+          pageBtn.textContent = i;
+          pageBtn.dataset.page = i;
+          
+          pageBtn.addEventListener('click', function() {
+            currentPage = parseInt(this.dataset.page);
+            renderSynonymsGrid();
+          });
+          
+          pagination.appendChild(pageBtn);
+        }
+      }
+      
+      // 初始渲染
+      renderSynonymsGrid();
+    }
+
+    // 初始化词语练习
+    function initWordsPractice(wordsData) {
+      const newWordPracticeBtn = document.getElementById('newWordPracticeBtn');
+      const commonOption = document.getElementById('commonOption');
+      const oppositesOption = document.getElementById('oppositesOption');
+      const synonymsOption = document.getElementById('synonymsOption');
+      const practiceQuestionTitle = document.getElementById('practiceQuestionTitle');
+      const wordQuestionContent = document.getElementById('wordQuestionContent');
+      const wordPracticeOptions = document.getElementById('wordPracticeOptions');
+      const wordPracticeResult = document.getElementById('wordPracticeResult');
+      
+      let currentQuestion = null;
+      
+      // 练习类型
+      const practiceTypes = [
+        { id: 'common', title: '请选择下列词语的正确含义：', generator: generateCommonWordQuestion },
+        { id: 'opposites', title: '请选择下列词语的反义词：', generator: generateOppositesQuestion },
+        { id: 'synonyms', title: '请选择下列词语的近义词：', generator: generateSynonymsQuestion }
+      ];
+      
+      newWordPracticeBtn.addEventListener('click', function() {
+        // 获取选中的练习类型
+        const selectedTypes = [];
+        if (commonOption.checked) selectedTypes.push('common');
+        if (oppositesOption.checked) selectedTypes.push('opposites');
+        if (synonymsOption.checked) selectedTypes.push('synonyms');
+        
+        if (selectedTypes.length === 0) {
+          alert('请至少选择一种练习类型');
+          return;
+        }
+        
+        // 随机选择一种练习类型
+        const selectedType = selectedTypes[Math.floor(Math.random() * selectedTypes.length)];
+        const practiceType = practiceTypes.find(type => type.id === selectedType);
+        
+        // 设置问题标题
+        practiceQuestionTitle.textContent = practiceType.title;
+        
+        // 生成问题
+        currentQuestion = practiceType.generator(wordsData);
+        
+        // 更新问题内容
+        wordQuestionContent.textContent = currentQuestion.question;
+        
+        // 更新选项
+        wordPracticeOptions.innerHTML = '';
+        currentQuestion.options.forEach((option, index) => {
+          const optionElement = document.createElement('div');
+          optionElement.className = 'practice-option';
+          optionElement.textContent = option;
+          optionElement.dataset.index = index;
+          
+          optionElement.addEventListener('click', function() {
+            if (currentQuestion) {
+              const selectedOption = currentQuestion.options[this.dataset.index];
+              const isCorrect = selectedOption === currentQuestion.correctAnswer;
+              
+              // 移除所有选项的样式
+              document.querySelectorAll('.practice-option').forEach(opt => {
+                opt.classList.remove('correct', 'incorrect');
+              });
+              
+              // 添加当前选项的样式
+              this.classList.add(isCorrect ? 'correct' : 'incorrect');
+              
+              // 显示结果
+              if (isCorrect) {
+                wordPracticeResult.innerHTML = '<div class="result-correct">回答正确！</div>';
+                wordPracticeResult.className = 'practice-result correct';
+              } else {
+                const correctOptionElement = document.querySelector(`.practice-option[data-index="${currentQuestion.options.indexOf(currentQuestion.correctAnswer)}"]`);
+                correctOptionElement.classList.add('correct');
+                
+                wordPracticeResult.innerHTML = `<div class="result-incorrect">回答错误！正确答案是：${currentQuestion.correctAnswer}</div>`;
+                wordPracticeResult.className = 'practice-result incorrect';
+              }
+            }
+          });
+          
+          wordPracticeOptions.appendChild(optionElement);
+        });
+        
+        // 清空结果
+        wordPracticeResult.innerHTML = '';
+        wordPracticeResult.className = 'practice-result';
+      });
+      
+      // 生成常用词语问题
+      function generateCommonWordQuestion(data) {
+        const commonWords = data.commonWords;
+        const randomIndex = Math.floor(Math.random() * commonWords.length);
+        const selectedWord = commonWords[randomIndex];
+        
+        // 生成3个错误选项
+        const wrongOptions = [];
+        const usedIndices = new Set([randomIndex]);
+        
+        while (wrongOptions.length < 3 && wrongOptions.length < commonWords.length - 1) {
+          const wrongIndex = Math.floor(Math.random() * commonWords.length);
+          if (!usedIndices.has(wrongIndex)) {
+            wrongOptions.push(commonWords[wrongIndex].meaning);
+            usedIndices.add(wrongIndex);
+          }
+        }
+        
+        // 合并正确答案和错误选项，并打乱顺序
+        const allOptions = [selectedWord.meaning, ...wrongOptions];
+        for (let i = allOptions.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [allOptions[i], allOptions[j]] = [allOptions[j], allOptions[i]];
+        }
+        
+        return {
+          question: `"${selectedWord.word}"的含义是什么？`,
+          options: allOptions,
+          correctAnswer: selectedWord.meaning
+        };
+      }
+      
+      // 生成反义词问题
+      function generateOppositesQuestion(data) {
+        const opposites = data.opposites;
+        const randomIndex = Math.floor(Math.random() * opposites.length);
+        const selectedPair = opposites[randomIndex];
+        
+        // 随机选择词对中的一个词作为问题
+        const isFirstWord = Math.random() > 0.5;
+        const questionWord = isFirstWord ? selectedPair.word1 : selectedPair.word2;
+        const questionPinyin = isFirstWord ? selectedPair.pinyin1 : selectedPair.pinyin2;
+        const correctAnswer = isFirstWord ? selectedPair.word2 : selectedPair.word1;
+        
+        // 生成3个错误选项
+        const wrongOptions = [];
+        const usedWords = new Set([correctAnswer]);
+        
+        // 从其他反义词对中选择错误选项
+        while (wrongOptions.length < 3 && wrongOptions.length < opposites.length - 1) {
+          const wrongIndex = Math.floor(Math.random() * opposites.length);
+          if (wrongIndex !== randomIndex) {
+            const wrongPair = opposites[wrongIndex];
+            const wrongWord = Math.random() > 0.5 ? wrongPair.word1 : wrongPair.word2;
+            
+            if (!usedWords.has(wrongWord)) {
+              wrongOptions.push(wrongWord);
+              usedWords.add(wrongWord);
+            }
+          }
+        }
+        
+        // 合并正确答案和错误选项，并打乱顺序
+        const allOptions = [correctAnswer, ...wrongOptions];
+        for (let i = allOptions.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [allOptions[i], allOptions[j]] = [allOptions[j], allOptions[i]];
+        }
+        
+        return {
+          question: `"${questionWord}"的反义词是什么？`,
+          options: allOptions,
+          correctAnswer: correctAnswer
+        };
+      }
+      
+      // 生成近义词问题
+      function generateSynonymsQuestion(data) {
+        const synonyms = data.synonyms;
+        const randomIndex = Math.floor(Math.random() * synonyms.length);
+        const selectedGroup = synonyms[randomIndex];
+        
+        // 随机选择一个近义词作为正确答案
+        const correctAnswerIndex = Math.floor(Math.random() * selectedGroup.similarWords.length);
+        const correctAnswer = selectedGroup.similarWords[correctAnswerIndex];
+        
+        // 生成3个错误选项
+        const wrongOptions = [];
+        const usedWords = new Set([...selectedGroup.similarWords, selectedGroup.mainWord]);
+        
+        // 从其他近义词组中选择错误选项
+        while (wrongOptions.length < 3 && wrongOptions.length < synonyms.length - 1) {
+          const wrongIndex = Math.floor(Math.random() * synonyms.length);
+          if (wrongIndex !== randomIndex) {
+            const wrongGroup = synonyms[wrongIndex];
+            const wrongWord = Math.random() > 0.5 ? 
+              wrongGroup.mainWord : 
+              wrongGroup.similarWords[Math.floor(Math.random() * wrongGroup.similarWords.length)];
+            
+            if (!usedWords.has(wrongWord)) {
+              wrongOptions.push(wrongWord);
+              usedWords.add(wrongWord);
+            }
+          }
+        }
+        
+        // 合并正确答案和错误选项，并打乱顺序
+        const allOptions = [correctAnswer, ...wrongOptions];
+        for (let i = allOptions.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [allOptions[i], allOptions[j]] = [allOptions[j], allOptions[i]];
+        }
+        
+        return {
+          question: `"${selectedGroup.mainWord}"的近义词是什么？`,
+          options: allOptions,
+          correctAnswer: correctAnswer
+        };
+      }
+    }
+  </script>
+</body>
+</html>

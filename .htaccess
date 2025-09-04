@@ -4,9 +4,6 @@ RewriteEngine On
 # 设置基础路径
 RewriteBase /
 
-# 将 tools/xxx.html 重定向到 tools/xxx/index.html
-RewriteRule ^tools/([^/]+)\.html$ /tools/$1/index.html [R=301,L]
-
 
 
 # 设置默认字符集

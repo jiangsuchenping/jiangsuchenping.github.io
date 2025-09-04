@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>语文学习 - 幼儿园大班学习乐园</title>
+  
+  <!-- 智能资源管理器 -->
+  <script src="../../assets/js/smart-resource-manager.js"></script>
+  <script src="../../assets/js/cdn-manager.js"></script>
+  
+  <!-- 样式表 -->
+  <link rel="stylesheet" href="../../css/common.css">
+  <link rel="stylesheet" href="../../css/chinese.css">
+</head>
+<body>
+  <!-- 导航栏 -->
+  <nav class="navbar">
+    <div class="container navbar-container">
+      <a href="../index.html" class="navbar-brand">幼儿园大班学习乐园</a>
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a href="../index.html" class="nav-link">首页</a>
+        </li>
+        <li class="nav-item">
+          <a href="../chinese/index.html" class="nav-link active">语文</a>
+        </li>
+        <li class="nav-item">
+          <a href="../math/index.html" class="nav-link">数学</a>
+        </li>
+        <li class="nav-item">
+          <a href="../english/index.html" class="nav-link">英语</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <header class="subject-header">
+    <div class="container">
+      <h1>语文学习</h1>
+      <p class="tagline">认识汉字，学习拼音，积累词语，感受古诗之美</p>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="modules-grid">
+      <!-- 拼音学习入口 -->
+      <div class="module-card" onclick="window.location.href='pinyin.html'">
+        <div class="module-icon">
+          <i class="bi bi-alphabet"></i>
+        </div>
+        <h2>拼音学习</h2>
+        <p>声母、韵母、整体认读音节</p>
+        <div class="card-footer">
+          <button class="btn-primary">开始学习</button>
+        </div>
+      </div>
+
+      <!-- 汉字学习入口 -->
+      <div class="module-card" onclick="window.location.href='characters.html'">
+        <div class="module-icon">
+          <i class="bi bi-file-text"></i>
+        </div>
+        <h2>汉字学习</h2>
+        <p>基础汉字、笔画、部首</p>
+        <div class="card-footer">
+          <button class="btn-primary">开始学习</button>
+        </div>
+      </div>
+
+      <!-- 词语学习入口 -->
+      <div class="module-card" onclick="window.location.href='words.html'">
+        <div class="module-icon">
+          <i class="bi bi-journal-text"></i>
+        </div>
+        <h2>词语学习</h2>
+        <p>常用词语、分类词汇</p>
+        <div class="card-footer">
+          <button class="btn-primary">开始学习</button>
+        </div>
+      </div>
+
+      <!-- 古诗词学习入口 -->
+      <div class="module-card" onclick="window.location.href='poems.html'">
+        <div class="module-icon">
+          <i class="bi bi-book"></i>
+        </div>
+        <h2>古诗词</h2>
+        <p>经典古诗、儿童诗歌</p>
+        <div class="card-footer">
+          <button class="btn-primary">开始学习</button>
+        </div>
+      </div>
+
+      <!-- 识字测试入口 -->
+      <div class="module-card" onclick="window.location.href='test.html'">
+        <div class="module-icon">
+          <i class="bi bi-check-circle"></i>
+        </div>
+        <h2>识字测试</h2>
+        <p>汉字认知能力测试</p>
+        <div class="card-footer">
+          <button class="btn-primary">开始测试</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="main-footer">
+    <div class="container">
+      <p>&copy; 2025 幼儿园大班学习乐园 - V2版本</p>
+    </div>
+  </footer>
+
+  <!-- 返回顶部按钮 -->
+  <div class="back-to-top" id="backToTop">
+    <i class="bi bi-arrow-up"></i>
+  </div>
+
+  <!-- 引入Bootstrap图标库 -->
+  <script>
+    // 使用智能CDN管理器加载Bootstrap图标
+    if (window.CDNManager) {
+      CDNManager.loadCSS('bootstrap-icons', '../../assets/css/bootstrap-icons.min.css', 'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.min.css');
+    }
+
+    // 返回顶部按钮功能
+    document.addEventListener('DOMContentLoaded', function() {
+      const backToTopButton = document.getElementById('backToTop');
+      
+      // 监听滚动事件
+      window.addEventListener('scroll', function() {
+        if (window.scrollY > 300) {
+          backToTopButton.classList.add('visible');
+        } else {
+          backToTopButton.classList.remove('visible');
+        }
+      });
+      
+      // 点击返回顶部
+      backToTopButton.addEventListener('click', function() {
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>拼音学习 - 幼儿园大班学习乐园</title>
+  
+  <!-- 智能资源管理器 -->
+  <script src="../../assets/js/smart-resource-manager.js"></script>
+  <script src="../../assets/js/cdn-manager.js"></script>
+  
+  <!-- 样式表 -->
+  <link rel="stylesheet" href="../../css/common.css">
+  <link rel="stylesheet" href="../../css/chinese.css">
+</head>
+<body>
+  <!-- 导航栏 -->
+  <nav class="navbar">
+    <div class="container navbar-container">
+      <a href="../index.html" class="navbar-brand">幼儿园大班学习乐园</a>
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a href="../index.html" class="nav-link">首页</a>
+        </li>
+        <li class="nav-item">
+          <a href="../chinese/index.html" class="nav-link active">语文</a>
+        </li>
+        <li class="nav-item">
+          <a href="../math/index.html" class="nav-link">数学</a>
+        </li>
+        <li class="nav-item">
+          <a href="../english/index.html" class="nav-link">英语</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <header class="subject-header">
+    <div class="container">
+      <h1>拼音学习</h1>
+      <p class="tagline">声母、韵母、整体认读音节</p>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- 返回按钮 -->
+    <div class="back-btn-container">
+      <a href="index.html" class="back-btn">
+        <i class="bi bi-arrow-left"></i> 返回语文学习
+      </a>
+    </div>
+
+    <!-- 拼音学习内容 -->
+    <div class="content-tabs">
+      <div class="tab-buttons">
+        <button class="tab-btn active" data-tab="shengmu">声母</button>
+        <button class="tab-btn" data-tab="yunmu">韵母</button>
+        <button class="tab-btn" data-tab="zhengti">整体认读音节</button>
+        <button class="tab-btn" data-tab="practice">拼音练习</button>
+      </div>
+
+      <!-- 声母内容 -->
+      <div class="tab-content active" id="shengmu">
+        <h2>声母</h2>
+        <p class="intro-text">声母是指汉语拼音方案中声母表所列的声母，共有23个。</p>
+        
+        <table class="pinyin-table">
+          <tr>
+            <td>b [b]</td>
+            <td>p [p']</td>
+            <td>m [m]</td>
+            <td>f [f]</td>
+          </tr>
+          <tr>
+            <td>d [d]</td>
+            <td>t [t']</td>
+            <td>n [n]</td>
+            <td>l [l]</td>
+          </tr>
+          <tr>
+            <td>g [g]</td>
+            <td>k [k']</td>
+            <td>h [x]</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>j [tɕ]</td>
+            <td>q [tɕ']</td>
+            <td>x [ɕ]</td>
+            <td></td>
+          </tr>
+          <tr>
+            <td>zh [tʂ]</td>
+            <td>ch [tʂ']</td>
+            <td>sh [ʂ]</td>
+            <td>r [ʐ]</td>
+          </tr>
+          <tr>
+            <td>z [ts]</td>
+            <td>c [ts']</td>
+            <td>s [s]</td>
+            <td>y [j]</td>
+          </tr>
+          <tr>
+            <td>w [w]</td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+        </table>
+
+        <div class="pinyin-detail" id="pinyinDetail">
+          <h3>点击声母查看详情</h3>
+          <div class="detail-content">
+            <p>请点击上方表格中的声母查看发音和示例</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 韵母内容 -->
+      <div class="tab-content" id="yunmu">
+        <h2>韵母</h2>
+        <p class="intro-text">韵母是指汉语拼音方案中韵母表所列的韵母，共有24个单韵母和16个复韵母。</p>
+        
+        <h3>单韵母</h3>
+        <table class="pinyin-table">
+          <tr>
+            <td>a [a]</td>
+            <td>o [o]</td>
+            <td>e [ɤ]</td>
+            <td>i [i]</td>
+          </tr>
+          <tr>
+            <td>u [u]</td>
+            <td>ü [y]</td>
+            <td>-i(前) [ɿ]</td>
+            <td>-i(后) [ʅ]</td>
+          </tr>
+          <tr>
+            <td>er [ɚ]</td>
+            <td></td>
+            <td></td>
+            <td></td>
+          </tr>
+        </table>
+
+        <h3>复韵母</h3>
+        <table class="pinyin-table">
+          <tr>
+            <td>ai [ai]</td>
+            <td>ei [ei]</td>
+            <td>ui [uei]</td>
+            <td>ao [ɑu]</td>
+          </tr>
+          <tr>
+            <td>ou [əu]</td>
+            <td>iu [iəu]</td>
+            <td>ie [iɛ]</td>
+            <td>üe [yɛ]</td>
+          </tr>
+          <tr>
+            <td>er [ɚ]</td>
+            <td>an [an]</td>
+            <td>en [ən]</td>
+            <td>in [in]</td>
+          </tr>
+          <tr>
+            <td>un [uən]</td>
+            <td>ün [yn]</td>
+            <td>ang [ɑŋ]</td>
+            <td>eng [əŋ]</td>
+          </tr>
+          <tr>
+            <td>ing [iŋ]</td>
+            <td>ong [uŋ]</td>
+            <td></td>
+            <td></td>
+          </tr>
+        </table>
+
+        <div class="pinyin-detail">
+          <h3>点击韵母查看详情</h3>
+          <div class="detail-content">
+            <p>请点击上方表格中的韵母查看发音和示例</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 整体认读音节内容 -->
+      <div class="tab-content" id="zhengti">
+        <h2>整体认读音节</h2>
+        <p class="intro-text">整体认读音节是指不能拆分为声母和韵母的特殊音节，共有16个。</p>
+        
+        <table class="pinyin-table">
+          <tr>
+            <td>zhi [tʂʅ]</td>
+            <td>chi [tʂʰʅ]</td>
+            <td>shi [ʂʅ]</td>
+            <td>ri [ʐʅ]</td>
+          </tr>
+          <tr>
+            <td>zi [tsɿ]</td>
+            <td>ci [tsʰɿ]</td>
+            <td>si [sɿ]</td>
+            <td>yi [i]</td>
+          </tr>
+          <tr>
+            <td>wu [u]</td>
+            <td>yu [y]</td>
+            <td>ye [iɛ]</td>
+            <td>yue [yɛ]</td>
+          </tr>
+          <tr>
+            <td>yuan [yɛn]</td>
+            <td>yin [in]</td>
+            <td>yun [yn]</td>
+            <td>ying [iŋ]</td>
+          </tr>
+        </table>
+
+        <div class="pinyin-detail">
+          <h3>点击整体认读音节查看详情</h3>
+          <div class="detail-content">
+            <p>请点击上方表格中的整体认读音节查看发音和示例</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 拼音练习内容 -->
+      <div class="tab-content" id="practice">
+        <h2>拼音练习</h2>
+        <p class="intro-text">通过练习巩固拼音知识，提高拼音能力。</p>
+        
+        <div class="practice-container">
+          <div class="practice-controls">
+            <button class="btn-primary" id="newPracticeBtn">生成新练习</button>
+            <div class="practice-options">
+              <label>
+                <input type="checkbox" id="shengmuOption" checked> 声母
+              </label>
+              <label>
+                <input type="checkbox" id="yunmuOption" checked> 韵母
+              </label>
+              <label>
+                <input type="checkbox" id="zhengtiOption" checked> 整体认读音节
+              </label>
+            </div>
+          </div>
+          
+          <div class="practice-area">
+            <div class="practice-question">
+              <h3>请选择下列选项中正确的拼音：</h3>
+              <div class="question-content" id="questionContent">
+                点击"生成新练习"按钮开始练习
+              </div>
+            </div>
+            
+            <div class="practice-options" id="practiceOptions">
+              <!-- 选项将通过JavaScript动态生成 -->
+            </div>
+            
+            <div class="practice-result" id="practiceResult">
+              <!-- 结果将通过JavaScript显示 -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="main-footer">
+    <div class="container">
+      <p>&copy; 2025 幼儿园大班学习乐园 - V2版本</p>
+    </div>
+  </footer>
+
+  <!-- 返回顶部按钮 -->
+  <div class="back-to-top" id="backToTop">
+    <i class="bi bi-arrow-up"></i>
+  </div>
+
+  <!-- 引入Bootstrap图标库 -->
+  <script>
+    // 使用智能CDN管理器加载Bootstrap图标
+    if (window.CDNManager) {
+      CDNManager.loadCSS('bootstrap-icons', '../../assets/css/bootstrap-icons.min.css', 'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.min.css');
+    }
+
+    // 加载拼音数据
+    const loadPinyinData = async () => {
+      try {
+        const response = await fetch('../../data/chinese/pinyin.json');
+        if (!response.ok) {
+          throw new Error('无法加载拼音数据');
+        }
+        return await response.json();
+      } catch (error) {
+        console.error('加载拼音数据失败:', error);
+        return null;
+      }
+    };
+
+    // 页面加载完成后执行
+    document.addEventListener('DOMContentLoaded', async function() {
+      // 返回顶部按钮功能
+      const backToTopButton = document.getElementById('backToTop');
+      
+      // 监听滚动事件
+      window.addEventListener('scroll', function() {
+        if (window.scrollY > 300) {
+          backToTopButton.classList.add('visible');
+        } else {
+          backToTopButton.classList.remove('visible');
+        }
+      });
+      
+      // 点击返回顶部
+      backToTopButton.addEventListener('click', function() {
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
+      });
+
+      // 标签页切换功能
+      const tabButtons = document.querySelectorAll('.tab-btn');
+      const tabContents = document.querySelectorAll('.tab-content');
+      
+      tabButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          // 移除所有按钮的active类
+          tabButtons.forEach(btn => btn.classList.remove('active'));
+          // 给当前按钮添加active类
+          this.classList.add('active');
+          
+          // 获取当前按钮对应的标签页ID
+          const tabId = this.getAttribute('data-tab');
+          
+          // 隐藏所有标签页内容
+          tabContents.forEach(content => content.classList.remove('active'));
+          
+          // 显示当前标签页内容
+          document.getElementById(tabId).classList.add('active');
+        });
+      });
+
+      // 加载拼音数据
+      const pinyinData = await loadPinyinData();
+      if (pinyinData) {
+        initPinyinInteraction(pinyinData);
+        initPinyinPractice(pinyinData);
+      }
+    });
+
+    // 初始化拼音交互功能
+    function initPinyinInteraction(pinyinData) {
+      const pinyinCells = document.querySelectorAll('.pinyin-table td');
+      const pinyinDetail = document.querySelectorAll('.pinyin-detail');
+      
+      pinyinCells.forEach(cell => {
+        cell.addEventListener('click', function() {
+          const pinyinText = this.textContent.trim().split(' ')[0];
+          const parentTabId = this.closest('.tab-content').id;
+          let category;
+          
+          if (parentTabId === 'shengmu') {
+            category = 'shengmu';
+          } else if (parentTabId === 'yunmu') {
+            category = 'yunmu';
+          } else if (parentTabId === 'zhengti') {
+            category = 'zhengti';
+          }
+          
+          if (category && pinyinData[category]) {
+            const pinyinInfo = pinyinData[category].find(item => item.pinyin === pinyinText);
+            if (pinyinInfo) {
+              const detailElement = this.closest('.tab-content').querySelector('.pinyin-detail');
+              const detailContent = detailElement.querySelector('.detail-content');
+              
+              let examplesHtml = '';
+              if (pinyinInfo.examples && pinyinInfo.examples.length > 0) {
+                examplesHtml = '<div class="examples"><h4>例字</h4><ul>';
+                pinyinInfo.examples.forEach(example => {
+                  examplesHtml += `<li><span class="example-char">${example.char}</span> <span class="example-pinyin">${example.pinyin}</span></li>`;
+                });
+                examplesHtml += '</ul></div>';
+              }
+              
+              detailContent.innerHTML = `
+                <h3>${pinyinInfo.pinyin}</h3>
+                <p class="pronunciation">发音：${pinyinInfo.pronunciation || '暂无发音说明'}</p>
+                ${examplesHtml}
+                <p class="description">${pinyinInfo.description || '暂无详细说明'}</p>
+              `;
+            }
+          }
+        });
+      });
+    }
+
+    // 初始化拼音练习功能
+    function initPinyinPractice(pinyinData) {
+      const newPracticeBtn = document.getElementById('newPracticeBtn');
+      const shengmuOption = document.getElementById('shengmuOption');
+      const yunmuOption = document.getElementById('yunmuOption');
+      const zhengtiOption = document.getElementById('zhengtiOption');
+      const questionContent = document.getElementById('questionContent');
+      const practiceOptions = document.getElementById('practiceOptions');
+      const practiceResult = document.getElementById('practiceResult');
+      
+      let currentQuestion = null;
+      
+      newPracticeBtn.addEventListener('click', function() {
+        // 获取选中的练习类型
+        const selectedTypes = [];
+        if (shengmuOption.checked) selectedTypes.push('shengmu');
+        if (yunmuOption.checked) selectedTypes.push('yunmu');
+        if (zhengtiOption.checked) selectedTypes.push('zhengti');
+        
+        if (selectedTypes.length === 0) {
+          alert('请至少选择一种拼音类型');
+          return;
+        }
+        
+        // 随机选择一种类型
+        const randomType = selectedTypes[Math.floor(Math.random() * selectedTypes.length)];
+        const typeData = pinyinData[randomType];
+        
+        if (!typeData || typeData.length === 0) {
+          alert('没有可用的练习数据');
+          return;
+        }
+        
+        // 随机选择一个拼音作为正确答案
+        const correctAnswer = typeData[Math.floor(Math.random() * typeData.length)];
+        
+        // 生成3个错误选项
+        const wrongOptions = [];
+        const usedIndices = new Set();
+        
+        while (wrongOptions.length < 3 && wrongOptions.length < typeData.length - 1) {
+          const randomIndex = Math.floor(Math.random() * typeData.length);
+          if (!usedIndices.has(randomIndex) && typeData[randomIndex].pinyin !== correctAnswer.pinyin) {
+            wrongOptions.push(typeData[randomIndex]);
+            usedIndices.add(randomIndex);
+          }
+        }
+        
+        // 如果错误选项不足3个，可能是因为数据量不够，此时使用其他类型的拼音补充
+        if (wrongOptions.length < 3) {
+          const otherTypes = Object.keys(pinyinData).filter(type => type !== randomType);
+          for (const type of otherTypes) {
+            if (wrongOptions.length >= 3) break;
+            
+            const otherTypeData = pinyinData[type];
+            if (otherTypeData && otherTypeData.length > 0) {
+              const randomOther = otherTypeData[Math.floor(Math.random() * otherTypeData.length)];
+              wrongOptions.push(randomOther);
+            }
+          }
+        }
+        
+        // 合并正确答案和错误选项，并打乱顺序
+        const allOptions = [correctAnswer, ...wrongOptions];
+        for (let i = allOptions.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [allOptions[i], allOptions[j]] = [allOptions[j], allOptions[i]];
+        }
+        
+        // 设置当前问题
+        currentQuestion = {
+          type: randomType,
+          correctAnswer: correctAnswer,
+          options: allOptions
+        };
+        
+        // 更新问题内容
+        let questionText = '';
+        if (randomType === 'shengmu') {
+          questionText = `请选择下列选项中正确的声母：<br><strong>${correctAnswer.pronunciation || correctAnswer.pinyin}</strong>`;
+        } else if (randomType === 'yunmu') {
+          questionText = `请选择下列选项中正确的韵母：<br><strong>${correctAnswer.pronunciation || correctAnswer.pinyin}</strong>`;
+        } else if (randomType === 'zhengti') {
+          questionText = `请选择下列选项中正确的整体认读音节：<br><strong>${correctAnswer.pronunciation || correctAnswer.pinyin}</strong>`;
+        }
+        
+        questionContent.innerHTML = questionText;
+        
+        // 更新选项
+        practiceOptions.innerHTML = '';
+        allOptions.forEach((option, index) => {
+          const optionElement = document.createElement('div');
+          optionElement.className = 'practice-option';
+          optionElement.textContent = option.pinyin;
+          optionElement.dataset.index = index;
+          
+          optionElement.addEventListener('click', function() {
+            if (currentQuestion) {
+              const selectedOption = currentQuestion.options[this.dataset.index];
+              const isCorrect = selectedOption.pinyin === currentQuestion.correctAnswer.pinyin;
+              
+              // 移除所有选项的样式
+              document.querySelectorAll('.practice-option').forEach(opt => {
+                opt.classList.remove('correct', 'incorrect');
+              });
+              
+              // 添加当前选项的样式
+              this.classList.add(isCorrect ? 'correct' : 'incorrect');
+              
+              // 显示结果
+              if (isCorrect) {
+                practiceResult.innerHTML = '<div class="result-correct">回答正确！</div>';
+                practiceResult.className = 'practice-result correct';
+              } else {
+                const correctOptionElement = document.querySelector(`.practice-option[data-index="${currentQuestion.options.findIndex(opt => opt.pinyin === currentQuestion.correctAnswer.pinyin)}"]`);
+                correctOptionElement.classList.add('correct');
+                
+                practiceResult.innerHTML = `<div class="result-incorrect">回答错误！正确答案是：${currentQuestion.correctAnswer.pinyin}</div>`;
+                practiceResult.className = 'practice-result incorrect';
+              }
+            }
+          });
+          
+          practiceOptions.appendChild(optionElement);
+        });
+        
+        // 清空结果
+        practiceResult.innerHTML = '';
+        practiceResult.className = 'practice-result';
+      });
+    }
+  </script>
+</body>
+</html>

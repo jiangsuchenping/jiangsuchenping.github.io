@@ -136,7 +136,7 @@
                 output.value = result;
                 
                 // 记录使用频次
-                recordToolUsage('tools/json-to-java.html');
+                recordToolUsage('JSON转Java', window.location.href);
             } catch (error) {
                 output.value = 'JSON格式错误或转换失败: ' + error.message;
             }

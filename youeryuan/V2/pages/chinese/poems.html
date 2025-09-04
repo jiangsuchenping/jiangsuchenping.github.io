@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>古诗词学习 - 幼儿园大班学习乐园</title>
+  
+  <!-- 智能资源管理器 -->
+  <script src="../../assets/js/smart-resource-manager.js"></script>
+  <script src="../../assets/js/cdn-manager.js"></script>
+  
+  <!-- 样式表 -->
+  <link rel="stylesheet" href="../../css/common.css">
+  <link rel="stylesheet" href="../../css/chinese.css">
+</head>
+<body>
+  <!-- 导航栏 -->
+  <nav class="navbar">
+    <div class="container navbar-container">
+      <a href="../index.html" class="navbar-brand">幼儿园大班学习乐园</a>
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a href="../index.html" class="nav-link">首页</a>
+        </li>
+        <li class="nav-item">
+          <a href="../chinese/index.html" class="nav-link active">语文</a>
+        </li>
+        <li class="nav-item">
+          <a href="../math/index.html" class="nav-link">数学</a>
+        </li>
+        <li class="nav-item">
+          <a href="../english/index.html" class="nav-link">英语</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <header class="subject-header">
+    <div class="container">
+      <h1>古诗词学习</h1>
+      <p class="tagline">感受中华传统文化的魅力</p>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- 返回按钮 -->
+    <div class="back-btn-container">
+      <a href="index.html" class="back-btn">
+        <i class="bi bi-arrow-left"></i> 返回语文学习
+      </a>
+    </div>
+
+    <!-- 古诗词学习内容 -->
+    <div class="content-tabs">
+      <div class="tab-buttons">
+        <button class="tab-btn active" data-tab="poems-list">古诗列表</button>
+        <button class="tab-btn" data-tab="poem-detail">古诗详情</button>
+        <button class="tab-btn" data-tab="poem-recite">古诗朗诵</button>
+        <button class="tab-btn" data-tab="poem-practice">古诗练习</button>
+      </div>
+
+      <!-- 古诗列表内容 -->
+      <div class="tab-content active" id="poems-list">
+        <h2>幼儿必学古诗</h2>
+        <p class="intro-text">以下是适合幼儿园大班学习的经典古诗，点击可查看详情。</p>
+        
+        <div class="poems-grid" id="poemsGrid">
+          <!-- 古诗卡片将通过JavaScript动态生成 -->
+          <div class="poem-card" data-id="1">
+            <div class="poem-title">静夜思</div>
+            <div class="poem-author">李白</div>
+            <div class="poem-dynasty">唐代</div>
+          </div>
+          <div class="poem-card" data-id="2">
+            <div class="poem-title">春晓</div>
+            <div class="poem-author">孟浩然</div>
+            <div class="poem-dynasty">唐代</div>
+          </div>
+          <div class="poem-card" data-id="3">
+            <div class="poem-title">咏鹅</div>
+            <div class="poem-author">骆宾王</div>
+            <div class="poem-dynasty">唐代</div>
+          </div>
+          <!-- 更多古诗卡片将通过JavaScript动态生成 -->
+        </div>
+      </div>
+
+      <!-- 古诗详情内容 -->
+      <div class="tab-content" id="poem-detail">
+        <h2 id="poemDetailTitle">请从列表中选择一首古诗</h2>
+        
+        <div class="poem-detail-container" id="poemDetailContainer">
+          <div class="poem-info">
+            <div class="poem-info-item">
+              <span class="label">作者：</span>
+              <span class="value" id="poemDetailAuthor"></span>
+            </div>
+            <div class="poem-info-item">
+              <span class="label">朝代：</span>
+              <span class="value" id="poemDetailDynasty"></span>
+            </div>
+          </div>
+          
+          <div class="poem-content" id="poemDetailContent">
+            <!-- 古诗内容将通过JavaScript动态生成 -->
+          </div>
+          
+          <div class="poem-translation">
+            <h3>译文</h3>
+            <p id="poemDetailTranslation"></p>
+          </div>
+          
+          <div class="poem-appreciation">
+            <h3>赏析</h3>
+            <p id="poemDetailAppreciation"></p>
+          </div>
+          
+          <div class="poem-vocabulary">
+            <h3>词汇解释</h3>
+            <ul id="poemDetailVocabulary">
+              <!-- 词汇解释将通过JavaScript动态生成 -->
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- 古诗朗诵内容 -->
+      <div class="tab-content" id="poem-recite">
+        <h2>古诗朗诵</h2>
+        <p class="intro-text">选择一首古诗，跟着音频一起朗诵，提高记忆和语感。</p>
+        
+        <div class="poem-recite-container">
+          <div class="poem-select">
+            <label for="poemSelect">选择古诗：</label>
+            <select id="poemSelect">
+              <option value="">-- 请选择 --</option>
+              <option value="1">静夜思 - 李白</option>
+              <option value="2">春晓 - 孟浩然</option>
+              <option value="3">咏鹅 - 骆宾王</option>
+              <!-- 更多选项将通过JavaScript动态生成 -->
+            </select>
+          </div>
+          
+          <div class="poem-recite-content" id="poemReciteContent">
+            <!-- 古诗朗诵内容将通过JavaScript动态生成 -->
+          </div>
+          
+          <div class="poem-audio-controls">
+            <button class="btn-primary" id="playPoemBtn" disabled>
+              <i class="bi bi-play-fill"></i> 播放朗诵
+            </button>
+            <button class="btn-secondary" id="pausePoemBtn" disabled>
+              <i class="bi bi-pause-fill"></i> 暂停
+            </button>
+            <button class="btn-secondary" id="repeatPoemBtn" disabled>
+              <i class="bi bi-arrow-repeat"></i> 重复
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 古诗练习内容 -->
+      <div class="tab-content" id="poem-practice">
+        <h2>古诗练习</h2>
+        <p class="intro-text">通过练习巩固古诗记忆，提高古诗学习效果。</p>
+        
+        <div class="practice-container">
+          <div class="practice-controls">
+            <button class="btn-primary" id="newPoemPracticeBtn">生成新练习</button>
+          </div>
+          
+          <div class="practice-area">
+            <div class="practice-question">
+              <h3 id="poemPracticeTitle">请完成下面的古诗：</h3>
+              <div class="question-content" id="poemQuestionContent">
+                点击"生成新练习"按钮开始练习
+              </div>
+            </div>
+            
+            <div class="practice-options" id="poemPracticeOptions">
+              <!-- 选项将通过JavaScript动态生成 -->
+            </div>
+            
+            <div class="practice-result" id="poemPracticeResult">
+              <!-- 结果将通过JavaScript显示 -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="main-footer">
+    <div class="container">
+      <p>&copy; 2025 幼儿园大班学习乐园 - V2版本</p>
+    </div>
+  </footer>
+
+  <!-- 返回顶部按钮 -->
+  <div class="back-to-top" id="backToTop">
+    <i class="bi bi-arrow-up"></i>
+  </div>
+
+  <!-- 引入Bootstrap图标库 -->
+  <script>
+    // 使用智能CDN管理器加载Bootstrap图标
+    if (window.CDNManager) {
+      CDNManager.loadCSS('bootstrap-icons', '../../assets/css/bootstrap-icons.min.css', 'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.min.css');
+    }
+
+    // 加载古诗词数据
+    const loadPoemsData = async () => {
+      try {
+        const response = await fetch('../../data/chinese/poems.json');
+        if (!response.ok) {
+          throw new Error('无法加载古诗词数据');
+        }
+        return await response.json();
+      } catch (error) {
+        console.error('加载古诗词数据失败:', error);
+        return null;
+      }
+    };
+
+    // 页面加载完成后执行
+    document.addEventListener('DOMContentLoaded', async function() {
+      // 返回顶部按钮功能
+      const backToTopButton = document.getElementById('backToTop');
+      
+      // 监听滚动事件
+      window.addEventListener('scroll', function() {
+        if (window.scrollY > 300) {
+          backToTopButton.classList.add('visible');
+        } else {
+          backToTopButton.classList.remove('visible');
+        }
+      });
+      
+      // 点击返回顶部
+      backToTopButton.addEventListener('click', function() {
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
+      });
+
+      // 标签页切换功能
+      const tabButtons = document.querySelectorAll('.tab-btn');
+      const tabContents = document.querySelectorAll('.tab-content');
+      
+      tabButtons.forEach(button => {
+        button.addEventListener('click', function() {
+          // 移除所有按钮的active类
+          tabButtons.forEach(btn => btn.classList.remove('active'));
+          // 给当前按钮添加active类
+          this.classList.add('active');
+          
+          // 获取当前按钮对应的标签页ID
+          const tabId = this.getAttribute('data-tab');
+          
+          // 隐藏所有标签页内容
+          tabContents.forEach(content => content.classList.remove('active'));
+          
+          // 显示当前标签页内容
+          document.getElementById(tabId).classList.add('active');
+        });
+      });
+
+      // 加载古诗词数据
+      const poemsData = await loadPoemsData();
+      if (poemsData) {
+        initPoemsGrid(poemsData);
+        initPoemDetail(poemsData);
+        initPoemRecite(poemsData);
+        initPoemPractice(poemsData);
+      }
+    });
+
+    // 初始化古诗列表
+    function initPoemsGrid(poemsData) {
+      const poemsGrid = document.getElementById('poemsGrid');
+      
+      // 清空现有内容
+      poemsGrid.innerHTML = '';
+      
+      // 渲染古诗卡片
+      poemsData.poems.forEach(poem => {
+        const poemCard = document.createElement('div');
+        poemCard.className = 'poem-card';
+        poemCard.dataset.id = poem.id;
+        
+        poemCard.innerHTML = `
+          <div class="poem-title">${poem.title}</div>
+          <div class="poem-author">${poem.author}</div>
+          <div class="poem-dynasty">${poem.dynasty}</div>
+        `;
+        
+        // 点击古诗卡片显示详情
+        poemCard.addEventListener('click', function() {
+          // 切换到详情标签页
+          document.querySelector('.tab-btn[data-tab="poem-detail"]').click();
+          
+          // 显示古诗详情
+          showPoemDetail(poem.id, poemsData);
+        });
+        
+        poemsGrid.appendChild(poemCard);
+      });
+    }
+
+    // 初始化古诗详情
+    function initPoemDetail(poemsData) {
+      // 如果URL中包含古诗ID参数，则直接显示该古诗详情
+      const urlParams = new URLSearchParams(window.location.search);
+      const poemId = urlParams.get('id');
+      
+      if (poemId) {
+        showPoemDetail(poemId, poemsData);
+        document.querySelector('.tab-btn[data-tab="poem-detail"]').click();
+      }
+    }
+
+    // 显示古诗详情
+    function showPoemDetail(poemId, poemsData) {
+      const poem = poemsData.poems.find(p => p.id == poemId);
+      
+      if (!poem) return;
+      
+      // 更新详情页面内容
+      document.getElementById('poemDetailTitle').textContent = poem.title;
+      document.getElementById('poemDetailAuthor').textContent = poem.author;
+      document.getElementById('poemDetailDynasty').textContent = poem.dynasty;
+      
+      // 更新古诗内容
+      const poemContent = document.getElementById('poemDetailContent');
+      poemContent.innerHTML = '';
+      
+      poem.content.forEach(line => {
+        const lineElement = document.createElement('div');
+        lineElement.className = 'poem-line';
+        lineElement.textContent = line;
+        poemContent.appendChild(lineElement);
+      });
+      
+      // 更新译文和赏析
+      document.getElementById('poemDetailTranslation').textContent = poem.translation;
+      document.getElementById('poemDetailAppreciation').textContent = poem.appreciation;
+      
+      // 更新词汇解释
+      const vocabularyList = document.getElementById('poemDetailVocabulary');
+      vocabularyList.innerHTML = '';
+      
+      poem.vocabulary.forEach(item => {
+        const listItem = document.createElement('li');
+        listItem.innerHTML = `<strong>${item.word}</strong>：${item.explanation}`;
+        vocabularyList.appendChild(listItem);
+      });
+      
+      // 更新URL，不刷新页面
+      const url = new URL(window.location);
+      url.searchParams.set('id', poemId);
+      window.history.pushState({}, '', url);
+    }
+
+    // 初始化古诗朗诵
+    function initPoemRecite(poemsData) {
+      const poemSelect = document.getElementById('poemSelect');
+      const poemReciteContent = document.getElementById('poemReciteContent');
+      const playPoemBtn = document.getElementById('playPoemBtn');
+      const pausePoemBtn = document.getElementById('pausePoemBtn');
+      const repeatPoemBtn = document.getElementById('repeatPoemBtn');
+      
+      // 清空现有选项
+      poemSelect.innerHTML = '<option value="">-- 请选择 --</option>';
+      
+      // 添加古诗选项
+      poemsData.poems.forEach(poem => {
+        const option = document.createElement('option');
+        option.value = poem.id;
+        option.textContent = `${poem.title} - ${poem.author}`;
+        poemSelect.appendChild(option);
+      });
+      
+      // 创建音频元素
+      const audioElement = document.createElement('audio');
+      audioElement.id = 'poemAudio';
+      document.body.appendChild(audioElement);
+      
+      // 选择古诗事件
+      poemSelect.addEventListener('change', function() {
+        const selectedPoemId = this.value;
+        
+        if (!selectedPoemId) {
+          poemReciteContent.innerHTML = '<p class="empty-message">请选择一首古诗</p>';
+          playPoemBtn.disabled = true;
+          pausePoemBtn.disabled = true;
+          repeatPoemBtn.disabled = true;
+          return;
+        }
+        
+        const selectedPoem = poemsData.poems.find(p => p.id == selectedPoemId);
+        
+        if (selectedPoem) {
+          // 更新朗诵内容
+          poemReciteContent.innerHTML = '';
+          
+          // 添加标题和作者
+          const titleElement = document.createElement('h3');
+          titleElement.textContent = selectedPoem.title;
+          poemReciteContent.appendChild(titleElement);
+          
+          const authorElement = document.createElement('p');
+          authorElement.className = 'poem-author-info';
+          authorElement.textContent = `${selectedPoem.dynasty} · ${selectedPoem.author}`;
+          poemReciteContent.appendChild(authorElement);
+          
+          // 添加古诗内容
+          const contentElement = document.createElement('div');
+          contentElement.className = 'poem-recite-text';
+          
+          selectedPoem.content.forEach(line => {
+            const lineElement = document.createElement('div');
+            lineElement.className = 'poem-line';
+            lineElement.textContent = line;
+            contentElement.appendChild(lineElement);
+          });
+          
+          poemReciteContent.appendChild(contentElement);
+          
+          // 设置音频源
+          audioElement.src = selectedPoem.audio || `../../assets/audio/poems/${selectedPoem.id}.mp3`;
+          
+          // 启用按钮
+          playPoemBtn.disabled = false;
+          pausePoemBtn.disabled = true;
+          repeatPoemBtn.disabled = true;
+        }
+      });
+      
+      // 播放按钮事件
+      playPoemBtn.addEventListener('click', function() {
+        audioElement.play();
+        this.disabled = true;
+        pausePoemBtn.disabled = false;
+        repeatPoemBtn.disabled = false;
+      });
+      
+      // 暂停按钮事件
+      pausePoemBtn.addEventListener('click', function() {
+        audioElement.pause();
+        this.disabled = true;
+        playPoemBtn.disabled = false;
+      });
+      
+      // 重复按钮事件
+      repeatPoemBtn.addEventListener('click', function() {
+        audioElement.currentTime = 0;
+        audioElement.play();
+        playPoemBtn.disabled = true;
+        pausePoemBtn.disabled = false;
+      });
+      
+      // 音频播放结束事件
+      audioElement.addEventListener('ended', function() {
+        playPoemBtn.disabled = false;
+        pausePoemBtn.disabled = true;
+      });
+    }
+
+    // 初始化古诗练习
+    function initPoemPractice(poemsData) {
+      const newPoemPracticeBtn = document.getElementById('newPoemPracticeBtn');
+      const poemPracticeTitle = document.getElementById('poemPracticeTitle');
+      const poemQuestionContent = document.getElementById('poemQuestionContent');
+      const poemPracticeOptions = document.getElementById('poemPracticeOptions');
+      const poemPracticeResult = document.getElementById('poemPracticeResult');
+      
+      let currentQuestion = null;
+      
+      // 练习类型
+      const practiceTypes = [
+        { id: 'complete', title: '请完成下面的古诗：', generator: generateCompletePoemQuestion },
+        { id: 'match', title: '请将古诗与作者正确匹配：', generator: generateMatchPoemQuestion },
+        { id: 'order', title: '请将古诗句子按正确顺序排列：', generator: generateOrderPoemQuestion }
+      ];
+      
+      newPoemPracticeBtn.addEventListener('click', function() {
+        // 随机选择一种练习类型
+        const selectedType = practiceTypes[Math.floor(Math.random() * practiceTypes.length)];
+        
+        // 设置问题标题
+        poemPracticeTitle.textContent = selectedType.title;
+        
+        // 生成问题
+        currentQuestion = selectedType.generator(poemsData);
+        
+        // 更新问题内容
+        poemQuestionContent.innerHTML = currentQuestion.question;
+        
+        // 更新选项
+        poemPracticeOptions.innerHTML = '';
+        currentQuestion.options.forEach((option, index) => {
+          const optionElement = document.createElement('div');
+          optionElement.className = 'practice-option';
+          optionElement.textContent = option;
+          optionElement.dataset.index = index;
+          
+          optionElement.addEventListener('click', function() {
+            if (currentQuestion) {
+              const selectedOption = currentQuestion.options[this.dataset.index];
+              const isCorrect = selectedOption === currentQuestion.correctAnswer || 
+                                (Array.isArray(currentQuestion.correctAnswer) && 
+                                 currentQuestion.correctAnswer.includes(selectedOption));
+              
+              // 移除所有选项的样式
+              document.querySelectorAll('.practice-option').forEach(opt => {
+                opt.classList.remove('correct', 'incorrect');
+              });
+              
+              // 添加当前选项的样式
+              this.classList.add(isCorrect ? 'correct' : 'incorrect');
+              
+              // 显示结果
+              if (isCorrect) {
+                poemPracticeResult.innerHTML = '<div class="result-correct">回答正确！</div>';
+                poemPracticeResult.className = 'practice-result correct';
+              } else {
+                let correctAnswerText = '';
+                if (Array.isArray(currentQuestion.correctAnswer)) {
+                  correctAnswerText = currentQuestion.correctAnswer.join('、');
+                } else {
+                  correctAnswerText = currentQuestion.correctAnswer;
+                }
+                
+                poemPracticeResult.innerHTML = `<div class="result-incorrect">回答错误！正确答案是：${correctAnswerText}</div>`;
+                poemPracticeResult.className = 'practice-result incorrect';
+              }
+            }
+          });
+          
+          poemPracticeOptions.appendChild(optionElement);
+        });
+        
+        // 清空结果
+        poemPracticeResult.innerHTML = '';
+        poemPracticeResult.className = 'practice-result';
+      });
+      
+      // 生成填空题
+      function generateCompletePoemQuestion(data) {
+        const poems = data.poems;
+        const randomIndex = Math.floor(Math.random() * poems.length);
+        const selectedPoem = poems[randomIndex];
+        
+        // 随机选择一行作为问题
+        const lineIndex = Math.floor(Math.random() * selectedPoem.content.length);
+        const questionLine = selectedPoem.content[lineIndex];
+        
+        // 生成问题内容
+        let questionContent = '';
+        for (let i = 0; i < selectedPoem.content.length; i++) {
+          if (i === lineIndex) {
+            questionContent += `<div class="poem-line missing">_________</div>`;
+          } else {
+            questionContent += `<div class="poem-line">${selectedPoem.content[i]}</div>`;
+          }
+        }
+        
+        // 生成3个错误选项
+        const wrongOptions = [];
+        const usedIndices = new Set([randomIndex]);
+        
+        while (wrongOptions.length < 3 && wrongOptions.length < poems.length - 1) {
+          const wrongIndex = Math.floor(Math.random() * poems.length);
+          if (!usedIndices.has(wrongIndex)) {
+            const wrongPoem = poems[wrongIndex];
+            const wrongLineIndex = Math.floor(Math.random() * wrongPoem.content.length);
+            wrongOptions.push(wrongPoem.content[wrongLineIndex]);
+            usedIndices.add(wrongIndex);
+          }
+        }
+        
+        // 合并正确答案和错误选项，并打乱顺序
+        const allOptions = [questionLine, ...wrongOptions];
+        for (let i = allOptions.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [allOptions[i], allOptions[j]] = [allOptions[j], allOptions[i]];
+        }
+        
+        return {
+          question: `<div class="poem-title">${selectedPoem.title}</div>
+                    <div class="poem-author">${selectedPoem.author}</div>
+                    <div class="poem-content">${questionContent}</div>`,
+          options: allOptions,
+          correctAnswer: questionLine
+        };
+      }
+      
+      // 生成匹配题
+      function generateMatchPoemQuestion(data) {
+        const poems = data.poems;
+        const randomIndex = Math.floor(Math.random() * poems.length);
+        const selectedPoem = poems[randomIndex];
+        
+        // 生成问题内容
+        const questionContent = `<div class="poem-title">${selectedPoem.title}</div>
+                               <div class="poem-content">
+                                 ${selectedPoem.content.map(line => `<div class="poem-line">${line}</div>`).join('')}
+                               </div>`;
+        
+        // 生成3个错误选项
+        const wrongOptions = [];
+        const usedIndices = new Set([randomIndex]);
+        
+        while (wrongOptions.length < 3 && wrongOptions.length < poems.length - 1) {
+          const wrongIndex = Math.floor(Math.random() * poems.length);
+          if (!usedIndices.has(wrongIndex)) {
+            wrongOptions.push(poems[wrongIndex].author);
+            usedIndices.add(wrongIndex);
+          }
+        }
+        
+        // 合并正确答案和错误选项，并打乱顺序
+        const allOptions = [selectedPoem.author, ...wrongOptions];
+        for (let i = allOptions.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [allOptions[i], allOptions[j]] = [allOptions[j], allOptions[i]];
+        }
+        
+        return {
+          question: `<p>这首诗的作者是谁？</p>${questionContent}`,
+          options: allOptions,
+          correctAnswer: selectedPoem.author
+        };
+      }
+      
+      // 生成排序题
+      function generateOrderPoemQuestion(data) {
+        const poems = data.poems;
+        const randomIndex = Math.floor(Math.random() * poems.length);
+        const selectedPoem = poems[randomIndex];
+        
+        // 确保诗至少有3行
+        if (selectedPoem.content.length < 3) {
+          return generateMatchPoemQuestion(data); // 回退到匹配题
+        }
+        
+        // 随机选择连续的3行作为问题
+        const startLineIndex = Math.floor(Math.random() * (selectedPoem.content.length - 2));
+        const selectedLines = selectedPoem.content.slice(startLineIndex, startLineIndex + 3);
+        
+        // 打乱顺序
+        const shuffledLines = [...selectedLines];
+        while (shuffledLines.toString() === selectedLines.toString()) {
+          for (let i = shuffledLines.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffledLines[i], shuffledLines[j]] = [shuffledLines[j], shuffledLines[i]];
+          }
+        }
+        
+        // 生成问题内容
+        const questionContent = `<div class="poem-title">${selectedPoem.title}</div>
+                               <div class="poem-author">${selectedPoem.author}</div>
+                               <p>请将以下诗句按正确顺序排列：</p>`;
+        
+        return {
+          question: questionContent,
+          options: shuffledLines,
+          correctAnswer: selectedLines
+        };
+      }
+    }
+  </script>
+</body>
+</html>

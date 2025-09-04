@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -172,20 +173,6 @@
     </footer>
 
     <script>
-        function recordToolUsage(toolName) {
-            // 检查浏览器是否支持 navigator.sendBeacon 或 XMLHttpRequest
-            if (navigator.sendBeacon) {
-                // 使用 sendBeacon 异步发送数据，不影响页面卸载
-                navigator.sendBeacon('https://jiangsuchenping.github.io/recordToolUsage.html?tool=' + toolName);
-            } else {
-                // 降级方案：使用 XMLHttpRequest
-                var xhr = new XMLHttpRequest();
-                xhr.open('GET', 'https://jiangsuchenping.github.io/recordToolUsage.html?tool=' + toolName, true);
-                xhr.send();
-            }
-        }
-        recordToolUsage('tools/regex-test/index.html');
-
         function testRegex() {
             const regexInput = document.getElementById('regex-input').value;
             const textInput = document.getElementById('text-input').value;
@@ -212,43 +199,97 @@
                 if (multilineFlag) flags += 'm';
                 
                 const regex = new RegExp(regexInput, flags);
-                const matches = [...textInput.matchAll(regex)];
+                const matches = [];
                 
-                if (matches.length === 0) {
-                    output.innerHTML = '<p>没有找到匹配项。</p>';
-                    return;
+                if (globalFlag) {
+                    let match;
+                    while ((match = regex.exec(textInput)) !== null) {
+                        matches.push({
+                            match: match[0],
+                            index: match.index,
+                            groups: match.slice(1)
+                        });
+                    }
+                } else {
+                    const match = textInput.match(regex);
+                    if (match) {
+                        matches.push({
+                            match: match[0],
+                            index: match.index,
+                            groups: match.slice(1)
+                        });
+                    }
                 }
                 
-                let highlightedText = textInput;
-                let offset = 0;
-
-                matches.forEach(match => {
-                    const matchStr = match[0];
-                    const index = match.index + offset;
+                // 显示结果
+                if (matches.length > 0) {
+                    let resultHTML = `<p>找到 ${matches.length} 个匹配项：</p>`;
                     
-                    const before = highlightedText.substring(0, index);
-                    const highlighted = `<span class="highlight">${matchStr}</span>`;
-                    const after = highlightedText.substring(index + matchStr.length);
+                    // 高亮显示匹配的文本
+                    let highlightedText = textInput;
+                    for (let i = matches.length - 1; i >= 0; i--) {
+                        const match = matches[i];
+                        const before = highlightedText.substring(0, match.index);
+                        const middle = `<span class="highlight">${match.match}</span>`;
+                        const after = highlightedText.substring(match.index + match.match.length);
+                        highlightedText = before + middle + after;
+                    }
                     
-                    highlightedText = before + highlighted + after;
-                    offset += highlighted.length - matchStr.length;
-                });
-
-                output.innerHTML = `<h4>匹配到的文本 (${matches.length} 项):</h4><pre>${highlightedText}</pre>`;
-
-            } catch (e) {
-                output.innerHTML = `<div class="error">正则表达式错误: ${e.message}</div>`;
+                    resultHTML += `<div class="match-item"><strong>原文本（匹配项已高亮）：</strong><br>${highlightedText.replace(/\n/g, '<br>')}</div>`;
+                    
+                    // 显示详细匹配信息
+                    matches.forEach((match, index) => {
+                        resultHTML += `
+                            <div class="match-item">
+                                <strong>匹配项 ${index + 1}：</strong> ${match.match}<br>
+                                <strong>位置：</strong> ${match.index}<br>
+                                ${match.groups.length > 0 ? `<strong>捕获组：</strong> ${match.groups.join(', ')}` : ''}
+                            </div>
+                        `;
+                    });
+                    
+                    output.innerHTML = resultHTML;
+                } else {
+                    output.innerHTML = '<div class="error">未找到匹配项</div>';
+                }
+                
+                // 记录工具使用频次
+                if (typeof recordToolUsage === 'function') {
+                    recordToolUsage('正则表达式测试', window.location.href);
+                }
+            } catch (error) {
+                output.innerHTML = `<div class="error">正则表达式错误: ${error.message}</div>`;
             }
         }
-
+        
         function clearAll() {
             document.getElementById('regex-input').value = '';
             document.getElementById('text-input').value = '';
             document.getElementById('regex-output').innerHTML = '';
-            document.getElementById('global-flag').checked = true;
-            document.getElementById('ignore-flag').checked = false;
-            document.getElementById('multiline-flag').checked = false;
+            
+            // 记录工具使用频次
+            if (typeof recordToolUsage === 'function') {
+                recordToolUsage('正则表达式测试', window.location.href);
+            }
         }
+        
+        // 页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('正则表达式测试工具已加载');
+            
+            // 为输入框添加事件监听器以记录使用频次
+            document.getElementById('regex-input').addEventListener('input', function() {
+                if (typeof recordToolUsage === 'function') {
+                    recordToolUsage('正则表达式测试', window.location.href);
+                }
+            });
+            
+            document.getElementById('text-input').addEventListener('input', function() {
+                if (typeof recordToolUsage === 'function') {
+                    recordToolUsage('正则表达式测试', window.location.href);
+                }
+            });
+        });
     </script>
 </body>
 </html>

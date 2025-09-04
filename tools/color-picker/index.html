@@ -1,51 +1,18 @@
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="免费在线颜色选择器工具，支持RGB、HEX、HSL等多种颜色格式转换，可生成颜色调色板，帮助设计师和开发者轻松选择和管理颜色。">
-    <meta name="keywords" content="颜色选择器,在线工具,RGB转换,HEX转换,HSL转换,颜色调色板,颜色代码,前端开发工具">
-    <meta name="author" content="在线工具箱">
-    <link rel="canonical" href="https://jiangsuchenping.github.io/tools/color-picker/index.html">
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://jiangsuchenping.github.io/tools/color-picker/index.html">
-    <meta property="og:title" content="颜色选择器 | RGB、HEX、HSL颜色转换工具 - 在线工具箱">
-    <meta property="og:description" content="免费在线颜色选择器工具，支持RGB、HEX、HSL等多种颜色格式转换，可生成颜色调色板，帮助设计师和开发者轻松选择和管理颜色。">
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://jiangsuchenping.github.io/tools/color-picker/index.html">
-    <meta property="twitter:title" content="颜色选择器 | RGB、HEX、HSL颜色转换工具 - 在线工具箱">
-    <meta property="twitter:description" content="免费在线颜色选择器工具，支持RGB、HEX、HSL等多种颜色格式转换，可生成颜色调色板，帮助设计师和开发者轻松选择和管理颜色。">
-    <title>颜色选择器 | RGB、HEX、HSL颜色转换工具 - 在线工具箱</title>
+    <title>颜色选择器 - 在线工具箱</title>
+    <meta name="description" content="在线颜色选择器工具，支持HEX、RGB、HSL颜色格式转换，生成调色板，查看Web安全色等功能">
+    <meta name="keywords" content="颜色选择器,颜色转换,调色板,Web安全色,HEX,RGB,HSL">
     <link rel="stylesheet" href="../../css/style.css">
-    <!-- 结构化数据 Schema.org -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "颜色选择器",
-      "url": "https://jiangsuchenping.github.io/tools/color-picker/index.html",
-      "description": "免费在线颜色选择器工具，支持RGB、HEX、HSL等多种颜色格式转换，可生成颜色调色板，帮助设计师和开发者轻松选择和管理颜色。",
-      "applicationCategory": "DesignApplication",
-      "operatingSystem": "Web",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "CNY"
-      }
-    }
-    </script>
+    <link rel="stylesheet" href="../../css/tool.css">
     <style>
-        .tool-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        
         .color-picker-container {
             display: flex;
             flex-wrap: wrap;
-            gap: 30px;
+            gap: 20px;
             margin-bottom: 30px;
         }
         
@@ -53,14 +20,18 @@
             flex: 1;
             min-width: 300px;
             background-color: #f8f9fa;
-            padding: 20px;
             border-radius: 8px;
+            padding: 20px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         
-        .picker-panel h3 {
-            margin-top: 0;
-            color: #2c3e50;
+        .color-preview {
+            width: 100%;
+            height: 100px;
+            border-radius: 8px;
+            margin: 15px 0;
+            border: 1px solid #ddd;
+            background-color: #3498db;
         }
         
         .input-group {
@@ -70,38 +41,38 @@
         .input-group label {
             display: block;
             margin-bottom: 5px;
-            font-weight: bold;
+            font-weight: 500;
         }
         
-        .input-group input, .input-group select {
+        .input-group input[type="color"] {
             width: 100%;
-            padding: 10px;
+            height: 40px;
             border: 1px solid #ddd;
             border-radius: 4px;
-            font-size: 16px;
+            cursor: pointer;
         }
         
-        .color-preview {
+        .input-group input[type="text"] {
             width: 100%;
-            height: 100px;
+            padding: 8px 12px;
             border: 1px solid #ddd;
             border-radius: 4px;
-            margin: 15px 0;
         }
         
         .button-group {
-            margin: 20px 0;
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
         }
         
         .button-group button {
+            padding: 8px 15px;
             background-color: #3498db;
             color: white;
             border: none;
-            padding: 10px 20px;
-            margin-right: 10px;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 16px;
+            transition: background-color 0.3s;
         }
         
         .button-group button:hover {
@@ -109,91 +80,725 @@
         }
         
         .color-formats {
+            background-color: white;
+            border-radius: 6px;
+            padding: 15px;
             margin-top: 20px;
         }
         
         .format-item {
             display: flex;
             justify-content: space-between;
-            padding: 8px 0;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
             border-bottom: 1px solid #eee;
         }
         
+        .format-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+        
         .format-value {
-            font-family: 'Courier New', monospace;
-            font-weight: bold;
+            font-family: monospace;
+            font-weight: 500;
+            color: #333;
         }
         
         .palette {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 20px;
+            gap: 5px;
+            margin-top: 10px;
         }
         
         .palette-color {
-            width: 40px;
-            height: 40px;
+            width: 30px;
+            height: 30px;
             border-radius: 4px;
             cursor: pointer;
-            border: 2px solid transparent;
+            border: 1px solid rgba(0,0,0,0.1);
             transition: transform 0.2s;
         }
         
         .palette-color:hover {
             transform: scale(1.1);
-            border-color: #333;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        
+        .color-conversion {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        #conversion-result {
+            margin-top: 15px;
+            background-color: white;
+            border-radius: 6px;
+            padding: 15px;
+        }
+        
+        .palette-generator {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        #generated-palette {
+            margin-top: 15px;
+        }
+        
+        .palette-row {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+        
+        .color-history {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .history-colors {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .history-color-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .history-color-item span {
+            font-family: monospace;
+            font-size: 12px;
         }
         
         .error {
             color: #e74c3c;
-            background-color: #fdf2f2;
-            border: 1px solid #f5c6cb;
-            padding: 10px;
-            border-radius: 4px;
-            margin-bottom: 15px;
+            font-weight: 500;
+        }
+        
+        .info {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .info ul {
+            margin-top: 10px;
+            padding-left: 20px;
+        }
+        
+        .info li {
+            margin-bottom: 8px;
+        }
+        
+        @media (max-width: 768px) {
+            .color-picker-container {
+                flex-direction: column;
+            }
+            
+            .picker-panel {
+                min-width: 100%;
+            }
         }
     </style>
 </head>
 <body>
     <header>
         <div class="container">
-            <h1>颜色选择器</h1>
-            <p>在线颜色选择和转换工具</p>
+            <h1>在线工具箱</h1>
+            <nav>
+                <ul>
+                    <li><a href="../../index.html">首页</a></li>
+                    <li><a href="../../index.html#json-tools">JSON工具</a></li>
+                    <li><a href="../../index.html#encoding-tools">编码/解码</a></li>
+                    <li><a href="../../index.html#crypto-tools">加密/解密</a></li>
+                    <li><a href="../../index.html#converter-tools">格式转换</a></li>
+                    <li><a href="../../index.html#other-tools">其他工具</a></li>
+                </ul>
+            </nav>
         </div>
     </header>
 
-    <nav>
-        <div class="container">
-            <ul>
-                <li><a href="../../index.html">首页</a></li>
-                <li><a href="#picker">选择器</a></li>
-                <li><a href="#palette">调色板</a></li>
-            </ul>
-        </div>
-    </nav>
-
-    <div class="breadcrumb">
-        <div class="container">
-            <ul>
-                <li><a href="../../index.html">首页</a></li>
-                <li>实用开发辅助工具</li>
-                <li>颜色选择器</li>
-            </ul>
-        </div>
-    </div>
-
-    <main class="tool-container">
-        <div class="page-nav">
-            <h2>功能导航</h2>
-            <ul>
-                <li><a href="#color-picker-section">颜色选择器</a></li>
-                <li><a href="#color-values-section">颜色值转换</a></li>
-                <li><a href="#color-palette-section">颜色调色板</a></li>
-                <li><a href="#color-history-section">历史记录</a></li>
-            </ul>
+    <main class="container">
+        <div class="tool-header">
+            <h1>颜色选择器</h1>
+            <p>一个功能强大的在线颜色选择器，支持多种颜色格式转换、调色板生成和Web安全色查看</p>
         </div>
         
         <div id="color-picker-section" class="tool-section">
-            <h2>颜色选择器</h2>
+            <h2>颜色选择</h2>
             <div class="color-picker-container">
+            <div class="picker-panel">
+                <h3>颜色选择器</h3>
+                <div class="input-group">
+                    <label for="color-picker">选择颜色：</label>
+                    <input type="color" id="color-picker" value="#3498db">
+                </div>
+                
+                <div class="input-group">
+                    <label for="color-input">或输入颜色值：</label>
+                    <input type="text" id="color-input" placeholder="输入颜色值，如 #3498db, rgb(52, 152, 219), hsl(204, 70%, 53%)">
+                </div>
+                
+                <div class="color-preview" id="color-preview"></div>
+                
+                <div class="button-group">
+                    <button onclick="updateColor()">更新颜色</button>
+                    <button onclick="randomColor()">随机颜色</button>
+                    <button onclick="clearAll()">重置</button>
+                </div>
+                
+                <div class="color-formats">
+                    <h4>颜色格式</h4>
+                    <div class="format-item">
+                        <span>HEX:</span>
+                        <span class="format-value" id="hex-value">#3498db</span>
+                    </div>
+                    <div class="format-item">
+                        <span>RGB:</span>
+                        <span class="format-value" id="rgb-value">rgb(52, 152, 219)</span>
+                    </div>
+                    <div class="format-item">
+                        <span>HSL:</span>
+                        <span class="format-value" id="hsl-value">hsl(204, 70%, 53%)</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="picker-panel">
+                <h3>预定义调色板</h3>
+                <div class="palette" id="color-palette">
+                    <!-- 颜色调色板将通过JavaScript生成 -->
+                </div>
+                
+                <h3 style="margin-top: 30px;">Web安全色</h3>
+                <div class="palette" id="web-safe-palette">
+                    <!-- Web安全色将通过JavaScript生成 -->
+                </div>
+            </div>
+        </div>
+        
+        <div id="color-values-section" class="tool-section">
+            <h2>颜色值转换</h2>
+            <div class="color-conversion">
+                <div class="input-group">
+                    <label for="color-convert-input">输入颜色值：</label>
+                    <input type="text" id="color-convert-input" placeholder="输入颜色值，如 #3498db, rgb(52, 152, 219)">
+                </div>
+                <div class="button-group">
+                    <button onclick="convertColor()">转换</button>
+                </div>
+                <div id="conversion-result">
+                    <!-- 转换结果将在这里显示 -->
+                </div>
+            </div>
+        </div>
+        
+        <div id="color-palette-section" class="tool-section">
+            <h2>颜色调色板</h2>
+            <div class="palette-generator">
+                <div class="input-group">
+                    <label for="base-color">基础颜色：</label>
+                    <input type="color" id="base-color" value="#3498db">
+                </div>
+                <div class="button-group">
+                    <button onclick="generatePalette()">生成调色板</button>
+                </div>
+                <div id="generated-palette">
+                    <!-- 生成的调色板将在这里显示 -->
+                </div>
+            </div>
+        </div>
+        
+        <div id="color-history-section" class="tool-section">
+            <h2>历史记录</h2>
+            <div class="color-history" id="color-history">
+                <!-- 颜色历史记录将在这里显示 -->
+            </div>
+        </div>
+        
+        <div class="info">
+            <h3>说明</h3>
+            <ul>
+                <li><strong>HEX</strong>：十六进制颜色值，由#和6位十六进制数组成</li>
+                <li><strong>RGB</strong>：红绿蓝三原色模式，每种颜色的取值范围是0-255</li>
+                <li><strong>HSL</strong>：色相、饱和度、亮度模式，色相范围0-360度，饱和度和亮度范围0-100%</li>
+                <li>Web安全色是指在256色显示器上能够准确显示的颜色</li>
+            </ul>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 在线工具箱 - 颜色选择器</p>
+        </div>
+    </footer>
+
+    <script src="../../js/main.js"></script>
+    <script>
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            updateColorPreview('#3498db');
+            generateColorPalette();
+            generateWebSafePalette();
+            initColorHistory();
+            
+            console.log('颜色选择器工具已加载');
+        });
+        
+        // 监听颜色选择器变化
+        document.getElementById('color-picker').addEventListener('input', function() {
+            const color = this.value;
+            document.getElementById('color-input').value = color;
+            updateColorPreview(color);
+            
+            // 记录工具使用频次
+        if (typeof recordToolUsage === 'function') {
+            
+        // 颜色转换功能
+        function convertColor() {
+            const colorInput = document.getElementById('color-convert-input').value.trim();
+            if (!colorInput) return;
+            
+            const result = document.getElementById('conversion-result');
+            try {
+                let rgb, hex, hsl;
+                
+                if (colorInput.startsWith('#')) {
+                    // HEX转换
+                    hex = colorInput;
+                    rgb = hexToRgb(hex);
+                    hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+                } else if (colorInput.startsWith('rgb')) {
+                    // RGB转换
+                    const rgbMatch = colorInput.match(/rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)/);
+                    if (rgbMatch) {
+                        rgb = {
+                            r: parseInt(rgbMatch[1]),
+                            g: parseInt(rgbMatch[2]),
+                            b: parseInt(rgbMatch[3])
+                        };
+                        hex = rgbToHex(rgb.r, rgb.g, rgb.b);
+                        hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+                    }
+                } else if (colorInput.startsWith('hsl')) {
+                    // HSL转换
+                    const hslMatch = colorInput.match(/hsl\(\s*(\d+)\s*,\s*(\d+)%\s*,\s*(\d+)%\s*\)/);
+                    if (hslMatch) {
+                        hsl = {
+                            h: parseInt(hslMatch[1]),
+                            s: parseInt(hslMatch[2]),
+                            l: parseInt(hslMatch[3])
+                        };
+                        rgb = hslToRgb(hsl.h, hsl.s, hsl.l);
+                        hex = rgbToHex(rgb.r, rgb.g, rgb.b);
+                    }
+                }
+                
+                if (rgb && hex && hsl) {
+                    result.innerHTML = `
+                        <div class="format-item">
+                            <span>HEX:</span>
+                            <span class="format-value">${hex}</span>
+                        </div>
+                        <div class="format-item">
+                            <span>RGB:</span>
+                            <span class="format-value">rgb(${rgb.r}, ${rgb.g}, ${rgb.b})</span>
+                        </div>
+                        <div class="format-item">
+                            <span>HSL:</span>
+                            <span class="format-value">hsl(${Math.round(hsl.h)}, ${Math.round(hsl.s)}%, ${Math.round(hsl.l)}%)</span>
+                        </div>
+                        <div class="color-preview" style="background-color: ${hex}; margin-top: 10px;"></div>
+                    `;
+                    
+                    // 添加到历史记录
+                    addToColorHistory(hex);
+                } else {
+                    result.innerHTML = '<p class="error">无效的颜色格式，请使用HEX(#RRGGBB)、RGB(r,g,b)或HSL(h,s%,l%)格式</p>';
+                }
+            } catch (e) {
+                result.innerHTML = '<p class="error">颜色转换出错: ' + e.message + '</p>';
+            }
+        }
+        
+        // 生成调色板
+        function generatePalette() {
+            const baseColor = document.getElementById('base-color').value;
+            const paletteContainer = document.getElementById('generated-palette');
+            
+            // 解析基础颜色
+            const rgb = hexToRgb(baseColor);
+            const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+            
+            // 生成不同亮度的颜色
+            const lightnessVariations = [10, 20, 30, 40, 50, 60, 70, 80, 90];
+            let paletteHTML = '<div class="palette-row">';
+            
+            // 添加原始颜色
+            paletteHTML += `<div class="palette-color" style="background-color: ${baseColor};" title="${baseColor}"></div>`;
+            
+            // 添加亮度变化
+            lightnessVariations.forEach(l => {
+                const newRgb = hslToRgb(hsl.h, hsl.s, l);
+                const newHex = rgbToHex(newRgb.r, newRgb.g, newRgb.b);
+                paletteHTML += `<div class="palette-color" style="background-color: ${newHex};" title="${newHex}"></div>`;
+            });
+            
+            paletteHTML += '</div>';
+            
+            // 生成不同色相的颜色
+            paletteHTML += '<div class="palette-row">';
+            for (let i = 0; i < 10; i++) {
+                const newHue = (hsl.h + i * 36) % 360;
+                const newRgb = hslToRgb(newHue, hsl.s, hsl.l);
+                const newHex = rgbToHex(newRgb.r, newRgb.g, newRgb.b);
+                paletteHTML += `<div class="palette-color" style="background-color: ${newHex};" title="${newHex}"></div>`;
+            }
+            paletteHTML += '</div>';
+            
+            // 生成不同饱和度的颜色
+            paletteHTML += '<div class="palette-row">';
+            for (let i = 0; i <= 10; i++) {
+                const newSaturation = i * 10;
+                const newRgb = hslToRgb(hsl.h, newSaturation, hsl.l);
+                const newHex = rgbToHex(newRgb.r, newRgb.g, newRgb.b);
+                paletteHTML += `<div class="palette-color" style="background-color: ${newHex};" title="${newHex}"></div>`;
+            }
+            paletteHTML += '</div>';
+            
+            paletteContainer.innerHTML = paletteHTML;
+            
+            // 添加点击事件
+            const colorElements = paletteContainer.querySelectorAll('.palette-color');
+            colorElements.forEach(el => {
+                el.addEventListener('click', () => {
+                    document.getElementById('color-picker').value = el.title;
+                    document.getElementById('color-input').value = el.title;
+                    updateColorPreview(el.title);
+                    addToColorHistory(el.title);
+                });
+            });
+        }
+        
+        // 颜色历史记录
+        function initColorHistory() {
+            const historyContainer = document.getElementById('color-history');
+            const savedHistory = localStorage.getItem('colorHistory');
+            
+            if (savedHistory) {
+                const colors = JSON.parse(savedHistory);
+                updateColorHistoryDisplay(colors);
+            } else {
+                historyContainer.innerHTML = '<p>暂无历史记录</p>';
+            }
+        }
+        
+        function addToColorHistory(color) {
+            let colors = [];
+            const savedHistory = localStorage.getItem('colorHistory');
+            
+            if (savedHistory) {
+                colors = JSON.parse(savedHistory);
+            }
+            
+            // 如果颜色已存在，先移除它
+            const index = colors.indexOf(color);
+            if (index !== -1) {
+                colors.splice(index, 1);
+            }
+            
+            // 添加到开头
+            colors.unshift(color);
+            
+            // 限制历史记录数量
+            if (colors.length > 20) {
+                colors = colors.slice(0, 20);
+            }
+            
+            // 保存到本地存储
+            localStorage.setItem('colorHistory', JSON.stringify(colors));
+            
+            // 更新显示
+            updateColorHistoryDisplay(colors);
+        }
+        
+        function updateColorHistoryDisplay(colors) {
+            const historyContainer = document.getElementById('color-history');
+            
+            if (colors.length === 0) {
+                historyContainer.innerHTML = '<p>暂无历史记录</p>';
+                return;
+            }
+            
+            let historyHTML = '<div class="history-colors">';
+            colors.forEach(color => {
+                historyHTML += `
+                    <div class="history-color-item">
+                        <div class="palette-color" style="background-color: ${color};" title="${color}"></div>
+                        <span>${color}</span>
+                    </div>
+                `;
+            });
+            historyHTML += '</div>';
+            
+            historyContainer.innerHTML = historyHTML;
+            
+            // 添加点击事件
+            const colorElements = historyContainer.querySelectorAll('.palette-color');
+            colorElements.forEach(el => {
+                el.addEventListener('click', () => {
+                    document.getElementById('color-picker').value = el.title;
+                    document.getElementById('color-input').value = el.title;
+                    updateColorPreview(el.title);
+                });
+            });
+        }
+                recordToolUsage('颜色选择器', window.location.href);
+            }
+        });
+        
+        function updateColor() {
+            const colorInput = document.getElementById('color-input').value;
+            if (!colorInput.trim()) {
+                alert('请输入颜色值');
+                return;
+            }
+            
+            try {
+                // 验证颜色值并转换为标准HEX格式
+                const hexColor = parseColor(colorInput);
+                document.getElementById('color-picker').value = hexColor;
+                updateColorPreview(hexColor);
+                
+                // 记录工具使用频次
+                if (typeof recordToolUsage === 'function') {
+                    recordToolUsage('颜色选择器', window.location.href);
+                }
+            } catch (error) {
+                alert('无效的颜色值: ' + error.message);
+            }
+        }
+        
+        function updateColorPreview(hexColor) {
+            // 更新颜色预览
+            document.getElementById('color-preview').style.backgroundColor = hexColor;
+            
+            // 更新颜色格式显示
+            document.getElementById('hex-value').textContent = hexColor;
+            
+            const rgb = hexToRgb(hexColor);
+            document.getElementById('rgb-value').textContent = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
+            
+            const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+            document.getElementById('hsl-value').textContent = `hsl(${Math.round(hsl.h)}, ${Math.round(hsl.s)}%, ${Math.round(hsl.l)}%)`;
+        }
+        
+        function randomColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            document.getElementById('color-picker').value = color;
+            document.getElementById('color-input').value = color;
+            updateColorPreview(color);
+            
+            // 记录工具使用频次
+            if (typeof recordToolUsage === 'function') {
+                recordToolUsage('颜色选择器', window.location.href);
+            }
+        }
+        
+        function clearAll() {
+            document.getElementById('color-picker').value = '#3498db';
+            document.getElementById('color-input').value = '#3498db';
+            updateColorPreview('#3498db');
+            
+            // 记录工具使用频次
+            if (typeof recordToolUsage === 'function') {
+                recordToolUsage('颜色选择器', window.location.href);
+            }
+        }
+        
+        // 解析颜色值并转换为HEX格式
+        function parseColor(color) {
+            color = color.trim().toLowerCase();
+            
+            // HEX格式
+            if (color.startsWith('#')) {
+                if (color.length === 4) {
+                    // 简写格式 #RGB
+                    return '#' + color[1] + color[1] + color[2] + color[2] + color[3] + color[3];
+                } else if (color.length === 7) {
+                    // 标准格式 #RRGGBB
+                    return color;
+                }
+            }
+            
+            // RGB格式
+            const rgbMatch = color.match(/rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)/);
+            if (rgbMatch) {
+                const r = parseInt(rgbMatch[1]);
+                const g = parseInt(rgbMatch[2]);
+                const b = parseInt(rgbMatch[3]);
+                if (r <= 255 && g <= 255 && b <= 255) {
+                    return rgbToHex(r, g, b);
+                }
+            }
+            
+            // HSL格式
+            const hslMatch = color.match(/hsl\(\s*(\d+)\s*,\s*(\d+)%\s*,\s*(\d+)%\s*\)/);
+            if (hslMatch) {
+                const h = parseInt(hslMatch[1]);
+                const s = parseInt(hslMatch[2]);
+                const l = parseInt(hslMatch[3]);
+                if (h <= 360 && s <= 100 && l <= 100) {
+                    const rgb = hslToRgb(h, s, l);
+                    return rgbToHex(rgb.r, rgb.g, rgb.b);
+                }
+            }
+            
+            throw new Error('无效的颜色格式');
+        }
+        
+        // 颜色转换函数
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : null;
+        }
+        
+        function rgbToHex(r, g, b) {
+            return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+        }
+        
+        function rgbToHsl(r, g, b) {
+            r /= 255, g /= 255, b /= 255;
+            const max = Math.max(r, g, b), min = Math.min(r, g, b);
+            let h, s, l = (max + min) / 2;
+
+            if (max == min) {
+                h = s = 0; // achromatic
+            } else {
+                const d = max - min;
+                s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                switch (max) {
+                    case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                    case g: h = (b - r) / d + 2; break;
+                    case b: h = (r - g) / d + 4; break;
+                }
+                h /= 6;
+            }
+
+            return { h: h * 360, s: s * 100, l: l * 100 };
+        }
+        
+        function hslToRgb(h, s, l) {
+            h /= 360;
+            s /= 100;
+            l /= 100;
+            
+            let r, g, b;
+
+            if (s === 0) {
+                r = g = b = l; // achromatic
+            } else {
+                const hue2rgb = (p, q, t) => {
+                    if (t < 0) t += 1;
+                    if (t > 1) t -= 1;
+                    if (t < 1/6) return p + (q - p) * 6 * t;
+                    if (t < 1/2) return q;
+                    if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+                    return p;
+                };
+
+                const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+                const p = 2 * l - q;
+                r = hue2rgb(p, q, h + 1/3);
+                g = hue2rgb(p, q, h);
+                b = hue2rgb(p, q, h - 1/3);
+            }
+
+            return { r: Math.round(r * 255), g: Math.round(g * 255), b: Math.round(b * 255) };
+        }
+        
+        // 生成颜色调色板
+        function generateColorPalette() {
+            const palette = document.getElementById('color-palette');
+            const colors = [
+                '#FF6B6B', '#4ECDC4', '#45B7D1', '#FFBE0B', '#FB5607',
+                '#8338EC', '#3A86FF', '#38B000', '#9EF01A', '#FF006E',
+                '#8338EC', '#0077B6', '#00B4D8', '#90E0EF', '#CAF0F8'
+            ];
+            
+            palette.innerHTML = '';
+            colors.forEach(color => {
+                const colorElement = document.createElement('div');
+                colorElement.className = 'palette-color';
+                colorElement.style.backgroundColor = color;
+                colorElement.title = color;
+                colorElement.addEventListener('click', () => {
+                    document.getElementById('color-picker').value = color;
+                    document.getElementById('color-input').value = color;
+                    updateColorPreview(color);
+                    
+                    // 记录工具使用频次
+                    if (typeof recordToolUsage === 'function') {
+                        recordToolUsage('颜色选择器', window.location.href);
+                    }
+                });
+                palette.appendChild(colorElement);
+            });
+        }
+        
+        // 生成Web安全色
+        function generateWebSafePalette() {
+            const palette = document.getElementById('web-safe-palette');
+            const safeColors = [0, 51, 102, 153, 204, 255];
+            
+            palette.innerHTML = '';
+            for (let r = 0; r < safeColors.length; r++) {
+                for (let g = 0; g < safeColors.length; g++) {
+                    for (let b = 0; b < safeColors.length; b++) {
+                        const color = rgbToHex(safeColors[r], safeColors[g], safeColors[b]);
+                        const colorElement = document.createElement('div');
+                        colorElement.className = 'palette-color';
+                        colorElement.style.backgroundColor = color;
+                        colorElement.title = color;
+                        colorElement.addEventListener('click', () => {
+                            document.getElementById('color-picker').value = color;
+                            document.getElementById('color-input').value = color;
+                            updateColorPreview(color);
+                            
+                            // 记录工具使用频次
+                            if (typeof recordToolUsage === 'function') {
+                                recordToolUsage('颜色选择器', window.location.href);
+                            }
+                        });
+                        palette.appendChild(colorElement);
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>

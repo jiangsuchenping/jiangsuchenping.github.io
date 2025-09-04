@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -198,17 +199,6 @@
         <div id="result-container" class="result-container">
             <div id="password-results"></div>
         </div>
-        
-        <div class="info">
-            <h3>说明</h3>
-            <ul>
-                <li>密码长度：设置生成密码的长度，范围通常在4到64之间。</li>
-                <li>包含字符类型：选择密码中包含的字符类型，如大写字母、小写字母、数字和特殊符号。</li>
-                <li>排除相似/歧义字符：为了避免混淆，可以排除一些视觉上相似或容易引起歧义的字符。</li>
-                <li>生成数量：一次性生成多个密码，方便选择。</li>
-                <li>密码强度：根据密码的长度和包含的字符类型，评估密码的强度。</li>
-            </ul>
-        </div>
     </main>
 
     <footer>
@@ -219,178 +209,328 @@
 
     <script src="../../js/main.js"></script>
     <script>
-        recordToolUsage('tools/password-generator/index.html');
-
-        // 字符集定义
-        const charSets = {
-            uppercase: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
-            lowercase: 'abcdefghijklmnopqrstuvwxyz',
-            numbers: '0123456789',
-            symbols: '!@#$%^&*()-_=+\[\]{}|;:\'",.<>/?`~'
-        };
-
-        // 相似字符和歧义字符
-        const similarChars = 'il1Lo0O';
-        const ambiguousChars = '{}[]()/\\`~,;:\'"<>'.split('');
-
+        // 工具ID，用于保存选项
+        const TOOL_ID = 'password-generator';
         /**
          * 更新密码长度显示值
          */
         function updateLengthValue() {
             const lengthSlider = document.getElementById('password-length');
-            const lengthValueSpan = document.getElementById('length-value');
-            lengthValueSpan.textContent = lengthSlider.value;
+            const lengthValue = document.getElementById('length-value');
+            lengthValue.textContent = lengthSlider.value;
         }
-
+        
         /**
-         * 生成随机密码
-         * @param {number} length 密码长度
-         * @param {boolean} includeUppercase 是否包含大写字母
-         * @param {boolean} includeLowercase 是否包含小写字母
-         * @param {boolean} includeNumbers 是否包含数字
-         * @param {boolean} includeSymbols 是否包含特殊符号
-         * @param {boolean} excludeSimilar 是否排除相似字符
-         * @param {boolean} excludeAmbiguous 是否排除歧义字符
-         * @returns {string} 生成的密码
-         */
-        function generateRandomPassword(length, includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeSimilar, excludeAmbiguous) {
-            let availableChars = '';
-            if (includeUppercase) availableChars += charSets.uppercase;
-            if (includeLowercase) availableChars += charSets.lowercase;
-            if (includeNumbers) availableChars += charSets.numbers;
-            if (includeSymbols) availableChars += charSets.symbols;
-
-            if (excludeSimilar) {
-                availableChars = availableChars.split('').filter(char => !similarChars.includes(char)).join('');
-            }
-            if (excludeAmbiguous) {
-                availableChars = availableChars.split('').filter(char => !ambiguousChars.includes(char)).join('');
-            }
-
-            if (availableChars.length === 0) {
-                return '请至少选择一种字符类型！';
-            }
-
-            let password = '';
-            for (let i = 0; i < length; i++) {
-                const randomIndex = Math.floor(Math.random() * availableChars.length);
-                password += availableChars[randomIndex];
-            }
-            return password;
-        }
-
-        /**
-         * 评估密码强度
-         * @param {string} password 密码字符串
-         * @returns {string} 密码强度描述
-         */
-        function assessPasswordStrength(password) {
-            let strength = 0;
-            const length = password.length;
-            const hasUppercase = /[A-Z]/.test(password);
-            const hasLowercase = /[a-z]/.test(password);
-            const hasNumbers = /[0-9]/.test(password);
-            const hasSymbols = /[!@#$%^&*()-_=+\[\]{}|;:'",.<>/?`~]/.test(password);
-
-            if (length >= 8) strength++;
-            if (hasUppercase) strength++;
-            if (hasLowercase) strength++;
-            if (hasNumbers) strength++;
-            if (hasSymbols) strength++;
-
-            if (length >= 12 && (hasUppercase + hasLowercase + hasNumbers + hasSymbols) >= 3) strength++;
-            if (length >= 16 && (hasUppercase + hasLowercase + hasNumbers + hasSymbols) >= 4) strength++;
-
-            if (strength <= 2) return '弱';
-            if (strength <= 4) return '中';
-            if (strength <= 6) return '强';
-            return '非常强';
-        }
-
-        /**
-         * 生成多个密码并显示
+         * 生成指定数量的随机密码
          */
         function generatePasswords() {
-            recordToolUsage('tools/password-generator/index.html');
             const length = parseInt(document.getElementById('password-length').value);
-            const count = parseInt(document.getElementById('password-count').value);
+            const count = parseInt(document.getElementById('password-count').value) || 5;
             const includeUppercase = document.getElementById('include-uppercase').checked;
             const includeLowercase = document.getElementById('include-lowercase').checked;
             const includeNumbers = document.getElementById('include-numbers').checked;
             const includeSymbols = document.getElementById('include-symbols').checked;
             const excludeSimilar = document.getElementById('exclude-similar').checked;
             const excludeAmbiguous = document.getElementById('exclude-ambiguous').checked;
-
-            const passwordResultsDiv = document.getElementById('password-results');
-            passwordResultsDiv.innerHTML = ''; // 清空之前的密码
-
-            for (let i = 0; i < count; i++) {
-                const password = generateRandomPassword(length, includeUppercase, includeLowercase, includeNumbers, includeSymbols, excludeSimilar, excludeAmbiguous);
-                const strength = assessPasswordStrength(password);
-                const strengthClass = `strength-${strength === '弱' ? 'weak' : strength === '中' ? 'medium' : strength === '强' ? 'strong' : 'very-strong'}`;
-
-                const passwordDiv = document.createElement('div');
-                passwordDiv.className = 'password-result';
-                passwordDiv.innerHTML = `
-                    <div>${password}</div>
-                    <div class="password-strength ${strengthClass}">强度: ${strength}</div>
-                `;
-                passwordResultsDiv.appendChild(passwordDiv);
+            
+            const resultsContainer = document.getElementById('password-results');
+            
+            // 验证选项
+            if (!includeUppercase && !includeLowercase && !includeNumbers && !includeSymbols) {
+                alert('请至少选择一种字符类型');
+                return;
+            }
+            
+            // 保存选项设置
+            saveOption(TOOL_ID, 'password-length', length);
+            saveOption(TOOL_ID, 'password-count', count);
+            saveOption(TOOL_ID, 'include-uppercase', includeUppercase);
+            saveOption(TOOL_ID, 'include-lowercase', includeLowercase);
+            saveOption(TOOL_ID, 'include-numbers', includeNumbers);
+            saveOption(TOOL_ID, 'include-symbols', includeSymbols);
+            saveOption(TOOL_ID, 'exclude-similar', excludeSimilar);
+            saveOption(TOOL_ID, 'exclude-ambiguous', excludeAmbiguous);
+            
+            // 记录使用频次
+            recordToolUsage('随机密码生成器', window.location.href);
+            
+            // 清空结果容器
+            resultsContainer.innerHTML = '';
+            
+            // 限制生成数量
+            const actualCount = Math.min(Math.max(count, 1), 20);
+            
+            // 生成指定数量的密码
+            for (let i = 0; i < actualCount; i++) {
+                const password = generatePassword(length, {
+                    includeUppercase,
+                    includeLowercase,
+                    includeNumbers,
+                    includeSymbols,
+                    excludeSimilar,
+                    excludeAmbiguous
+                });
+                
+                const strength = calculatePasswordStrength(password);
+                const strengthClass = getStrengthClass(strength);
+                
+                const passwordElement = document.createElement('div');
+                passwordElement.className = 'password-result';
+                passwordElement.innerHTML = password + 
+                    `<div class="password-strength ${strengthClass}">${getStrengthText(strength)}</div>`;
+                
+                resultsContainer.appendChild(passwordElement);
             }
         }
-
+        
         /**
-         * 复制所有生成的密码到剪贴板
+         * 生成一个随机密码
+         * @param {number} length - 密码长度
+         * @param {Object} options - 生成选项
+         * @returns {string} 生成的密码
+         */
+        function generatePassword(length, options) {
+            const {
+                includeUppercase,
+                includeLowercase,
+                includeNumbers,
+                includeSymbols,
+                excludeSimilar,
+                excludeAmbiguous
+            } = options;
+            
+            // 定义字符集
+            let uppercaseChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            let lowercaseChars = 'abcdefghijklmnopqrstuvwxyz';
+            let numberChars = '0123456789';
+            let symbolChars = '!@#$%^&*()-_=+[]{}|;:,.<>?/';
+            
+            // 排除相似字符
+            if (excludeSimilar) {
+                uppercaseChars = uppercaseChars.replace(/[IL0O]/g, '');
+                lowercaseChars = lowercaseChars.replace(/[ilo1]/g, '');
+                numberChars = numberChars.replace(/[10]/g, '');
+            }
+            
+            // 排除歧义字符
+            if (excludeAmbiguous) {
+                symbolChars = symbolChars.replace(/[\[\]{}()<>\\/|`~]/g, '');
+            }
+            
+            // 构建字符集
+            let charset = '';
+            if (includeUppercase) charset += uppercaseChars;
+            if (includeLowercase) charset += lowercaseChars;
+            if (includeNumbers) charset += numberChars;
+            if (includeSymbols) charset += symbolChars;
+            
+            // 确保至少有一个字符
+            if (charset.length === 0) {
+                charset = 'abcdefghijklmnopqrstuvwxyz';
+            }
+            
+            // 生成密码
+            let password = '';
+            
+            // 确保密码包含所有选定的字符类型
+            const requiredChars = [];
+            if (includeUppercase && uppercaseChars.length > 0) {
+                requiredChars.push(getRandomChar(uppercaseChars));
+            }
+            if (includeLowercase && lowercaseChars.length > 0) {
+                requiredChars.push(getRandomChar(lowercaseChars));
+            }
+            if (includeNumbers && numberChars.length > 0) {
+                requiredChars.push(getRandomChar(numberChars));
+            }
+            if (includeSymbols && symbolChars.length > 0) {
+                requiredChars.push(getRandomChar(symbolChars));
+            }
+            
+            // 添加必需的字符
+            for (let i = 0; i < requiredChars.length && i < length; i++) {
+                password += requiredChars[i];
+            }
+            
+            // 填充剩余长度
+            for (let i = password.length; i < length; i++) {
+                password += getRandomChar(charset);
+            }
+            
+            // 打乱密码顺序
+            return shuffleString(password);
+        }
+        
+        /**
+         * 从字符串中随机选择一个字符
+         * @param {string} str - 字符串
+         * @returns {string} 随机字符
+         */
+        function getRandomChar(str) {
+            return str.charAt(Math.floor(Math.random() * str.length));
+        }
+        
+        /**
+         * 打乱字符串顺序
+         * @param {string} str - 输入字符串
+         * @returns {string} 打乱后的字符串
+         */
+        function shuffleString(str) {
+            const array = str.split('');
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array.join('');
+        }
+        
+        /**
+         * 计算密码强度（0-100）
+         * @param {string} password - 密码
+         * @returns {number} 强度分数
+         */
+        function calculatePasswordStrength(password) {
+            let score = 0;
+            
+            // 基础分数：长度
+            score += Math.min(password.length * 4, 40);
+            
+            // 字符类型多样性
+            const hasUppercase = /[A-Z]/.test(password);
+            const hasLowercase = /[a-z]/.test(password);
+            const hasNumbers = /[0-9]/.test(password);
+            const hasSymbols = /[^A-Za-z0-9]/.test(password);
+            
+            const typesCount = [hasUppercase, hasLowercase, hasNumbers, hasSymbols].filter(Boolean).length;
+            score += typesCount * 10;
+            
+            // 中间数字或符号加分
+            if (/[^A-Za-z]/.test(password.substring(1, password.length - 1))) {
+                score += 10;
+            }
+            
+            // 连续字符减分
+            let deduction = 0;
+            for (let i = 1; i < password.length; i++) {
+                if (password.charCodeAt(i) === password.charCodeAt(i - 1) + 1) {
+                    deduction += 2;
+                }
+            }
+            score = Math.max(0, score - deduction);
+            
+            // 重复字符减分
+            const charCounts = {};
+            for (let i = 0; i < password.length; i++) {
+                const char = password[i];
+                charCounts[char] = (charCounts[char] || 0) + 1;
+            }
+            
+            const repeats = Object.values(charCounts).filter(count => count > 1).reduce((sum, count) => sum + count, 0);
+            score = Math.max(0, score - repeats);
+            
+            // 限制最大分数为100
+            return Math.min(score, 100);
+        }
+        
+        /**
+         * 获取密码强度文本描述
+         * @param {number} strength - 强度分数
+         * @returns {string} 强度描述
+         */
+        function getStrengthText(strength) {
+            if (strength < 40) return '弱';
+            if (strength < 70) return '中等';
+            if (strength < 90) return '强';
+            return '非常强';
+        }
+        
+        /**
+         * 获取密码强度CSS类
+         * @param {number} strength - 强度分数
+         * @returns {string} CSS类名
+         */
+        function getStrengthClass(strength) {
+            if (strength < 40) return 'strength-weak';
+            if (strength < 70) return 'strength-medium';
+            if (strength < 90) return 'strength-strong';
+            return 'strength-very-strong';
+        }
+        
+        /**
+         * 复制生成的密码到剪贴板
          */
         function copyToClipboard() {
-            const passwordResultsDiv = document.getElementById('password-results');
-            const passwords = Array.from(passwordResultsDiv.children).map(div => div.firstElementChild.textContent);
-            const textToCopy = passwords.join('\n');
-
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(textToCopy).then(() => {
-                    alert('所有密码已复制到剪贴板！');
-                }).catch(err => {
-                    console.error('复制失败:', err);
-                    alert('复制失败，请手动复制。');
-                });
-            } else {
-                // Fallback for older browsers
-                const textarea = document.createElement('textarea');
-                textarea.value = textToCopy;
-                textarea.style.position = 'fixed'; // Avoid scrolling to bottom
-                document.body.appendChild(textarea);
-                textarea.focus();
-                textarea.select();
-                try {
-                    document.execCommand('copy');
-                    alert('所有密码已复制到剪贴板！');
-                } catch (err) {
-                    console.error('复制失败:', err);
-                    alert('复制失败，请手动复制。');
-                }
-                document.body.removeChild(textarea);
+            const resultsContainer = document.getElementById('password-results');
+            if (!resultsContainer.textContent.trim()) {
+                alert('请先生成密码');
+                return;
             }
+            
+            // 收集所有密码（不包括强度信息）
+            const passwordElements = resultsContainer.getElementsByClassName('password-result');
+            let textToCopy = '';
+            
+            for (let i = 0; i < passwordElements.length; i++) {
+                // 获取密码文本（不包括强度信息）
+                const passwordText = passwordElements[i].textContent.split('弱')[0]
+                    .split('中等')[0]
+                    .split('强')[0]
+                    .split('非常强')[0];
+                textToCopy += passwordText.trim() + '\n';
+            }
+            
+            // 创建临时文本区域并复制
+            const textarea = document.createElement('textarea');
+            textarea.value = textToCopy.trim();
+            document.body.appendChild(textarea);
+            textarea.select();
+            
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    alert('已复制到剪贴板');
+                } else {
+                    alert('复制失败，请手动复制');
+                }
+            } catch (err) {
+                alert('复制失败: ' + err);
+            }
+            
+            document.body.removeChild(textarea);
         }
-
+        
         /**
-         * 清空所有输入和结果
+         * 清空结果
          */
         function clearAll() {
-            document.getElementById('password-length').value = 12;
-            document.getElementById('length-value').textContent = 12;
-            document.getElementById('include-uppercase').checked = true;
-            document.getElementById('include-lowercase').checked = true;
-            document.getElementById('include-numbers').checked = true;
-            document.getElementById('include-symbols').checked = true;
-            document.getElementById('exclude-similar').checked = false;
-            document.getElementById('exclude-ambiguous').checked = false;
-            document.getElementById('password-count').value = 5;
             document.getElementById('password-results').innerHTML = '';
         }
-
-        // 页面加载时更新长度显示
-        document.addEventListener('DOMContentLoaded', updateLengthValue);
+        
+        // 页面加载时自动生成密码
+        document.addEventListener('DOMContentLoaded', function() {
+            // 加载上次的选项设置
+            const length = getOption(TOOL_ID, 'password-length', 12);
+            const count = getOption(TOOL_ID, 'password-count', 5);
+            const includeUppercase = getOption(TOOL_ID, 'include-uppercase', true);
+            const includeLowercase = getOption(TOOL_ID, 'include-lowercase', true);
+            const includeNumbers = getOption(TOOL_ID, 'include-numbers', true);
+            const includeSymbols = getOption(TOOL_ID, 'include-symbols', true);
+            const excludeSimilar = getOption(TOOL_ID, 'exclude-similar', false);
+            const excludeAmbiguous = getOption(TOOL_ID, 'exclude-ambiguous', false);
+            
+            document.getElementById('password-length').value = length;
+            document.getElementById('length-value').textContent = length;
+            document.getElementById('password-count').value = count;
+            document.getElementById('include-uppercase').checked = includeUppercase;
+            document.getElementById('include-lowercase').checked = includeLowercase;
+            document.getElementById('include-numbers').checked = includeNumbers;
+            document.getElementById('include-symbols').checked = includeSymbols;
+            document.getElementById('exclude-similar').checked = excludeSimilar;
+            document.getElementById('exclude-ambiguous').checked = excludeAmbiguous;
+            
+            updateLengthValue();
+            generatePasswords();
+        });
     </script>
 </body>
 </html>

@@ -341,7 +341,7 @@
                 
                 // 记录工具使用频次
                 if (typeof recordToolUsage === 'function') {
-                    recordToolUsage('tools/md5-encrypt.html');
+                    recordToolUsage('MD5加密', window.location.href);
                 }
             } catch (error) {
                 output.value = '加密错误: ' + error.message;
@@ -355,7 +355,7 @@
             
             // 记录工具使用频次
             if (typeof recordToolUsage === 'function') {
-                recordToolUsage('tools/md5-encrypt.html');
+                recordToolUsage('MD5加密', window.location.href);
             }
         }
         
@@ -366,7 +366,7 @@
             // 为输入框添加事件监听器以记录使用频次
             document.getElementById('input-text').addEventListener('input', function() {
                 if (typeof recordToolUsage === 'function') {
-                    recordToolUsage('tools/md5-encrypt.html');
+                    recordToolUsage('MD5加密', window.location.href);
                 }
             });
         });

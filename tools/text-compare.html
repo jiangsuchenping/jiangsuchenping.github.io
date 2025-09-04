@@ -195,7 +195,6 @@
 
     <script>
         function compareText() {
-            recordToolUsage('文本对比', 'tools/text-compare.html');
             const text1 = document.getElementById('text1').value;
             const text2 = document.getElementById('text2').value;
             const output = document.getElementById('compare-output');
@@ -281,7 +280,6 @@
         }
         
         function swapText() {
-            recordToolUsage('文本对比', 'tools/text-compare.html');
             const text1 = document.getElementById('text1');
             const text2 = document.getElementById('text2');
             const temp = text1.value;
@@ -295,7 +293,6 @@
         }
         
         function clearAll() {
-            recordToolUsage('文本对比', 'tools/text-compare.html');
             document.getElementById('text1').value = '';
             document.getElementById('text2').value = '';
             document.getElementById('compare-output').innerHTML = '';
