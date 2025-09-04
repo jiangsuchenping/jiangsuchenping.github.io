@@ -44,6 +44,49 @@ function searchTools() {
 }
 
 /**
+ * 检测当前访问地址是否为本机或局域网地址
+ * @returns {boolean} - 是否为本机或局域网地址
+ */
+function isLocalOrPrivateNetwork() {
+    const hostname = window.location.hostname.toLowerCase();
+    
+    // 本机地址
+    if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1') {
+        return true;
+    }
+    
+    // 局域网地址范围
+    // IPv4 私有地址范围：
+    // 10.0.0.0 - 10.255.255.255
+    // 172.16.0.0 - 172.31.255.255  
+    // 192.168.0.0 - 192.168.255.255
+    const ipv4Pattern = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/;
+    const ipv4Match = hostname.match(ipv4Pattern);
+    
+    if (ipv4Match) {
+        const [, a, b, c, d] = ipv4Match.map(Number);
+        
+        // 检查是否为私有IP范围
+        if (a === 10) return true; // 10.0.0.0/8
+        if (a === 172 && b >= 16 && b <= 31) return true; // 172.16.0.0/12
+        if (a === 192 && b === 168) return true; // 192.168.0.0/16
+        if (a === 169 && b === 254) return true; // 169.254.0.0/16 (链路本地地址)
+    }
+    
+    // IPv6 本地地址
+    if (hostname.startsWith('fe80:') || hostname.startsWith('fc00:') || hostname.startsWith('fd00:')) {
+        return true;
+    }
+    
+    // 检查是否为 .local 域名（mDNS）
+    if (hostname.endsWith('.local')) {
+        return true;
+    }
+    
+    return false;
+}
+
+/**
  * 标准化工具URL，将xxx.html、xxx/、xxx/index.html三种格式合并为同一个工具
  * @param {string} url - 原始URL
  * @returns {string} - 标准化后的URL
@@ -356,9 +399,20 @@ function getOption(toolId, optionId, defaultValue) {
  * 创建常用工具快捷菜单（优化版）
  */
 function createFrequentToolsMenu() {
+    // 检测是否为本机或局域网地址
+    const showStats = isLocalOrPrivateNetwork();
+    
     // 从localStorage获取工具使用记录
     let toolUsage = localStorage.getItem('toolUsage');
-    if (!toolUsage) {
+    
+    // 如果是外网访问且没有本地数据，显示空状态
+    if (!showStats && !toolUsage) {
+        showEmptyFrequentTools();
+        return;
+    }
+    
+    // 如果是本机访问且没有数据，显示空状态
+    if (showStats && !toolUsage) {
         showEmptyFrequentTools();
         return;
     }
@@ -409,6 +463,9 @@ function updateFrequentToolsGrid(toolGrid, toolsArray) {
     // 清空现有内容
     toolGrid.innerHTML = '';
     
+    // 检测是否为本机或局域网地址
+    const showStats = isLocalOrPrivateNetwork();
+    
     // 添加工具卡片（最多显示8个，每行4个）
     const maxTools = Math.min(8, toolsArray.length);
     
@@ -417,14 +474,23 @@ function updateFrequentToolsGrid(toolGrid, toolsArray) {
         const toolCard = document.createElement('div');
         toolCard.className = 'tool-card frequent-tool-card';
         
-        // 创建工具卡片HTML
-        toolCard.innerHTML = `
-            <h3><a href="${tool.url}" data-usage-tracking="true">${tool.name}</a></h3>
-            <p>
-                <span class="usage-count">使用次数: ${tool.count}</span><br>
-                <small class="last-used">最近使用: ${formatRelativeTime(tool.lastUsed)}</small>
-            </p>
-        `;
+        // 根据地址类型创建不同的工具卡片HTML
+        if (showStats) {
+            // 本机/局域网访问：显示使用统计
+            toolCard.innerHTML = `
+                <h3><a href="${tool.url}" data-usage-tracking="true">${tool.name}</a></h3>
+                <p>
+                    <span class="usage-count">使用次数: ${tool.count}</span><br>
+                    <small class="last-used">最近使用: ${formatRelativeTime(tool.lastUsed)}</small>
+                </p>
+            `;
+        } else {
+            // 外网访问：不显示使用统计
+            toolCard.innerHTML = `
+                <h3><a href="${tool.url}" data-usage-tracking="true">${tool.name}</a></h3>
+                <p>常用工具</p>
+            `;
+        }
         
         toolGrid.appendChild(toolCard);
         
@@ -444,8 +510,8 @@ function updateFrequentToolsGrid(toolGrid, toolsArray) {
     if (toolsArray.length === 0) {
         showEmptyFrequentTools(toolGrid);
     } else {
-        // 添加“查看全部”按钮
-        if (toolsArray.length > maxTools) {
+        // 仅在本机/局域网访问时显示“查看全部”按钮
+        if (showStats && toolsArray.length > maxTools) {
             const viewAllButton = document.createElement('div');
             viewAllButton.className = 'tool-card view-all-card';
             viewAllButton.innerHTML = `
@@ -468,13 +534,30 @@ function showEmptyFrequentTools(toolGrid) {
     targetGrid.innerHTML = '';
     const noToolsMessage = document.createElement('div');
     noToolsMessage.className = 'no-tools-message';
-    noToolsMessage.innerHTML = `
-        <div class="empty-state">
-            <i class="fas fa-tools" style="font-size: 3em; color: #ccc; margin-bottom: 1rem;"></i>
-            <h4>暂无常用工具记录</h4>
-            <p class="text-muted">请先使用一些工具，它们将显示在这里</p>
-        </div>
-    `;
+    
+    // 检测是否为本机或局域网地址
+    const showStats = isLocalOrPrivateNetwork();
+    
+    if (showStats) {
+        // 本机/局域网访问：显示统计相关提示
+        noToolsMessage.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-tools" style="font-size: 3em; color: #ccc; margin-bottom: 1rem;"></i>
+                <h4>暂无常用工具记录</h4>
+                <p class="text-muted">请先使用一些工具，它们将显示在这里</p>
+            </div>
+        `;
+    } else {
+        // 外网访问：显示通用提示
+        noToolsMessage.innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-tools" style="font-size: 3em; color: #ccc; margin-bottom: 1rem;"></i>
+                <h4>常用工具</h4>
+                <p class="text-muted">您可以在下面的工具列表中找到所需的工具</p>
+            </div>
+        `;
+    }
+    
     targetGrid.appendChild(noToolsMessage);
 }
 
