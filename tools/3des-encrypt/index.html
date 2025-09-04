@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3DES加密/解密工具 - 在线工具箱</title>
+    <meta name="description" content="在线3DES加密解密工具，支持Triple DES对称加密算法，提供CBC、ECB等加密模式">
+    <meta name="keywords" content="3DES加密,Triple DES解密,在线加密,对称加密,CBC模式,ECB模式">
+    <link rel="stylesheet" href="../../css/style.css">
+    <style>
+        .tool-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .operation-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .tab-button {
+            background: none;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .tab-button.active {
+            border-bottom-color: #3498db;
+            color: #3498db;
+            font-weight: bold;
+        }
+        
+        .tab-button:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .input-group textarea, .input-group input, .input-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+        
+        .input-group textarea:focus, .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.3);
+        }
+        
+        .input-group input, .input-group select {
+            height: 45px;
+        }
+        
+        .config-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .config-row {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .button-group button {
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s;
+            min-width: 120px;
+        }
+        
+        .button-group button:hover {
+            background: linear-gradient(135deg, #8e44ad, #732d91);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(155, 89, 182, 0.3);
+        }
+        
+        .button-group .secondary {
+            background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+        }
+        
+        .button-group .secondary:hover {
+            background: linear-gradient(135deg, #7f8c8d, #6c7b7d);
+        }
+        
+        .result-container {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            min-height: 120px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .error {
+            color: #e74c3c;
+            background: linear-gradient(135deg, #fdf2f2, #f8d7da);
+            border: 1px solid #f5c6cb;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+        
+        .success {
+            color: #27ae60;
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border: 1px solid #c3e6cb;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+        
+        .info-section {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        
+        .info-section h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        .info-section ul {
+            padding-left: 20px;
+        }
+        
+        .info-section li {
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+        
+        .note {
+            background: #e8f5e8;
+            border: 1px solid #c3e6cb;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #155724;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>3DES加密/解密工具</h1>
+            <p>在线3DES（Triple DES）加密解密工具</p>
+        </div>
+    </header>
+
+    <nav>
+        <div class="container">
+            <ul>
+                <li><a href="../../index.html">首页</a></li>
+                <li><a href="#encrypt">加密</a></li>
+                <li><a href="#decrypt">解密</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="tool-container">
+        <div class="note">
+            <strong>说明：</strong>3DES是DES的增强版本，使用三重DES加密提供更高的安全性，但性能较AES稍低。
+        </div>
+
+        <!-- 操作标签页 -->
+        <div class="operation-tabs">
+            <button class="tab-button active" onclick="switchTab('encrypt')">3DES加密</button>
+            <button class="tab-button" onclick="switchTab('decrypt')">3DES解密</button>
+        </div>
+
+        <!-- 加密标签页 -->
+        <div id="encrypt-tab" class="tab-content active">
+            <div class="input-group">
+                <label for="encrypt-input">待加密文本：</label>
+                <textarea id="encrypt-input" rows="6" placeholder="请输入要加密的文本"></textarea>
+            </div>
+
+            <div class="config-row">
+                <div class="input-group">
+                    <label for="encrypt-key">密钥（24字节）：</label>
+                    <input type="text" id="encrypt-key" placeholder="请输入24字节密钥" maxlength="24">
+                </div>
+                <div class="input-group">
+                    <label for="encrypt-mode">加密模式：</label>
+                    <select id="encrypt-mode" onchange="updateEncryptMode()">
+                        <option value="CBC">CBC</option>
+                        <option value="ECB">ECB</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div id="encrypt-iv-group" class="input-group">
+                <label for="encrypt-iv">初始向量 (IV，8字节)：</label>
+                <input type="text" id="encrypt-iv" placeholder="留空将自动生成" maxlength="8">
+            </div>
+
+            <div class="button-group">
+                <button onclick="performEncrypt()">3DES加密</button>
+                <button onclick="generateRandomKey('encrypt')" class="secondary">生成随机密钥</button>
+                <button onclick="clearEncryptForm()" class="secondary">清空</button>
+            </div>
+
+            <div id="encrypt-result">
+                <div class="input-group">
+                    <label for="encrypt-output">加密结果：</label>
+                    <textarea id="encrypt-output" readonly rows="6"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- 解密标签页 -->
+        <div id="decrypt-tab" class="tab-content">
+            <div class="input-group">
+                <label for="decrypt-input">待解密文本：</label>
+                <textarea id="decrypt-input" rows="6" placeholder="请输入要解密的文本（Base64格式）"></textarea>
+            </div>
+
+            <div class="config-row">
+                <div class="input-group">
+                    <label for="decrypt-key">密钥（24字节）：</label>
+                    <input type="text" id="decrypt-key" placeholder="请输入24字节密钥" maxlength="24">
+                </div>
+                <div class="input-group">
+                    <label for="decrypt-mode">加密模式：</label>
+                    <select id="decrypt-mode" onchange="updateDecryptMode()">
+                        <option value="CBC">CBC</option>
+                        <option value="ECB">ECB</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div id="decrypt-iv-group" class="input-group">
+                <label for="decrypt-iv">初始向量 (IV，8字节)：</label>
+                <input type="text" id="decrypt-iv" placeholder="请输入加密时使用的IV" maxlength="8">
+            </div>
+
+            <div class="button-group">
+                <button onclick="performDecrypt()">3DES解密</button>
+                <button onclick="clearDecryptForm()" class="secondary">清空</button>
+            </div>
+
+            <div id="decrypt-result">
+                <div class="input-group">
+                    <label for="decrypt-output">解密结果：</label>
+                    <textarea id="decrypt-output" readonly rows="6"></textarea>
+                </div>
+            </div>
+        </div>
+        
+        <div class="info-section">
+            <h3>说明</h3>
+            <ul>
+                <li>3DES (Triple Data Encryption Standard) 是DES的增强版本</li>
+                <li>使用192位密钥（24字节），实际有效密钥长度为168位</li>
+                <li>通过三次DES运算提供更高的安全性</li>
+                <li>分组长度为64位（8字节）</li>
+                <li>CBC模式需要初始向量(IV)，ECB模式不需要</li>
+                <li>加密结果使用Base64编码</li>
+                <li>相比DES更安全，但性能不如AES</li>
+            </ul>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 在线工具箱 - 3DES加密/解密工具</p>
+        </div>
+    </footer>
+
+    <!-- 引入CryptoJS库 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="../../js/main.js"></script>
+    <script>
+        // 标签页切换
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName + '-tab').classList.add('active');
+        }
+
+        // 更新加密模式
+        function updateEncryptMode() {
+            const mode = document.getElementById('encrypt-mode').value;
+            const ivGroup = document.getElementById('encrypt-iv-group');
+            
+            if (mode === 'ECB') {
+                ivGroup.style.display = 'none';
+            } else {
+                ivGroup.style.display = 'block';
+            }
+        }
+
+        // 更新解密模式
+        function updateDecryptMode() {
+            const mode = document.getElementById('decrypt-mode').value;
+            const ivGroup = document.getElementById('decrypt-iv-group');
+            
+            if (mode === 'ECB') {
+                ivGroup.style.display = 'none';
+            } else {
+                ivGroup.style.display = 'block';
+            }
+        }
+
+        // 生成随机密钥
+        function generateRandomKey(type) {
+            const randomKey = CryptoJS.lib.WordArray.random(24).toString().substring(0, 24);
+            document.getElementById(type + '-key').value = randomKey;
+        }
+
+        // 执行加密
+        function performEncrypt() {
+            try {
+                const plaintext = document.getElementById('encrypt-input').value;
+                const key = document.getElementById('encrypt-key').value;
+                const mode = document.getElementById('encrypt-mode').value;
+                let iv = document.getElementById('encrypt-iv').value;
+
+                if (!plaintext.trim()) {
+                    showError('encrypt', '请输入要加密的文本');
+                    return;
+                }
+
+                if (!key.trim()) {
+                    showError('encrypt', '请输入密钥');
+                    return;
+                }
+
+                if (key.length !== 24) {
+                    showError('encrypt', '密钥必须是24字节长度');
+                    return;
+                }
+
+                // 处理密钥
+                const keyHex = CryptoJS.enc.Utf8.parse(key);
+
+                let encryptOptions = {
+                    mode: CryptoJS.mode[mode],
+                    padding: CryptoJS.pad.Pkcs7
+                };
+
+                // 处理IV
+                if (mode !== 'ECB') {
+                    if (!iv.trim()) {
+                        iv = CryptoJS.lib.WordArray.random(8).toString().substring(0, 8);
+                        document.getElementById('encrypt-iv').value = iv;
+                    }
+                    
+                    if (iv.length !== 8) {
+                        showError('encrypt', 'IV必须是8字节长度');
+                        return;
+                    }
+                    
+                    encryptOptions.iv = CryptoJS.enc.Utf8.parse(iv);
+                }
+
+                // 执行加密
+                const encrypted = CryptoJS.TripleDES.encrypt(plaintext, keyHex, encryptOptions);
+                document.getElementById('encrypt-output').value = encrypted.toString();
+                showSuccess('encrypt', '加密成功！');
+
+            } catch (error) {
+                showError('encrypt', '加密失败：' + error.message);
+            }
+        }
+
+        // 执行解密
+        function performDecrypt() {
+            try {
+                const ciphertext = document.getElementById('decrypt-input').value;
+                const key = document.getElementById('decrypt-key').value;
+                const mode = document.getElementById('decrypt-mode').value;
+                const iv = document.getElementById('decrypt-iv').value;
+
+                if (!ciphertext.trim()) {
+                    showError('decrypt', '请输入要解密的密文');
+                    return;
+                }
+
+                if (!key.trim()) {
+                    showError('decrypt', '请输入密钥');
+                    return;
+                }
+
+                if (key.length !== 24) {
+                    showError('decrypt', '密钥必须是24字节长度');
+                    return;
+                }
+
+                if (mode !== 'ECB' && !iv.trim()) {
+                    showError('decrypt', '当前模式需要输入IV');
+                    return;
+                }
+
+                if (mode !== 'ECB' && iv.length !== 8) {
+                    showError('decrypt', 'IV必须是8字节长度');
+                    return;
+                }
+
+                // 处理密钥
+                const keyHex = CryptoJS.enc.Utf8.parse(key);
+
+                let decryptOptions = {
+                    mode: CryptoJS.mode[mode],
+                    padding: CryptoJS.pad.Pkcs7
+                };
+
+                if (mode !== 'ECB') {
+                    decryptOptions.iv = CryptoJS.enc.Utf8.parse(iv);
+                }
+
+                // 执行解密
+                const decrypted = CryptoJS.TripleDES.decrypt(ciphertext, keyHex, decryptOptions);
+                const result = decrypted.toString(CryptoJS.enc.Utf8);
+
+                if (!result) {
+                    throw new Error('解密失败，请检查密钥、IV和密文是否正确');
+                }
+
+                document.getElementById('decrypt-output').value = result;
+                showSuccess('decrypt', '解密成功！');
+
+            } catch (error) {
+                showError('decrypt', '解密失败：' + error.message);
+            }
+        }
+
+        // 显示错误信息
+        function showError(type, message) {
+            const resultContainer = document.getElementById(type + '-result');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error';
+            errorDiv.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${message}`;
+            
+            const existingError = resultContainer.querySelector('.error, .success');
+            if (existingError) {
+                existingError.remove();
+            }
+            
+            resultContainer.insertBefore(errorDiv, resultContainer.firstChild);
+        }
+
+        // 显示成功信息
+        function showSuccess(type, message) {
+            const resultContainer = document.getElementById(type + '-result');
+            const successDiv = document.createElement('div');
+            successDiv.className = 'success';
+            successDiv.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
+            
+            const existingMsg = resultContainer.querySelector('.error, .success');
+            if (existingMsg) {
+                existingMsg.remove();
+            }
+            
+            resultContainer.insertBefore(successDiv, resultContainer.firstChild);
+        }
+
+        // 清空加密表单
+        function clearEncryptForm() {
+            document.getElementById('encrypt-input').value = '';
+            document.getElementById('encrypt-key').value = '';
+            document.getElementById('encrypt-iv').value = '';
+            document.getElementById('encrypt-output').value = '';
+            
+            const messages = document.querySelectorAll('#encrypt-result .error, #encrypt-result .success');
+            messages.forEach(msg => msg.remove());
+        }
+
+        // 清空解密表单
+        function clearDecryptForm() {
+            document.getElementById('decrypt-input').value = '';
+            document.getElementById('decrypt-key').value = '';
+            document.getElementById('decrypt-iv').value = '';
+            document.getElementById('decrypt-output').value = '';
+            
+            const messages = document.querySelectorAll('#decrypt-result .error, #decrypt-result .success');
+            messages.forEach(msg => msg.remove());
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            updateEncryptMode();
+            updateDecryptMode();
+        });
+
+        // 记录工具使用
+        if (typeof recordToolUsage === 'function') {
+            recordToolUsage('3DES加密/解密工具');
+        }
+    </script>
+</body>
+</html>

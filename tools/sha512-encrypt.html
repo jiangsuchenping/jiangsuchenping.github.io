@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHA512加密工具 - 在线工具箱</title>
+    <meta name="description" content="在线SHA512加密工具，支持SHA512哈希算法，不可逆加密，适用于密码加密和数据完整性验证">
+    <meta name="keywords" content="SHA512加密,哈希加密,在线加密,数据完整性,密码加密">
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        .tool-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .input-group textarea, .input-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e74c3c;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            resize: vertical;
+            transition: all 0.3s;
+        }
+        
+        .input-group textarea:focus, .input-group input:focus {
+            outline: none;
+            border-color: #c0392b;
+            box-shadow: 0 0 10px rgba(231, 76, 60, 0.3);
+            transform: scale(1.02);
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .button-group button {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+            min-width: 140px;
+            box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+        }
+        
+        .button-group button:hover {
+            background: linear-gradient(135deg, #c0392b, #a93226);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
+        }
+        
+        .button-group button:active {
+            transform: translateY(-1px);
+        }
+        
+        .button-group .secondary {
+            background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+            box-shadow: 0 4px 15px rgba(149, 165, 166, 0.3);
+        }
+        
+        .button-group .secondary:hover {
+            background: linear-gradient(135deg, #7f8c8d, #6c7b7d);
+            box-shadow: 0 6px 20px rgba(149, 165, 166, 0.4);
+        }
+        
+        .result-section {
+            background: linear-gradient(135deg, #fff5f5, #fdf2f2);
+            border: 2px solid #f8d7da;
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 20px;
+            box-shadow: 0 5px 20px rgba(231, 76, 60, 0.1);
+        }
+        
+        .result-section h3 {
+            color: #e74c3c;
+            margin-bottom: 15px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .hash-result {
+            background: #ffffff;
+            border: 1px solid #e74c3c;
+            border-radius: 6px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            word-break: break-all;
+            line-height: 1.6;
+            min-height: 60px;
+            color: #2c3e50;
+        }
+        
+        .copy-button {
+            background: linear-gradient(135deg, #27ae60, #229954);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+            transition: all 0.3s;
+        }
+        
+        .copy-button:hover {
+            background: linear-gradient(135deg, #229954, #1e8449);
+            transform: translateY(-2px);
+        }
+        
+        .success-message {
+            color: #27ae60;
+            font-size: 14px;
+            margin-top: 10px;
+            font-weight: 500;
+        }
+        
+        .info-section {
+            background: linear-gradient(135deg, #fdf6e3, #fcf4e4);
+            border: 1px solid #f39c12;
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+        
+        .info-section h3 {
+            color: #d68910;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        .info-section ul {
+            padding-left: 20px;
+            color: #7d6608;
+        }
+        
+        .info-section li {
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+        
+        .file-upload {
+            border: 2px dashed #e74c3c;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            background: #fdf2f2;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+        
+        .file-upload:hover {
+            border-color: #c0392b;
+            background: #f8d7da;
+        }
+        
+        .file-upload input[type="file"] {
+            display: none;
+        }
+        
+        .file-upload label {
+            cursor: pointer;
+            color: #e74c3c;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>SHA512加密工具</h1>
+            <p>在线SHA512哈希加密工具</p>
+        </div>
+    </header>
+
+    <nav>
+        <div class="container">
+            <ul>
+                <li><a href="../index.html">首页</a></li>
+                <li><a href="#text-hash">文本加密</a></li>
+                <li><a href="#file-hash">文件加密</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="tool-container">
+        <section id="text-hash">
+            <h2>文本SHA512加密</h2>
+            <div class="input-group">
+                <label for="text-input">待加密文本：</label>
+                <textarea id="text-input" rows="6" placeholder="请输入要进行SHA512加密的文本内容"></textarea>
+            </div>
+
+            <div class="button-group">
+                <button onclick="performTextHash()">生成SHA512</button>
+                <button onclick="clearTextForm()" class="secondary">清空内容</button>
+            </div>
+
+            <div id="text-result" class="result-section" style="display: none;">
+                <h3>SHA512加密结果</h3>
+                <div id="text-hash-result" class="hash-result"></div>
+                <button onclick="copyTextResult()" class="copy-button">复制结果</button>
+                <div id="text-copy-message" class="success-message" style="display: none;">已复制到剪贴板！</div>
+            </div>
+        </section>
+
+        <section id="file-hash" style="margin-top: 40px;">
+            <h2>文件SHA512加密</h2>
+            <div class="file-upload">
+                <input type="file" id="file-input" onchange="handleFileSelect(event)">
+                <label for="file-input">
+                    <i class="fas fa-cloud-upload-alt" style="font-size: 24px; margin-bottom: 10px; display: block;"></i>
+                    点击选择文件或拖拽文件到此处<br>
+                    <small>支持任意格式的文件</small>
+                </label>
+            </div>
+
+            <div id="file-info" style="display: none; margin-bottom: 20px;">
+                <p><strong>文件名：</strong><span id="file-name"></span></p>
+                <p><strong>文件大小：</strong><span id="file-size"></span></p>
+            </div>
+
+            <div class="button-group">
+                <button onclick="performFileHash()" id="file-hash-btn" disabled>生成文件SHA512</button>
+                <button onclick="clearFileForm()" class="secondary">清空选择</button>
+            </div>
+
+            <div id="file-result" class="result-section" style="display: none;">
+                <h3>文件SHA512加密结果</h3>
+                <div id="file-hash-result" class="hash-result"></div>
+                <button onclick="copyFileResult()" class="copy-button">复制结果</button>
+                <div id="file-copy-message" class="success-message" style="display: none;">已复制到剪贴板！</div>
+            </div>
+        </section>
+        
+        <div class="info-section">
+            <h3>关于SHA512算法</h3>
+            <ul>
+                <li>SHA512是SHA-2家族中的一种加密散列函数</li>
+                <li>输出长度为512位（64字节），通常表示为128个十六进制字符</li>
+                <li>单向不可逆算法，无法从哈希值还原原始数据</li>
+                <li>相比SHA256具有更高的安全性</li>
+                <li>广泛用于数字签名、密码存储、数据完整性验证</li>
+                <li>即使输入数据发生微小变化，输出的哈希值也会完全不同</li>
+                <li>支持文本和文件的SHA512哈希计算</li>
+            </ul>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 在线工具箱 - SHA512加密工具</p>
+        </div>
+    </footer>
+
+    <!-- 引入CryptoJS库 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="../js/main.js"></script>
+    <script>
+        let selectedFile = null;
+
+        // 执行文本SHA512加密
+        function performTextHash() {
+            const input = document.getElementById('text-input').value;
+            
+            if (!input.trim()) {
+                alert('请输入要加密的文本');
+                return;
+            }
+
+            const hash = CryptoJS.SHA512(input).toString();
+            
+            document.getElementById('text-hash-result').textContent = hash;
+            document.getElementById('text-result').style.display = 'block';
+            document.getElementById('text-copy-message').style.display = 'none';
+        }
+
+        // 复制文本结果
+        function copyTextResult() {
+            const result = document.getElementById('text-hash-result').textContent;
+            navigator.clipboard.writeText(result).then(() => {
+                document.getElementById('text-copy-message').style.display = 'block';
+                setTimeout(() => {
+                    document.getElementById('text-copy-message').style.display = 'none';
+                }, 3000);
+            });
+        }
+
+        // 清空文本表单
+        function clearTextForm() {
+            document.getElementById('text-input').value = '';
+            document.getElementById('text-result').style.display = 'none';
+        }
+
+        // 处理文件选择
+        function handleFileSelect(event) {
+            selectedFile = event.target.files[0];
+            
+            if (selectedFile) {
+                document.getElementById('file-name').textContent = selectedFile.name;
+                document.getElementById('file-size').textContent = formatFileSize(selectedFile.size);
+                document.getElementById('file-info').style.display = 'block';
+                document.getElementById('file-hash-btn').disabled = false;
+            }
+        }
+
+        // 执行文件SHA512加密
+        function performFileHash() {
+            if (!selectedFile) {
+                alert('请先选择文件');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const wordArray = CryptoJS.lib.WordArray.create(e.target.result);
+                const hash = CryptoJS.SHA512(wordArray).toString();
+                
+                document.getElementById('file-hash-result').textContent = hash;
+                document.getElementById('file-result').style.display = 'block';
+                document.getElementById('file-copy-message').style.display = 'none';
+            };
+            
+            reader.readAsArrayBuffer(selectedFile);
+        }
+
+        // 复制文件结果
+        function copyFileResult() {
+            const result = document.getElementById('file-hash-result').textContent;
+            navigator.clipboard.writeText(result).then(() => {
+                document.getElementById('file-copy-message').style.display = 'block';
+                setTimeout(() => {
+                    document.getElementById('file-copy-message').style.display = 'none';
+                }, 3000);
+            });
+        }
+
+        // 清空文件表单
+        function clearFileForm() {
+            selectedFile = null;
+            document.getElementById('file-input').value = '';
+            document.getElementById('file-info').style.display = 'none';
+            document.getElementById('file-result').style.display = 'none';
+            document.getElementById('file-hash-btn').disabled = true;
+        }
+
+        // 格式化文件大小
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // 页面加载完成后初始化拖拽功能
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileUpload = document.querySelector('.file-upload');
+            
+            fileUpload.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.style.borderColor = '#c0392b';
+                this.style.background = '#f8d7da';
+            });
+            
+            fileUpload.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                this.style.borderColor = '#e74c3c';
+                this.style.background = '#fdf2f2';
+            });
+            
+            fileUpload.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.style.borderColor = '#e74c3c';
+                this.style.background = '#fdf2f2';
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    selectedFile = files[0];
+                    document.getElementById('file-input').files = files;
+                    handleFileSelect({target: {files: files}});
+                }
+            });
+        });
+
+        // 记录工具使用
+        if (typeof recordToolUsage === 'function') {
+            recordToolUsage('SHA512加密工具');
+        }
+    </script>
+</body>
+</html>
