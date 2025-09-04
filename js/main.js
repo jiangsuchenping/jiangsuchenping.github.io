@@ -169,7 +169,8 @@ function extractToolName(toolName, url) {
             'qrcode': '二维码生成',
             'color-picker': '颜色选择器',
             'guid-generator': 'GUID生成器',
-            'password-generator': '随机密码生成器'
+            'password-generator': '随机密码生成器',
+            'ip-range-converter': 'IP地址范围转换工具'
         };
         
         return nameMap[extractedName] || extractedName;
