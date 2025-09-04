@@ -44,29 +44,269 @@ function searchTools() {
 }
 
 /**
- * 记录工具使用频次
- * @param {string} toolName - 工具名称
- * @param {string} toolUrl - 工具URL
+ * 标准化工具URL，将xxx.html、xxx/、xxx/index.html三种格式合并为同一个工具
+ * @param {string} url - 原始URL
+ * @returns {string} - 标准化后的URL
  */
-function recordToolUsage(toolName, toolUrl) {
-    // 从localStorage获取工具使用记录
-    let toolUsage = localStorage.getItem('toolUsage');
-    let usageData = toolUsage ? JSON.parse(toolUsage) : {};
+function normalizeToolUrl(url) {
+    if (!url) return url;
     
-    // 更新使用次数
-    if (usageData[toolUrl]) {
-        usageData[toolUrl].count += 1;
-        usageData[toolUrl].lastUsed = new Date().getTime();
-    } else {
-        usageData[toolUrl] = {
-            name: toolName,
-            count: 1,
-            lastUsed: new Date().getTime()
-        };
+    // 移除可能的查询参数和锚点
+    const cleanUrl = url.split('?')[0].split('#')[0];
+    
+    // 移除末尾的斜杠（如果有）
+    const normalizedCleanUrl = cleanUrl.replace(/\/$/, '');
+    
+    // 提取工具名称的正则表达式
+    // 匹配以下格式：
+    // 1. tools/toolname.html
+    // 2. tools/toolname/
+    // 3. tools/toolname/index.html
+    // 4. tools/toolname（无后缀）
+    const toolPattern = /tools\/(\w+(?:-\w+)*?)(?:\.html|\/(?:index\.html)?)?$/i;
+    const match = normalizedCleanUrl.match(toolPattern);
+    
+    if (match) {
+        const toolName = match[1];
+        // 统一返回 tools/toolname/index.html 格式
+        return `tools/${toolName}/index.html`;
     }
     
-    // 保存回localStorage
-    localStorage.setItem('toolUsage', JSON.stringify(usageData));
+    // 如果不匹配工具模式，返回原URL
+    return cleanUrl;
+}
+
+/**
+ * 提取工具显示名称
+ * @param {string} toolName - 传入的工具名称
+ * @param {string} url - 工具URL
+ * @returns {string} - 清理后的工具名称
+ */
+function extractToolName(toolName, url) {
+    // 如果工具名称有效，直接使用
+    if (toolName && toolName.trim() && !toolName.includes('undefined')) {
+        return toolName.trim();
+    }
+    
+    // 从URL提取工具名称
+    // 匹配 tools/toolname.html、tools/toolname/、tools/toolname/index.html、tools/toolname 等格式
+    const toolPattern = /tools\/(\w+(?:-\w+)*?)(?:\.html|\/(?:index\.html)?)?$/i;
+    const match = url.match(toolPattern);
+    
+    if (match) {
+        const extractedName = match[1];
+        // 转换为友好的显示名称
+        const nameMap = {
+            'json-format': 'JSON格式化',
+            'base64-encode': 'Base64编码/解码',
+            'url-encode': 'URL编码/解码',
+            'unicode-encode': 'Unicode编码/解码',
+            'html-encode': 'HTML编码/解码',
+            'md5-encrypt': 'MD5加密',
+            'sha1-encrypt': 'SHA1加密',
+            'sha256-encrypt': 'SHA256加密',
+            'sha512-encrypt': 'SHA512加密',
+            'aes-encrypt': 'AES加密/解密',
+            'des-encrypt': 'DES加密/解密',
+            '3des-encrypt': '3DES加密/解密',
+            'hmac-encrypt': 'HMAC加密',
+            'json-to-xml': 'JSON转XML',
+            'xml-to-json': 'XML转JSON',
+            'json-to-yaml': 'JSON转YAML',
+            'json-to-csharp': 'JSON转C#',
+            'json-to-java': 'JSON转Java',
+            'timestamp': '时间戳转换',
+            'number-convert': '进制转换',
+            'sql-formatter': 'SQL格式化',
+            'index-namer': '索引命名工具',
+            'sql-to-csharp': 'SQL转C#',
+            'sql-to-java': 'SQL转Java',
+            'regex-test': '正则表达式测试',
+            'text-compare': '文本对比',
+            'qrcode': '二维码生成',
+            'color-picker': '颜色选择器',
+            'guid-generator': 'GUID生成器',
+            'password-generator': '随机密码生成器'
+        };
+        
+        return nameMap[extractedName] || extractedName;
+    }
+    
+    // 如果都无法提取，返回默认名称
+    return toolName || 'Unknown Tool';
+}
+
+/**
+ * 防重复调用的工具使用记录
+ */
+let recordingInProgress = new Set();
+let sessionRecorded = new Set();
+
+/**
+ * 记录工具使用频次（优化版，解决重复计数问题）
+ * @param {string} toolName - 工具名称
+ * @param {string} toolUrl - 工具URL（可选，如果不提供会从当前页面URL获取）
+ */
+function recordToolUsage(toolName, toolUrl) {
+    // 如果没有提供URL，从当前页面获取
+    if (!toolUrl) {
+        toolUrl = window.location.pathname + window.location.search;
+    }
+    
+    // 标准化URL
+    const normalizedUrl = normalizeToolUrl(toolUrl);
+    const recordKey = `${normalizedUrl}_${Date.now()}`;
+    
+    // 检查是否在当前会话中已经记录过（防止同一页面多次调用）
+    const sessionKey = `session_${normalizedUrl}`;
+    if (sessionRecorded.has(sessionKey)) {
+        console.log('本次会话已记录，跳过重复记录:', normalizedUrl);
+        return;
+    }
+    
+    // 防止并发记录
+    if (recordingInProgress.has(normalizedUrl)) {
+        console.log('正在记录中，跳过重复调用:', normalizedUrl);
+        return;
+    }
+    
+    recordingInProgress.add(normalizedUrl);
+    
+    try {
+        // 从localStorage获取工具使用记录
+        let toolUsage = localStorage.getItem('toolUsage');
+        let usageData = toolUsage ? JSON.parse(toolUsage) : {};
+        
+        // 提取和清理工具名称
+        const cleanToolName = extractToolName(toolName, normalizedUrl);
+        
+        // 更新使用次数（使用标准化URL作为key）
+        if (usageData[normalizedUrl]) {
+            usageData[normalizedUrl].count += 1;
+            usageData[normalizedUrl].lastUsed = new Date().getTime();
+            // 更新工具名称（可能有优化）
+            usageData[normalizedUrl].name = cleanToolName;
+        } else {
+            usageData[normalizedUrl] = {
+                name: cleanToolName,
+                count: 1,
+                lastUsed: new Date().getTime(),
+                originalUrls: [toolUrl] // 记录所有访问过的原始URL
+            };
+        }
+        
+        // 如果原始URL与标准化URL不同，记录到originalUrls数组中
+        if (toolUrl !== normalizedUrl && usageData[normalizedUrl].originalUrls) {
+            if (!usageData[normalizedUrl].originalUrls.includes(toolUrl)) {
+                usageData[normalizedUrl].originalUrls.push(toolUrl);
+            }
+        }
+        
+        // 保存回localStorage
+        localStorage.setItem('toolUsage', JSON.stringify(usageData));
+        
+        // 标记当前会话已记录
+        sessionRecorded.add(sessionKey);
+        
+        console.log(`工具使用已记录: ${cleanToolName} (${normalizedUrl}) - 使用次数: ${usageData[normalizedUrl].count}`);
+        
+        // 更新常用工具显示（如果在主页）
+        if (document.getElementById('frequent-tools-grid')) {
+            setTimeout(createFrequentToolsMenu, 100);
+        }
+        
+    } catch (error) {
+        console.error('记录工具使用时发生错误:', error);
+    } finally {
+        recordingInProgress.delete(normalizedUrl);
+    }
+}
+
+/**
+ * 清理和迁移旧的重复数据
+ */
+function cleanupDuplicateRecords() {
+    try {
+        let toolUsage = localStorage.getItem('toolUsage');
+        if (!toolUsage) return;
+        
+        let usageData = JSON.parse(toolUsage);
+        let cleanedData = {};
+        let hasChanges = false;
+        
+        // 遍历所有记录，合并重复的工具
+        for (const [url, data] of Object.entries(usageData)) {
+            const normalizedUrl = normalizeToolUrl(url);
+            
+            if (cleanedData[normalizedUrl]) {
+                // 合并数据
+                cleanedData[normalizedUrl].count += data.count;
+                cleanedData[normalizedUrl].lastUsed = Math.max(cleanedData[normalizedUrl].lastUsed, data.lastUsed);
+                
+                // 合并原始URL记录
+                if (!cleanedData[normalizedUrl].originalUrls) {
+                    cleanedData[normalizedUrl].originalUrls = [url];
+                } else if (!cleanedData[normalizedUrl].originalUrls.includes(url)) {
+                    cleanedData[normalizedUrl].originalUrls.push(url);
+                }
+                
+                hasChanges = true;
+                console.log(`合并重复记录: ${url} -> ${normalizedUrl}`);
+                console.log(`  [支持格式: .html, /, /index.html]`);
+            } else {
+                // 使用标准化URL作为新的key
+                cleanedData[normalizedUrl] = {
+                    ...data,
+                    name: extractToolName(data.name, normalizedUrl),
+                    originalUrls: data.originalUrls || [url]
+                };
+                
+                if (url !== normalizedUrl) {
+                    hasChanges = true;
+                }
+            }
+        }
+        
+        // 如果有变化，保存清理后的数据
+        if (hasChanges) {
+            localStorage.setItem('toolUsage', JSON.stringify(cleanedData));
+            console.log('重复记录清理完成，数据已更新');
+            return true;
+        }
+        
+        return false;
+    } catch (error) {
+        console.error('清理重复记录时发生错误:', error);
+        return false;
+    }
+}
+
+/**
+ * 获取工具使用统计（包含详细信息）
+ * @returns {Array} 工具使用统计数组
+ */
+function getToolUsageStats() {
+    try {
+        let toolUsage = localStorage.getItem('toolUsage');
+        if (!toolUsage) return [];
+        
+        let usageData = JSON.parse(toolUsage);
+        
+        return Object.keys(usageData).map(url => {
+            const data = usageData[url];
+            return {
+                url: url,
+                name: data.name,
+                count: data.count,
+                lastUsed: data.lastUsed,
+                lastUsedDate: new Date(data.lastUsed).toLocaleString(),
+                originalUrls: data.originalUrls || [url]
+            };
+        }).sort((a, b) => b.count - a.count);
+    } catch (error) {
+        console.error('获取工具使用统计时发生错误:', error);
+        return [];
+    }
 }
 
 /**
@@ -113,27 +353,38 @@ function getOption(toolId, optionId, defaultValue) {
 }
 
 /**
- * 创建常用工具快捷菜单
+ * 创建常用工具快捷菜单（优化版）
  */
 function createFrequentToolsMenu() {
     // 从localStorage获取工具使用记录
     let toolUsage = localStorage.getItem('toolUsage');
-    if (!toolUsage) return;
+    if (!toolUsage) {
+        showEmptyFrequentTools();
+        return;
+    }
     
     let usageData = JSON.parse(toolUsage);
     
     // 转换为数组并按使用次数排序
     let toolsArray = Object.keys(usageData).map(url => {
+        const data = usageData[url];
         return {
             url: url,
-            name: usageData[url].name,
-            count: usageData[url].count,
-            lastUsed: usageData[url].lastUsed
+            name: data.name,
+            count: data.count,
+            lastUsed: data.lastUsed,
+            lastUsedDate: new Date(data.lastUsed).toLocaleString(),
+            originalUrls: data.originalUrls || [url]
         };
     });
     
-    // 按使用次数降序排序
-    toolsArray.sort((a, b) => b.count - a.count);
+    // 按使用次数降序排序，相同次数按最近使用时间排序
+    toolsArray.sort((a, b) => {
+        if (a.count !== b.count) {
+            return b.count - a.count;
+        }
+        return b.lastUsed - a.lastUsed;
+    });
     
     // 查找已存在的常用工具区域
     const existingFrequentTools = document.getElementById('frequent-tools');
@@ -141,51 +392,102 @@ function createFrequentToolsMenu() {
     
     // 如果已存在常用工具区域，则直接使用它
     if (existingFrequentTools && existingToolGrid) {
-        // 清空现有内容
-        existingToolGrid.innerHTML = '';
-        
-        // 添加工具卡片（最多显示8个，每行4个）
-        const maxTools = Math.min(8, toolsArray.length);
-        
-        for (let i = 0; i < maxTools; i++) {
-            const tool = toolsArray[i];
-            const toolCard = document.createElement('div');
-            toolCard.className = 'tool-card';
-            toolCard.innerHTML = `
-                <h3><a href="${tool.url}">${tool.name}</a></h3>
-                <p>使用次数: ${tool.count}</p>
-            `;
-            existingToolGrid.appendChild(toolCard);
-            
-            // 为动态创建的工具卡片添加点击事件，记录使用频次
-            // 使用自定义属性标记已添加事件的链接，防止重复添加
-            const link = toolCard.querySelector('h3 a');
-            if (link && !link.hasAttribute('data-event-added')) {
-                link.setAttribute('data-event-added', 'true');
-                link.addEventListener('click', function(e) {
-                    recordToolUsage(tool.name, tool.url);
-                });
-            }
-        }
-        
-        // 如果没有工具使用记录，显示提示信息
-        if (toolsArray.length === 0) {
-            const noToolsMessage = document.createElement('p');
-            noToolsMessage.className = 'no-tools-message';
-            noToolsMessage.textContent = '暂无常用工具记录，请先使用一些工具';
-            existingToolGrid.appendChild(noToolsMessage);
-        }
-        
-        return; // 已处理完毕，直接返回
+        updateFrequentToolsGrid(existingToolGrid, toolsArray);
+        return;
     }
     
     // 如果不存在常用工具区域，则创建一个新的（这种情况不应该发生，因为HTML中已经有了）
-    // 但为了代码的健壮性，仍然保留这部分逻辑
+    createNewFrequentToolsSection(toolsArray);
+}
+
+/**
+ * 更新常用工具网格
+ * @param {HTMLElement} toolGrid - 工具网格元素
+ * @param {Array} toolsArray - 工具数组
+ */
+function updateFrequentToolsGrid(toolGrid, toolsArray) {
+    // 清空现有内容
+    toolGrid.innerHTML = '';
+    
+    // 添加工具卡片（最多显示8个，每行4个）
+    const maxTools = Math.min(8, toolsArray.length);
+    
+    for (let i = 0; i < maxTools; i++) {
+        const tool = toolsArray[i];
+        const toolCard = document.createElement('div');
+        toolCard.className = 'tool-card frequent-tool-card';
+        
+        // 创建工具卡片HTML
+        toolCard.innerHTML = `
+            <h3><a href="${tool.url}" data-usage-tracking="true">${tool.name}</a></h3>
+            <p>
+                <span class="usage-count">使用次数: ${tool.count}</span><br>
+                <small class="last-used">最近使用: ${formatRelativeTime(tool.lastUsed)}</small>
+            </p>
+        `;
+        
+        toolGrid.appendChild(toolCard);
+        
+        // 为动态创建的工具卡片添加点击事件，记录使用频次
+        const link = toolCard.querySelector('h3 a');
+        if (link) {
+            link.addEventListener('click', function(e) {
+                // 延迟记录，确保页面跳转不受影响
+                setTimeout(() => {
+                    recordToolUsage(tool.name, tool.url);
+                }, 50);
+            });
+        }
+    }
+    
+    // 如果没有工具使用记录，显示提示信息
+    if (toolsArray.length === 0) {
+        showEmptyFrequentTools(toolGrid);
+    } else {
+        // 添加“查看全部”按钮
+        if (toolsArray.length > maxTools) {
+            const viewAllButton = document.createElement('div');
+            viewAllButton.className = 'tool-card view-all-card';
+            viewAllButton.innerHTML = `
+                <h3><a href="javascript:void(0)" onclick="showAllUsageStats()">查看全部 (${toolsArray.length})</a></h3>
+                <p>查看所有工具使用统计</p>
+            `;
+            toolGrid.appendChild(viewAllButton);
+        }
+    }
+}
+
+/**
+ * 显示空的常用工具提示
+ * @param {HTMLElement} toolGrid - 工具网格元素（可选）
+ */
+function showEmptyFrequentTools(toolGrid) {
+    const targetGrid = toolGrid || document.getElementById('frequent-tools-grid');
+    if (!targetGrid) return;
+    
+    targetGrid.innerHTML = '';
+    const noToolsMessage = document.createElement('div');
+    noToolsMessage.className = 'no-tools-message';
+    noToolsMessage.innerHTML = `
+        <div class="empty-state">
+            <i class="fas fa-tools" style="font-size: 3em; color: #ccc; margin-bottom: 1rem;"></i>
+            <h4>暂无常用工具记录</h4>
+            <p class="text-muted">请先使用一些工具，它们将显示在这里</p>
+        </div>
+    `;
+    targetGrid.appendChild(noToolsMessage);
+}
+
+/**
+ * 创建新的常用工具区域（备用方法）
+ * @param {Array} toolsArray - 工具数组
+ */
+function createNewFrequentToolsSection(toolsArray) {
     const frequentToolsContainer = document.createElement('section');
     frequentToolsContainer.id = 'frequent-tools';
-    frequentToolsContainer.className = 'frequent-tools';
+    frequentToolsContainer.className = 'tool-category';
     frequentToolsContainer.innerHTML = `
-        <h2>常用工具</h2>
+        <h2>您的常用工具</h2>
         <div class="tool-grid" id="frequent-tools-grid"></div>
     `;
     
@@ -197,44 +499,67 @@ function createFrequentToolsMenu() {
     if (mainContainer && jsonToolsSection) {
         mainContainer.insertBefore(frequentToolsContainer, jsonToolsSection);
         
-        // 添加工具卡片（最多显示8个，每行4个）
-        const toolGrid = document.getElementById('frequent-tools-grid');
-        const maxTools = Math.min(8, toolsArray.length);
-        
-        for (let i = 0; i < maxTools; i++) {
-            const tool = toolsArray[i];
-            const toolCard = document.createElement('div');
-            toolCard.className = 'tool-card';
-            toolCard.innerHTML = `
-                <h3><a href="${tool.url}">${tool.name}</a></h3>
-                <p>使用次数: ${tool.count}</p>
-            `;
-            toolGrid.appendChild(toolCard);
-            
-            // 为动态创建的工具卡片添加点击事件，记录使用频次
-            // 使用自定义属性标记已添加事件的链接，防止重复添加
-            const link = toolCard.querySelector('h3 a');
-            if (link && !link.hasAttribute('data-event-added')) {
-                link.setAttribute('data-event-added', 'true');
-                link.addEventListener('click', function(e) {
-                    recordToolUsage(tool.name, tool.url);
-                });
-            }
-        }
-        
-        // 如果没有工具使用记录，显示提示信息
-        if (toolsArray.length === 0) {
-            const noToolsMessage = document.createElement('p');
-            noToolsMessage.className = 'no-tools-message';
-            noToolsMessage.textContent = '暂无常用工具记录，请先使用一些工具';
-            toolGrid.appendChild(noToolsMessage);
-        }
+        // 更新工具网格
+        const newToolGrid = document.getElementById('frequent-tools-grid');
+        updateFrequentToolsGrid(newToolGrid, toolsArray);
     }
+}
+
+/**
+ * 格式化相对时间
+ * @param {number} timestamp - 时间戳
+ * @returns {string} - 格式化后的相对时间
+ */
+function formatRelativeTime(timestamp) {
+    const now = Date.now();
+    const diff = now - timestamp;
+    
+    if (diff < 60000) { // 不到1分钟
+        return '刚刚';
+    } else if (diff < 3600000) { // 不到1小时
+        return `${Math.floor(diff / 60000)}分钟前`;
+    } else if (diff < 86400000) { // 不到1天
+        return `${Math.floor(diff / 3600000)}小时前`;
+    } else if (diff < 604800000) { // 不到1周
+        return `${Math.floor(diff / 86400000)}天前`;
+    } else {
+        return new Date(timestamp).toLocaleDateString();
+    }
+}
+
+/**
+ * 显示所有使用统计（可以在控制台调用）
+ */
+function showAllUsageStats() {
+    const stats = getToolUsageStats();
+    console.log('工具使用统计:', stats);
+    
+    // 可以在这里添加显示所有统计的模态框或页面
+    let message = '工具使用统计：\n\n';
+    stats.forEach((tool, index) => {
+        message += `${index + 1}. ${tool.name} - ${tool.count}次 (最近: ${tool.lastUsedDate})\n`;
+        if (tool.originalUrls && tool.originalUrls.length > 1) {
+            message += `   合并自: ${tool.originalUrls.join(', ')}\n`;
+        }
+    });
+    
+    alert(message);
 }
 
 // 页面加载完成后执行
 document.addEventListener('DOMContentLoaded', function() {
     console.log('在线工具箱已加载');
+    
+    // 清理重复记录（一次性操作）
+    const hasCleanedKey = 'usageDataCleaned_v3'; // v3: 支持三种格式 (.html, /, /index.html)
+    if (!localStorage.getItem(hasCleanedKey)) {
+        console.log('开始清理重复的工具使用记录...');
+        const cleaned = cleanupDuplicateRecords();
+        if (cleaned) {
+            console.log('重复记录清理完成');
+        }
+        localStorage.setItem(hasCleanedKey, 'true');
+    }
     
     // 添加搜索框（如果需要）
     const searchContainer = document.createElement('div');
@@ -252,13 +577,49 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 为所有工具链接添加点击事件，记录使用频次
     // 排除常用工具区域，因为它们已经在createFrequentToolsMenu函数中添加了点击事件
-    document.querySelectorAll('.tool-card h3 a:not(#frequent-tools-grid .tool-card h3 a)').forEach(link => {
-        link.addEventListener('click', function(e) {
-            const toolName = this.textContent;
-            const toolUrl = this.getAttribute('href');
-            recordToolUsage(toolName, toolUrl);
-        });
+    const toolLinks = document.querySelectorAll('.tool-card h3 a:not(#frequent-tools-grid .tool-card h3 a)');
+    toolLinks.forEach(link => {
+        // 检查是否已经添加过事件监听器
+        if (!link.hasAttribute('data-usage-tracking')) {
+            link.setAttribute('data-usage-tracking', 'true');
+            link.addEventListener('click', function(e) {
+                const toolName = this.textContent;
+                const toolUrl = this.getAttribute('href');
+                
+                // 延迟记录，确保页面跳转不受影响
+                setTimeout(() => {
+                    recordToolUsage(toolName, toolUrl);
+                }, 50);
+            });
+        }
     });
+    
+    // 自动记录当前页面访问（如果是工具页面）
+    const currentUrl = window.location.pathname + window.location.search;
+    const isToolPage = /\/tools\//.test(currentUrl);
+    
+    if (isToolPage) {
+        // 延迟记录，确保页面完全加载
+        setTimeout(() => {
+            // 尝试从页面标题获取工具名称
+            let toolName = document.title.replace(' - 在线工具箱', '').replace('工具', '');
+            recordToolUsage(toolName, currentUrl);
+        }, 1000);
+    }
+    
+    // 添加调试功能（仅在开发环境）
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        // 在控制台提供调试命令
+        window.getUsageStats = getToolUsageStats;
+        window.cleanupRecords = cleanupDuplicateRecords;
+        window.clearAllUsage = function() {
+            localStorage.removeItem('toolUsage');
+            localStorage.removeItem('usageDataCleaned_v2');
+            localStorage.removeItem('usageDataCleaned_v3');
+            console.log('所有使用记录已清除');
+        };
+        console.log('调试功能已启用：getUsageStats(), cleanupRecords(), clearAllUsage()');
+    }
 });
 
 /**
