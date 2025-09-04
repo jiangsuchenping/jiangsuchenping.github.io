@@ -487,8 +487,7 @@ function updateFrequentToolsGrid(toolGrid, toolsArray) {
         } else {
             // 外网访问：不显示使用统计
             toolCard.innerHTML = `
-                <h3><a href="${tool.url}" data-usage-tracking="true">${tool.name}</a></h3>
-                <p>常用工具</p>
+                <h3><a href="${tool.url}" data-usage-tracking="true">${tool.name}</a></h3>                
             `;
         }
         
