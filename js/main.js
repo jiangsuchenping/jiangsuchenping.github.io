@@ -684,9 +684,9 @@ document.addEventListener('DOMContentLoaded', function() {
     if (isToolPage) {
         // 延迟记录，确保页面完全加载
         setTimeout(() => {
-            // 尝试从页面标题获取工具名称
-            let toolName = document.title.replace(' - 在线工具箱', '').replace('工具', '');
-            recordToolUsage(toolName, currentUrl);
+            // 优先从URL提取工具名称，避免页面标题中的描述信息
+            const extractedToolName = extractToolName('', currentUrl);
+            recordToolUsage(extractedToolName, currentUrl);
         }, 1000);
     }
     
