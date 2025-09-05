@@ -20,6 +20,126 @@
     --transition: all 0.3s ease;
 }
 
+/* GPU加速和性能优化 */
+.gpu-accelerated {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+    will-change: transform;
+}
+
+/* 图片懒加载样式 */
+.lazy-loading {
+    opacity: 0.6;
+    filter: blur(2px);
+    transition: all 0.3s ease;
+    background-color: #f8f9fa;
+    background-image: linear-gradient(45deg, #f8f9fa 25%, transparent 25%),
+        linear-gradient(-45deg, #f8f9fa 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #f8f9fa 75%),
+        linear-gradient(-45deg, transparent 75%, #f8f9fa 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+    animation: loading-shimmer 2s ease-in-out infinite;
+}
+
+.lazy-loaded {
+    opacity: 1;
+    filter: none;
+    transition: all 0.3s ease;
+}
+
+.lazy-error {
+    opacity: 0.7;
+    filter: grayscale(100%);
+    border: 2px dashed #dc3545;
+}
+
+@keyframes loading-shimmer {
+    0% {
+        background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+    }
+
+    50% {
+        background-position: 10px 0, 10px 10px, 20px -10px, 0px 0px;
+    }
+
+    100% {
+        background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+    }
+}
+
+/* 资源优化类 */
+.preload-hidden {
+    position: absolute;
+    left: -9999px;
+    visibility: hidden;
+    opacity: 0;
+}
+
+/* 图片容器优化 */
+.image-container {
+    position: relative;
+    overflow: hidden;
+    will-change: transform;
+    transform: translateZ(0);
+}
+
+.image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+    will-change: transform;
+}
+
+.image-container:hover img {
+    transform: scale(1.05);
+}
+
+/* 渐进增强 - 降级方案 */
+@supports not (transform: translateZ(0)) {
+    .gpu-accelerated {
+        /* 不支持GPU加速时的降级样式 */
+        transition: all 0.3s ease;
+    }
+}
+
+/* 内容适应性优化 */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+
+    .lazy-loading {
+        animation: none;
+    }
+}
+
+/* 低带宽优化 */
+@media (max-width: 768px) and (max-resolution: 1dppx) {
+    .lazy-loading {
+        background-image: none;
+        background-color: #f8f9fa;
+    }
+}
+
+/* Critical CSS - 关键渲染路径优化 */
+.critical-image {
+    /* 关键图片立即显示，不使用懒加载 */
+    opacity: 1 !important;
+    filter: none !important;
+}
+
+/* 字体显示优化 */
+@font-face {
+    font-family: 'Microsoft YaHei';
+    font-display: swap;
+    /* 字体交换策略，提升性能 */
+}
+
 /* Global Styles */
 * {
     margin: 0;
