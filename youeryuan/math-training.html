@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>30以内加减法智能训练</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Arial', sans-serif;
+            min-height: 100vh;
+        }
+        
+        .main-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            margin: 20px auto;
+            max-width: 800px;
+            padding: 30px;
+        }
+        
+        .question-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 40px;
+            margin: 20px 0;
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            box-shadow: 0 10px 25px rgba(240, 147, 251, 0.3);
+        }
+        
+        .answer-btn {
+            font-size: 1.5rem;
+            padding: 20px;
+            margin: 10px;
+            border-radius: 15px;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+        
+        .answer-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .correct {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%) !important;
+            color: white;
+        }
+        
+        .incorrect {
+            background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%) !important;
+            color: white;
+        }
+        
+        .stats-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 10px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .progress-ring {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto;
+        }
+        
+        .daily-limit {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .history-item {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 10px;
+            margin: 5px 0;
+            border-left: 4px solid #007bff;
+        }
+        
+        .emoji-feedback {
+            font-size: 3rem;
+            margin: 20px 0;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="main-container">
+            <h1 class="text-center mb-4">
+                <i class="bi bi-calculator-fill text-primary"></i>
+                30以内加减法智能训练
+            </h1>
+            
+            <!-- 统计面板 -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="stats-card">
+                        <h5><i class="bi bi-graph-up"></i> 今日统计</h5>
+                        <div class="row text-center">
+                            <div class="col-4">
+                                <h3 id="todayTotal" class="text-primary">0</h3>
+                                <small>总题数</small>
+                            </div>
+                            <div class="col-4">
+                                <h3 id="todayCorrect" class="text-success">0</h3>
+                                <small>正确数</small>
+                            </div>
+                            <div class="col-4">
+                                <h3 id="todayAccuracy" class="text-warning">0%</h3>
+                                <small>正确率</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="stats-card">
+                        <h5><i class="bi bi-trophy"></i> 总统计</h5>
+                        <div class="row text-center">
+                            <div class="col-4">
+                                <h3 id="totalQuestions" class="text-primary">0</h3>
+                                <small>总题数</small>
+                            </div>
+                            <div class="col-4">
+                                <h3 id="totalCorrect" class="text-success">0</h3>
+                                <small>正确数</small>
+                            </div>
+                            <div class="col-4">
+                                <h3 id="totalAccuracy" class="text-warning">0%</h3>
+                                <small>正确率</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 每日限制提示 -->
+            <div id="dailyLimitAlert" class="daily-limit hidden">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                今日训练已达到上限（20题），明天再来继续吧！
+            </div>
+            
+            <!-- 训练区域 -->
+            <div id="trainingArea" class="text-center">
+                <div class="question-card" id="questionCard">
+                    <span id="question">准备开始</span>
+                </div>
+                
+                <div id="answerOptions" class="row">
+                    <div class="col-6 col-md-3">
+                        <button class="btn btn-primary answer-btn" id="optionA">A</button>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <button class="btn btn-primary answer-btn" id="optionB">B</button>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <button class="btn btn-primary answer-btn" id="optionC">C</button>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <button class="btn btn-primary answer-btn" id="optionD">D</button>
+                    </div>
+                </div>
+                
+                <div id="feedback" class="emoji-feedback hidden"></div>
+                
+                <button id="startBtn" class="btn btn-success btn-lg">
+                    <i class="bi bi-play-fill"></i> 开始训练
+                </button>
+                
+                <button id="nextBtn" class="btn btn-primary btn-lg hidden">
+                    <i class="bi bi-arrow-right"></i> 下一题
+                </button>
+            </div>
+            
+            <!-- 历史记录 -->
+            <div class="mt-5">
+                <h4><i class="bi bi-clock-history"></i> 今日答题记录</h4>
+                <div id="historyList" class="mt-3"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        /**
+         * 30以内加减法智能训练系统
+         * 功能：智能出题、历史记录、每日限制、自适应难度
+         */
+        class MathTrainingSystem {
+            constructor() {
+                this.dailyLimit = 20; // 每日训练上限
+                this.currentQuestion = null;
+                this.answers = [];
+                this.history = this.loadHistory();
+                this.today = new Date().toISOString().split('T')[0];
+                
+                this.initializeEventListeners();
+                this.updateStats();
+                this.checkDailyLimit();
+            }
+            
+            /**
+             * 初始化事件监听器
+             */
+            initializeEventListeners() {
+                document.getElementById('startBtn').addEventListener('click', () => this.startTraining());
+                document.getElementById('nextBtn').addEventListener('click', () => this.nextQuestion());
+                
+                ['optionA', 'optionB', 'optionC', 'optionD'].forEach(id => {
+                    document.getElementById(id).addEventListener('click', (e) => this.checkAnswer(e.target));
+                });
+            }
+            
+            /**
+             * 检查每日训练上限
+             */
+            checkDailyLimit() {
+                const todayHistory = this.history.filter(h => h.date === this.today);
+                if (todayHistory.length >= this.dailyLimit) {
+                    document.getElementById('dailyLimitAlert').classList.remove('hidden');
+                    document.getElementById('trainingArea').classList.add('hidden');
+                }
+            }
+            
+            /**
+             * 开始训练
+             */
+            startTraining() {
+                document.getElementById('startBtn').classList.add('hidden');
+                document.getElementById('answerOptions').classList.remove('hidden');
+                this.nextQuestion();
+            }
+            
+            /**
+             * 生成下一题
+             */
+            nextQuestion() {
+                this.currentQuestion = this.generateSmartQuestion();
+                this.displayQuestion();
+                
+                document.getElementById('nextBtn').classList.add('hidden');
+                document.getElementById('feedback').classList.add('hidden');
+                this.enableAnswerButtons();
+            }
+            
+            /**
+             * 根据历史答题情况智能生成题目
+             */
+            generateSmartQuestion() {
+                const todayHistory = this.history.filter(h => h.date === this.today);
+                
+                // 根据今日答题情况调整难度
+                let maxNumber = 30;
+                if (todayHistory.length > 0) {
+                    const accuracy = todayHistory.filter(h => h.correct).length / todayHistory.length;
+                    if (accuracy < 0.6) {
+                        maxNumber = 15; // 降低难度
+                    } else if (accuracy > 0.9) {
+                        maxNumber = 30; // 保持高难度
+                    }
+                }
+                
+                const num1 = Math.floor(Math.random() * maxNumber) + 1;
+                const num2 = Math.floor(Math.random() * maxNumber) + 1;
+                const isAddition = Math.random() > 0.5;
+                
+                let question, answer;
+                if (isAddition) {
+                    question = `${num1} + ${num2} = ?`;
+                    answer = num1 + num2;
+                } else {
+                    // 确保减法结果为正数
+                    const larger = Math.max(num1, num2);
+                    const smaller = Math.min(num1, num2);
+                    question = `${larger} - ${smaller} = ?`;
+                    answer = larger - smaller;
+                }
+                
+                return { question, answer, num1, num2, isAddition };
+            }
+            
+            /**
+             * 生成具有迷惑性的干扰选项
+             */
+            generateOptions(correctAnswer) {
+                const options = [correctAnswer];
+                const todayHistory = this.history.filter(h => h.date === this.today);
+                
+                // 根据历史错误模式生成干扰项
+                const commonMistakes = this.getCommonMistakes();
+                
+                while (options.length < 4) {
+                    let wrongOption;
+                    const mistakeType = Math.random();
+                    
+                    if (mistakeType < 0.3 && commonMistakes.length > 0) {
+                        // 使用常见错误模式
+                        const mistake = commonMistakes[Math.floor(Math.random() * commonMistakes.length)];
+                        wrongOption = correctAnswer + mistake.offset;
+                    } else if (mistakeType < 0.6) {
+                        // 相邻数字错误
+                        wrongOption = correctAnswer + (Math.random() > 0.5 ? 1 : -1) * (Math.floor(Math.random() * 3) + 1);
+                    } else {
+                        // 计算错误
+                        wrongOption = correctAnswer + (Math.random() > 0.5 ? 10 : -10);
+                    }
+                    
+                    // 确保选项在合理范围内且唯一
+                    wrongOption = Math.max(0, Math.min(60, wrongOption));
+                    if (!options.includes(wrongOption)) {
+                        options.push(wrongOption);
+                    }
+                }
+                
+                return this.shuffleArray(options);
+            }
+            
+            /**
+             * 获取常见错误模式
+             */
+            getCommonMistakes() {
+                const mistakes = [];
+                const wrongAnswers = this.history.filter(h => !h.correct);
+                
+                wrongAnswers.forEach(record => {
+                    const offset = record.selectedAnswer - record.correctAnswer;
+                    if (Math.abs(offset) <= 5) {
+                        mistakes.push({ offset, count: 1 });
+                    }
+                });
+                
+                return mistakes;
+            }
+            
+            /**
+             * 显示题目
+             */
+            displayQuestion() {
+                document.getElementById('question').textContent = this.currentQuestion.question;
+                
+                const options = this.generateOptions(this.currentQuestion.answer);
+                const buttons = ['optionA', 'optionB', 'optionC', 'optionD'];
+                
+                buttons.forEach((id, index) => {
+                    const button = document.getElementById(id);
+                    button.textContent = options[index];
+                    button.className = 'btn btn-primary answer-btn';
+                    button.disabled = false;
+                });
+            }
+            
+            /**
+             * 检查答案
+             */
+            checkAnswer(button) {
+                const selectedAnswer = parseInt(button.textContent);
+                const isCorrect = selectedAnswer === this.currentQuestion.answer;
+                
+                // 更新按钮样式
+                if (isCorrect) {
+                    button.classList.add('correct');
+                    this.showFeedback('🎉 太棒了！', 'success');
+                } else {
+                    button.classList.add('incorrect');
+                    // 标记正确答案
+                    ['optionA', 'optionB', 'optionC', 'optionD'].forEach(id => {
+                        const btn = document.getElementById(id);
+                        if (parseInt(btn.textContent) === this.currentQuestion.answer) {
+                            btn.classList.add('correct');
+                        }
+                    });
+                    this.showFeedback('💪 再试一次！', 'danger');
+                }
+                
+                // 禁用所有按钮
+                this.disableAnswerButtons();
+                
+                // 记录答题历史
+                this.recordAnswer(isCorrect, selectedAnswer);
+                
+                // 显示下一题按钮
+                setTimeout(() => {
+                    document.getElementById('nextBtn').classList.remove('hidden');
+                }, 1500);
+            }
+            
+            /**
+             * 记录答题历史
+             */
+            recordAnswer(isCorrect, selectedAnswer) {
+                const record = {
+                    date: this.today,
+                    time: new Date().toLocaleTimeString(),
+                    question: this.currentQuestion.question,
+                    correctAnswer: this.currentQuestion.answer,
+                    selectedAnswer: selectedAnswer,
+                    correct: isCorrect,
+                    type: this.currentQuestion.isAddition ? 'addition' : 'subtraction'
+                };
+                
+                this.history.push(record);
+                this.saveHistory();
+                this.updateStats();
+                this.updateHistoryList();
+                this.checkDailyLimit();
+            }
+            
+            /**
+             * 更新统计信息
+             */
+            updateStats() {
+                const todayHistory = this.history.filter(h => h.date === this.today);
+                const totalToday = todayHistory.length;
+                const correctToday = todayHistory.filter(h => h.correct).length;
+                const accuracyToday = totalToday > 0 ? Math.round((correctToday / totalToday) * 100) : 0;
+                
+                const totalAll = this.history.length;
+                const correctAll = this.history.filter(h => h.correct).length;
+                const accuracyAll = totalAll > 0 ? Math.round((correctAll / totalAll) * 100) : 0;
+                
+                document.getElementById('todayTotal').textContent = totalToday;
+                document.getElementById('todayCorrect').textContent = correctToday;
+                document.getElementById('todayAccuracy').textContent = accuracyToday + '%';
+                
+                document.getElementById('totalQuestions').textContent = totalAll;
+                document.getElementById('totalCorrect').textContent = correctAll;
+                document.getElementById('totalAccuracy').textContent = accuracyAll + '%';
+            }
+            
+            /**
+             * 更新历史记录列表
+             */
+            updateHistoryList() {
+                const historyList = document.getElementById('historyList');
+                const todayHistory = this.history.filter(h => h.date === this.today).slice(-5);
+                
+                historyList.innerHTML = '';
+                
+                todayHistory.reverse().forEach(record => {
+                    const item = document.createElement('div');
+                    item.className = 'history-item fade-in';
+                    item.innerHTML = `
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>${record.question}</strong>
+                                <br>
+                                <small class="text-muted">${record.time}</small>
+                            </div>
+                            <div>
+                                <span class="badge ${record.correct ? 'bg-success' : 'bg-danger'}">
+                                    ${record.correct ? '✓' : '✗'} ${record.selectedAnswer}
+                                </span>
+                            </div>
+                        </div>
+                    `;
+                    historyList.appendChild(item);
+                });
+            }
+            
+            /**
+             * 显示反馈信息
+             */
+            showFeedback(message, type) {
+                const feedback = document.getElementById('feedback');
+                feedback.textContent = message;
+                feedback.className = `emoji-feedback fade-in text-${type}`;
+                feedback.classList.remove('hidden');
+            }
+            
+            /**
+             * 启用答案按钮
+             */
+            enableAnswerButtons() {
+                ['optionA', 'optionB', 'optionC', 'optionD'].forEach(id => {
+                    document.getElementById(id).disabled = false;
+                });
+            }
+            
+            /**
+             * 禁用答案按钮
+             */
+            disableAnswerButtons() {
+                ['optionA', 'optionB', 'optionC', 'optionD'].forEach(id => {
+                    document.getElementById(id).disabled = true;
+                });
+            }
+            
+            /**
+             * 打乱数组顺序
+             */
+            shuffleArray(array) {
+                const shuffled = [...array];
+                for (let i = shuffled.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+                }
+                return shuffled;
+            }
+            
+            /**
+             * 加载历史记录
+             */
+            loadHistory() {
+                const saved = localStorage.getItem('mathTrainingHistory');
+                return saved ? JSON.parse(saved) : [];
+            }
+            
+            /**
+             * 保存历史记录
+             */
+            saveHistory() {
+                localStorage.setItem('mathTrainingHistory', JSON.stringify(this.history));
+            }
+        }
+        
+        // 初始化系统
+        document.addEventListener('DOMContentLoaded', () => {
+            new MathTrainingSystem();
+        });
+    </script>
+</body>
+</html>
