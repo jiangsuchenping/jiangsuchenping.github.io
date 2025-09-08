@@ -166,36 +166,32 @@
             </div>
             
             <!-- 训练区域 -->
-            <div id="trainingArea" class="text-center">
-                <div class="question-card" id="questionCard">
-                    <span id="question">准备开始</span>
-                </div>
-                
-                <div id="answerOptions" class="row">
-                    <div class="col-6 col-md-3">
-                        <button class="btn btn-primary answer-btn" id="optionA">A</button>
-                    </div>
-                    <div class="col-6 col-md-3">
-                        <button class="btn btn-primary answer-btn" id="optionB">B</button>
-                    </div>
-                    <div class="col-6 col-md-3">
-                        <button class="btn btn-primary answer-btn" id="optionC">C</button>
-                    </div>
-                    <div class="col-6 col-md-3">
-                        <button class="btn btn-primary answer-btn" id="optionD">D</button>
-                    </div>
-                </div>
-                
-                <div id="feedback" class="emoji-feedback hidden"></div>
-                
-                <button id="startBtn" class="btn btn-success btn-lg">
-                    <i class="bi bi-play-fill"></i> 开始训练
-                </button>
-                
-                <button id="nextBtn" class="btn btn-primary btn-lg hidden">
-                    <i class="bi bi-arrow-right"></i> 下一题
-                </button>
-            </div>
+             <div id="trainingArea" class="text-center">
+                 <div class="question-card" id="questionCard">
+                     <span id="question">准备开始</span>
+                 </div>
+                 
+                 <div id="answerOptions" class="row">
+                     <div class="col-6 col-md-3">
+                         <button class="btn btn-primary answer-btn" id="optionA">A</button>
+                     </div>
+                     <div class="col-6 col-md-3">
+                         <button class="btn btn-primary answer-btn" id="optionB">B</button>
+                     </div>
+                     <div class="col-6 col-md-3">
+                         <button class="btn btn-primary answer-btn" id="optionC">C</button>
+                     </div>
+                     <div class="col-6 col-md-3">
+                         <button class="btn btn-primary answer-btn" id="optionD">D</button>
+                     </div>
+                 </div>
+                 
+                 <div id="feedback" class="emoji-feedback hidden"></div>
+                 
+                 <button id="startBtn" class="btn btn-success btn-lg">
+                     <i class="bi bi-play-fill"></i> 开始训练
+                 </button>
+             </div>
             
             <!-- 历史记录 -->
             <div class="mt-5">
@@ -229,7 +225,6 @@
              */
             initializeEventListeners() {
                 document.getElementById('startBtn').addEventListener('click', () => this.startTraining());
-                document.getElementById('nextBtn').addEventListener('click', () => this.nextQuestion());
                 
                 ['optionA', 'optionB', 'optionC', 'optionD'].forEach(id => {
                     document.getElementById(id).addEventListener('click', (e) => this.checkAnswer(e.target));
@@ -253,7 +248,7 @@
             startTraining() {
                 document.getElementById('startBtn').classList.add('hidden');
                 document.getElementById('answerOptions').classList.remove('hidden');
-                this.nextQuestion();
+                this.generateNextQuestion();
             }
             
             /**
@@ -403,10 +398,36 @@
                 // 记录答题历史
                 this.recordAnswer(isCorrect, selectedAnswer);
                 
-                // 显示下一题按钮
+                // 延迟后自动进入下一题
                 setTimeout(() => {
-                    document.getElementById('nextBtn').classList.remove('hidden');
-                }, 1500);
+                    // 检查是否达到每日上限
+                    const todayHistory = this.history.filter(h => h.date === this.today);
+                    if (todayHistory.length >= this.dailyLimit) {
+                        // 达到上限，显示提示
+                        document.getElementById('dailyLimitAlert').classList.remove('hidden');
+                        document.getElementById('startBtn').classList.remove('hidden');
+                        document.getElementById('startBtn').textContent = '🔄 明天再来';
+                        document.getElementById('startBtn').disabled = true;
+                        this.hideTrainingArea();
+                    } else {
+                        // 未达到上限，自动进入下一题
+                        this.generateNextQuestion();
+                    }
+                }, 1000);
+            }
+
+            /**
+             * 生成下一题
+             */
+            generateNextQuestion() {
+                this.currentQuestion = this.generateSmartQuestion();
+                this.displayQuestion();
+                
+                // 隐藏反馈信息
+                document.getElementById('feedback').classList.add('hidden');
+                
+                // 启用答案按钮
+                this.enableAnswerButtons();
             }
             
             /**

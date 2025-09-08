@@ -869,13 +869,21 @@
 
           <!-- 数学训练 -->
           <div class="col-md-4 mb-4">
-            <div class="subject-card card bg-info text-white" onclick="window.open('math-training.html', '_blank')">
+            <div class="subject-card card bg-info text-white position-relative">
               <div class="card-body text-center">
                 <div class="subject-icon">
                   <i class="bi bi-123"></i>
                 </div>
                 <h3 class="card-title">加减法训练</h3>
                 <p class="card-text">30以内智能加减法训练</p>
+                <div class="d-flex justify-content-center gap-2 mt-3">
+                  <button class="btn btn-light btn-sm" onclick="window.open('math-training.html', '_blank')">
+                    标准版
+                  </button>
+                  <button class="btn btn-warning btn-sm" onclick="window.open('math-training-optimized.html', '_blank')">
+                    ⚡极速版
+                  </button>
+                </div>
                 <span class="badge bg-light text-info ms-2">新功能</span>
               </div>
             </div>
