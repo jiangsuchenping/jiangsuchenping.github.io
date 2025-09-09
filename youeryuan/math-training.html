@@ -4,8 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>30以内加减法智能训练</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <!-- 预连接关键CDN域名 -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+    
+    <!-- 关键CSS资源预加载 -->
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    
+    <!-- 备用CSS加载 -->
+    <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"></noscript>
+    <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"></noscript>
     <style>
         body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -161,8 +170,17 @@
             
             <!-- 每日限制提示 -->
             <div id="dailyLimitAlert" class="daily-limit hidden">
-                <i class="bi bi-exclamation-triangle-fill"></i>
-                今日训练已达到上限（20题），明天再来继续吧！
+                <div class="d-flex justify-content-between align-items-center">
+                    <div id="limitText">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        今日训练已达到上限（20题），明天再来继续吧！
+                    </div>
+                    <div>
+                        <button id="resetLimitBtn" class="btn btn-sm btn-warning">
+                            <i class="bi bi-plus-circle"></i> 增加上限
+                        </button>
+                    </div>
+                </div>
             </div>
             
             <!-- 训练区域 -->
@@ -187,10 +205,6 @@
                  </div>
                  
                  <div id="feedback" class="emoji-feedback hidden"></div>
-                 
-                 <button id="startBtn" class="btn btn-success btn-lg">
-                     <i class="bi bi-play-fill"></i> 开始训练
-                 </button>
              </div>
             
             <!-- 历史记录 -->
@@ -198,10 +212,94 @@
                 <h4><i class="bi bi-clock-history"></i> 今日答题记录</h4>
                 <div id="historyList" class="mt-3"></div>
             </div>
+            
+            <!-- 所有历史记录 -->
+            <div class="mt-5">
+                <h4><i class="bi bi-clock-history"></i> 历史统计</h4>
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <div class="stats-card">
+                            <h5>累计答题</h5>
+                            <h3 id="allTimeTotal" class="text-primary">0</h3>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stats-card">
+                            <h5>正确答题</h5>
+                            <h3 id="allTimeCorrect" class="text-success">0</h3>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stats-card">
+                            <h5>正确率</h5>
+                            <h3 id="allTimeAccuracy" class="text-warning">0%</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <button id="showAllHistoryBtn" class="btn btn-info">
+                        <i class="bi bi-list"></i> 查看详细历史记录
+                    </button>
+                    <div id="allHistoryContainer" class="mt-3" style="display: none;">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h5>详细历史记录</h5>
+                            <button id="hideAllHistoryBtn" class="btn btn-sm btn-secondary">
+                                <i class="bi bi-eye-slash"></i> 隐藏
+                            </button>
+                        </div>
+                        <div id="allHistoryList"></div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- 异步加载Bootstrap JS，带缓存和错误处理 -->
+    <script>
+        /**
+         * 异步加载Bootstrap Bundle JS
+         * 使用CDN失败时的本地回退机制
+         */
+        (function() {
+            const cdnUrl = 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js';
+            const fallbackUrl = '/assets/js/bootstrap.bundle.min.js';
+            
+            // 创建脚本元素
+            const script = document.createElement('script');
+            script.src = cdnUrl;
+            script.async = true;
+            script.crossOrigin = 'anonymous';
+            
+            // 设置加载超时
+            const timeout = setTimeout(() => {
+                console.warn('Bootstrap JS CDN加载超时，切换到本地回退');
+                loadFallback();
+            }, 5000);
+            
+            // 成功加载
+            script.onload = () => {
+                clearTimeout(timeout);
+                console.log('Bootstrap JS CDN加载成功');
+            };
+            
+            // 加载失败
+            script.onerror = () => {
+                clearTimeout(timeout);
+                console.warn('Bootstrap JS CDN加载失败，切换到本地回退');
+                loadFallback();
+            };
+            
+            // 加载本地回退
+            function loadFallback() {
+                const fallbackScript = document.createElement('script');
+                fallbackScript.src = fallbackUrl;
+                fallbackScript.async = true;
+                document.head.appendChild(fallbackScript);
+            }
+            
+            document.head.appendChild(script);
+        })();
+    </script>
     <script>
         /**
          * 30以内加减法智能训练系统
@@ -215,30 +313,157 @@
                 this.history = this.loadHistory();
                 this.today = new Date().toISOString().split('T')[0];
                 
+                // 缓存DOM元素以提高性能
+                this.domCache = {
+                    dailyLimitAlert: document.getElementById('dailyLimitAlert'),
+                    trainingArea: document.getElementById('trainingArea'),
+                    answerOptions: document.getElementById('answerOptions'),
+                    nextBtn: document.getElementById('nextBtn'),
+                    feedback: document.getElementById('feedback'),
+                    historyList: document.getElementById('historyList'),
+                    question: document.getElementById('question'),
+                    optionA: document.getElementById('optionA'),
+                    optionB: document.getElementById('optionB'),
+                    optionC: document.getElementById('optionC'),
+                    optionD: document.getElementById('optionD'),
+                    todayTotal: document.getElementById('todayTotal'),
+                    todayCorrect: document.getElementById('todayCorrect'),
+                    todayAccuracy: document.getElementById('todayAccuracy'),
+                    totalQuestions: document.getElementById('totalQuestions'),
+                    totalCorrect: document.getElementById('totalCorrect'),
+                    totalAccuracy: document.getElementById('totalAccuracy'),
+                    resetBtn: document.getElementById('resetBtn')
+                };
+                
+                // 缓存所有历史记录相关DOM元素
+                this.domCache.allTimeTotal = document.getElementById('allTimeTotal');
+                this.domCache.allTimeCorrect = document.getElementById('allTimeCorrect');
+                this.domCache.allTimeAccuracy = document.getElementById('allTimeAccuracy');
+                this.domCache.showAllHistoryBtn = document.getElementById('showAllHistoryBtn');
+                this.domCache.hideAllHistoryBtn = document.getElementById('hideAllHistoryBtn');
+                this.domCache.allHistoryContainer = document.getElementById('allHistoryContainer');
+                this.domCache.allHistoryList = document.getElementById('allHistoryList');
+                
+                // 缓存今日历史记录以避免重复过滤
+                this.todayHistory = this.history.filter(h => h.date === this.today);
+                
+                // 防抖和节流缓存
+                this.debounceTimer = null;
+                this.throttleTimer = null;
+                this.lastThrottleTime = 0;
+                
                 this.initializeEventListeners();
                 this.updateStats();
-                this.checkDailyLimit();
+                this.updateAllTimeStats();
+                this.updateHistoryList(); // 确保在页面加载时显示历史记录
+                
+                // 检查每日训练上限并自动开始训练
+                const isLimited = this.checkDailyLimit();
+                if (!isLimited) {
+                    // 自动开始训练
+                    this.startTraining();
+                }
             }
             
             /**
              * 初始化事件监听器
              */
             initializeEventListeners() {
-                document.getElementById('startBtn').addEventListener('click', () => this.startTraining());
+                // 使用事件委托优化性能
+                this.domCache.answerOptions.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('answer-btn')) {
+                        this.checkAnswer(e.target);
+                    }
+                });
                 
-                ['optionA', 'optionB', 'optionC', 'optionD'].forEach(id => {
-                    document.getElementById(id).addEventListener('click', (e) => this.checkAnswer(e.target));
+                // 添加重置按钮事件监听器
+                const resetLimitBtn = document.getElementById('resetLimitBtn');
+                if (resetLimitBtn) {
+                    resetLimitBtn.addEventListener('click', () => this.resetDailyLimit());
+                }
+                
+                // 添加历史记录按钮事件监听器
+                this.domCache.showAllHistoryBtn.addEventListener('click', () => {
+                    this.domCache.allHistoryContainer.style.display = 'block';
+                    this.updateAllHistoryList();
+                });
+                
+                this.domCache.hideAllHistoryBtn.addEventListener('click', () => {
+                    this.domCache.allHistoryContainer.style.display = 'none';
                 });
             }
             
             /**
-             * 检查每日训练上限
+             * 检查每日训练上限（支持额外增加的题目数量）
              */
             checkDailyLimit() {
-                const todayHistory = this.history.filter(h => h.date === this.today);
-                if (todayHistory.length >= this.dailyLimit) {
-                    document.getElementById('dailyLimitAlert').classList.remove('hidden');
-                    document.getElementById('trainingArea').classList.add('hidden');
+                // 更新缓存的今日历史记录
+                this.todayHistory = this.history.filter(h => h.date === this.today);
+                
+                // 获取额外增加的题目数量
+                const extraKey = `mathTrainingExtra_${this.today}`;
+                const extraCount = parseInt(localStorage.getItem(extraKey) || '0');
+                
+                // 计算实际的上限（基础上限 + 额外增加的题目）
+                const actualLimit = this.dailyLimit + extraCount;
+                
+                // 检查今日是否已达到训练上限
+                if (this.todayHistory.length >= actualLimit) {
+                    // 显示每日限制提示
+                    this.domCache.dailyLimitAlert.classList.remove('hidden');
+                    
+                    // 隐藏训练区域
+                    this.domCache.trainingArea.classList.add('hidden');
+                    
+                    // 隐藏答案选项区域
+                    this.domCache.answerOptions.classList.add('hidden');
+                    
+                    // 更新提示信息
+                    const limitText = document.getElementById('limitText');
+                    if (limitText) {
+                        if (extraCount > 0) {
+                            limitText.innerHTML = `<i class="bi bi-exclamation-triangle-fill"></i> 今日已答${this.todayHistory.length}题，已达到${actualLimit}题上限（含${extraCount}道额外题目）！`;
+                        } else {
+                            limitText.innerHTML = `<i class="bi bi-exclamation-triangle-fill"></i> 今日训练已达到上限（${this.dailyLimit}题），明天再来继续吧！`;
+                        }
+                    }
+                    
+                    return true; // 已达到限制
+                } else {
+                    // 未达到上限，隐藏限制提示
+                    this.domCache.dailyLimitAlert.classList.add('hidden');
+                    this.domCache.trainingArea.classList.remove('hidden');
+                    
+                    // 显示答案选项区域
+                    this.domCache.answerOptions.classList.remove('hidden');
+                    
+                    return false; // 未达到限制
+                }
+            }
+            
+            /**
+             * 增加当日训练上限（每次增加10道题）
+             */
+            resetDailyLimit() {
+                // 确认用户是否要增加训练上限
+                if (confirm(`确定要增加今日训练上限吗？将额外增加10道题（当前已答：${this.todayHistory.length}道）`)) {
+                    // 在localStorage中存储增加的题目数量
+                    const extraKey = `mathTrainingExtra_${this.today}`;
+                    let extraCount = parseInt(localStorage.getItem(extraKey) || '0');
+                    extraCount += 10; // 每次增加10道题
+                    localStorage.setItem(extraKey, extraCount.toString());
+                    
+                    // 隐藏每日限制提示
+                    this.domCache.dailyLimitAlert.classList.add('hidden');
+                    
+                    // 显示训练区域
+                    this.domCache.trainingArea.classList.remove('hidden');
+                    
+                    // 显示增加成功的反馈
+                    this.showFeedback(`✅ 今日训练上限已增加10道题！（额外：${extraCount}道）`, 'success');
+                    
+                    // 生成第一题
+                    this.generateNextQuestion();
                 }
             }
             
@@ -246,9 +471,16 @@
              * 开始训练
              */
             startTraining() {
-                document.getElementById('startBtn').classList.add('hidden');
-                document.getElementById('answerOptions').classList.remove('hidden');
-                this.generateNextQuestion();
+                // 检查是否达到每日限制
+                const isLimited = this.checkDailyLimit();
+                
+                // 如果未达到限制，则开始训练
+                if (!isLimited) {
+                    // 显示答案选项区域
+                    this.domCache.answerOptions.classList.remove('hidden');
+                    // 生成第一个问题
+                    this.generateNextQuestion();
+                }
             }
             
             /**
@@ -266,37 +498,138 @@
             /**
              * 根据历史答题情况智能生成题目
              */
+            /**
+             * 生成智能题目
+             * 根据用户答题历史和模式分析调整难度和题型
+             */
             generateSmartQuestion() {
-                const todayHistory = this.history.filter(h => h.date === this.today);
-                
-                // 根据今日答题情况调整难度
+                // 默认参数
                 let maxNumber = 30;
-                if (todayHistory.length > 0) {
+                let isAddition = Math.random() > 0.5; // 默认随机选择加减法
+                let useWeakNumbers = false;
+                let weakNumbers = [];
+                
+                // 获取今日历史记录和最近历史记录
+                const todayHistory = this.history.filter(h => h.date === this.today);
+                const recentHistory = this.history.slice(-20); // 最近20道题
+                
+                // 分析用户答题模式
+                const pattern = this.analyzeUserPattern();
+                
+                if (pattern && pattern.weakNumbers.length > 0) {
+                    // 使用高级分析结果
+                    
+                    // 根据加减法正确率调整难度和题型
+                    if (pattern.additionAccuracy > 0.8 && pattern.subtractionAccuracy > 0.8) {
+                        maxNumber = 30; // 两种题型都掌握得很好，增加难度
+                    } else if (pattern.additionAccuracy < 0.5 && pattern.subtractionAccuracy < 0.5) {
+                        maxNumber = 15; // 两种题型都掌握不好，降低难度
+                    } else {
+                        maxNumber = 20; // 保持中等难度
+                    }
+                    
+                    // 根据小数字和大数字的正确率进一步调整
+                    if (pattern.smallNumberAccuracy > 0.8 && pattern.largeNumberAccuracy < 0.6) {
+                        // 小数字掌握好但大数字不行，适当降低难度
+                        maxNumber = Math.min(maxNumber, 20);
+                    }
+                    
+                    // 确定题目类型，优先选择正确率较低的类型
+                    if (Math.abs(pattern.additionAccuracy - pattern.subtractionAccuracy) > 0.2) {
+                        // 70%的概率出现正确率较低的题型
+                        if (Math.random() < 0.7) {
+                            isAddition = pattern.additionAccuracy > pattern.subtractionAccuracy ? false : true;
+                        }
+                    }
+                    
+                    // 使用弱点数字
+                    weakNumbers = pattern.weakNumbers;
+                    useWeakNumbers = Math.random() < 0.4; // 40%概率使用弱点数字
+                } else if (todayHistory.length > 0) {
+                    // 使用基本分析结果
                     const accuracy = todayHistory.filter(h => h.correct).length / todayHistory.length;
+                    
+                    // 根据正确率调整难度
                     if (accuracy < 0.6) {
                         maxNumber = 15; // 降低难度
                     } else if (accuracy > 0.9) {
                         maxNumber = 30; // 保持高难度
                     }
+                    
+                    // 分析加减法的正确率，针对弱项进行强化训练
+                    if (recentHistory.length >= 5) {
+                        const additionHistory = recentHistory.filter(h => h.type === 'addition');
+                        const subtractionHistory = recentHistory.filter(h => h.type === 'subtraction');
+                        
+                        // 只有当有足够的历史数据时才进行分析
+                        if (additionHistory.length >= 3 && subtractionHistory.length >= 3) {
+                            const additionAccuracy = additionHistory.filter(h => h.correct).length / additionHistory.length;
+                            const subtractionAccuracy = subtractionHistory.filter(h => h.correct).length / subtractionHistory.length;
+                            
+                            // 如果加减法正确率差异明显，增加弱项的出题概率
+                            if (Math.abs(additionAccuracy - subtractionAccuracy) > 0.2) {
+                                // 70%的概率出现正确率较低的题型
+                                if (Math.random() < 0.7) {
+                                    isAddition = additionAccuracy > subtractionAccuracy ? false : true;
+                                }
+                            }
+                        }
+                    }
+                    
+                    // 分析错误的题目，找出需要强化的数字范围
+                    const wrongAnswers = recentHistory.filter(h => !h.correct);
+                    if (wrongAnswers.length > 0) {
+                        // 提取错误题目中的数字
+                        wrongAnswers.forEach(record => {
+                            // 从问题中提取数字
+                            const numbers = record.question.match(/\d+/g);
+                            if (numbers && numbers.length >= 2) {
+                                weakNumbers.push(parseInt(numbers[0]), parseInt(numbers[1]));
+                            }
+                        });
+                        
+                        // 如果有错误的数字，30%的概率使用这些数字范围出题
+                        if (weakNumbers.length > 0) {
+                            useWeakNumbers = Math.random() < 0.3;
+                            // 计算错误数字的平均值作为难度参考
+                            const avgWrongNumber = weakNumbers.reduce((a, b) => a + b, 0) / weakNumbers.length;
+                            // 根据平均值调整最大数字范围
+                            maxNumber = Math.min(30, Math.max(15, Math.round(avgWrongNumber * 1.5)));
+                        }
+                    }
                 }
                 
-                const num1 = Math.floor(Math.random() * maxNumber) + 1;
-                const num2 = Math.floor(Math.random() * maxNumber) + 1;
-                const isAddition = Math.random() > 0.5;
+                // 生成题目数字
+                let num1, num2;
                 
-                let question, answer;
+                if (useWeakNumbers && weakNumbers.length > 0) {
+                    // 使用弱点数字作为其中一个操作数
+                    num1 = weakNumbers[Math.floor(Math.random() * weakNumbers.length)];
+                    // 确保数字在合理范围内
+                    num1 = Math.min(num1, maxNumber);
+                    num2 = Math.floor(Math.random() * maxNumber) + 1;
+                } else {
+                    num1 = Math.floor(Math.random() * maxNumber) + 1;
+                    num2 = Math.floor(Math.random() * maxNumber) + 1;
+                }
+                
+                let question, answer, type;
                 if (isAddition) {
                     question = `${num1} + ${num2} = ?`;
                     answer = num1 + num2;
+                    type = 'addition';
                 } else {
                     // 确保减法结果为正数
                     const larger = Math.max(num1, num2);
                     const smaller = Math.min(num1, num2);
                     question = `${larger} - ${smaller} = ?`;
                     answer = larger - smaller;
+                    type = 'subtraction';
+                    num1 = larger;
+                    num2 = smaller;
                 }
                 
-                return { question, answer, num1, num2, isAddition };
+                return { question, answer, num1, num2, type, isAddition }; // 添加type字段以便记录
             }
             
             /**
@@ -313,11 +646,11 @@
                     let wrongOption;
                     const mistakeType = Math.random();
                     
-                    if (mistakeType < 0.3 && commonMistakes.length > 0) {
-                        // 使用常见错误模式
+                    if (mistakeType < 0.4 && commonMistakes.length > 0) {
+                        // 使用常见错误模式（增加权重）
                         const mistake = commonMistakes[Math.floor(Math.random() * commonMistakes.length)];
                         wrongOption = correctAnswer + mistake.offset;
-                    } else if (mistakeType < 0.6) {
+                    } else if (mistakeType < 0.7) {
                         // 相邻数字错误
                         wrongOption = correctAnswer + (Math.random() > 0.5 ? 1 : -1) * (Math.floor(Math.random() * 3) + 1);
                     } else {
@@ -337,17 +670,38 @@
             
             /**
              * 获取常见错误模式
+             * 分析历史错误答案，统计错误偏移量及其频率
              */
             getCommonMistakes() {
-                const mistakes = [];
+                const mistakeMap = {};
                 const wrongAnswers = this.history.filter(h => !h.correct);
                 
+                // 统计每种错误偏移量的出现次数
                 wrongAnswers.forEach(record => {
                     const offset = record.selectedAnswer - record.correctAnswer;
+                    // 只关注较小的偏移量，这些更可能是计算错误而非随机猜测
                     if (Math.abs(offset) <= 5) {
-                        mistakes.push({ offset, count: 1 });
+                        const key = offset.toString();
+                        if (!mistakeMap[key]) {
+                            mistakeMap[key] = { offset, count: 0 };
+                        }
+                        mistakeMap[key].count += 1;
                     }
                 });
+                
+                // 转换为数组并按出现频率排序
+                const mistakes = Object.values(mistakeMap);
+                mistakes.sort((a, b) => b.count - a.count);
+                
+                // 如果没有足够的错误记录，添加一些常见错误模式
+                if (mistakes.length < 2) {
+                    // 加一错误
+                    if (!mistakeMap['1']) mistakes.push({ offset: 1, count: 1 });
+                    // 减一错误
+                    if (!mistakeMap['-1']) mistakes.push({ offset: -1, count: 1 });
+                    // 加十错误（进位问题）
+                    if (!mistakeMap['10']) mistakes.push({ offset: 10, count: 1 });
+                }
                 
                 return mistakes;
             }
@@ -356,13 +710,12 @@
              * 显示题目
              */
             displayQuestion() {
-                document.getElementById('question').textContent = this.currentQuestion.question;
+                this.domCache.question.textContent = this.currentQuestion.question;
                 
                 const options = this.generateOptions(this.currentQuestion.answer);
-                const buttons = ['optionA', 'optionB', 'optionC', 'optionD'];
+                const buttons = [this.domCache.optionA, this.domCache.optionB, this.domCache.optionC, this.domCache.optionD];
                 
-                buttons.forEach((id, index) => {
-                    const button = document.getElementById(id);
+                buttons.forEach((button, index) => {
                     button.textContent = options[index];
                     button.className = 'btn btn-primary answer-btn';
                     button.disabled = false;
@@ -383,8 +736,8 @@
                 } else {
                     button.classList.add('incorrect');
                     // 标记正确答案
-                    ['optionA', 'optionB', 'optionC', 'optionD'].forEach(id => {
-                        const btn = document.getElementById(id);
+                    const buttons = [this.domCache.optionA, this.domCache.optionB, this.domCache.optionC, this.domCache.optionD];
+                    buttons.forEach(btn => {
                         if (parseInt(btn.textContent) === this.currentQuestion.answer) {
                             btn.classList.add('correct');
                         }
@@ -398,19 +751,15 @@
                 // 记录答题历史
                 this.recordAnswer(isCorrect, selectedAnswer);
                 
-                // 延迟后自动进入下一题
+                // 延迟后自动进入下一题或检查限制
                 setTimeout(() => {
-                    // 检查是否达到每日上限
-                    const todayHistory = this.history.filter(h => h.date === this.today);
-                    if (todayHistory.length >= this.dailyLimit) {
-                        // 达到上限，显示提示
-                        document.getElementById('dailyLimitAlert').classList.remove('hidden');
-                        document.getElementById('startBtn').classList.remove('hidden');
-                        document.getElementById('startBtn').textContent = '🔄 明天再来';
-                        document.getElementById('startBtn').disabled = true;
-                        this.hideTrainingArea();
+                    // 检查是否达到每日限制
+                    const isLimited = this.checkDailyLimit();
+                    
+                    if (isLimited) {
+                        // 已达到限制，不需要做任何事情，提示信息已经显示
                     } else {
-                        // 未达到上限，自动进入下一题
+                        // 未达到限制，自动进入下一题
                         this.generateNextQuestion();
                     }
                 }, 1000);
@@ -424,7 +773,7 @@
                 this.displayQuestion();
                 
                 // 隐藏反馈信息
-                document.getElementById('feedback').classList.add('hidden');
+                this.domCache.feedback.classList.add('hidden');
                 
                 // 启用答案按钮
                 this.enableAnswerButtons();
@@ -432,6 +781,7 @@
             
             /**
              * 记录答题历史
+             * 保存答题记录并更新统计信息
              */
             recordAnswer(isCorrect, selectedAnswer) {
                 const record = {
@@ -441,47 +791,117 @@
                     correctAnswer: this.currentQuestion.answer,
                     selectedAnswer: selectedAnswer,
                     correct: isCorrect,
-                    type: this.currentQuestion.isAddition ? 'addition' : 'subtraction'
+                    type: this.currentQuestion.type || (this.currentQuestion.isAddition ? 'addition' : 'subtraction')
                 };
                 
                 this.history.push(record);
                 this.saveHistory();
+                // 更新缓存的今日历史记录
+                this.todayHistory = this.history.filter(h => h.date === this.today);
                 this.updateStats();
+                
+                // 每5道题分析一次用户模式，以便更好地调整出题策略
+                if (this.todayHistory.length % 5 === 0) {
+                    this.analyzeUserPattern();
+                }
+                this.updateAllTimeStats();
                 this.updateHistoryList();
                 this.checkDailyLimit();
             }
             
             /**
-             * 更新统计信息
+             * 防抖函数：延迟执行
+             */
+            debounce(func, delay) {
+                return (...args) => {
+                    clearTimeout(this.debounceTimer);
+                    this.debounceTimer = setTimeout(() => func.apply(this, args), delay);
+                };
+            }
+            
+            /**
+             * 节流函数：限制执行频率
+             */
+            throttle(func, limit) {
+                return (...args) => {
+                    const now = Date.now();
+                    if (now - this.lastThrottleTime >= limit) {
+                        this.lastThrottleTime = now;
+                        return func.apply(this, args);
+                    }
+                };
+            }
+            
+            /**
+             * 批量DOM更新：减少重排重绘
+             */
+            batchDOMUpdate(updateFn) {
+                // 使用requestAnimationFrame优化渲染
+                if (window.requestAnimationFrame) {
+                    requestAnimationFrame(updateFn);
+                } else {
+                    updateFn();
+                }
+            }
+            
+            /**
+             * 更新统计信息（优化版本，使用防抖）
              */
             updateStats() {
-                const todayHistory = this.history.filter(h => h.date === this.today);
-                const totalToday = todayHistory.length;
-                const correctToday = todayHistory.filter(h => h.correct).length;
-                const accuracyToday = totalToday > 0 ? Math.round((correctToday / totalToday) * 100) : 0;
+                // 使用防抖避免频繁更新
+                const debouncedUpdate = this.debounce(() => {
+                    const totalToday = this.todayHistory.length;
+                    const correctToday = this.todayHistory.filter(h => h.correct).length;
+                    const accuracyToday = totalToday > 0 ? Math.round((correctToday / totalToday) * 100) : 0;
+                    
+                    const totalAll = this.history.length;
+                    const correctAll = this.history.filter(h => h.correct).length;
+                    const accuracyAll = totalAll > 0 ? Math.round((correctAll / totalAll) * 100) : 0;
+                    
+                    // 批量更新DOM，减少重排重绘
+                    this.batchDOMUpdate(() => {
+                        this.domCache.todayTotal.textContent = totalToday;
+                        this.domCache.todayCorrect.textContent = correctToday;
+                        this.domCache.todayAccuracy.textContent = accuracyToday + '%';
+                        
+                        this.domCache.totalQuestions.textContent = totalAll;
+                        this.domCache.totalCorrect.textContent = correctAll;
+                        this.domCache.totalAccuracy.textContent = accuracyAll + '%';
+                    });
+                }, 50);
                 
+                debouncedUpdate();
+            }
+            
+            /**
+             * 更新所有时间统计信息
+             */
+            updateAllTimeStats() {
                 const totalAll = this.history.length;
                 const correctAll = this.history.filter(h => h.correct).length;
                 const accuracyAll = totalAll > 0 ? Math.round((correctAll / totalAll) * 100) : 0;
                 
-                document.getElementById('todayTotal').textContent = totalToday;
-                document.getElementById('todayCorrect').textContent = correctToday;
-                document.getElementById('todayAccuracy').textContent = accuracyToday + '%';
-                
-                document.getElementById('totalQuestions').textContent = totalAll;
-                document.getElementById('totalCorrect').textContent = correctAll;
-                document.getElementById('totalAccuracy').textContent = accuracyAll + '%';
+                // 更新所有时间统计
+                this.batchDOMUpdate(() => {
+                    this.domCache.allTimeTotal.textContent = totalAll;
+                    this.domCache.allTimeCorrect.textContent = correctAll;
+                    this.domCache.allTimeAccuracy.textContent = accuracyAll + '%';
+                });
             }
             
             /**
-             * 更新历史记录列表
+             * 更新历史记录列表（优化版本，使用文档片段）
              */
             updateHistoryList() {
-                const historyList = document.getElementById('historyList');
-                const todayHistory = this.history.filter(h => h.date === this.today).slice(-5);
+                const todayHistory = this.todayHistory.slice(-5);
                 
-                historyList.innerHTML = '';
+                // 使用文档片段减少DOM操作
+                const fragment = document.createDocumentFragment();
                 
+                // 清空历史记录列表
+                this.domCache.historyList.innerHTML = '';
+                
+                // 批量创建元素
                 todayHistory.reverse().forEach(record => {
                     const item = document.createElement('div');
                     item.className = 'history-item fade-in';
@@ -499,26 +919,91 @@
                             </div>
                         </div>
                     `;
-                    historyList.appendChild(item);
+                    fragment.appendChild(item);
                 });
+                
+                // 一次性添加到DOM
+                this.domCache.historyList.appendChild(fragment);
+            }
+            
+            /**
+             * 更新所有历史记录列表
+             */
+            updateAllHistoryList() {
+                // 使用文档片段减少DOM操作
+                const fragment = document.createDocumentFragment();
+                
+                // 清空历史记录列表
+                this.domCache.allHistoryList.innerHTML = '';
+                
+                // 如果没有历史记录
+                if (this.history.length === 0) {
+                    const item = document.createElement('div');
+                    item.className = 'history-item text-center';
+                    item.innerHTML = '<p class="mb-0">暂无历史记录</p>';
+                    fragment.appendChild(item);
+                    this.domCache.allHistoryList.appendChild(fragment);
+                    return;
+                }
+                
+                // 按日期分组显示历史记录
+                const groupedHistory = {};
+                this.history.forEach(record => {
+                    if (!groupedHistory[record.date]) {
+                        groupedHistory[record.date] = [];
+                    }
+                    groupedHistory[record.date].push(record);
+                });
+                
+                // 按日期倒序显示
+                const sortedDates = Object.keys(groupedHistory).sort().reverse();
+                
+                sortedDates.forEach(date => {
+                    const dateHeader = document.createElement('div');
+                    dateHeader.className = 'alert alert-secondary mt-3 mb-2 py-2';
+                    dateHeader.innerHTML = `<strong>${date}</strong>`;
+                    fragment.appendChild(dateHeader);
+                    
+                    groupedHistory[date].reverse().forEach(record => {
+                        const item = document.createElement('div');
+                        item.className = 'history-item fade-in';
+                        item.innerHTML = `
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>${record.question}</strong>
+                                    <br>
+                                    <small class="text-muted">${record.time}</small>
+                                </div>
+                                <div>
+                                    <span class="badge ${record.correct ? 'bg-success' : 'bg-danger'}">
+                                        ${record.correct ? '✓' : '✗'} ${record.selectedAnswer}
+                                    </span>
+                                </div>
+                            </div>
+                        `;
+                        fragment.appendChild(item);
+                    });
+                });
+                
+                // 一次性添加到DOM
+                this.domCache.allHistoryList.appendChild(fragment);
             }
             
             /**
              * 显示反馈信息
              */
             showFeedback(message, type) {
-                const feedback = document.getElementById('feedback');
-                feedback.textContent = message;
-                feedback.className = `emoji-feedback fade-in text-${type}`;
-                feedback.classList.remove('hidden');
+                this.domCache.feedback.textContent = message;
+                this.domCache.feedback.className = `emoji-feedback fade-in text-${type}`;
+                this.domCache.feedback.classList.remove('hidden');
             }
             
             /**
              * 启用答案按钮
              */
             enableAnswerButtons() {
-                ['optionA', 'optionB', 'optionC', 'optionD'].forEach(id => {
-                    document.getElementById(id).disabled = false;
+                [this.domCache.optionA, this.domCache.optionB, this.domCache.optionC, this.domCache.optionD].forEach(button => {
+                    button.disabled = false;
                 });
             }
             
@@ -526,9 +1011,93 @@
              * 禁用答案按钮
              */
             disableAnswerButtons() {
-                ['optionA', 'optionB', 'optionC', 'optionD'].forEach(id => {
-                    document.getElementById(id).disabled = true;
+                [this.domCache.optionA, this.domCache.optionB, this.domCache.optionC, this.domCache.optionD].forEach(button => {
+                    button.disabled = true;
                 });
+            }
+            
+            /**
+             * 隐藏训练区域
+             */
+            hideTrainingArea() {
+                this.domCache.trainingArea.classList.add('hidden');
+                this.domCache.answerOptions.classList.add('hidden');
+            }
+            
+            /**
+             * 分析用户答题模式
+             * 用于智能出题系统分析用户的答题习惯和弱点
+             */
+            analyzeUserPattern() {
+                // 获取最近的答题记录
+                const recentHistory = this.history.slice(-30); // 最近30道题
+                if (recentHistory.length < 5) return null; // 数据不足，无法分析
+                
+                const result = {
+                    additionAccuracy: 0,
+                    subtractionAccuracy: 0,
+                    smallNumberAccuracy: 0, // 10以内的小数字
+                    largeNumberAccuracy: 0, // 10以上的大数字
+                    commonMistakes: [],
+                    weakNumbers: [] // 经常出错的数字
+                };
+                
+                // 分析加减法正确率
+                const additionHistory = recentHistory.filter(h => h.type === 'addition');
+                const subtractionHistory = recentHistory.filter(h => h.type === 'subtraction');
+                
+                if (additionHistory.length > 0) {
+                    result.additionAccuracy = additionHistory.filter(h => h.correct).length / additionHistory.length;
+                }
+                
+                if (subtractionHistory.length > 0) {
+                    result.subtractionAccuracy = subtractionHistory.filter(h => h.correct).length / subtractionHistory.length;
+                }
+                
+                // 分析不同数字范围的正确率
+                const smallNumberQuestions = recentHistory.filter(record => {
+                    const numbers = record.question.match(/\d+/g);
+                    return numbers && numbers.every(num => parseInt(num) <= 10);
+                });
+                
+                const largeNumberQuestions = recentHistory.filter(record => {
+                    const numbers = record.question.match(/\d+/g);
+                    return numbers && numbers.some(num => parseInt(num) > 10);
+                });
+                
+                if (smallNumberQuestions.length > 0) {
+                    result.smallNumberAccuracy = smallNumberQuestions.filter(h => h.correct).length / smallNumberQuestions.length;
+                }
+                
+                if (largeNumberQuestions.length > 0) {
+                    result.largeNumberAccuracy = largeNumberQuestions.filter(h => h.correct).length / largeNumberQuestions.length;
+                }
+                
+                // 获取常见错误模式
+                result.commonMistakes = this.getCommonMistakes();
+                
+                // 分析经常出错的数字
+                const wrongAnswers = recentHistory.filter(h => !h.correct);
+                const numberFrequency = {};
+                
+                wrongAnswers.forEach(record => {
+                    const numbers = record.question.match(/\d+/g);
+                    if (numbers) {
+                        numbers.forEach(num => {
+                            const n = parseInt(num);
+                            if (!numberFrequency[n]) numberFrequency[n] = 0;
+                            numberFrequency[n]++;
+                        });
+                    }
+                });
+                
+                // 找出出现频率最高的数字
+                result.weakNumbers = Object.entries(numberFrequency)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 3)
+                    .map(entry => parseInt(entry[0]));
+                
+                return result;
             }
             
             /**
@@ -562,6 +1131,266 @@
         // 初始化系统
         document.addEventListener('DOMContentLoaded', () => {
             new MathTrainingSystem();
+        });
+    </script>
+</body>
+</html>
+
+    <!-- 智能CDN加载和错误处理 -->
+    <script>
+        /**
+         * 智能CDN资源加载器
+         * 提供CDN失败时的本地回退机制
+         */
+        class SmartCDNLoader {
+            constructor() {
+                this.cdnUrls = {
+                    bootstrap: {
+                        css: 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css',
+                        js: 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js'
+                    },
+                    bootstrapIcons: {
+                        css: 'https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css'
+                    }
+                };
+                this.localFallbacks = {
+                    bootstrap: {
+                        css: '/youeryuan/assets/css/bootstrap.min.css',
+                        js: '/youeryuan/assets/js/bootstrap.bundle.min.js'
+                    },
+                    bootstrapIcons: {
+                        css: '/youeryuan/assets/css/bootstrap-icons.css'
+                    }
+                };
+                this.loadTimeout = 5000; // 5秒超时
+            }
+
+            /**
+             * 加载CSS资源
+             * @param {string} name - 资源名称
+             * @returns {Promise} 加载结果
+             */
+            async loadCSS(name) {
+                const url = this.cdnUrls[name]?.css;
+                const fallback = this.localFallbacks[name]?.css;
+                
+                if (!url) return false;
+
+                return this.loadResource(url, fallback, 'css');
+            }
+
+            /**
+             * 通用资源加载方法
+             * @param {string} url - CDN资源URL
+             * @param {string} fallback - 本地回退URL
+             * @param {string} type - 资源类型
+             * @returns {Promise} 加载结果
+             */
+            async loadResource(url, fallback, type) {
+                return new Promise((resolve) => {
+                    const timeoutId = setTimeout(() => {
+                        console.warn(`CDN资源加载超时: ${url}`);
+                        this.loadFallback(fallback, type, resolve);
+                    }, this.loadTimeout);
+
+                    if (type === 'css') {
+                        this.loadCSSResource(url, () => {
+                            clearTimeout(timeoutId);
+                            resolve(true);
+                        }, () => {
+                            clearTimeout(timeoutId);
+                            this.loadFallback(fallback, type, resolve);
+                        });
+                    }
+                });
+            }
+
+            /**
+             * 加载CSS资源
+             * @param {string} url - CSS文件URL
+             * @param {Function} onSuccess - 成功回调
+             * @param {Function} onError - 失败回调
+             */
+            loadCSSResource(url, onSuccess, onError) {
+                const link = document.createElement('link');
+                link.rel = 'stylesheet';
+                link.href = url;
+                link.onload = onSuccess;
+                link.onerror = onError;
+                document.head.appendChild(link);
+            }
+
+            /**
+             * 加载本地回退资源
+             * @param {string} url - 本地资源URL
+             * @param {string} type - 资源类型
+             * @param {Function} resolve - 完成回调
+             */
+            loadFallback(url, type, resolve) {
+                if (!url) {
+                    resolve(false);
+                    return;
+                }
+
+                console.log(`加载本地回退资源: ${url}`);
+                
+                if (type === 'css') {
+                    const link = document.createElement('link');
+                    link.rel = 'stylesheet';
+                    link.href = url;
+                    link.onload = () => resolve(true);
+                    link.onerror = () => resolve(false);
+                    document.head.appendChild(link);
+                } else if (type === 'js') {
+                    const script = document.createElement('script');
+                    script.src = url;
+                    script.onload = () => resolve(true);
+                    script.onerror = () => resolve(false);
+                    document.head.appendChild(script);
+                }
+            }
+
+            /**
+             * 验证Bootstrap是否成功加载
+             * @returns {boolean} 验证结果
+             */
+            verifyBootstrap() {
+                return typeof bootstrap !== 'undefined' || 
+                       (document.querySelector('.container') && 
+                        getComputedStyle(document.querySelector('.container')).maxWidth !== 'none');
+            }
+
+            /**
+             * 验证Bootstrap Icons是否成功加载
+             * @returns {boolean} 验证结果
+             */
+            verifyBootstrapIcons() {
+                const testElement = document.createElement('i');
+                testElement.className = 'bi bi-heart';
+                document.body.appendChild(testElement);
+                const loaded = getComputedStyle(testElement).fontFamily?.includes('bootstrap-icons');
+                document.body.removeChild(testElement);
+                return loaded;
+            }
+        }
+
+        // 初始化CDN加载器
+        window.addEventListener('DOMContentLoaded', async () => {
+            const loader = new SmartCDNLoader();
+            
+            // 预加载关键资源
+            await Promise.all([
+                loader.loadCSS('bootstrap'),
+                loader.loadCSS('bootstrapIcons')
+            ]);
+            
+            // 加载Bootstrap JavaScript资源
+            const bootstrapJsLoaded = await new Promise((resolve) => {
+                const timeoutId = setTimeout(() => {
+                    console.warn('CDN Bootstrap JS加载超时');
+                    loader.loadFallback(loader.localFallbacks.bootstrap.js, 'js', resolve);
+                }, loader.loadTimeout);
+                
+                const url = loader.cdnUrls.bootstrap.js;
+                if (url) {
+                    const script = document.createElement('script');
+                    script.src = url;
+                    script.onload = () => {
+                        clearTimeout(timeoutId);
+                        resolve(true);
+                    };
+                    script.onerror = () => {
+                        clearTimeout(timeoutId);
+                        loader.loadFallback(loader.localFallbacks.bootstrap.js, 'js', resolve);
+                    };
+                    document.head.appendChild(script);
+                } else {
+                    resolve(false);
+                }
+            });
+            
+            console.log('Bootstrap JS加载状态:', bootstrapJsLoaded);
+            
+            // 验证加载结果
+            setTimeout(() => {
+                if (!loader.verifyBootstrap()) {
+                    console.warn('Bootstrap验证失败，尝试加载回退资源');
+                    loader.loadFallback(loader.localFallbacks.bootstrap.css, 'css', () => {});
+                }
+                
+                if (!loader.verifyBootstrapIcons()) {
+                    console.warn('Bootstrap Icons验证失败，尝试加载回退资源');
+                    loader.loadFallback(loader.localFallbacks.bootstrapIcons.css, 'css', () => {});
+                }
+            }, 1000);
+        });
+    </script>
+</head>
+    <!-- 性能优化和缓存控制 -->
+    <meta http-equiv="Cache-Control" content="max-age=31536000, public">
+    <meta http-equiv="Expires" content="Sat, 31 Dec 2024 23:59:59 GMT">
+    <meta name="theme-color" content="#667eea">
+    
+    <!-- 预加载关键资源 -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- PWA支持 -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="数学训练">
+</head>
+    <!-- Service Worker注册 -->
+    <script>
+        /**
+         * Service Worker注册
+         * 提供PWA离线支持和缓存管理
+         */
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/youeryuan/sw.js')
+                    .then((registration) => {
+                        console.log('Service Worker注册成功:', registration.scope);
+                        
+                        // 监听Service Worker更新
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    console.log('发现新版本的Service Worker');
+                                    // 可以在这里提示用户更新
+                                }
+                            });
+                        });
+                    })
+                    .catch((error) => {
+                        console.log('Service Worker注册失败:', error);
+                    });
+            });
+        }
+        
+        /**
+         * PWA安装提示
+         */
+        let deferredPrompt;
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            // 防止Chrome 67及更早版本自动显示安装提示
+            e.preventDefault();
+            // 保存事件以便稍后触发
+            deferredPrompt = e;
+            
+            // 可以在这里显示自定义的安装提示UI
+            console.log('PWA安装提示已准备');
+        });
+        
+        /**
+         * 应用安装后的事件
+         */
+        window.addEventListener('appinstalled', () => {
+            console.log('PWA已安装');
+            deferredPrompt = null;
         });
     </script>
 </body>
