@@ -19,6 +19,24 @@
     <meta property="twitter:description" content="免费在线JSON格式化工具，支持JSON美化、压缩、校验和转换，帮助开发者快速处理和调试JSON数据。">
     <title>JSON格式化工具 | 在线美化、压缩和校验JSON数据 - 在线工具箱</title>
     <link rel="stylesheet" href="../../css/style.css">
+    <!-- 引入智能资源管理器 -->
+    <script src="../../js/smart-resource-manager.js"></script>
+    <script>
+        // 配置智能资源管理器
+        SmartResourceManager.config({
+            serviceWorker: '../../tools-sw.js',
+            resourceMap: {
+                'js/main.js': '../../js/main.js',
+                'tools-sw.js': '../../tools-sw.js',
+                'js/smart-resource-manager.js': '../../js/smart-resource-manager.js'
+            }
+        });
+        
+        // 预加载核心资源
+        SmartResourceManager.preload([
+            '../../js/main.js'
+        ]);
+    </script>
     <!-- 结构化数据 Schema.org -->
     <script type="application/ld+json">
     {
@@ -105,6 +123,9 @@
         <div class="container">
             <h1>JSON格式化工具</h1>
             <p>在线JSON格式化、压缩和校验工具</p>
+            <div id="offline-status" style="display:none; background-color:#f8d7da; color:#721c24; padding:8px; margin-top:10px; border-radius:4px;">
+                您当前处于离线状态，但仍可以使用本工具的基本功能
+            </div>
         </div>
     </header>
 
@@ -192,8 +213,6 @@
             try {
                 const jsonObj = JSON.parse(input);
                 output.value = JSON.stringify(jsonObj, null, 4);
-                // 记录使用频次
-                recordToolUsage('JSON格式化', window.location.href);
             } catch (error) {
                 output.value = 'JSON格式错误: ' + error.message;
             }
@@ -211,8 +230,6 @@
             try {
                 const jsonObj = JSON.parse(input);
                 output.value = JSON.stringify(jsonObj);
-                // 记录使用频次
-                recordToolUsage('JSON格式化', window.location.href);
             } catch (error) {
                 output.value = 'JSON格式错误: ' + error.message;
             }
@@ -230,8 +247,6 @@
             try {
                 JSON.parse(input);
                 output.value = 'JSON格式正确！';
-                // 记录使用频次
-                recordToolUsage('JSON格式化', window.location.href);
             } catch (error) {
                 output.value = 'JSON格式错误: ' + error.message;
             }
@@ -248,7 +263,26 @@
             if (savedInput) {
                 document.getElementById('json-input').value = savedInput;
             }
+            
+            // 监听网络状态变化
+            window.addEventListener('online', updateNetworkStatus);
+            window.addEventListener('offline', updateNetworkStatus);
+            
+            // 初始化网络状态显示
+            updateNetworkStatus();
         });
+        
+        /**
+         * 更新网络状态显示
+         */
+        function updateNetworkStatus() {
+            const offlineStatus = document.getElementById('offline-status');
+            if (navigator.onLine) {
+                offlineStatus.style.display = 'none';
+            } else {
+                offlineStatus.style.display = 'block';
+            }
+        }
         
         /**
          * 将JSON转换为C#类定义
@@ -268,9 +302,6 @@
                 const rootClassName = 'RootObject'; // 默认根类名
                 const result = generateCSharpClasses(jsonObj, rootClassName);
                 output.value = result;
-                
-                // 记录使用频次
-                recordToolUsage('JSON格式化', window.location.href);
             } catch (error) {
                 output.value = 'JSON格式错误或转换失败: ' + error.message;
             }
@@ -412,9 +443,6 @@
         function clearAll() {
             document.getElementById('json-input').value = '';
             document.getElementById('json-output').value = '';
-            
-            // 记录使用频次
-            recordToolUsage('JSON格式化', window.location.href);
         }
     </script>
 </body>

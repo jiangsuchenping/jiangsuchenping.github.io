@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="在线工具描述 - 在线工具箱提供的免费在线工具">
+    <meta name="keywords" content="关键词1,关键词2,关键词3,在线工具,开发工具">
+    <meta name="author" content="在线工具箱">
+    <link rel="canonical" href="https://jiangsuchenping.github.io/tools/工具目录/index.html">
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://jiangsuchenping.github.io/tools/工具目录/index.html">
+    <meta property="og:title" content="工具名称 | 工具描述 - 在线工具箱">
+    <meta property="og:description" content="在线工具描述 - 在线工具箱提供的免费在线工具">
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://jiangsuchenping.github.io/tools/工具目录/index.html">
+    <meta property="twitter:title" content="工具名称 | 工具描述 - 在线工具箱">
+    <meta property="twitter:description" content="在线工具描述 - 在线工具箱提供的免费在线工具">
+    <title>工具名称 | 工具描述 - 在线工具箱</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <!-- 引入智能资源管理器 -->
+    <script src="../../js/smart-resource-manager.js"></script>
+    <script>
+        // 配置智能资源管理器
+        SmartResourceManager.config({
+            serviceWorker: '../../tools-sw.js',
+            resourceMap: {
+                'js/main.js': '../../js/main.js',
+                'tools-sw.js': '../../tools-sw.js',
+                'js/smart-resource-manager.js': '../../js/smart-resource-manager.js'
+                // 添加工具特定的资源映射
+            }
+        });
+        
+        // 预加载核心资源
+        SmartResourceManager.preload([
+            '../../js/main.js'
+            // 添加工具特定的预加载资源
+        ]);
+    </script>
+    <!-- 结构化数据 Schema.org -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "工具名称",
+      "url": "https://jiangsuchenping.github.io/tools/工具目录/index.html",
+      "description": "在线工具描述 - 在线工具箱提供的免费在线工具",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Web",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "CNY"
+      }
+    }
+    </script>
+    <style>
+        /* 工具特定样式 */
+        .tool-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .input-group textarea,
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .input-group textarea {
+            min-height: 200px;
+            resize: vertical;
+        }
+        
+        .button-group {
+            margin-bottom: 20px;
+        }
+        
+        .button-group button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin-right: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .button-group button:hover {
+            background-color: #2980b9;
+        }
+        
+        .result-container {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            min-height: 100px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>工具名称</h1>
+            <p>工具简短描述</p>
+            <div id="offline-status" style="display:none; background-color:#f8d7da; color:#721c24; padding:8px; margin-top:10px; border-radius:4px;">
+                您当前处于离线状态，但仍可以使用本工具的基本功能
+            </div>
+        </div>
+    </header>
+
+    <nav>
+        <div class="container">
+            <ul>
+                <li><a href="../../index.html">首页</a></li>
+                <li><a href="#功能1">功能1</a></li>
+                <li><a href="#功能2">功能2</a></li>
+                <li><a href="#功能3">功能3</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="breadcrumb">
+        <div class="container">
+            <ul>
+                <li><a href="../../index.html">首页</a></li>
+                <li>工具分类</li>
+                <li>工具名称</li>
+            </ul>
+        </div>
+    </div>
+
+    <main class="tool-container">
+        <section class="tool-description">
+            <h2>工具介绍</h2>
+            <p>这里是工具的详细介绍，说明工具的用途、特点和使用方法。</p>
+        </section>
+
+        <section class="tool-form">
+            <div class="input-group">
+                <label for="input-field">输入：</label>
+                <textarea id="input-field" placeholder="请在此输入..."></textarea>
+            </div>
+
+            <div class="button-group">
+                <button onclick="processFunction1()">功能1</button>
+                <button onclick="processFunction2()">功能2</button>
+                <button onclick="processFunction3()">功能3</button>
+                <button onclick="clearAll()">清空</button>
+            </div>
+
+            <div class="input-group">
+                <label for="output-field">输出：</label>
+                <textarea id="output-field" readonly></textarea>
+            </div>
+        </section>
+
+        <section class="tool-instructions">
+            <h2>使用说明</h2>
+            <ol>
+                <li>在输入框中输入需要处理的内容</li>
+                <li>点击相应的功能按钮进行处理</li>
+                <li>在输出框中查看处理结果</li>
+                <li>如需清空输入和输出，点击"清空"按钮</li>
+            </ol>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2023 在线工具箱 - 免费在线工具集合</p>
+        </div>
+    </footer>
+
+    <script>
+        // 工具ID，用于本地存储
+        const TOOL_ID = 'tool-template';
+        
+        /**
+         * 功能1处理函数
+         */
+        function processFunction1() {
+            const input = document.getElementById('input-field').value;
+            const output = document.getElementById('output-field');
+            
+            if (!input.trim()) {
+                output.value = '请输入内容';
+                return;
+            }
+            
+            try {
+                // 处理逻辑
+                const result = '功能1处理结果: ' + input;
+                output.value = result;
+            } catch (error) {
+                output.value = '处理出错: ' + error.message;
+            }
+        }
+        
+        /**
+         * 功能2处理函数
+         */
+        function processFunction2() {
+            const input = document.getElementById('input-field').value;
+            const output = document.getElementById('output-field');
+            
+            if (!input.trim()) {
+                output.value = '请输入内容';
+                return;
+            }
+            
+            try {
+                // 处理逻辑
+                const result = '功能2处理结果: ' + input;
+                output.value = result;
+            } catch (error) {
+                output.value = '处理出错: ' + error.message;
+            }
+        }
+        
+        /**
+         * 功能3处理函数
+         */
+        function processFunction3() {
+            const input = document.getElementById('input-field').value;
+            const output = document.getElementById('output-field');
+            
+            if (!input.trim()) {
+                output.value = '请输入内容';
+                return;
+            }
+            
+            try {
+                // 处理逻辑
+                const result = '功能3处理结果: ' + input;
+                output.value = result;
+            } catch (error) {
+                output.value = '处理出错: ' + error.message;
+            }
+        }
+        
+        /**
+         * 清空输入和输出
+         */
+        function clearAll() {
+            document.getElementById('input-field').value = '';
+            document.getElementById('output-field').value = '';
+        }
+        
+        /**
+         * 设置自动保存功能
+         * @param {string} toolId - 工具ID
+         * @param {string} elementId - 元素ID
+         * @param {string} type - 元素类型
+         */
+        function setupAutoSave(toolId, elementId, type) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+            
+            element.addEventListener(type === 'input' ? 'input' : 'change', function() {
+                localStorage.setItem(toolId + '-' + elementId, element.value);
+            });
+        }
+        
+        /**
+         * 获取本地存储的选项值
+         * @param {string} toolId - 工具ID
+         * @param {string} optionName - 选项名称
+         * @param {*} defaultValue - 默认值
+         * @returns {*} 选项值
+         */
+        function getOption(toolId, optionName, defaultValue) {
+            const value = localStorage.getItem(toolId + '-' + optionName);
+            return value !== null ? value : defaultValue;
+        }
+        
+        // 页面加载完成后执行
+        document.addEventListener('DOMContentLoaded', function() {
+            // 设置自动保存功能
+            setupAutoSave(TOOL_ID, 'input-field', 'input');
+            
+            // 加载上次的输入
+            const savedInput = getOption(TOOL_ID, 'input-field', '');
+            if (savedInput) {
+                document.getElementById('input-field').value = savedInput;
+            }
+            
+            // 监听网络状态变化
+            window.addEventListener('online', updateNetworkStatus);
+            window.addEventListener('offline', updateNetworkStatus);
+            
+            // 初始化网络状态显示
+            updateNetworkStatus();
+        });
+        
+        /**
+         * 更新网络状态显示
+         */
+        function updateNetworkStatus() {
+            const offlineStatus = document.getElementById('offline-status');
+            if (navigator.onLine) {
+                offlineStatus.style.display = 'none';
+            } else {
+                offlineStatus.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>

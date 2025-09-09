@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>离线模式 - 在线工具箱</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            margin-top: 50px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .offline-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+            color: #e74c3c;
+        }
+        
+        .message {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        
+        .info {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        
+        .tools-list {
+            margin-top: 30px;
+        }
+        
+        .tools-list h2 {
+            color: #2c3e50;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .tools-list ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        
+        .tools-list li {
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            border-left: 3px solid #3498db;
+        }
+        
+        .retry-button {
+            display: block;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 20px auto;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            text-align: center;
+        }
+        
+        .retry-button:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="offline-icon">📶</div>
+            <h1>您当前处于离线状态</h1>
+        </header>
+        
+        <div class="message">
+            <p>您的设备当前无法连接到互联网。不过别担心，我们的工具箱支持离线使用！</p>
+        </div>
+        
+        <div class="info">
+            <p>您可以继续使用已缓存的工具，但某些需要网络连接的功能可能无法正常工作。</p>
+        </div>
+        
+        <div class="tools-list">
+            <h2>可离线使用的工具</h2>
+            <ul>
+                <li>JSON格式化工具</li>
+                <li>HTML编码/解码工具</li>
+                <li>进制转换工具</li>
+                <li>其他已缓存的工具</li>
+            </ul>
+        </div>
+        
+        <button class="retry-button" onclick="window.location.reload()">重新连接</button>
+    </div>
+    
+    <script>
+        // 监听网络状态变化
+        window.addEventListener('online', function() {
+            // 网络恢复时重定向到首页
+            window.location.href = '/';
+        });
+    </script>
+</body>
+</html>
