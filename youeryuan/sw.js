@@ -7,20 +7,20 @@
 const CACHE_VERSION = 'v1';
 const CACHE_NAME = `youeryuan-cache-${CACHE_VERSION}`;
 
-// 需要缓存的资源列表
+// 需要缓存的资源列表 - 只包含确认存在的资源
 const CACHE_URLS = [
   '/youeryuan/',
   '/youeryuan/index.html',
   '/youeryuan/math-training.html',
   '/youeryuan/assets/css/bootstrap.min.css',
-  '/youeryuan/assets/js/bootstrap.bundle.min.js',
+  '/youeryuan/assets/css/bootstrap-custom.min.css',
   '/youeryuan/assets/css/bootstrap-icons.css',
-  '/youeryuan/assets/js/jquery.min.js',
-  '/youeryuan/assets/js/popper.min.js',
-  '/youeryuan/assets/css/styles.css',
-  '/youeryuan/assets/images/favicon.ico',
-  '/youeryuan/assets/fonts/bootstrap-icons.woff',
-  '/youeryuan/assets/fonts/bootstrap-icons.woff2'
+  '/youeryuan/assets/js/bootstrap.bundle.min.js',
+  '/youeryuan/assets/js/cdn-manager.js',
+  '/youeryuan/assets/js/smart-resource-manager.js',
+  '/youeryuan/assets/fonts/bootstrap-icons/bootstrap-icons.woff',
+  '/youeryuan/assets/fonts/bootstrap-icons/bootstrap-icons.woff2',
+  '/youeryuan/assets/images/favicon.svg'
 ];
 
 // Service Worker 安装事件
@@ -30,12 +30,29 @@ self.addEventListener('install', event => {
   // 跳过等待，直接激活
   self.skipWaiting();
   
-  // 缓存核心资源
+  // 缓存核心资源 - 使用更可靠的方式缓存资源
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
         console.log('[Service Worker] 缓存资源中...');
-        return cache.addAll(CACHE_URLS);
+        // 逐个缓存资源，避免一个资源失败导致整个缓存失败
+        const cachePromises = CACHE_URLS.map(url => {
+          // 单独处理每个资源，忽略失败的资源
+          return fetch(url)
+            .then(response => {
+              if (!response.ok) {
+                throw new Error(`缓存失败: ${url}`);
+              }
+              return cache.put(url, response);
+            })
+            .catch(error => {
+              console.warn(`[Service Worker] 资源缓存失败: ${url}`, error);
+              // 继续处理其他资源
+              return Promise.resolve();
+            });
+        });
+        
+        return Promise.all(cachePromises);
       })
       .then(() => {
         console.log('[Service Worker] 资源缓存完成');
