@@ -502,6 +502,9 @@
                     // 生成第一个问题
                     this.generateNextQuestion();
                 }
+                
+                // 更新复习提醒状态
+                this.updateReviewAlert();
             }
             
             /**
@@ -798,7 +801,9 @@
                 
                 // 如果是复习题目，更新复习状态
                 if (this.currentQuestion.isReview) {
-                    this.updateReviewStatus(this.currentQuestion.questionId, isCorrect);
+                    this.updateReviewStatus(this.currentQuestion.reviewItem, isCorrect);
+                    // 更新今日复习提醒
+                    this.updateReviewAlert();
                 }
                 
                 // 延迟后自动进入下一题或检查限制
@@ -827,6 +832,9 @@
                 
                 // 启用答案按钮
                 this.enableAnswerButtons();
+                
+                // 更新复习提醒状态
+                this.updateReviewAlert();
             }
             
             /**
@@ -860,6 +868,11 @@
                 this.updateAllTimeStats();
                 this.updateHistoryList();
                 this.checkDailyLimit();
+                
+                // 如果是复习题目，更新今日复习提醒
+                if (this.currentQuestion.isReview) {
+                    this.updateReviewAlert();
+                }
             }
             
             /**
@@ -1238,7 +1251,8 @@
                             reviewDates,
                             reviewStatus: Array(intervals.length).fill(false), // 记录每个阶段是否已复习
                             stage: 0, // 当前处于第几个阶段
-                            lastReviewDate: null // 最后一次复习日期
+                            lastReviewDate: null, // 最后一次复习日期
+                            answeredCorrectToday: false // 今天是否已答对
                         });
                     }
                 });
@@ -1258,8 +1272,22 @@
                     return; // 没有需要复习的题目
                 }
                 
-                // 当前日期
+                // 获取上次检查日期
+                const lastCheckDate = localStorage.getItem('lastCheckDate');
                 const today = this.today;
+                
+                // 如果是新的一天，重置所有题目的answeredCorrectToday标记
+                if (lastCheckDate !== today) {
+                    ebbinghausData.forEach(item => {
+                        item.answeredCorrectToday = false;
+                    });
+                    
+                    // 保存更新后的数据
+                    this.saveEbbinghausData(ebbinghausData);
+                    
+                    // 更新上次检查日期
+                    localStorage.setItem('lastCheckDate', today);
+                }
                 
                 // 找出今天需要复习的题目
                 const needReviewItems = ebbinghausData.filter(item => {
@@ -1267,7 +1295,8 @@
                     const stageIndex = item.reviewDates.findIndex(date => date === today);
                     
                     // 如果找到今天需要复习的阶段，并且该阶段尚未复习
-                    return stageIndex !== -1 && !item.reviewStatus[stageIndex];
+                    // 同时检查该题目是否已经在今天被回答正确过
+                    return stageIndex !== -1 && !item.reviewStatus[stageIndex] && !item.answeredCorrectToday;
                 });
                 
                 // 如果有需要复习的题目，显示提示信息
@@ -1336,8 +1365,8 @@
                 const question = reviewItem.question;
                 const answer = isAddition ? (num1 + num2) : (num1 - num2);
                 
-                // 更新该题目的复习状态
-                this.updateReviewStatus(reviewItem);
+                // 不再在这里更新复习状态，只在用户实际答题时更新
+                // this.updateReviewStatus(reviewItem);
                 
                 // 返回复习题目，并标记为复习题
                 return { 
@@ -1348,14 +1377,15 @@
                     type, 
                     isAddition,
                     isReview: true, // 标记为复习题
-                    reviewStage: reviewItem.stage // 当前复习阶段
+                    reviewStage: reviewItem.stage, // 当前复习阶段
+                    reviewItem: reviewItem // 传递reviewItem用于后续更新状态
                 };
             }
             
             /**
              * 更新题目的复习状态
              */
-            updateReviewStatus(reviewItem) {
+            updateReviewStatus(reviewItem, isCorrect = true) {
                 // 获取艾宾浩斯记忆曲线数据
                 const ebbinghausData = this.loadEbbinghausData();
                 
@@ -1381,9 +1411,64 @@
                         // 更新最后复习日期
                         ebbinghausData[itemIndex].lastReviewDate = today;
                         
+                        // 如果回答正确，标记该题目今天已经回答正确，避免再次出现
+                        if (isCorrect) {
+                            ebbinghausData[itemIndex].answeredCorrectToday = true;
+                        }
+                        
                         // 保存更新后的数据
                         this.saveEbbinghausData(ebbinghausData);
                     }
+                }
+            }
+            
+            /**
+             * 更新今日复习提醒
+             * 在用户回答复习题目后更新提醒中的剩余题目数量
+             * 当全部复习完成后，移除提醒
+             */
+            updateReviewAlert() {
+                // 获取艾宾浩斯记忆曲线数据
+                const ebbinghausData = this.loadEbbinghausData();
+                if (!ebbinghausData || ebbinghausData.length === 0) {
+                    return; // 没有需要复习的题目
+                }
+                
+                // 当前日期
+                const today = this.today;
+                
+                // 找出今天需要复习的题目
+                const needReviewItems = ebbinghausData.filter(item => {
+                    // 检查是否有今天需要复习的阶段
+                    const stageIndex = item.reviewDates.findIndex(date => date === today);
+                    
+                    // 如果找到今天需要复习的阶段，并且该阶段尚未复习
+                    // 同时检查该题目是否已经在今天被回答正确过
+                    return stageIndex !== -1 && !item.reviewStatus[stageIndex] && !item.answeredCorrectToday;
+                });
+                
+                // 获取提示元素
+                let reviewAlert = document.getElementById('reviewAlert');
+                
+                // 如果有需要复习的题目，更新提示信息
+                if (needReviewItems.length > 0) {
+                    // 如果提示元素不存在，创建一个
+                    if (!reviewAlert) {
+                        reviewAlert = document.createElement('div');
+                        reviewAlert.id = 'reviewAlert';
+                        reviewAlert.className = 'alert alert-warning';
+                        // 插入到训练区域之前
+                        this.domCache.trainingArea.parentNode.insertBefore(reviewAlert, this.domCache.trainingArea);
+                    }
+                    
+                    // 更新提示内容
+                    reviewAlert.innerHTML = `
+                        <strong>今日复习提醒</strong>：根据艾宾浩斯记忆曲线，您有 ${needReviewItems.length} 道题目需要复习。
+                        这些题目将优先出现在您的训练中。
+                    `;
+                } else if (reviewAlert) {
+                    // 如果没有需要复习的题目了，移除提示
+                    reviewAlert.remove();
                 }
             }
         }
