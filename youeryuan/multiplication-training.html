@@ -402,50 +402,68 @@
          */
         class MathTrainingSystem {
             constructor() {
-                console.log('初始化乘法口诀智能训练系统...');
+                console.time('MathTrainingSystem_Initialization');
+                console.log('MathTrainingSystem: 开始初始化乘法口诀智能训练系统...');
                 this.dailyLimit = 20; // 每日训练上限
                 this.currentQuestion = null;
                 this.answers = [];
                 
-                console.log('加载历史记录...');
+                console.time('MathTrainingSystem_LoadHistory');
+                console.log('MathTrainingSystem: 正在加载历史记录...');
                 this.history = this.loadHistory();
-                console.log('历史记录加载完成，共', this.history.length, '条记录');
+                console.log('MathTrainingSystem: 历史记录加载完成，共', this.history.length, '条记录');
+                console.timeEnd('MathTrainingSystem_LoadHistory');
                 
                 this.today = new Date().toISOString().split('T')[0];
-                console.log('今日日期:', this.today);
+                console.log('MathTrainingSystem: 今日日期:', this.today);
                 
                 // 缓存DOM元素以提高性能
-                console.log('初始化DOM缓存...');
+                console.time('MathTrainingSystem_InitializeDOMCache');
+                console.log('MathTrainingSystem: 正在初始化DOM缓存...');
                 this.initializeDOMCache();
+                console.timeEnd('MathTrainingSystem_InitializeDOMCache');
                 
                 // 初始化今日历史记录
+                console.time('MathTrainingSystem_GetTodayHistory');
+                console.log('MathTrainingSystem: 正在获取今日历史记录...');
                 this.todayHistory = this.getTodayHistory();
-                console.log('今日历史记录:', this.todayHistory.length, '条');
+                console.log('MathTrainingSystem: 今日历史记录:', this.todayHistory.length, '条');
+                console.timeEnd('MathTrainingSystem_GetTodayHistory');
                 
                 // 加载艾宾浩斯记忆曲线数据
-                console.log('加载艾宾浩斯记忆曲线数据...');
+                console.time('MathTrainingSystem_LoadEbbinghausData');
+                console.log('MathTrainingSystem: 正在加载艾宾浩斯记忆曲线数据...');
                 this.ebbinghausData = this.loadEbbinghausData();
+                console.timeEnd('MathTrainingSystem_LoadEbbinghausData');
                 
                 // 防抖和节流缓存
                 this.debounceTimer = null;
                 this.throttleTimer = null;
                 this.lastThrottleTime = 0;
                 
-                console.log('初始化事件监听器...');
+                console.time('MathTrainingSystem_InitializeEventListeners');
+                console.log('MathTrainingSystem: 正在初始化事件监听器...');
                 this.initializeEventListeners();
+                console.timeEnd('MathTrainingSystem_InitializeEventListeners');
                 
-                console.log('更新统计数据...');
+                console.time('MathTrainingSystem_UpdateStats');
+                console.log('MathTrainingSystem: 正在更新统计数据...');
                 this.updateStats();
                 this.updateAllTimeStats();
                 this.updateHistoryList(); // 确保在页面加载时显示历史记录
+                console.timeEnd('MathTrainingSystem_UpdateStats');
                 
                 // 检查今日是否有需要复习的题目
-                console.log('检查今日复习题目...');
+                console.time('MathTrainingSystem_CheckTodayReviews');
+                console.log('MathTrainingSystem: 正在检查今日复习题目...');
                 this.checkTodayReviews();
+                console.timeEnd('MathTrainingSystem_CheckTodayReviews');
                 
                 // 检查每日训练上限并自动开始训练
-                console.log('检查每日训练上限...');
+                console.time('MathTrainingSystem_CheckDailyLimit');
+                console.log('MathTrainingSystem: 正在检查每日训练上限...');
                 const isLimited = this.checkDailyLimit();
+                console.timeEnd('MathTrainingSystem_CheckDailyLimit');
                 if (!isLimited) {
                     // 自动开始训练
                     console.log('开始训练...');
@@ -659,6 +677,9 @@
                     
                     // 显示训练区域
                     this.domCache.trainingArea.classList.remove('hidden');
+                    
+                    // 显式显示答案选项区域
+                    this.domCache.answerOptions.classList.remove('hidden');
                     
                     // 显示增加成功的反馈
                     this.showFeedback(`✅ 今日训练上限已增加10道题！（额外：${extraCount}道）`, 'success');
@@ -1077,6 +1098,11 @@
                 const todayTotal = this.todayHistory.length;
                 const todayCorrect = this.todayHistory.filter(h => h.isCorrect).length;
                 const todayAccuracy = todayTotal > 0 ? Math.round((todayCorrect / todayTotal) * 100) : 0;
+
+                // 更新DOM显示
+                this.domCache.totalQuestions.textContent = todayTotal;
+                this.domCache.totalCorrect.textContent = todayCorrect;
+                this.domCache.totalAccuracy.textContent = `${todayAccuracy}%`;
                 
                 console.log('今日统计:', {
                     total: todayTotal,
@@ -1508,7 +1534,15 @@
                 this.domCache.totalUniqueQuestions.textContent = summaryStats.totalUniqueQuestions || 0;
                 this.domCache.averageAccuracy.textContent = `${summaryStats.averageAccuracy || 0}%`;
                 this.domCache.mostFrequentQuestion.textContent = summaryStats.mostFrequentQuestion || '-';
-                this.domCache.lowestAccuracyQuestion.textContent = summaryStats.lowestAccuracyQuestion || '-';
+                
+                // 显示最低正确率题目，确保包含正确率信息
+                if (summaryStats.lowestAccuracyQuestion && summaryStats.lowestAccuracyQuestion !== '-') {
+                    // 显示题目和正确率
+                    this.domCache.lowestAccuracyQuestion.textContent = `${summaryStats.lowestAccuracyQuestion} (${summaryStats.lowestAccuracyValue.toFixed(0)}%)`;
+                    console.log('显示最低正确率题目:', summaryStats.lowestAccuracyQuestion, '正确率:', summaryStats.lowestAccuracyValue + '%');
+                } else {
+                    this.domCache.lowestAccuracyQuestion.textContent = '-';
+                }
                 
                 console.log('题目汇总统计区域更新完成');
             }
@@ -1541,7 +1575,8 @@
                     totalUniqueQuestions: totalQuestions,
                     averageAccuracy: 0,
                     mostFrequentQuestion: null,
-                    lowestAccuracyQuestion: null
+                    lowestAccuracyQuestion: null,
+                    lowestAccuracyValue: 0 // 添加最低正确率值
                 };
                 
                 // 计算平均正确率
@@ -1552,12 +1587,32 @@
                     // 找出最常见的题目（答题次数最多的）
                     summaryStats.mostFrequentQuestion = statsArray[0]?.question || '-';
                     
-                    // 找出正确率最低的题目（至少答过3次的题目中）
-                    const filteredByAttempts = statsArray.filter(item => item.total >= 3);
+                    // 找出正确率最低的题目
+                    const filteredByAttempts = statsArray;
                     if (filteredByAttempts.length > 0) {
                         // 按正确率升序排序
                         filteredByAttempts.sort((a, b) => a.accuracy - b.accuracy);
-                        summaryStats.lowestAccuracyQuestion = filteredByAttempts[0]?.question || '-';
+                        
+                        // 找出所有具有相同最低正确率的题目
+                        const lowestAccuracy = filteredByAttempts[0].accuracy;
+                        const lowestAccuracyQuestions = filteredByAttempts.filter(item => 
+                            Math.abs(item.accuracy - lowestAccuracy) < 0.001); // 使用小误差范围比较浮点数
+                        
+                        // 从具有相同最低正确率的题目中随机选择一个
+                        const randomIndex = Math.floor(Math.random() * lowestAccuracyQuestions.length);
+                        summaryStats.lowestAccuracyQuestion = lowestAccuracyQuestions[randomIndex]?.question || '-';
+                        summaryStats.lowestAccuracyValue = lowestAccuracy; // 不再四舍五入，保留原始值
+                        
+                        console.log('找到最低正确率题目:', {
+                            lowestAccuracy: lowestAccuracy + '%',
+                            totalCandidates: lowestAccuracyQuestions.length,
+                            selectedQuestion: summaryStats.lowestAccuracyQuestion
+                        });
+                        
+                        // 确保显示真实的最低正确率，包括0%
+                        if (lowestAccuracy === 0) {
+                            console.log('检测到0%正确率的题目');
+                        }
                     }
                 }
                 const averageAccuracy = statsArray.length > 0 ?
@@ -2210,8 +2265,16 @@
                 constructor() {
                     this.currentQuestion = null;
                     this.correctAnswer = null;
+                    this.dailyLimit = 20; // 每日训练上限
+                    this.today = new Date().toISOString().split('T')[0];
                     this.initializeElements();
                     this.startFirstQuestion();
+                    
+                    // 添加重置按钮事件监听器
+                    const resetLimitBtn = document.getElementById('resetLimitBtn');
+                    if (resetLimitBtn) {
+                        resetLimitBtn.addEventListener('click', () => this.resetDailyLimit());
+                    }
                 }
                 
                 initializeElements() {
@@ -2256,27 +2319,81 @@
                 displayQuestion(options) {
                     this.questionEl.textContent = `${this.currentQuestion} = ?`;
                     
+                    // 确保答案选项区域可见
+                    const answerOptionsEl = document.getElementById('answerOptions');
+                    if (answerOptionsEl) {
+                        answerOptionsEl.classList.remove('hidden');
+                    }
+                    
                     const buttons = [this.optionA, this.optionB, this.optionC, this.optionD];
-                    buttons.forEach((btn, index) => {
-                        btn.textContent = options[index];
-                        btn.className = 'btn btn-primary answer-btn';
-                        btn.onclick = () => this.checkAnswer(options[index], btn);
-                    });
+                    for (let i = 0; i < buttons.length; i++) {
+                        const btn = buttons[i];
+                        const option = options[i];
+                        if (btn) {
+                            btn.textContent = option;
+                            btn.className = 'btn btn-primary answer-btn';
+                            // 使用bind绑定this和参数，避免闭包问题
+                            btn.onclick = this.checkAnswer.bind(this, option, btn);
+                        }
+                    }
                 }
                 
                 checkAnswer(selected, button) {
                     const isCorrect = selected === this.correctAnswer;
                     
+                    // 禁用所有按钮，防止重复点击
+                    const buttons = document.querySelectorAll('.answer-btn');
+                    buttons.forEach(btn => {
+                        btn.disabled = true;
+                    });
+                    
                     if (isCorrect) {
                         button.className = 'btn btn-success answer-btn';
-                        setTimeout(() => {
-                            this.generateQuestion();
+                        var self = this; // 保存this引用
+                        setTimeout(function() {
+                            self.generateQuestion();
                         }, 1000);
                     } else {
                         button.className = 'btn btn-danger answer-btn';
-                        setTimeout(() => {
-                            this.generateQuestion();
+                        var self = this; // 保存this引用
+                        setTimeout(function() {
+                            self.generateQuestion();
                         }, 1500);
+                    }
+                }
+                
+                /**
+                 * 增加当日训练上限（每次增加10道题）
+                 */
+                resetDailyLimit() {
+                    // 确认用户是否要增加训练上限
+                    if (confirm(`确定要增加今日训练上限吗？将额外增加10道题`)) {
+                        // 在localStorage中存储增加的题目数量
+                        const extraKey = `multiplicationTrainingExtra_${this.today}`;
+                        let extraCount = parseInt(localStorage.getItem(extraKey) || '0');
+                        extraCount += 10; // 每次增加10道题
+                        localStorage.setItem(extraKey, extraCount.toString());
+                        
+                        // 隐藏每日限制提示
+                        const dailyLimitAlert = document.getElementById('dailyLimitAlert');
+                        if (dailyLimitAlert) {
+                            dailyLimitAlert.classList.add('hidden');
+                        }
+                        
+                        // 显示训练区域
+                        const trainingArea = document.getElementById('trainingArea');
+                        if (trainingArea) {
+                            trainingArea.classList.remove('hidden');
+                        }
+                        
+                        // 显式显示答案选项区域
+                        const answerOptionsEl = document.getElementById('answerOptions');
+                        if (answerOptionsEl) {
+                            answerOptionsEl.classList.remove('hidden');
+                        }
+                        
+                        // 生成第一题
+                        this.generateQuestion();
                     }
                 }
             }
