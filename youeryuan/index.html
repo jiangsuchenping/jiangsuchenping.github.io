@@ -795,6 +795,9 @@
                       @click="selectSubjectAndTab('math', 'subtraction')">
                 <i class="bi bi-dash-circle"></i> 20以内减法
               </button>
+              <a class="quick-nav-dropdown-item" href="math-advanced-training.html" target="_blank">
+                <i class="bi bi-calculator-fill"></i> 高级数学训练
+              </a>
               <button class="quick-nav-dropdown-item" 
                       :class="{ active: currentSubject.key === 'math' && activeMathTab === 'shapes' }"
                       @click="selectSubjectAndTab('math', 'shapes')">
