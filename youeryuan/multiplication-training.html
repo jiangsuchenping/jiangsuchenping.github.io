@@ -286,6 +286,46 @@
                                 <i class="bi bi-eye-slash"></i> 隐藏
                             </button>
                         </div>
+                        
+                        <!-- 题目汇总统计区域 -->
+                        <div id="questionSummaryStats" class="mb-4">
+                            <h6 class="mb-3"><i class="bi bi-pie-chart-fill"></i> 题目汇总统计</h6>
+                            <div class="row">
+                                <div class="col-md-3 mb-2">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h3 id="totalUniqueQuestions" class="text-primary">0</h3>
+                                            <small>不同题目数</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 mb-2">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h3 id="averageAccuracy" class="text-success">0%</h3>
+                                            <small>平均正确率</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 mb-2">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h3 id="mostFrequentQuestion" class="text-info">-</h3>
+                                            <small>最常见题目</small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 mb-2">
+                                    <div class="card bg-light">
+                                        <div class="card-body text-center">
+                                            <h3 id="lowestAccuracyQuestion" class="text-danger">-</h3>
+                                            <small>最低正确率题目</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
                         <div id="questionStatsList" class="table-responsive">
                             <table class="table table-striped table-hover">
                                 <thead>
@@ -362,19 +402,28 @@
          */
         class MathTrainingSystem {
             constructor() {
+                console.log('初始化乘法口诀智能训练系统...');
                 this.dailyLimit = 20; // 每日训练上限
                 this.currentQuestion = null;
                 this.answers = [];
+                
+                console.log('加载历史记录...');
                 this.history = this.loadHistory();
+                console.log('历史记录加载完成，共', this.history.length, '条记录');
+                
                 this.today = new Date().toISOString().split('T')[0];
+                console.log('今日日期:', this.today);
                 
                 // 缓存DOM元素以提高性能
+                console.log('初始化DOM缓存...');
                 this.initializeDOMCache();
                 
-                // 缓存今日历史记录以避免重复过滤
-                this.todayHistory = this.history.filter(h => h.date === this.today);
+                // 初始化今日历史记录
+                this.todayHistory = this.getTodayHistory();
+                console.log('今日历史记录:', this.todayHistory.length, '条');
                 
                 // 加载艾宾浩斯记忆曲线数据
+                console.log('加载艾宾浩斯记忆曲线数据...');
                 this.ebbinghausData = this.loadEbbinghausData();
                 
                 // 防抖和节流缓存
@@ -382,20 +431,28 @@
                 this.throttleTimer = null;
                 this.lastThrottleTime = 0;
                 
+                console.log('初始化事件监听器...');
                 this.initializeEventListeners();
+                
+                console.log('更新统计数据...');
                 this.updateStats();
                 this.updateAllTimeStats();
                 this.updateHistoryList(); // 确保在页面加载时显示历史记录
                 
                 // 检查今日是否有需要复习的题目
+                console.log('检查今日复习题目...');
                 this.checkTodayReviews();
                 
                 // 检查每日训练上限并自动开始训练
+                console.log('检查每日训练上限...');
                 const isLimited = this.checkDailyLimit();
                 if (!isLimited) {
                     // 自动开始训练
+                    console.log('开始训练...');
                     this.startTraining();
                 }
+                
+                console.log('乘法口诀智能训练系统初始化完成');
             }
             
             /**
@@ -403,24 +460,96 @@
              * 批量初始化所有需要的DOM元素引用
              */
             initializeDOMCache() {
-                // 定义需要缓存的元素ID列表
-                const elementIds = [
-                    'dailyLimitAlert', 'trainingArea', 'answerOptions', 'feedback', 'historyList',
-                    'question', 'optionA', 'optionB', 'optionC', 'optionD',
-                    'todayTotal', 'todayCorrect', 'todayAccuracy',
-                    'totalQuestions', 'totalCorrect', 'totalAccuracy',
-                    'resetLimitBtn', 'limitText', 'allTimeTotal', 'allTimeCorrect', 'allTimeAccuracy',
-                    'showAllHistoryBtn', 'hideAllHistoryBtn', 'allHistoryContainer', 'allHistoryList',
-                    'showQuestionStatsBtn', 'hideQuestionStatsBtn', 'questionStatsContainer', 'questionStatsTableBody'
+                console.log('开始初始化DOM缓存...');
+                
+                // 定义需要缓存的元素ID列表及其重要性
+                const elementConfigs = [
+                    // 核心元素 - 这些元素对系统功能至关重要
+                    {id: 'dailyLimitAlert', critical: true},
+                    {id: 'trainingArea', critical: true},
+                    {id: 'answerOptions', critical: true},
+                    {id: 'feedback', critical: true},
+                    {id: 'historyList', critical: true},
+                    {id: 'question', critical: true},
+                    {id: 'optionA', critical: true},
+                    {id: 'optionB', critical: true},
+                    {id: 'optionC', critical: true},
+                    {id: 'optionD', critical: true},
+                    
+                    // 统计显示元素
+                    {id: 'todayTotal', critical: true},
+                    {id: 'todayCorrect', critical: true},
+                    {id: 'todayAccuracy', critical: true},
+                    {id: 'totalQuestions', critical: true},
+                    {id: 'totalCorrect', critical: true},
+                    {id: 'totalAccuracy', critical: true},
+                    {id: 'allTimeTotal', critical: true},
+                    {id: 'allTimeCorrect', critical: true},
+                    {id: 'allTimeAccuracy', critical: true},
+                    
+                    // 功能按钮和容器
+                    {id: 'resetLimitBtn', critical: false},
+                    {id: 'limitText', critical: false},
+                    {id: 'showAllHistoryBtn', critical: true},
+                    {id: 'hideAllHistoryBtn', critical: false},
+                    {id: 'allHistoryContainer', critical: true},
+                    {id: 'allHistoryList', critical: true},
+                    {id: 'showQuestionStatsBtn', critical: true},
+                    {id: 'hideQuestionStatsBtn', critical: false},
+                    {id: 'questionStatsContainer', critical: true},
+                    {id: 'questionStatsTableBody', critical: true},
+                    {id: 'questionSummaryStats', critical: true},
+                    {id: 'totalUniqueQuestions', critical: false},
+                    {id: 'averageAccuracy', critical: false},
+                    {id: 'mostFrequentQuestion', critical: false},
+                    {id: 'lowestAccuracyQuestion', critical: false}
                 ];
                 
                 // 创建DOM缓存对象
                 this.domCache = {};
                 
                 // 批量获取DOM元素引用
-                elementIds.forEach(id => {
-                    this.domCache[id] = document.getElementById(id);
+                let missingElements = [];
+                let missingCriticalElements = [];
+                
+                elementConfigs.forEach(config => {
+                    const element = document.getElementById(config.id);
+                    this.domCache[config.id] = element;
+                    
+                    // 检查元素是否存在
+                    if (!element) {
+                        missingElements.push(config.id);
+                        if (config.critical) {
+                            missingCriticalElements.push(config.id);
+                        }
+                    } else {
+                        console.log(`DOM元素已缓存: ${config.id}`);
+                    }
                 });
+                
+                // 如果有缺失的元素，输出警告
+                if (missingElements.length > 0) {
+                    console.warn('以下DOM元素未找到:', missingElements.join(', '));
+                    
+                    // 如果有关键元素缺失，显示错误
+                    if (missingCriticalElements.length > 0) {
+                        console.error('关键DOM元素缺失，系统可能无法正常工作:', missingCriticalElements.join(', '));
+                        
+                        // 尝试创建错误提示元素
+                        try {
+                            const errorAlert = document.createElement('div');
+                            errorAlert.className = 'alert alert-danger';
+                            errorAlert.innerHTML = `<strong>错误:</strong> 页面关键元素缺失，请刷新页面或联系管理员。`;
+                            document.body.insertBefore(errorAlert, document.body.firstChild);
+                        } catch (e) {
+                            console.error('无法创建错误提示元素:', e);
+                        }
+                    }
+                } else {
+                    console.log('所有DOM元素已成功缓存');
+                }
+                
+                console.log('DOM缓存初始化完成');
             }
             
             /**
@@ -471,7 +600,7 @@
              */
             checkDailyLimit() {
                 // 更新缓存的今日历史记录
-                this.todayHistory = this.history.filter(h => h.date === this.today);
+                this.todayHistory = this.getTodayHistory();
                 
                 // 获取额外增加的题目数量
                 const extraKey = `multiplicationTrainingExtra_${this.today}`;
@@ -899,6 +1028,11 @@
                 const currentQuestionStats = questionStats.get(this.currentQuestion.question) || { total: 0, correct: 0, incorrect: 0, lastAnswered: null };
                 console.log('当前题目统计更新:', this.currentQuestion.question, currentQuestionStats);
                 
+                // 如果题目统计容器可见，更新题目统计
+                if (this.domCache.questionStatsContainer.style.display === 'block') {
+                    this.updateQuestionStats();
+                }
+                
                 // 如果答错了，添加到艾宾浩斯记忆曲线中进行复习
                 if (!isCorrect) {
                     this.updateEbbinghausData(this.currentQuestion.question);
@@ -906,49 +1040,128 @@
             }
             
             /**
+             * 获取今日历史记录
+             * @returns {Array} 今日的历史记录数组
+             */
+            getTodayHistory() {
+                console.log('获取今日历史记录...');
+                
+                if (!this.history || !Array.isArray(this.history)) {
+                    console.error('历史记录不是有效数组');
+                    return [];
+                }
+                
+                // 确保today是有效的日期字符串
+                if (!this.today) {
+                    this.today = new Date().toISOString().split('T')[0];
+                    console.log('重新初始化今日日期:', this.today);
+                }
+                
+                const todayRecords = this.history.filter(h => h && h.date === this.today);
+                console.log(`筛选出${todayRecords.length}条今日(${this.today})历史记录`);
+                
+                return todayRecords;
+            }
+            
+            /**
              * 更新统计数据
              */
             updateStats() {
+                console.log('更新统计数据...');
+                
+                // 确保今日历史记录是最新的
+                this.todayHistory = this.getTodayHistory();
+                console.log('今日历史记录数量:', this.todayHistory.length);
+                
                 // 计算今日统计
                 const todayTotal = this.todayHistory.length;
                 const todayCorrect = this.todayHistory.filter(h => h.isCorrect).length;
                 const todayAccuracy = todayTotal > 0 ? Math.round((todayCorrect / todayTotal) * 100) : 0;
                 
+                console.log('今日统计:', {
+                    total: todayTotal,
+                    correct: todayCorrect,
+                    accuracy: todayAccuracy
+                });
+                
                 // 更新今日统计显示
-                this.domCache.todayTotal.textContent = todayTotal;
-                this.domCache.todayCorrect.textContent = todayCorrect;
-                this.domCache.todayAccuracy.textContent = `${todayAccuracy}%`;
+                if (this.domCache.todayTotal) {
+                    this.domCache.todayTotal.textContent = todayTotal;
+                    this.domCache.todayCorrect.textContent = todayCorrect;
+                    this.domCache.todayAccuracy.textContent = `${todayAccuracy}%`;
+                } else {
+                    console.error('DOM元素未找到: todayTotal');
+                }
                 
                 // 计算总体统计
                 const totalQuestions = this.history.length;
                 const totalCorrect = this.history.filter(h => h.isCorrect).length;
                 const totalAccuracy = totalQuestions > 0 ? Math.round((totalCorrect / totalQuestions) * 100) : 0;
                 
+                console.log('总体统计:', {
+                    total: totalQuestions,
+                    correct: totalCorrect,
+                    accuracy: totalAccuracy
+                });
+                
                 // 更新总体统计显示
-                this.domCache.totalQuestions.textContent = totalQuestions;
-                this.domCache.totalCorrect.textContent = totalCorrect;
-                this.domCache.totalAccuracy.textContent = `${totalAccuracy}%`;
+                if (this.domCache.totalQuestions) {
+                    this.domCache.totalQuestions.textContent = totalQuestions;
+                    this.domCache.totalCorrect.textContent = totalCorrect;
+                    this.domCache.totalAccuracy.textContent = `${totalAccuracy}%`;
+                } else {
+                    console.error('DOM元素未找到: totalQuestions');
+                }
+                
+                // 如果题目统计容器已初始化，更新题目统计
+                if (this.domCache.questionStatsContainer && this.domCache.questionSummaryStats) {
+                    this.updateQuestionStats();
+                }
             }
             
             /**
              * 更新所有时间的统计数据
              */
             updateAllTimeStats() {
+                console.log('更新所有时间的统计数据...');
+                
                 // 计算所有时间的统计
                 const allTimeTotal = this.history.length;
                 const allTimeCorrect = this.history.filter(h => h.isCorrect).length;
                 const allTimeAccuracy = allTimeTotal > 0 ? Math.round((allTimeCorrect / allTimeTotal) * 100) : 0;
                 
+                console.log('所有时间统计:', {
+                    total: allTimeTotal,
+                    correct: allTimeCorrect,
+                    accuracy: allTimeAccuracy
+                });
+                
                 // 更新所有时间的统计显示
-                this.domCache.allTimeTotal.textContent = allTimeTotal;
-                this.domCache.allTimeCorrect.textContent = allTimeCorrect;
-                this.domCache.allTimeAccuracy.textContent = `${allTimeAccuracy}%`;
+                if (this.domCache.allTimeTotal) {
+                    this.domCache.allTimeTotal.textContent = allTimeTotal;
+                    this.domCache.allTimeCorrect.textContent = allTimeCorrect;
+                    this.domCache.allTimeAccuracy.textContent = `${allTimeAccuracy}%`;
+                } else {
+                    console.error('DOM元素未找到: allTimeTotal');
+                }
             }
             
             /**
              * 更新历史记录列表
              */
             updateHistoryList() {
+                console.log('更新历史记录列表...');
+                
+                // 确保今日历史记录是最新的
+                this.todayHistory = this.getTodayHistory();
+                console.log('今日历史记录数量:', this.todayHistory.length);
+                
+                // 检查DOM元素是否存在
+                if (!this.domCache.historyList) {
+                    console.error('DOM元素未找到: historyList');
+                    return;
+                }
+                
                 // 清空历史记录列表
                 this.domCache.historyList.innerHTML = '';
                 
@@ -960,6 +1173,7 @@
                 
                 // 显示今日历史记录（最新的5条）
                 const recentHistory = [...this.todayHistory].reverse().slice(0, 5);
+                console.log('显示最近历史记录:', recentHistory.length, '条');
                 
                 recentHistory.forEach(item => {
                     const historyItem = document.createElement('div');
@@ -992,25 +1206,42 @@
                     viewMoreBtn.className = 'btn btn-sm btn-outline-primary mt-2';
                     viewMoreBtn.textContent = `查看更多（共${this.todayHistory.length}题）`;
                     viewMoreBtn.addEventListener('click', () => {
-                        this.domCache.showAllHistoryBtn.click();
+                        if (this.domCache.showAllHistoryBtn) {
+                            this.domCache.showAllHistoryBtn.click();
+                        } else {
+                            console.error('DOM元素未找到: showAllHistoryBtn');
+                        }
                     });
                     
                     this.domCache.historyList.appendChild(viewMoreBtn);
                 }
+                
+                console.log('历史记录列表更新完成');
             }
             
             /**
              * 更新所有历史记录列表
              */
             updateAllHistoryList() {
+                console.log('更新所有历史记录列表...');
+                
+                // 检查DOM元素是否存在
+                if (!this.domCache.allHistoryList) {
+                    console.error('DOM元素未找到: allHistoryList');
+                    return;
+                }
+                
                 // 清空所有历史记录列表
                 this.domCache.allHistoryList.innerHTML = '';
                 
                 // 如果没有历史记录，显示提示
                 if (this.history.length === 0) {
                     this.domCache.allHistoryList.innerHTML = '<div class="alert alert-info">暂无历史记录</div>';
+                    console.log('没有历史记录可显示');
                     return;
                 }
+                
+                console.log('历史记录总数:', this.history.length);
                 
                 // 按日期分组历史记录
                 const groupedHistory = {};
@@ -1024,6 +1255,7 @@
                 
                 // 按日期倒序排列
                 const sortedDates = Object.keys(groupedHistory).sort().reverse();
+                console.log('按日期分组后的记录数:', sortedDates.length);
                 
                 // 显示分组后的历史记录
                 sortedDates.forEach(date => {
@@ -1042,6 +1274,12 @@
                     const dailyTotal = dailyRecords.length;
                     const dailyCorrect = dailyRecords.filter(h => h.isCorrect).length;
                     const dailyAccuracy = dailyTotal > 0 ? Math.round((dailyCorrect / dailyTotal) * 100) : 0;
+                    
+                    console.log(`${formattedDate} 统计:`, {
+                        total: dailyTotal,
+                        correct: dailyCorrect,
+                        accuracy: dailyAccuracy
+                    });
                     
                     // 创建日期标题和统计信息
                     dateGroup.innerHTML = `
@@ -1073,6 +1311,8 @@
                     
                     this.domCache.allHistoryList.appendChild(dateGroup);
                 });
+                
+                console.log('所有历史记录列表更新完成');
             }
             
             /**
@@ -1081,14 +1321,46 @@
              * @returns {Map} 题目统计数据Map对象
              */
             getQuestionStats() {
+                console.log('获取题目统计数据...');
+                
                 // 创建Map存储题目统计数据
                 const questionStats = new Map();
                 
+                // 检查历史记录是否存在
+                if (!this.history || !Array.isArray(this.history)) {
+                    console.error('历史记录不存在或格式不正确:', this.history);
+                    return questionStats;
+                }
+                
+                console.log('历史记录总数:', this.history.length);
+                
                 // 遍历历史记录，统计每道题的情况
-                this.history.forEach(item => {
+                this.history.forEach((item, index) => {
+                    // 检查历史记录项是否有效
+                    if (!item || typeof item !== 'object') {
+                        console.error(`历史记录项 #${index} 无效:`, item);
+                        return;
+                    }
+                    
                     const question = item.question;
                     const isCorrect = item.isCorrect;
                     const timestamp = item.timestamp;
+                    
+                    // 检查必要字段是否存在
+                    if (!question) {
+                        console.error(`历史记录项 #${index} 缺少题目:`, item);
+                        return;
+                    }
+                    
+                    if (typeof isCorrect !== 'boolean') {
+                        console.error(`历史记录项 #${index} 缺少正确性标记:`, item);
+                        return;
+                    }
+                    
+                    if (!timestamp) {
+                        console.error(`历史记录项 #${index} 缺少时间戳:`, item);
+                        return;
+                    }
                     
                     // 如果题目不存在于Map中，初始化统计数据
                     if (!questionStats.has(question)) {
@@ -1117,6 +1389,7 @@
                     }
                 });
                 
+                console.log('题目统计数据获取完成，共统计', questionStats.size, '道题目');
                 return questionStats;
             }
             
@@ -1124,14 +1397,28 @@
              * 更新题目统计详情
              */
             updateQuestionStats() {
+                console.log('更新题目统计详情...');
+                
+                // 检查DOM元素是否存在
+                if (!this.domCache.questionStatsTableBody) {
+                    console.error('DOM元素未找到: questionStatsTableBody');
+                    return;
+                }
+                
                 // 清空题目统计表格
                 this.domCache.questionStatsTableBody.innerHTML = '';
                 
-                // 获取题目统计数据
+                // 获取题目统计数据和详细报告
                 const questionStats = this.getQuestionStats();
+                const detailedReport = this.getDetailedQuestionReport();
+                console.log('题目统计数据获取完成，题目数量:', questionStats.size);
+                
+                // 更新题目汇总统计区域
+                this.updateQuestionSummaryStats(detailedReport);
                 
                 // 如果没有统计数据，显示提示
                 if (questionStats.size === 0) {
+                    console.warn('没有题目统计数据可显示');
                     const emptyRow = document.createElement('tr');
                     emptyRow.innerHTML = '<td colspan="6" class="text-center">暂无题目统计数据</td>';
                     this.domCache.questionStatsTableBody.appendChild(emptyRow);
@@ -1149,6 +1436,7 @@
                 
                 // 按总次数降序排序
                 statsArray.sort((a, b) => b.total - a.total);
+                console.log('题目统计数据已排序，准备显示', statsArray.length, '条记录');
                 
                 // 显示题目统计数据
                 statsArray.forEach(stats => {
@@ -1167,6 +1455,14 @@
                             minute: '2-digit'
                         }) : '无记录';
                     
+                    console.log(`题目 ${stats.question} 统计:`, {
+                        total: stats.total,
+                        correct: stats.correct,
+                        incorrect: stats.incorrect,
+                        accuracy: accuracy,
+                        lastAnswered: lastAnsweredDate
+                    });
+                    
                     // 设置行内容
                     row.innerHTML = `
                         <td>${stats.question}</td>
@@ -1183,6 +1479,38 @@
                     
                     this.domCache.questionStatsTableBody.appendChild(row);
                 });
+                
+                console.log('题目统计详情更新完成');
+            }
+            
+            /**
+             * 更新题目汇总统计区域
+             * @param {Object} report - 详细的题目统计报告
+             */
+            updateQuestionSummaryStats(report) {
+                console.log('更新题目汇总统计区域...');
+                
+                // 检查DOM元素是否存在
+                if (!this.domCache.questionSummaryStats) {
+                    console.error('DOM元素未找到: questionSummaryStats');
+                    return;
+                }
+                
+                // 获取汇总统计数据
+                const { summaryStats } = report;
+                
+                if (!summaryStats) {
+                    console.error('汇总统计数据不存在');
+                    return;
+                }
+                
+                // 更新题目汇总统计区域
+                this.domCache.totalUniqueQuestions.textContent = summaryStats.totalUniqueQuestions || 0;
+                this.domCache.averageAccuracy.textContent = `${summaryStats.averageAccuracy || 0}%`;
+                this.domCache.mostFrequentQuestion.textContent = summaryStats.mostFrequentQuestion || '-';
+                this.domCache.lowestAccuracyQuestion.textContent = summaryStats.lowestAccuracyQuestion || '-';
+                
+                console.log('题目汇总统计区域更新完成');
             }
             
             /**
@@ -1207,6 +1535,31 @@
                 // 计算汇总统计信息
                 const totalQuestions = statsArray.length;
                 const totalAnswers = statsArray.reduce((sum, item) => sum + item.total, 0);
+                
+                // 计算题目汇总统计数据
+                const summaryStats = {
+                    totalUniqueQuestions: totalQuestions,
+                    averageAccuracy: 0,
+                    mostFrequentQuestion: null,
+                    lowestAccuracyQuestion: null
+                };
+                
+                // 计算平均正确率
+                if (statsArray.length > 0) {
+                    const totalAccuracy = statsArray.reduce((sum, item) => sum + item.accuracy, 0);
+                    summaryStats.averageAccuracy = Math.round(totalAccuracy / statsArray.length);
+                    
+                    // 找出最常见的题目（答题次数最多的）
+                    summaryStats.mostFrequentQuestion = statsArray[0]?.question || '-';
+                    
+                    // 找出正确率最低的题目（至少答过3次的题目中）
+                    const filteredByAttempts = statsArray.filter(item => item.total >= 3);
+                    if (filteredByAttempts.length > 0) {
+                        // 按正确率升序排序
+                        filteredByAttempts.sort((a, b) => a.accuracy - b.accuracy);
+                        summaryStats.lowestAccuracyQuestion = filteredByAttempts[0]?.question || '-';
+                    }
+                }
                 const averageAccuracy = statsArray.length > 0 ?
                     statsArray.reduce((sum, item) => sum + item.accuracy, 0) / statsArray.length : 0;
                 
@@ -1239,6 +1592,7 @@
                             accuracy: Math.round(lowestAccuracy.accuracy)
                         }
                     },
+                    summaryStats,
                     details: statsArray
                 };
             }
@@ -1258,13 +1612,61 @@
              * 保存历史记录到localStorage
              */
             saveHistory() {
+                console.log('开始保存历史记录...');
                 try {
+                    // 检查历史记录是否为数组
+                    if (!Array.isArray(this.history)) {
+                        console.error('保存历史记录失败: 历史记录不是数组', this.history);
+                        return;
+                    }
+                    
+                    // 检查历史记录是否为空
+                    if (this.history.length === 0) {
+                        console.warn('历史记录为空，跳过保存');
+                        return;
+                    }
+                    
+                    // 验证历史记录格式
+                    let validRecords = [];
+                    let invalidRecords = 0;
+                    
+                    for (let i = 0; i < this.history.length; i++) {
+                        const record = this.history[i];
+                        // 检查记录是否包含必要的字段
+                        if (record && 
+                            typeof record === 'object' && 
+                            'question' in record && 
+                            'isCorrect' in record && 
+                            'timestamp' in record) {
+                            validRecords.push(record);
+                        } else {
+                            invalidRecords++;
+                            console.warn(`发现无效记录 #${i}:`, record);
+                        }
+                    }
+                    
+                    if (invalidRecords > 0) {
+                        console.warn(`历史记录中有 ${invalidRecords} 条无效记录，已过滤`);
+                        this.history = validRecords;
+                    }
+                    
                     // 压缩历史数据以节省空间
+                    console.log(`开始压缩 ${this.history.length} 条历史记录...`);
                     const compressedHistory = this.compressHistoryData(this.history);
-                    localStorage.setItem('multiplicationTrainingHistory', compressedHistory);
-                    console.log('历史记录已保存，共', this.history.length, '条记录');
+                    console.log(`历史记录压缩完成，压缩后大小: ${compressedHistory.length} 字符`);
+                    
+                    // 保存到localStorage
+                    const mainKey = 'multiplicationTrainingHistory';
+                    localStorage.setItem(mainKey, compressedHistory);
+                    console.log(`历史记录已保存到键名 ${mainKey}，共 ${this.history.length} 条记录`);
+                    
+                    // 检查今日历史记录
+                    const today = new Date().toISOString().split('T')[0];
+                    const todayRecords = this.history.filter(record => record.date === today);
+                    console.log(`今日(${today})历史记录: ${todayRecords.length} 条`);
                 } catch (error) {
                     console.error('保存历史记录失败:', error);
+                    console.error('错误堆栈:', error.stack);
                 }
             }
             
@@ -1273,14 +1675,92 @@
              * @returns {Array} 历史记录数组
              */
             loadHistory() {
+                console.log('开始加载历史记录...');
                 try {
-                    const compressedHistory = localStorage.getItem('multiplicationTrainingHistory');
-                    if (!compressedHistory) return [];
+                    // 尝试从正确的键名加载
+                    const mainKey = 'multiplicationTrainingHistory';
+                    console.log(`尝试从主键名 ${mainKey} 加载历史记录`);
+                    let compressedHistory = localStorage.getItem(mainKey);
+                    let loadedFromKey = mainKey;
+                    
+                    // 如果没有找到数据，尝试从可能的备选键名加载
+                    if (!compressedHistory) {
+                        console.log('未找到历史记录，尝试从备选键名加载');
+                        // 可能的备选键名
+                        const alternativeKeys = ['mathTrainingHistory', 'multiplicationHistory'];
+                        
+                        for (const key of alternativeKeys) {
+                            console.log(`尝试从备选键名 ${key} 加载历史记录`);
+                            const altData = localStorage.getItem(key);
+                            if (altData) {
+                                console.log(`从备选键名 ${key} 加载成功，数据长度: ${altData.length}`);
+                                compressedHistory = altData;
+                                loadedFromKey = key;
+                                // 迁移数据到正确的键名
+                                console.log(`将历史记录从 ${key} 迁移到 ${mainKey}`);
+                                localStorage.setItem(mainKey, altData);
+                                localStorage.removeItem(key);
+                                break;
+                            }
+                        }
+                    } else {
+                        console.log(`从主键名 ${mainKey} 加载成功，数据长度: ${compressedHistory.length}`);
+                    }
+                    
+                    if (!compressedHistory) {
+                        console.log('未找到任何历史记录数据，初始化为空数组');
+                        return [];
+                    }
                     
                     // 解压缩历史数据
-                    return this.decompressHistoryData(compressedHistory);
+                    console.log('开始解压缩历史数据...');
+                    const result = this.decompressHistoryData(compressedHistory);
+                    console.log(`历史记录解压缩成功，共 ${result.length} 条记录`);
+                    
+                    // 验证历史记录格式
+                    console.log('验证历史记录格式...');
+                    let validRecords = [];
+                    let invalidRecords = 0;
+                    
+                    for (let i = 0; i < result.length; i++) {
+                        const record = result[i];
+                        // 检查记录是否包含必要的字段
+                        if (record && 
+                            typeof record === 'object' && 
+                            'question' in record && 
+                            'isCorrect' in record && 
+                            'timestamp' in record) {
+                            validRecords.push(record);
+                        } else {
+                            invalidRecords++;
+                            console.warn(`发现无效记录 #${i}:`, record);
+                        }
+                    }
+                    
+                    if (invalidRecords > 0) {
+                        console.warn(`从 ${loadedFromKey} 加载的历史记录中有 ${invalidRecords} 条无效记录，已过滤`);
+                        
+                        // 保存修复后的历史记录
+                        try {
+                            const fixedData = this.compressHistoryData(validRecords);
+                            localStorage.setItem(mainKey, fixedData);
+                            console.log('已保存修复后的历史记录');
+                        } catch (e) {
+                            console.error('保存修复后的历史记录时出错:', e);
+                        }
+                        
+                        return validRecords;
+                    }
+                    
+                    // 检查今日历史记录
+                    const today = new Date().toISOString().split('T')[0];
+                    const todayRecords = result.filter(record => record.date === today);
+                    console.log(`今日(${today})历史记录: ${todayRecords.length} 条`);
+                    
+                    return result;
                 } catch (error) {
                     console.error('加载历史记录失败:', error);
+                    console.error('错误堆栈:', error.stack);
                     return [];
                 }
             }
@@ -1291,22 +1771,67 @@
              * @returns {string} 压缩后的历史数据
              */
             compressHistoryData(history) {
-                // 只保留最近500条记录，避免localStorage超出限制
-                if (history.length > 500) {
-                    history = history.slice(-500);
+                console.log('开始压缩历史数据...');
+                try {
+                    // 检查输入是否为数组
+                    if (!Array.isArray(history)) {
+                        console.error('压缩历史数据失败: 输入不是数组', history);
+                        return JSON.stringify([]);
+                    }
+                    
+                    // 检查历史记录是否为空
+                    if (history.length === 0) {
+                        console.log('历史记录为空，返回空数组');
+                        return JSON.stringify([]);
+                    }
+                    
+                    console.log(`压缩前历史记录数量: ${history.length} 条`);
+                    
+                    // 只保留最近500条记录，避免localStorage超出限制
+                    let processedHistory = history;
+                    if (history.length > 500) {
+                        console.log(`历史记录超过500条，只保留最近500条`);
+                        processedHistory = history.slice(-500);
+                    }
+                    
+                    // 使用更紧凑的格式存储
+                    const compressedData = [];
+                    let invalidItems = 0;
+                    
+                    for (let i = 0; i < processedHistory.length; i++) {
+                        const item = processedHistory[i];
+                        
+                        // 检查项目是否包含必要的字段
+                        if (item && 
+                            typeof item === 'object' && 
+                            'question' in item && 
+                            'isCorrect' in item && 
+                            'timestamp' in item) {
+                            
+                            compressedData.push({
+                                q: item.question,
+                                c: item.isCorrect ? 1 : 0,
+                                d: item.date || new Date(item.timestamp).toISOString().split('T')[0], // 如果没有日期，从时间戳生成
+                                t: item.timestamp
+                            });
+                        } else {
+                            invalidItems++;
+                            console.warn(`发现无效记录项 #${i}:`, item);
+                        }
+                    }
+                    
+                    if (invalidItems > 0) {
+                        console.warn(`压缩过程中过滤了 ${invalidItems} 条无效记录`);
+                    }
+                    
+                    const result = JSON.stringify(compressedData);
+                    console.log(`压缩完成，压缩后数据长度: ${result.length} 字符，记录数: ${compressedData.length} 条`);
+                    return result;
+                } catch (error) {
+                    console.error('压缩历史数据失败:', error);
+                    console.error('错误堆栈:', error.stack);
+                    return JSON.stringify([]);
                 }
-                
-                // 使用更紧凑的格式存储
-                const compressedData = history.map(item => {
-                    return {
-                        q: item.question,
-                        c: item.isCorrect ? 1 : 0,
-                        d: item.date,
-                        t: item.timestamp
-                    };
-                });
-                
-                return JSON.stringify(compressedData);
             }
             
             /**
@@ -1315,20 +1840,56 @@
              * @returns {Array} 解压缩后的历史记录数组
              */
             decompressHistoryData(compressedData) {
+                console.log('开始解压缩历史数据，数据长度:', compressedData.length);
                 try {
+                    // 检查输入数据是否为空
+                    if (!compressedData || compressedData.trim() === '') {
+                        console.warn('解压缩历史数据失败: 输入数据为空');
+                        return [];
+                    }
+                    
+                    // 尝试解析JSON数据
                     const parsedData = JSON.parse(compressedData);
                     
+                    // 检查解析后的数据是否为数组
+                    if (!Array.isArray(parsedData)) {
+                        console.warn('解压缩历史数据失败: 解析后的数据不是数组', parsedData);
+                        return [];
+                    }
+                    
+                    console.log(`成功解析JSON数据，包含 ${parsedData.length} 条记录`);
+                    
                     // 转换回原始格式
-                    return parsedData.map(item => {
-                        return {
-                            question: item.q,
-                            isCorrect: item.c === 1,
-                            date: item.d,
-                            timestamp: item.t
-                        };
-                    });
+                    const result = [];
+                    let invalidItems = 0;
+                    
+                    for (let i = 0; i < parsedData.length; i++) {
+                        const item = parsedData[i];
+                        
+                        // 检查项目是否包含必要的字段
+                        if (item && typeof item === 'object' && 'q' in item && 'c' in item && 't' in item) {
+                            result.push({
+                                question: item.q,
+                                isCorrect: item.c === 1,
+                                date: item.d || new Date(item.t).toISOString().split('T')[0], // 如果没有日期，从时间戳生成
+                                timestamp: item.t
+                            });
+                        } else {
+                            invalidItems++;
+                            console.warn(`发现无效的压缩记录项 #${i}:`, item);
+                        }
+                    }
+                    
+                    if (invalidItems > 0) {
+                        console.warn(`解压缩过程中过滤了 ${invalidItems} 条无效记录`);
+                    }
+                    
+                    console.log(`解压缩完成，共转换 ${result.length} 条记录`);
+                    return result;
                 } catch (error) {
                     console.error('解压缩历史数据失败:', error);
+                    console.error('错误堆栈:', error.stack);
+                    console.error('原始数据前50个字符:', compressedData.substring(0, 50));
                     return [];
                 }
             }
@@ -1339,8 +1900,30 @@
              */
             loadEbbinghausData() {
                 try {
-                    const data = localStorage.getItem('multiplicationTrainingEbbinghaus');
-                    return data ? JSON.parse(data) : { reviewList: [], reviewDates: {} };
+                    // 尝试从正确的键名加载
+                    let data = localStorage.getItem('multiplicationTrainingEbbinghaus');
+                    
+                    // 如果没有找到数据，尝试从可能的备选键名加载
+                    if (!data) {
+                        console.log('未找到艾宾浩斯数据，尝试从备选键名加载');
+                        // 可能的备选键名
+                        const alternativeKeys = ['mathTrainingEbbinghaus', 'multiplicationEbbinghaus'];
+                        
+                        for (const key of alternativeKeys) {
+                            const altData = localStorage.getItem(key);
+                            if (altData) {
+                                console.log('从备选键名加载艾宾浩斯数据成功:', key);
+                                data = altData;
+                                // 迁移数据到正确的键名
+                                localStorage.setItem('multiplicationTrainingEbbinghaus', altData);
+                                break;
+                            }
+                        }
+                    }
+                    
+                    const result = data ? JSON.parse(data) : { reviewList: [], reviewDates: {} };
+                    console.log('加载艾宾浩斯数据:', result);
+                    return result;
                 } catch (error) {
                     console.error('加载艾宾浩斯数据失败:', error);
                     return { reviewList: [], reviewDates: {} };
@@ -1353,6 +1936,7 @@
             saveEbbinghausData() {
                 try {
                     localStorage.setItem('multiplicationTrainingEbbinghaus', JSON.stringify(this.ebbinghausData));
+                    console.log('保存艾宾浩斯数据成功，键名:', 'multiplicationTrainingEbbinghaus');
                 } catch (error) {
                     console.error('保存艾宾浩斯数据失败:', error);
                 }
