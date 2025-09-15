@@ -172,55 +172,100 @@
     </style>
 </head>
 <body>
-    <div class="admin-container">
-        <div class="row g-0">
-            <!-- 侧边栏 -->
-            <div class="col-lg-3 col-xl-2">
-                <div class="sidebar" id="sidebar">
-                    <div class="sidebar-header">
-                        <img src="assets/images/logo.png" alt="宜家房产" height="30" class="mb-2">
-                        <h6>客户管理后台</h6>
-                    </div>
-                    
-                    <nav class="sidebar-nav">
-                        <ul class="nav flex-column">
-                            <li class="nav-item">
-                                <a class="nav-link active" href="#dashboard" onclick="crm.showSection('dashboard')">
-                                    <i class="fas fa-chart-line me-2"></i>数据概览
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#customers" onclick="crm.showSection('customers')">
-                                    <i class="fas fa-users me-2"></i>客户管理
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#leads" onclick="crm.showSection('leads')">
-                                    <i class="fas fa-user-plus me-2"></i>线索管理
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#follow-up" onclick="crm.showSection('followUp')">
-                                    <i class="fas fa-calendar-check me-2"></i>跟进管理
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#reports" onclick="crm.showSection('reports')">
-                                    <i class="fas fa-chart-bar me-2"></i>报表统计
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#settings" onclick="crm.showSection('settings')">
-                                    <i class="fas fa-cog me-2"></i>系统设置
-                                </a>
-                            </li>
-                        </ul>
-                    </nav>
-                </div>
-            </div>
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <img src="assets/images/logo.png" alt="宜家房产" height="40" class="d-inline-block align-text-top">
+                <span class="brand-text ms-2">宜家房产</span>
+            </a>
             
-            <!-- 主内容区 -->
-            <div class="col-lg-9 col-xl-10">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">首页</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="properties.html">楼盘展示</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="map.html">房源地图</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="calculator.html">房产计算器</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="appointment.html">在线预约</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="compare.html">房产对比</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="search.html">智能搜索</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="crm.html">客户管理</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="yanchengdafeng.html">大丰小区</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html#contact">联系我们</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-primary text-white px-3 ms-2" href="tel:+86-515-8888-8888">
+                            <i class="fas fa-phone me-1"></i>立即咨询
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container-fluid admin-container">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
+                <div class="sidebar-header">
+                    <h4>客户管理系统</h4>
+                    <p class="mb-0 small">宜家房产</p>
+                </div>
+                <div class="sidebar-nav">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#dashboard">
+                                <i class="fas fa-tachometer-alt me-2"></i>仪表盘
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#customers">
+                                <i class="fas fa-users me-2"></i>客户管理
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#properties">
+                                <i class="fas fa-home me-2"></i>房源管理
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#appointments">
+                                <i class="fas fa-calendar-check me-2"></i>预约管理
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#reports">
+                                <i class="fas fa-chart-bar me-2"></i>数据报告
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            
+            <!-- Main Content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
                 <div class="main-content">
                     <!-- 移动端头部 -->
                     <div class="mobile-header d-lg-none" style="display: none;">
@@ -414,7 +459,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </main>
         </div>
     </div>
 

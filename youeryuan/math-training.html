@@ -3,19 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>30以内加减法智能训练 - 幼儿数学练习工具</title>
-    <meta name="description" content="专为幼儿设计的30以内加减法智能训练工具，帮助孩子轻松掌握基础数学运算。">
-    <meta name="keywords" content="幼儿数学,加减法练习,30以内加减法,数学训练,儿童教育">
-    <meta name="author" content="jiangsuchenping">
-    <meta property="og:title" content="30以内加减法智能训练 - 幼儿数学练习工具">
-    <meta property="og:description" content="专为幼儿设计的30以内加减法智能训练工具，帮助孩子轻松掌握基础数学运算。">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://jiangsuchenping.github.io/youeryuan/math-training.html">
-    <meta property="og:image" content="https://jiangsuchenping.github.io/youeryuan/math-training-preview.png">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="30以内加减法智能训练 - 幼儿数学练习工具">
-    <meta name="twitter:description" content="专为幼儿设计的30以内加减法智能训练工具，帮助孩子轻松掌握基础数学运算。">
-    <meta name="twitter:image" content="https://jiangsuchenping.github.io/youeryuan/math-training-preview.png">
+    <title>30以内加减法智能训练</title>
+    <!-- 网站图标 -->
+    <link rel="icon" href="/youeryuan/assets/images/favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    
+    <!-- 全局错误处理 -->
+    <script>
+        // 全局未捕获Promise错误处理
+        window.addEventListener('unhandledrejection', function(event) {
+            console.error('未捕获的Promise错误:', event.reason);
+            // 防止错误传播
+            event.preventDefault();
+        });
+        
+        // 全局错误处理
+        window.addEventListener('error', function(event) {
+            console.error('全局错误:', event.message, '在', event.filename, '第', event.lineno, '行');
+            // 防止错误传播
+            event.preventDefault();
+        });
+    </script>
+    
     <!-- 预连接关键CDN域名 -->
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
     <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
@@ -267,9 +277,6 @@
                     <button id="showAllHistoryBtn" class="btn btn-info">
                         <i class="bi bi-list"></i> 查看详细历史记录
                     </button>
-                    <button id="showQuestionStatsBtn" class="btn btn-success ms-2">
-                        <i class="bi bi-bar-chart"></i> 题目统计详情
-                    </button>
                     <div id="allHistoryContainer" class="mt-3" style="display: none;">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <h5>详细历史记录</h5>
@@ -278,31 +285,6 @@
                             </button>
                         </div>
                         <div id="allHistoryList"></div>
-                    </div>
-                    <div id="questionStatsContainer" class="mt-3" style="display: none;">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <h5>题目统计详情</h5>
-                            <button id="hideQuestionStatsBtn" class="btn btn-sm btn-secondary">
-                                <i class="bi bi-eye-slash"></i> 隐藏
-                            </button>
-                        </div>
-                        <div id="questionStatsList" class="table-responsive">
-                            <table class="table table-striped table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>题目</th>
-                                        <th>总次数</th>
-                                        <th>正确次数</th>
-                                        <th>错误次数</th>
-                                        <th>正确率</th>
-                                        <th>最后答题时间</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="questionStatsTableBody">
-                                    <!-- 题目统计将通过JavaScript动态生成 -->
-                                </tbody>
-                            </table>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -399,12 +381,6 @@
                 this.domCache.allHistoryContainer = document.getElementById('allHistoryContainer');
                 this.domCache.allHistoryList = document.getElementById('allHistoryList');
                 
-                // 缓存题目统计相关DOM元素
-                this.domCache.showQuestionStatsBtn = document.getElementById('showQuestionStatsBtn');
-                this.domCache.hideQuestionStatsBtn = document.getElementById('hideQuestionStatsBtn');
-                this.domCache.questionStatsContainer = document.getElementById('questionStatsContainer');
-                this.domCache.questionStatsTableBody = document.getElementById('questionStatsTableBody');
-                
                 // 缓存今日历史记录以避免重复过滤
                 this.todayHistory = this.history.filter(h => h.date === this.today);
                 
@@ -451,28 +427,12 @@
                 
                 // 添加历史记录按钮事件监听器
                 this.domCache.showAllHistoryBtn.addEventListener('click', () => {
-                    // 隐藏题目统计容器
-                    this.domCache.questionStatsContainer.style.display = 'none';
-                    // 显示历史记录容器
                     this.domCache.allHistoryContainer.style.display = 'block';
                     this.updateAllHistoryList();
                 });
                 
                 this.domCache.hideAllHistoryBtn.addEventListener('click', () => {
                     this.domCache.allHistoryContainer.style.display = 'none';
-                });
-                
-                // 添加题目统计详情按钮事件监听器
-                this.domCache.showQuestionStatsBtn.addEventListener('click', () => {
-                    // 隐藏历史记录容器
-                    this.domCache.allHistoryContainer.style.display = 'none';
-                    // 显示题目统计容器
-                    this.domCache.questionStatsContainer.style.display = 'block';
-                    this.updateQuestionStats();
-                });
-                
-                this.domCache.hideQuestionStatsBtn.addEventListener('click', () => {
-                    this.domCache.questionStatsContainer.style.display = 'none';
                 });
             }
             
@@ -564,9 +524,6 @@
                     // 生成第一个问题
                     this.generateNextQuestion();
                 }
-                
-                // 更新复习提醒状态
-                this.updateReviewAlert();
             }
             
             /**
@@ -810,8 +767,26 @@
                 // 设置题目文本
                 if (isReviewQuestion) {
                     // 为复习题目添加特殊标记
-                    const reviewStage = this.currentQuestion.reviewStage || 0;
-                    const reviewLabel = `<span class="badge bg-warning text-dark me-2">复习 ${reviewStage + 1}/6</span>`;
+                    // 从reviewItem中获取当前复习阶段
+                    let currentStage = 0;
+                    if (this.currentQuestion.reviewItem) {
+                        // 如果reviewItem中有stage属性，优先使用它
+                        if (typeof this.currentQuestion.reviewItem.stage === 'number') {
+                            currentStage = this.currentQuestion.reviewItem.stage - 1; // stage从1开始，显示时需要-1
+                        } else {
+                            // 查找当前日期对应的复习阶段索引
+                            const today = this.today;
+                            const stageIndex = this.currentQuestion.reviewItem.reviewDates.findIndex(date => date === today);
+                            if (stageIndex !== -1) {
+                                currentStage = stageIndex;
+                            }
+                        }
+                    } else if (this.currentQuestion.reviewStage !== undefined) {
+                        currentStage = this.currentQuestion.reviewStage;
+                    }
+                    
+                    // 根据用户要求，不再显示复习标签
+                    const reviewLabel = ``;
                     this.domCache.question.innerHTML = reviewLabel + this.currentQuestion.question;
                 } else {
                     this.domCache.question.textContent = this.currentQuestion.question;
@@ -862,8 +837,13 @@
                 this.recordAnswer(isCorrect, selectedAnswer);
                 
                 // 如果是复习题目，更新复习状态
-                if (this.currentQuestion.isReview) {
+                if (this.currentQuestion.isReview && this.currentQuestion.reviewItem) {
+                    // 更新复习状态，传递答题是否正确
                     this.updateReviewStatus(this.currentQuestion.reviewItem, isCorrect);
+                    
+                    // 保存更新后的艾宾浩斯数据
+                    this.saveEbbinghausData(this.ebbinghausData);
+                    
                     // 更新今日复习提醒
                     this.updateReviewAlert();
                 }
@@ -894,9 +874,6 @@
                 
                 // 启用答案按钮
                 this.enableAnswerButtons();
-                
-                // 更新复习提醒状态
-                this.updateReviewAlert();
             }
             
             /**
@@ -930,16 +907,6 @@
                 this.updateAllTimeStats();
                 this.updateHistoryList();
                 this.checkDailyLimit();
-                
-                // 更新题目统计详情（如果统计容器可见）
-                if (!this.domCache.questionStatsContainer.classList.contains('hidden')) {
-                    this.updateQuestionStats();
-                }
-                
-                // 如果是复习题目，更新今日复习提醒
-                if (this.currentQuestion.isReview) {
-                    this.updateReviewAlert();
-                }
             }
             
             /**
@@ -1120,86 +1087,6 @@
                 
                 // 一次性添加到DOM
                 this.domCache.allHistoryList.appendChild(fragment);
-            }
-            
-            /**
-             * 更新题目统计详情
-             * 汇总统计每道题的答题情况：累计答题次数、正确次数、错误次数、正确率和最后答题时间
-             */
-            updateQuestionStats() {
-                console.log("开始更新题目统计详情");
-                
-                // 使用文档片段减少DOM操作
-                const fragment = document.createDocumentFragment();
-                
-                // 清空题目统计表格
-                this.domCache.questionStatsTableBody.innerHTML = '';
-                
-                // 如果没有历史记录
-                if (this.history.length === 0) {
-                    const row = document.createElement('tr');
-                    row.innerHTML = '<td colspan="6" class="text-center">暂无历史记录</td>';
-                    fragment.appendChild(row);
-                    this.domCache.questionStatsTableBody.appendChild(fragment);
-                    return;
-                }
-                
-                // 按题目分组统计
-                const questionStats = {};
-                this.history.forEach(record => {
-                    const question = record.question;
-                    if (!questionStats[question]) {
-                        questionStats[question] = {
-                            question: question,
-                            total: 0,
-                            correct: 0,
-                            incorrect: 0,
-                            lastTime: record.time,
-                            lastDate: record.date
-                        };
-                    }
-                    
-                    // 更新统计信息
-                    questionStats[question].total++;
-                    if (record.correct) {
-                        questionStats[question].correct++;
-                    } else {
-                        questionStats[question].incorrect++;
-                    }
-                    
-                    // 更新最后答题时间（按日期和时间排序）
-                    const currentDate = new Date(record.date + ' ' + record.time);
-                    const lastDate = new Date(questionStats[question].lastDate + ' ' + questionStats[question].lastTime);
-                    if (currentDate > lastDate) {
-                        questionStats[question].lastTime = record.time;
-                        questionStats[question].lastDate = record.date;
-                    }
-                });
-                
-                // 计算正确率并生成表格行
-                Object.values(questionStats).forEach(stats => {
-                    const accuracy = stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0;
-                    
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${stats.question}</td>
-                        <td>${stats.total}</td>
-                        <td class="text-success">${stats.correct}</td>
-                        <td class="text-danger">${stats.incorrect}</td>
-                        <td>
-                            <span class="badge ${accuracy >= 80 ? 'bg-success' : accuracy >= 60 ? 'bg-warning' : 'bg-danger'}">
-                                ${accuracy}%
-                            </span>
-                        </td>
-                        <td>${stats.lastDate} ${stats.lastTime}</td>
-                    `;
-                    fragment.appendChild(row);
-                });
-                
-                // 一次性添加到DOM
-                this.domCache.questionStatsTableBody.appendChild(fragment);
-                
-                console.log("题目统计详情更新完成，共统计了", Object.keys(questionStats).length, "道不同题目");
             }
             
             /**
@@ -1398,8 +1285,7 @@
                             reviewDates,
                             reviewStatus: Array(intervals.length).fill(false), // 记录每个阶段是否已复习
                             stage: 0, // 当前处于第几个阶段
-                            lastReviewDate: null, // 最后一次复习日期
-                            answeredCorrectToday: false // 今天是否已答对
+                            lastReviewDate: null // 最后一次复习日期
                         });
                     }
                 });
@@ -1467,109 +1353,6 @@
             }
             
             /**
-             * 根据艾宾浩斯记忆曲线获取需要复习的题目
-             * 按照记忆曲线的时间间隔安排复习
-             */
-            getReviewQuestionByEbbinghaus() {
-                // 获取艾宾浩斯记忆曲线数据
-                const ebbinghausData = this.loadEbbinghausData();
-                if (!ebbinghausData || ebbinghausData.length === 0) {
-                    return null; // 没有需要复习的题目
-                }
-                
-                // 当前日期
-                const today = this.today;
-                
-                // 找出今天需要复习的题目
-                const needReviewItems = ebbinghausData.filter(item => {
-                    // 检查是否有今天需要复习的阶段
-                    const stageIndex = item.reviewDates.findIndex(date => date === today);
-                    
-                    // 如果找到今天需要复习的阶段，并且该阶段尚未复习
-                    return stageIndex !== -1 && !item.reviewStatus[stageIndex];
-                });
-                
-                if (needReviewItems.length === 0) {
-                    return null; // 今天没有需要复习的题目
-                }
-                
-                // 随机选择一道需要复习的题目
-                const reviewItem = needReviewItems[Math.floor(Math.random() * needReviewItems.length)];
-                
-                // 从问题中提取数字
-                const numbers = reviewItem.question.match(/\d+/g);
-                if (!numbers || numbers.length < 2) {
-                    return null; // 无法解析题目
-                }
-                
-                // 解析题目类型和数字
-                const num1 = parseInt(numbers[0]);
-                const num2 = parseInt(numbers[1]);
-                const isAddition = reviewItem.question.includes('+');
-                const type = isAddition ? 'addition' : 'subtraction';
-                
-                // 构建复习题目
-                const question = reviewItem.question;
-                const answer = isAddition ? (num1 + num2) : (num1 - num2);
-                
-                // 不再在这里更新复习状态，只在用户实际答题时更新
-                // this.updateReviewStatus(reviewItem);
-                
-                // 返回复习题目，并标记为复习题
-                return { 
-                    question, 
-                    answer, 
-                    num1, 
-                    num2, 
-                    type, 
-                    isAddition,
-                    isReview: true, // 标记为复习题
-                    reviewStage: reviewItem.stage, // 当前复习阶段
-                    reviewItem: reviewItem // 传递reviewItem用于后续更新状态
-                };
-            }
-            
-            /**
-             * 更新题目的复习状态
-             */
-            updateReviewStatus(reviewItem, isCorrect = true) {
-                // 获取艾宾浩斯记忆曲线数据
-                const ebbinghausData = this.loadEbbinghausData();
-                
-                // 找到对应的题目
-                const itemIndex = ebbinghausData.findIndex(item => 
-                    item.question === reviewItem.question && 
-                    item.date === reviewItem.date && 
-                    item.time === reviewItem.time
-                );
-                
-                if (itemIndex !== -1) {
-                    // 当前日期
-                    const today = this.today;
-                    
-                    // 找出今天对应的复习阶段
-                    const stageIndex = ebbinghausData[itemIndex].reviewDates.findIndex(date => date === today);
-                    
-                    if (stageIndex !== -1) {
-                        // 标记该阶段已复习
-                        ebbinghausData[itemIndex].reviewStatus[stageIndex] = true;
-                        // 更新当前阶段
-                        ebbinghausData[itemIndex].stage = stageIndex + 1;
-                        // 更新最后复习日期
-                        ebbinghausData[itemIndex].lastReviewDate = today;
-                        
-                        // 如果回答正确，标记该题目今天已经回答正确，避免再次出现
-                        if (isCorrect) {
-                            ebbinghausData[itemIndex].answeredCorrectToday = true;
-                        }
-                        
-                        // 保存更新后的数据
-                        this.saveEbbinghausData(ebbinghausData);
-                    }
-                }
-            }
-            
-            /**
              * 更新今日复习提醒
              * 在用户回答复习题目后更新提醒中的剩余题目数量
              * 当全部复习完成后，移除提醒
@@ -1618,6 +1401,112 @@
                     reviewAlert.remove();
                 }
             }
+            
+            /**
+             * 根据艾宾浩斯记忆曲线获取需要复习的题目
+             * 按照记忆曲线的时间间隔安排复习
+             */
+            getReviewQuestionByEbbinghaus() {
+                // 获取艾宾浩斯记忆曲线数据
+                const ebbinghausData = this.loadEbbinghausData();
+                if (!ebbinghausData || ebbinghausData.length === 0) {
+                    return null; // 没有需要复习的题目
+                }
+                
+                // 当前日期
+                const today = this.today;
+                
+                // 找出今天需要复习的题目
+                const needReviewItems = ebbinghausData.filter(item => {
+                    // 检查是否有今天需要复习的阶段
+                    const stageIndex = item.reviewDates.findIndex(date => date === today);
+                    
+                    // 如果找到今天需要复习的阶段，并且该阶段尚未复习
+                    return stageIndex !== -1 && !item.reviewStatus[stageIndex];
+                });
+                
+                if (needReviewItems.length === 0) {
+                    return null; // 今天没有需要复习的题目
+                }
+                
+                // 随机选择一道需要复习的题目
+                const reviewItem = needReviewItems[Math.floor(Math.random() * needReviewItems.length)];
+                
+                // 从问题中提取数字
+                const numbers = reviewItem.question.match(/\d+/g);
+                if (!numbers || numbers.length < 2) {
+                    return null; // 无法解析题目
+                }
+                
+                // 解析题目类型和数字
+                const num1 = parseInt(numbers[0]);
+                const num2 = parseInt(numbers[1]);
+                const isAddition = reviewItem.question.includes('+');
+                const type = isAddition ? 'addition' : 'subtraction';
+                
+                // 构建复习题目
+                const question = reviewItem.question;
+                const answer = isAddition ? (num1 + num2) : (num1 - num2);
+                
+                // 不在这里更新复习状态，而是在用户回答问题后更新
+                // 找出当前复习阶段
+                const stageIndex = reviewItem.reviewDates.findIndex(date => date === this.today);
+                
+                // 返回复习题目，并标记为复习题
+                return { 
+                    question, 
+                    answer, 
+                    num1, 
+                    num2, 
+                    type, 
+                    isAddition,
+                    isReview: true, // 标记为复习题
+                    reviewStage: stageIndex !== -1 ? stageIndex : reviewItem.stage, // 当前复习阶段
+                    reviewItem: reviewItem // 保存原始复习项目信息
+                };
+            }
+            
+            /**
+             * 更新题目的复习状态
+             * @param {Object} reviewItem - 复习题目信息
+             * @param {boolean} isCorrect - 是否回答正确，默认为true
+             */
+            updateReviewStatus(reviewItem, isCorrect = true) {
+                // 获取艾宾浩斯记忆曲线数据
+                const ebbinghausData = this.loadEbbinghausData();
+                
+                // 找到对应的题目
+                const itemIndex = ebbinghausData.findIndex(item => 
+                    item.question === reviewItem.question && 
+                    item.date === reviewItem.date && 
+                    item.time === reviewItem.time
+                );
+                
+                if (itemIndex !== -1) {
+                    // 当前日期
+                    const today = this.today;
+                    
+                    // 找出今天对应的复习阶段
+                    const stageIndex = ebbinghausData[itemIndex].reviewDates.findIndex(date => date === today);
+                    
+                    if (stageIndex !== -1) {
+                        // 标记该阶段已复习
+                        ebbinghausData[itemIndex].reviewStatus[stageIndex] = true;
+                        // 更新当前阶段 - 使用当前阶段索引+1表示进度（如1/6, 2/6等）
+                        ebbinghausData[itemIndex].stage = stageIndex + 1;
+                        // 更新最后复习日期
+                        ebbinghausData[itemIndex].lastReviewDate = today;
+                        
+                        // 如果回答正确，标记该题目今天已经回答正确，避免再次出现
+                        if (isCorrect) {
+                            ebbinghausData[itemIndex].answeredCorrectToday = true;
+                        }
+                        
+                        // 保存更新后的数据
+                        this.saveEbbinghausData(ebbinghausData);
+                    }
+                }
+            }
         }
         
         // 初始化系统
@@ -1627,7 +1516,7 @@
     </script>
 </body>
 </html>
-
+    
     <!-- 智能CDN加载和错误处理 -->
     <script>
         /**
@@ -1757,12 +1646,26 @@
              * @returns {boolean} 验证结果
              */
             verifyBootstrapIcons() {
-                const testElement = document.createElement('i');
-                testElement.className = 'bi bi-heart';
-                document.body.appendChild(testElement);
-                const loaded = getComputedStyle(testElement).fontFamily?.includes('bootstrap-icons');
-                document.body.removeChild(testElement);
-                return loaded;
+                try {
+                    // 创建一个临时元素并添加到DOM中
+                    const testElement = document.createElement('i');
+                    testElement.className = 'bi bi-heart';
+                    testElement.style.position = 'absolute';
+                    testElement.style.visibility = 'hidden';
+                    document.body.appendChild(testElement);
+                    
+                    // 获取计算样式并检查字体
+                    const computedStyle = getComputedStyle(testElement);
+                    const fontFamily = computedStyle.fontFamily || '';
+                    const loaded = fontFamily.toLowerCase().includes('bootstrap-icons');
+                    
+                    // 清理临时元素
+                    document.body.removeChild(testElement);
+                    return loaded;
+                } catch (error) {
+                    console.error('验证Bootstrap Icons时出错:', error);
+                    return false;
+                }
             }
         }
 
@@ -1770,51 +1673,97 @@
         window.addEventListener('DOMContentLoaded', async () => {
             const loader = new SmartCDNLoader();
             
-            // 预加载关键资源
-            await Promise.all([
-                loader.loadCSS('bootstrap'),
-                loader.loadCSS('bootstrapIcons')
-            ]);
-            
-            // 加载Bootstrap JavaScript资源
-            const bootstrapJsLoaded = await new Promise((resolve) => {
-                const timeoutId = setTimeout(() => {
-                    console.warn('CDN Bootstrap JS加载超时');
-                    loader.loadFallback(loader.localFallbacks.bootstrap.js, 'js', resolve);
-                }, loader.loadTimeout);
+            try {
+                // 预加载关键资源
+                const [bootstrapCssLoaded, bootstrapIconsLoaded] = await Promise.all([
+                    loader.loadCSS('bootstrap'),
+                    loader.loadCSS('bootstrapIcons')
+                ]);
                 
-                const url = loader.cdnUrls.bootstrap.js;
-                if (url) {
-                    const script = document.createElement('script');
-                    script.src = url;
-                    script.onload = () => {
-                        clearTimeout(timeoutId);
-                        resolve(true);
-                    };
-                    script.onerror = () => {
-                        clearTimeout(timeoutId);
+                console.log('CSS资源加载状态:', {
+                    bootstrap: bootstrapCssLoaded,
+                    bootstrapIcons: bootstrapIconsLoaded
+                });
+                
+                // 加载Bootstrap JavaScript资源
+                const bootstrapJsLoaded = await new Promise((resolve) => {
+                    const timeoutId = setTimeout(() => {
+                        console.warn('CDN Bootstrap JS加载超时');
                         loader.loadFallback(loader.localFallbacks.bootstrap.js, 'js', resolve);
-                    };
-                    document.head.appendChild(script);
-                } else {
-                    resolve(false);
-                }
-            });
-            
-            console.log('Bootstrap JS加载状态:', bootstrapJsLoaded);
-            
-            // 验证加载结果
-            setTimeout(() => {
-                if (!loader.verifyBootstrap()) {
-                    console.warn('Bootstrap验证失败，尝试加载回退资源');
-                    loader.loadFallback(loader.localFallbacks.bootstrap.css, 'css', () => {});
-                }
+                    }, loader.loadTimeout);
+                    
+                    const url = loader.cdnUrls.bootstrap.js;
+                    if (url) {
+                        const script = document.createElement('script');
+                        script.src = url;
+                        script.onload = () => {
+                            clearTimeout(timeoutId);
+                            resolve(true);
+                        };
+                        script.onerror = () => {
+                            clearTimeout(timeoutId);
+                            loader.loadFallback(loader.localFallbacks.bootstrap.js, 'js', resolve);
+                        };
+                        document.head.appendChild(script);
+                    } else {
+                        resolve(false);
+                    }
+                });
                 
-                if (!loader.verifyBootstrapIcons()) {
-                    console.warn('Bootstrap Icons验证失败，尝试加载回退资源');
-                    loader.loadFallback(loader.localFallbacks.bootstrapIcons.css, 'css', () => {});
-                }
-            }, 1000);
+                console.log('Bootstrap JS加载状态:', bootstrapJsLoaded);
+                
+                // 验证加载结果并处理回退
+                // 延迟验证以确保CSS已完全应用
+                setTimeout(() => {
+                    try {
+                        // 验证Bootstrap CSS
+                        if (!loader.verifyBootstrap()) {
+                            console.warn('Bootstrap验证失败，加载本地回退资源');
+                            loader.loadFallback(loader.localFallbacks.bootstrap.css, 'css', (success) => {
+                                console.log('Bootstrap本地资源加载状态:', success ? '成功' : '失败');
+                            });
+                        }
+                        
+                        // 验证Bootstrap Icons
+                        if (!loader.verifyBootstrapIcons()) {
+                            console.warn('Bootstrap Icons验证失败，加载本地回退资源');
+                            loader.loadFallback(loader.localFallbacks.bootstrapIcons.css, 'css', (success) => {
+                                console.log('Bootstrap Icons本地资源加载状态:', success ? '成功' : '失败');
+                                
+                                // 如果本地资源加载成功，预加载字体文件
+                                if (success) {
+                                    // 预加载字体文件
+                                    const fontUrls = [
+                                        '/youeryuan/assets/fonts/bootstrap-icons/bootstrap-icons.woff2',
+                                        '/youeryuan/assets/fonts/bootstrap-icons/bootstrap-icons.woff'
+                                    ];
+                                    
+                                    fontUrls.forEach(url => {
+                                        const link = document.createElement('link');
+                                        link.rel = 'preload';
+                                        link.href = url;
+                                        link.as = 'font';
+                                        link.type = 'font/woff2';
+                                        link.crossOrigin = 'anonymous';
+                                        document.head.appendChild(link);
+                                    });
+                                }
+                            });
+                        }
+                    } catch (error) {
+                        console.error('资源验证过程中出错:', error);
+                        // 出错时直接加载本地资源
+                        loader.loadFallback(loader.localFallbacks.bootstrap.css, 'css', () => {});
+                        loader.loadFallback(loader.localFallbacks.bootstrapIcons.css, 'css', () => {});
+                    }
+                }, 1500); // 增加延迟时间，确保CSS有足够时间加载和应用
+            } catch (error) {
+                console.error('资源加载过程中出错:', error);
+                // 出错时直接加载本地资源
+                loader.loadFallback(loader.localFallbacks.bootstrap.css, 'css', () => {});
+                loader.loadFallback(loader.localFallbacks.bootstrapIcons.css, 'css', () => {});
+                loader.loadFallback(loader.localFallbacks.bootstrap.js, 'js', () => {});
+            }
         });
     </script>
 </head>

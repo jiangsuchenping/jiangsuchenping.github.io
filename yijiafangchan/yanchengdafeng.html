@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="盐城市大丰区住宅小区信息 - 包含小区名称、地址、最新均价及周边配套设施">
+    <meta name="keywords" content="大丰区小区, 盐城房产, 大丰房产, 小区信息, 房产资讯">
+    <title>大丰区住宅小区 - 宜家房产</title>
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="assets/css/styles.css" as="style">
+    <link rel="preload" href="assets/js/main.js" as="script">
+    
+    <!-- DNS prefetch for external resources -->
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
+    <link rel="dns-prefetch" href="//cdn.jsdelivr.net">
+    
+    <!-- Stylesheets -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="assets/css/styles.css" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: "Microsoft YaHei", Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+            padding-top: 80px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: var(--text-dark);
+            margin-bottom: 30px;
+            font-weight: 700;
+        }
+        .intro {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 16px;
+            color: var(--text-light);
+        }
+        .community-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow-light);
+            margin-bottom: 20px;
+            padding: 20px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid var(--border-color);
+        }
+        .community-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-medium);
+        }
+        .community-name {
+            font-size: 22px;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+        .community-info {
+            display: flex;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        .info-item {
+            flex: 1 1 300px;
+            margin-bottom: 10px;
+        }
+        .info-label {
+            font-weight: bold;
+            color: var(--text-dark);
+            margin-right: 5px;
+        }
+        .facilities {
+            margin-top: 15px;
+        }
+        .facilities h3 {
+            color: var(--text-dark);
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+        .facility-category {
+            margin-bottom: 15px;
+        }
+        .facility-category h4 {
+            color: var(--primary-light);
+            margin-bottom: 5px;
+        }
+        .facility-list {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .facility-item {
+            background: var(--light-bg);
+            padding: 5px 10px;
+            border-radius: 4px;
+            margin-right: 10px;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        @media (max-width: 768px) {
+            .community-info {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">
+                <img src="assets/images/logo.png" alt="宜家房产" height="40" class="d-inline-block align-text-top">
+                <span class="brand-text ms-2">宜家房产</span>
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html">首页</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="properties.html">楼盘展示</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="calculator.html">房产计算器</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="map.html">房源地图</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="appointment.html">在线预约</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="compare.html">房产对比</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="search.html">智能搜索</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="crm.html">客户管理</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="yanchengdafeng.html">大丰小区</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html#contact">联系我们</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-primary text-white px-3 ms-2" href="tel:+86-515-8888-8888">
+                            <i class="fas fa-phone me-1"></i>立即咨询
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>盐城市大丰区住宅小区</h1>
+        <p class="intro">以下是盐城市大丰区主要住宅小区信息，包括小区名称、地址、最新均价及周边配套设施</p>
+        
+        <!-- 小区1 -->
+        <div class="community-card">
+            <div class="community-name">恒大帝景</div>
+            <div class="community-info">
+                <div class="info-item"><span class="info-label">地址：</span>开放大道南路98号</div>
+                <div class="info-item"><span class="info-label">最新均价：</span>12342元/平</div>
+            </div>
+            <div class="facilities">
+                <h3>周边配套设施</h3>
+                <div class="facility-category">
+                    <h4>学校</h4>
+                    <div class="facility-list">
+                        <div class="facility-item">大丰区康平路小学</div>
+                        <div class="facility-item">大丰区第一小学</div>
+                        <div class="facility-item">大丰区实验初级中学益民路分校</div>
+                        <div class="facility-item">大丰区飞达路初级中学</div>
+                    </div>
+                </div>
+                <div class="facility-category">
+                    <h4>商业</h4>
+                    <div class="facility-list">
+                        <div class="facility-item">吾悦广场</div>
+                        <div class="facility-item">盐阜人民商场</div>
+                        <div class="facility-item">欧蓓莎国际购物中心</div>
+                    </div>
+                </div>
+                <div class="facility-category">
+                    <h4>医院</h4>
+                    <div class="facility-list">
+                        <div class="facility-item">盐城市大丰人民医院</div>
+                        <div class="facility-item">盐城市大丰中医院</div>
+                        <div class="facility-item">大丰区第二人民医院</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 小区2 -->
+        <div class="community-card">
+            <div class="community-name">中庚海德公园</div>
+            <div class="community-info">
+                <div class="info-item"><span class="info-label">地址：</span>解放南路272号</div>
+                <div class="info-item"><span class="info-label">最新均价：</span>10352元/平</div>
+            </div>
+            <div class="facilities">
+                <h3>周边配套设施</h3>
+                <div class="facility-category">
+                    <h4>学校</h4>
+                    <div class="facility-list">
+                        <div class="facility-item">盐城市大丰区城东实验小学</div>
+                        <div class="facility-item">盐城市大丰区人民路小学</div>
+                        <div class="facility-item">江苏省大丰高级中学</div>
+                    </div>
+                </div>
+                <div class="facility-category">
+                    <h4>商业</h4>
+                    <div class="facility-list">
+                        <div class="facility-item">吾悦广场</div>
+                        <div class="facility-item">大润发超市</div>
+                        <div class="facility-item">美庐天地</div>
+                    </div>
+                </div>
+                <div class="facility-category">
+                    <h4>医院</h4>
+                    <div class="facility-list">
+                        <div class="facility-item">盐城市大丰人民医院</div>
+                        <div class="facility-item">盐城市大丰中医院</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 小区3 -->
+        <div class="community-card">
+            <div class="community-name">橡树湾</div>
+            <div class="community-info">
+                <div class="info-item"><span class="info-label">地址：</span>海阔路</div>
+                <div class="info-item"><span class="info-label">最新均价：</span>14057元/平</div>
+            </div>
+            <div class="facilities">
+                <h3>周边配套设施</h3>
+                <div class="facility-category">
+                    <h4>学校</h4>
+                    <div class="facility-list">
+                        <div class="facility-item">大丰区幸福路小学</div>
+                        <div class="facility-item">大丰区实验初级中学</div>
+                    </div>
+                </div>
+                <div class="facility-category">
+                    <h4>商业</h4>
+                    <div class="facility-list">
+                        <div class="facility-item">吾悦广场</div>
+                        <div class="facility-item">盐阜人民商场</div>
+                    </div>
+                </div>
+                <div class="facility-category">
+                    <h4>医院</h4>
+                    <div class="facility-list">
+                        <div class="facility-item">盐城市大丰人民医院</div>
+                        <div class="facility-item">大丰区第二人民医院</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 小区4 -->
+        <div class="community-card">
+            <div class="community-name">碧桂园天玺</div>
+            <div class="community-info">
+                <div class="info-item"><span class="info-label">地址：</span>青年东路,近天山路</div>
+                <div class="info-item"><span class="info-label">最新均价：</span>13455元/平</div>
+            </div>
+            <div class="facilities">
+                <h3>周边配套设施</h3>
+                <div class="facility-category">
+                    <h4>学校</h4>
+                    <div class="facility-list">
+                        <div class="facility-item">大丰外国语学校</div>
+                        <div class="facility-item">大丰区创新英达学校</div>
+                    </div>
+                </div>
+                <div class="facility-category">
+                    <h4>商业</h4>
+                    <div class="facility-list">
+                        <div class="facility-item">吾悦广场</div>
+                        <div class="facility-item">欧蓓莎国际购物中心</div>
+                    </div>
+                </div>
+                <div class="facility-category">
+                    <h4>医院</h4>
+                    <div class="facility-list">
+                        <div class="facility-item">盐城市大丰中医院</div>
+                        <div class="facility-item">大丰区第二人民医院</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 小区5 -->
+        <div class="community-card">
+            <div class="community-name">中庚联鑫·香汇长龙</div>
+            <div class="community-info">
+                <div class="info-item"><span class="info-label">地址：</span>大丰通港大道与常新北路交汇处西南位</div>
+                <div class="info-item"><span class="info-label">最新均价：</span>11000元/平</div>
+            </div>
+            <div class="facilities">
+                <h3>周边配套设施</h3>
+                <div class="facility-category">
+                    <h4>学校</h4>
+                    <div class="facility-list">
+                        <div class="facility-item">大丰区明达幼儿园</div>
+                        <div class="facility-item">大丰区幸福路小学</div>
+                        <div class="facility-item">大丰区实验初级中学</div>
+                    </div>
+                </div>
+                <div class="facility-category">
+                    <h4>商业</h4>
+                    <div class="facility-list">
+                        <div class="facility-item">美庐天地</div>
+                        <div class="facility-item">万佳城市广场</div>
+                    </div>
+                </div>
+                <div class="facility-category">
+                    <h4>医院</h4>
+                    <div class="facility-list">
+                        <div class="facility-item">盐城市大丰人民医院</div>
+                        <div class="facility-item">盐城市大丰中医院</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 小区6 -->
+        <div class="community-card">
+            <div class="community-name">建发|金辉·珺和府</div>
+            <div class="community-info">
+                <div class="info-item"><span class="info-label">地址：</span>健康东路阜南南路交叉口</div>
+                <div class="info-item"><span class="info-label">最新均价：</span>10000元/平</div>
+            </div>
+            <div class="facilities">
+                <h3>周边配套设施</h3>
+                <div class="facility-category">
+                    <h4>学校</h4>
+                    <div class="facility-list">
+                        <div class="facility-item">盐城市大丰区城东实验小学</div>
+                        <div class="facility-item">大丰区康平路小学</div>
+                        <div class="facility-item">大丰区第一小学</div>
+                        <div class="facility-item">大丰区实验初级中学益民路分校</div>
+                    </div>
+                </div>
+                <div class="facility-category">
+                    <h4>商业</h4>
+                    <div class="facility-list">
+                        <div class="facility-item">万佳城市广场</div>
+                        <div class="facility-item">美庐天地</div>
+                        <div class="facility-item">欧蓓莎国际购物中心</div>
+                    </div>
+                </div>
+                <div class="facility-category">
+                    <h4>医院</h4>
+                    <div class="facility-list">
+                        <div class="facility-item">盐城市大丰中医院</div>
+                        <div class="facility-item">大丰友义医院</div>
+                        <div class="facility-item">大丰区第二人民医院</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 小区7 -->
+        <div class="community-card">
+            <div class="community-name">上海花园</div>
+            <div class="community-info">
+                <div class="info-item"><span class="info-label">地址：</span>常新路57号</div>
+                <div class="info-item"><span class="info-label">最新均价：</span>4300元/平</div>
+            </div>
+            <div class="facilities">
+                <h3>周边配套设施</h3>
+                <div class="facility-category">
+                    <h4>学校</h4>
+                    <div class="facility-list">
+                        <div class="facility-item">大丰区实验小学</div>
+                        <div class="facility-item">大丰区实验初级中学</div>
+                    </div>
+                </div>
+                <div class="facility-category">
+                    <h4>商业</h4>
+                    <div class="facility-list">
+                        <div class="facility-item">盐阜人民商场</div>
+                        <div class="facility-item">城北菜市场</div>
+                    </div>
+                </div>
+                <div class="facility-category">
+                    <h4>医院</h4>
+                    <div class="facility-list">
+                        <div class="facility-item">大丰区第二人民医院</div>
+                        <div class="facility-item">大丰人民医院</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 小区8 -->
+        <div class="community-card">
+            <div class="community-name">丰中名邸</div>
+            <div class="community-info">
+                <div class="info-item"><span class="info-label">地址：</span>大华路39号</div>
+                <div class="info-item"><span class="info-label">最新均价：</span>较高（周边小区价格参考）</div>
+            </div>
+            <div class="facilities">
+                <h3>周边配套设施</h3>
+                <div class="facility-category">
+                    <h4>学校</h4>
+                    <div class="facility-list">
+                        <div class="facility-item">大丰区人民路小学附属幼儿园</div>
+                        <div class="facility-item">大丰区第三小学</div>
+                        <div class="facility-item">盐城湿地实验中学</div>
+                    </div>
+                </div>
+                <div class="facility-category">
+                    <h4>商业</h4>
+                    <div class="facility-list">
+                        <div class="facility-item">欧蓓莎国际购物中心</div>
+                        <div class="facility-item">城北菜市场</div>
+                    </div>
+                </div>
+                <div class="facility-category">
+                    <h4>医院</h4>
+                    <div class="facility-list">
+                        <div class="facility-item">大丰区第二人民医院</div>
+                        <div class="facility-item">大丰人民医院</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/main.js"></script>
+</body>
+</html>
