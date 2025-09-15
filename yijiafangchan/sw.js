@@ -1,11 +1,11 @@
 /**
  * Service Worker for 宜家房产网站
  * 实现智能缓存策略和离线支持
- * Version: 1.0.0
+ * Version: 1.1.0
  */
 
-const CACHE_NAME = 'yijia-fc-v1.0.0';
-const RUNTIME_CACHE = 'yijia-fc-runtime-v1.0.0';
+const CACHE_NAME = 'yijia-fc-v1.1.0';
+const RUNTIME_CACHE = 'yijia-fc-runtime-v1.1.0';
 
 // 预缓存的静态资源
 const STATIC_CACHE_URLS = [
@@ -15,8 +15,12 @@ const STATIC_CACHE_URLS = [
     '/about.html',
     '/contact.html',
     '/assets/css/styles.css',
-    '/assets/js/main.js',
-    '/assets/js/properties.js',
+    '/assets/js/main.min.js',
+    '/assets/js/properties.min.js',
+    '/assets/js/performance-utils.js',
+    '/assets/js/resource-optimizer.js',
+    '/assets/js/image-optimizer.js',
+    '/assets/js/web-vitals.js',
     '/assets/images/logo.png',
     // Bootstrap CDN
     'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css',
