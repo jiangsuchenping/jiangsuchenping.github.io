@@ -1,0 +1,1425 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>10以内连续加减法混合运算训练</title>
+    <!-- 网站图标 -->
+    <link rel="icon" href="/youeryuan/assets/images/favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+    
+    <!-- 全局错误处理 -->
+    <script>
+        // 全局未捕获Promise错误处理
+        window.addEventListener('unhandledrejection', function(event) {
+            console.error('未捕获的Promise错误:', event.reason);
+            // 防止错误传播
+            event.preventDefault();
+        });
+        
+        // 全局错误处理
+        window.addEventListener('error', function(event) {
+            console.error('全局错误:', event.message, '在', event.filename, '第', event.lineno, '行');
+            // 防止错误传播
+            event.preventDefault();
+        });
+    </script>
+    
+    <!-- 预连接关键CDN域名 -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+    
+    <!-- 关键CSS资源预加载 -->
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    
+    <!-- 备用CSS加载 -->
+    <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"></noscript>
+    <noscript><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"></noscript>
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Arial', sans-serif;
+            min-height: 100vh;
+        }
+        
+        .main-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            margin: 20px auto;
+            max-width: 800px;
+            padding: 30px;
+        }
+        
+        .question-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 40px;
+            margin: 20px 0;
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            box-shadow: 0 10px 25px rgba(240, 147, 251, 0.3);
+        }
+        
+        .answer-btn {
+            font-size: 1.5rem;
+            padding: 20px;
+            margin: 10px;
+            border-radius: 15px;
+            border: none;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+        
+        .answer-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .correct {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%) !important;
+            color: white;
+        }
+        
+        .incorrect {
+            background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%) !important;
+            color: white;
+        }
+        
+        .stats-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin: 10px 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .progress-ring {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto;
+        }
+        
+        .daily-limit {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .history-item {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 10px;
+            margin: 5px 0;
+            border-left: 4px solid #007bff;
+        }
+        
+        .emoji-feedback {
+            font-size: 3rem;
+            margin: 20px 0;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* 性能优化：使用transform3d启用硬件加速 */
+        .answer-btn {
+            transform: translate3d(0, 0, 0);
+            will-change: transform;
+        }
+        
+        .answer-btn:hover {
+            transform: translate3d(0, -3px, 0);
+        }
+        
+        /* 预加载状态 */
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+        
+        /* 键盘导航支持 */
+        .answer-btn:focus {
+            outline: 3px solid #007bff;
+            outline-offset: 2px;
+        }
+        
+        /* 减少重绘 */
+        .stats-card {
+            contain: layout style paint;
+        }
+        
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="main-container">
+            <h1 class="text-center mb-4">
+                <i class="bi bi-calculator-fill text-primary"></i>
+                加减法混合运算训练
+            </h1>
+            
+            <!-- 设置面板 -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="stats-card">
+                        <h5><i class="bi bi-gear-fill"></i> 训练设置</h5>
+                        <div class="row align-items-center">
+                            <div class="col-md-4">
+                                <label for="rangeSelect" class="form-label">数值范围：</label>
+                                <select id="rangeSelect" class="form-select">
+                                    <option value="10">10以内</option>
+                                    <option value="20">20以内</option>
+                                    <option value="50">50以内</option>
+                                    <option value="100">100以内</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="operationCount" class="form-label">运算次数：</label>
+                                <select id="operationCount" class="form-select">
+                                    <option value="1-2">1-2次运算</option>
+                                    <option value="2">固定2次运算</option>
+                                    <option value="3">固定3次运算</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                              
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 统计面板 -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="stats-card">
+                        <h5><i class="bi bi-graph-up"></i> 今日统计</h5>
+                        <div class="row text-center">
+                            <div class="col-4">
+                                <h3 id="todayTotal" class="text-primary">0</h3>
+                                <small>总题数</small>
+                            </div>
+                            <div class="col-4">
+                                <h3 id="todayCorrect" class="text-success">0</h3>
+                                <small>正确数</small>
+                            </div>
+                            <div class="col-4">
+                                <h3 id="todayAccuracy" class="text-warning">0%</h3>
+                                <small>正确率</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="stats-card">
+                        <h5><i class="bi bi-trophy"></i> 总统计</h5>
+                        <div class="row text-center">
+                            <div class="col-4">
+                                <h3 id="totalQuestions" class="text-primary">0</h3>
+                                <small>总题数</small>
+                            </div>
+                            <div class="col-4">
+                                <h3 id="totalCorrect" class="text-success">0</h3>
+                                <small>正确数</small>
+                            </div>
+                            <div class="col-4">
+                                <h3 id="totalAccuracy" class="text-warning">0%</h3>
+                                <small>正确率</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 每日限制提示 -->
+            <div id="dailyLimitAlert" class="daily-limit hidden">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div id="limitText">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        今日训练已达到上限（20题），明天再来继续吧！
+                    </div>
+                    <div>
+                        <button id="resetLimitBtn" class="btn btn-sm btn-warning">
+                            <i class="bi bi-plus-circle"></i> 增加上限
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 训练区域 -->
+             <div id="trainingArea" class="text-center">
+                 <div class="question-card" id="questionCard">
+                     <span id="question">准备开始</span>
+                 </div>
+                 
+                 <div id="answerOptions" class="row">
+                     <div class="col-6 col-md-3">
+                         <button class="btn btn-primary answer-btn" id="optionA">A</button>
+                     </div>
+                     <div class="col-6 col-md-3">
+                         <button class="btn btn-primary answer-btn" id="optionB">B</button>
+                     </div>
+                     <div class="col-6 col-md-3">
+                         <button class="btn btn-primary answer-btn" id="optionC">C</button>
+                     </div>
+                     <div class="col-6 col-md-3">
+                         <button class="btn btn-primary answer-btn" id="optionD">D</button>
+                     </div>
+                 </div>
+                 
+                 <div id="feedback" class="emoji-feedback hidden"></div>
+             </div>
+            
+            <!-- 历史记录 -->
+            <div class="mt-5">
+                <h4><i class="bi bi-clock-history"></i> 今日答题记录</h4>
+                <div id="historyList" class="mt-3"></div>
+            </div>
+            
+            <!-- 所有历史记录 -->
+            <div class="mt-5">
+                <h4><i class="bi bi-clock-history"></i> 历史统计</h4>
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <div class="stats-card">
+                            <h5>累计答题</h5>
+                            <h3 id="allTimeTotal" class="text-primary">0</h3>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stats-card">
+                            <h5>正确答题</h5>
+                            <h3 id="allTimeCorrect" class="text-success">0</h3>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="stats-card">
+                            <h5>正确率</h5>
+                            <h3 id="allTimeAccuracy" class="text-warning">0%</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <button id="showAllHistoryBtn" class="btn btn-info">
+                        <i class="bi bi-list"></i> 查看详细历史记录
+                    </button>
+                    <div id="allHistoryContainer" class="mt-3" style="display: none;">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h5>详细历史记录</h5>
+                            <button id="hideAllHistoryBtn" class="btn btn-sm btn-secondary">
+                                <i class="bi bi-eye-slash"></i> 隐藏
+                            </button>
+                        </div>
+                        <div id="allHistoryList"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 返回首页按钮 -->
+            <div class="text-center mt-4">
+                <a href="index.html" class="btn btn-outline-secondary">
+                    <i class="bi bi-house-door"></i> 返回首页
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 异步加载Bootstrap JS，带缓存和错误处理 -->
+    <script>
+        /**
+         * 异步加载Bootstrap Bundle JS
+         * 使用CDN失败时的本地回退机制
+         */
+        (function() {
+            const cdnUrl = 'https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js';
+            const fallbackUrl = '/assets/js/bootstrap.bundle.min.js';
+            
+            // 创建脚本元素
+            const script = document.createElement('script');
+            script.src = cdnUrl;
+            script.async = true;
+            script.crossOrigin = 'anonymous';
+            
+            // 设置加载超时
+            const timeout = setTimeout(() => {
+                console.warn('Bootstrap JS CDN加载超时，切换到本地回退');
+                loadFallback();
+            }, 5000);
+            
+            // 成功加载
+            script.onload = () => {
+                clearTimeout(timeout);
+                console.log('Bootstrap JS CDN加载成功');
+            };
+            
+            // 加载失败
+            script.onerror = () => {
+                clearTimeout(timeout);
+                console.warn('Bootstrap JS CDN加载失败，切换到本地回退');
+                loadFallback();
+            };
+            
+            // 加载本地回退
+            function loadFallback() {
+                const fallbackScript = document.createElement('script');
+                fallbackScript.src = fallbackUrl;
+                fallbackScript.async = true;
+                document.head.appendChild(fallbackScript);
+            }
+            
+            document.head.appendChild(script);
+        })();
+    </script>
+    <script>
+        /**
+         * 10以内连续加减法混合运算训练系统
+         * 功能：智能出题、历史记录、每日限制、实时反馈
+         */
+        class MixedMathTrainingSystem {
+            constructor() {
+                this.dailyLimit = 20; // 每日训练上限
+                this.currentQuestion = null;
+                this.answers = [];
+                this.history = this.loadHistory();
+                this.today = new Date().toISOString().split('T')[0];
+                
+                // 训练设置
+                this.settings = this.loadSettings();
+                this.maxNumber = this.settings.range || 10;
+                this.operationMode = this.settings.operationCount || '1-2';
+                
+                // 性能优化：预计算统计数据
+                this.statsCache = {
+                    todayHistory: null,
+                    todayStats: null,
+                    allTimeStats: null,
+                    lastUpdateTime: 0
+                };
+                
+                // 缓存DOM元素以提高性能
+                this.domCache = this.initializeDOMCache();
+                
+                // 缓存今日历史记录以避免重复过滤
+                this.updateStatsCache();
+                
+                // 防抖函数缓存
+                this.debouncedUpdateHistory = this.debounce(this.updateHistoryList.bind(this), 100);
+                
+                // 键盘导航支持
+                this.currentFocusIndex = 0;
+                this.answerButtons = [
+                    this.domCache.optionA, 
+                    this.domCache.optionB, 
+                    this.domCache.optionC, 
+                    this.domCache.optionD
+                ];
+                
+                this.initializeEventListeners();
+                this.initializeSettingsUI(); // 初始化设置UI
+                this.updateStats();
+                this.updateAllTimeStats();
+                this.updateHistoryList();
+                
+                // 检查每日训练上限并自动开始训练
+                const isLimited = this.checkDailyLimit();
+                if (!isLimited) {
+                    // 延迟启动以提升感知性能
+                    requestAnimationFrame(() => this.startTraining());
+                }
+            }
+            
+            /**
+             * 初始化DOM缓存
+             */
+            initializeDOMCache() {
+                const elements = [
+                    'dailyLimitAlert', 'trainingArea', 'answerOptions', 'feedback',
+                    'historyList', 'question', 'optionA', 'optionB', 'optionC', 'optionD',
+                    'todayTotal', 'todayCorrect', 'todayAccuracy', 'totalQuestions',
+                    'totalCorrect', 'totalAccuracy', 'allTimeTotal', 'allTimeCorrect',
+                    'allTimeAccuracy', 'showAllHistoryBtn', 'hideAllHistoryBtn',
+                    'allHistoryContainer', 'allHistoryList'
+                ];
+                
+                const cache = {};
+                elements.forEach(id => {
+                    cache[id] = document.getElementById(id);
+                });
+                
+                return cache;
+            }
+            
+            /**
+             * 更新统计缓存
+             */
+            updateStatsCache() {
+                const now = Date.now();
+                // 缓存有效期：100ms，避免频繁计算
+                if (now - this.statsCache.lastUpdateTime < 100) {
+                    return;
+                }
+                
+                this.statsCache.todayHistory = this.history.filter(h => h.date === this.today);
+                
+                const todayCorrect = this.statsCache.todayHistory.filter(h => h.correct).length;
+                const todayTotal = this.statsCache.todayHistory.length;
+                
+                const allCorrect = this.history.filter(h => h.correct).length;
+                const allTotal = this.history.length;
+                
+                this.statsCache.todayStats = {
+                    total: todayTotal,
+                    correct: todayCorrect,
+                    accuracy: todayTotal > 0 ? Math.round((todayCorrect / todayTotal) * 100) : 0
+                };
+                
+                this.statsCache.allTimeStats = {
+                    total: allTotal,
+                    correct: allCorrect,
+                    accuracy: allTotal > 0 ? Math.round((allCorrect / allTotal) * 100) : 0
+                };
+                
+                this.statsCache.lastUpdateTime = now;
+            }
+            
+            /**
+             * 防抖函数
+             */
+            debounce(func, wait) {
+                let timeout;
+                return function executedFunction(...args) {
+                    const later = () => {
+                        clearTimeout(timeout);
+                        func(...args);
+                    };
+                    clearTimeout(timeout);
+                    timeout = setTimeout(later, wait);
+                };
+            }
+            
+            /**
+             * 初始化事件监听器
+             */
+            initializeEventListeners() {
+                // 使用事件委托优化性能，添加防抖处理
+                this.domCache.answerOptions.addEventListener('click', this.debounce((e) => {
+                    if (e.target.classList.contains('answer-btn') && !e.target.disabled) {
+                        this.checkAnswer(e.target);
+                    }
+                }, 200));
+                
+                // 键盘导航支持
+                document.addEventListener('keydown', (e) => {
+                    if (this.domCache.trainingArea.classList.contains('hidden')) return;
+                    
+                    switch(e.key) {
+                        case '1':
+                        case 'a':
+                        case 'A':
+                            e.preventDefault();
+                            this.selectAnswer(0);
+                            break;
+                        case '2':
+                        case 'b':
+                        case 'B':
+                            e.preventDefault();
+                            this.selectAnswer(1);
+                            break;
+                        case '3':
+                        case 'c':
+                        case 'C':
+                            e.preventDefault();
+                            this.selectAnswer(2);
+                            break;
+                        case '4':
+                        case 'd':
+                        case 'D':
+                            e.preventDefault();
+                            this.selectAnswer(3);
+                            break;
+                        case 'ArrowLeft':
+                        case 'ArrowUp':
+                            e.preventDefault();
+                            this.navigateAnswers(-1);
+                            break;
+                        case 'ArrowRight':
+                        case 'ArrowDown':
+                            e.preventDefault();
+                            this.navigateAnswers(1);
+                            break;
+                        case 'Enter':
+                        case ' ':
+                            e.preventDefault();
+                            if (this.answerButtons[this.currentFocusIndex] && !this.answerButtons[this.currentFocusIndex].disabled) {
+                                this.checkAnswer(this.answerButtons[this.currentFocusIndex]);
+                            }
+                            break;
+                    }
+                });
+                
+                // 添加重置按钮事件监听器
+                const resetLimitBtn = document.getElementById('resetLimitBtn');
+                if (resetLimitBtn) {
+                    resetLimitBtn.addEventListener('click', () => this.resetDailyLimit());
+                }
+                
+                // 添加历史记录按钮事件监听器（延迟加载优化）
+                this.domCache.showAllHistoryBtn.addEventListener('click', () => {
+                    this.domCache.allHistoryContainer.style.display = 'block';
+                    // 延迟加载历史记录以提升性能
+                    requestAnimationFrame(() => this.updateAllHistoryList());
+                });
+                
+                this.domCache.hideAllHistoryBtn.addEventListener('click', () => {
+                    this.domCache.allHistoryContainer.style.display = 'none';
+                });
+                
+                // 设置相关事件监听器 - 自动保存和应用
+                const rangeSelect = document.getElementById('rangeSelect');
+                const operationCountSelect = document.getElementById('operationCount');
+                
+                if (rangeSelect) {
+                    rangeSelect.addEventListener('change', () => this.autoApplySettings());
+                }
+                
+                if (operationCountSelect) {
+                    operationCountSelect.addEventListener('change', () => this.autoApplySettings());
+                }
+                
+                // 页面可见性变化时暂停/恢复
+                document.addEventListener('visibilitychange', () => {
+                    if (document.hidden) {
+                        // 页面隐藏时可以做一些清理工作
+                        this.saveHistory();
+                        this.saveSettings();
+                    }
+                });
+            }
+            
+            /**
+             * 加载设置
+             */
+            loadSettings() {
+                const saved = localStorage.getItem('mixedMathTrainingSettings');
+                const defaultSettings = {
+                    range: 10,
+                    operationCount: '1-2'
+                };
+                return saved ? { ...defaultSettings, ...JSON.parse(saved) } : defaultSettings;
+            }
+            
+            /**
+             * 保存设置
+             */
+            saveSettings() {
+                localStorage.setItem('mixedMathTrainingSettings', JSON.stringify(this.settings));
+            }
+            
+            /**
+             * 自动应用设置（无需手动点击按钮）
+             */
+            autoApplySettings() {
+                const rangeSelect = document.getElementById('rangeSelect');
+                const operationCountSelect = document.getElementById('operationCount');
+                
+                if (rangeSelect && operationCountSelect) {
+                    const newRange = parseInt(rangeSelect.value);
+                    const newOperationCount = operationCountSelect.value;
+                    
+                    // 更新设置
+                    this.settings.range = newRange;
+                    this.settings.operationCount = newOperationCount;
+                    this.maxNumber = newRange;
+                    this.operationMode = newOperationCount;
+                    
+                    // 自动保存设置
+                    this.saveSettings();
+                    
+                    // 更新标题
+                    const titleRange = document.getElementById('titleRange');
+                    if (titleRange) {
+                        titleRange.textContent = newRange;
+                    }
+                    
+                    // 显示设置自动应用的反馈
+                    this.showFeedback(`⚡ 设置已自动更新：${newRange}以内运算`, 'info');
+                    
+                    // 如果当前有题目且未达到限制，立即生成新题目
+                    if (!this.checkDailyLimit()) {
+                        // 使用较短的延迟以提供更流畅的体验
+                        setTimeout(() => {
+                            this.generateNextQuestion();
+                        }, 500);
+                    }
+                }
+            }
+            
+            /**
+             * 初始化设置UI
+             */
+            initializeSettingsUI() {
+                const rangeSelect = document.getElementById('rangeSelect');
+                const operationCountSelect = document.getElementById('operationCount');
+                const titleRange = document.getElementById('titleRange');
+                
+                if (rangeSelect) {
+                    rangeSelect.value = this.settings.range.toString();
+                }
+                
+                if (operationCountSelect) {
+                    operationCountSelect.value = this.settings.operationCount;
+                }
+                
+                if (titleRange) {
+                    titleRange.textContent = this.settings.range;
+                }
+            }
+            
+            /**
+             * 键盘导航选择答案
+             */
+            selectAnswer(index) {
+                if (index >= 0 && index < this.answerButtons.length && !this.answerButtons[index].disabled) {
+                    this.checkAnswer(this.answerButtons[index]);
+                }
+            }
+            
+            /**
+             * 键盘导航答案选项
+             */
+            navigateAnswers(direction) {
+                // 移除当前焦点
+                this.answerButtons[this.currentFocusIndex].blur();
+                
+                // 计算新的焦点索引
+                this.currentFocusIndex = (this.currentFocusIndex + direction + this.answerButtons.length) % this.answerButtons.length;
+                
+                // 设置新焦点
+                this.answerButtons[this.currentFocusIndex].focus();
+            }
+            
+            /**
+             * 检查每日训练上限（支持额外增加的题目数量）
+             */
+            checkDailyLimit() {
+                // 使用缓存的统计数据
+                this.updateStatsCache();
+                const todayTotal = this.statsCache.todayStats.total;
+                
+                // 获取额外增加的题目数量
+                const extraKey = `mixedMathTrainingExtra_${this.today}`;
+                const extraCount = parseInt(localStorage.getItem(extraKey) || '0');
+                
+                // 计算实际的上限（基础上限 + 额外增加的题目）
+                const actualLimit = this.dailyLimit + extraCount;
+                
+                // 检查今日是否已达到训练上限
+                if (todayTotal >= actualLimit) {
+                    // 批量DOM操作以提升性能
+                    requestAnimationFrame(() => {
+                        this.domCache.dailyLimitAlert.classList.remove('hidden');
+                        this.domCache.trainingArea.classList.add('hidden');
+                        this.domCache.answerOptions.classList.add('hidden');
+                        
+                        // 更新提示信息
+                        const limitText = document.getElementById('limitText');
+                        if (limitText) {
+                            const message = extraCount > 0 
+                                ? `<i class="bi bi-exclamation-triangle-fill"></i> 今日已答${todayTotal}题，已达到${actualLimit}题上限（含${extraCount}道额外题目）！`
+                                : `<i class="bi bi-exclamation-triangle-fill"></i> 今日训练已达到上限（${this.dailyLimit}题），明天再来继续吧！`;
+                            limitText.innerHTML = message;
+                        }
+                    });
+                    
+                    return true; // 已达到限制
+                } else {
+                    // 未达到上限，批量DOM操作
+                    requestAnimationFrame(() => {
+                        this.domCache.dailyLimitAlert.classList.add('hidden');
+                        this.domCache.trainingArea.classList.remove('hidden');
+                        this.domCache.answerOptions.classList.remove('hidden');
+                    });
+                    
+                    return false; // 未达到限制
+                }
+            }
+            
+            /**
+             * 增加当日训练上限（每次增加10道题）
+             */
+            resetDailyLimit() {
+                // 确认用户是否要增加训练上限
+                if (confirm(`确定要增加今日训练上限吗？将额外增加10道题（当前已答：${this.todayHistory.length}道）`)) {
+                    // 在localStorage中存储增加的题目数量
+                    const extraKey = `mixedMathTrainingExtra_${this.today}`;
+                    let extraCount = parseInt(localStorage.getItem(extraKey) || '0');
+                    extraCount += 10; // 每次增加10道题
+                    localStorage.setItem(extraKey, extraCount.toString());
+                    
+                    // 隐藏每日限制提示
+                    this.domCache.dailyLimitAlert.classList.add('hidden');
+                    
+                    // 显示训练区域
+                    this.domCache.trainingArea.classList.remove('hidden');
+                    
+                    // 显示增加成功的反馈
+                    this.showFeedback(`✅ 今日训练上限已增加10道题！（额外：${extraCount}道）`, 'success');
+                    
+                    // 生成第一题
+                    this.generateNextQuestion();
+                }
+            }
+            
+            /**
+             * 开始训练
+             */
+            startTraining() {
+                // 检查是否达到每日限制
+                const isLimited = this.checkDailyLimit();
+                
+                // 如果未达到限制，则开始训练
+                if (!isLimited) {
+                    // 显示答案选项区域
+                    this.domCache.answerOptions.classList.remove('hidden');
+                    // 生成第一个问题
+                    this.generateNextQuestion();
+                }
+            }
+            
+            /**
+             * 生成混合运算题目（支持用户自定义范围，确保结果不为负数）
+             */
+            generateMixedQuestion() {
+                const maxAttempts = 50; // 最大尝试次数，防止无限循环
+                let attempts = 0;
+                
+                while (attempts < maxAttempts) {
+                    attempts++;
+                    
+                    try {
+                        // 根据设置决定运算次数
+                        let operationCount;
+                        if (this.operationMode === '1-2') {
+                            operationCount = Math.random() > 0.3 ? 2 : 1; // 70%概率是2次运算
+                        } else if (this.operationMode === '2') {
+                            operationCount = 2;
+                        } else if (this.operationMode === '3') {
+                            operationCount = 3;
+                        } else {
+                            operationCount = 2; // 默认2次运算
+                        }
+                        
+                        const result = this.generateValidQuestion(operationCount);
+                        if (result && result.answer >= 0 && result.answer <= this.maxNumber) {
+                            return result;
+                        }
+                    } catch (error) {
+                        console.debug('题目生成尝试失败:', error);
+                    }
+                }
+                
+                // 如果多次尝试失败，生成一个简单的加法题目作为备用
+                console.warn('题目生成失败，使用备用题目');
+                return this.generateFallbackQuestion();
+            }
+            
+            /**
+             * 生成有效的题目
+             */
+            generateValidQuestion(operationCount) {
+                if (operationCount === 1) {
+                    return this.generateSingleOperation();
+                } else if (operationCount === 2) {
+                    return this.generateDoubleOperation();
+                } else if (operationCount === 3) {
+                    return this.generateTripleOperation();
+                }
+                return null;
+            }
+            
+            /**
+             * 生成单次运算题目
+             */
+            generateSingleOperation() {
+                const isAddition = Math.random() > 0.5;
+                let num1, num2, answer, question, type;
+                
+                if (isAddition) {
+                    // 加法：确保结果不超过最大值
+                    num1 = Math.floor(Math.random() * this.maxNumber) + 1;
+                    const maxNum2 = this.maxNumber - num1;
+                    if (maxNum2 <= 0) {
+                        num2 = 1;
+                        num1 = this.maxNumber - 1;
+                    } else {
+                        num2 = Math.floor(Math.random() * maxNum2) + 1;
+                    }
+                    answer = num1 + num2;
+                    question = `${num1} + ${num2} = ?`;
+                    type = 'single_addition';
+                } else {
+                    // 减法：确保结果不为负数
+                    num1 = Math.floor(Math.random() * this.maxNumber) + 2; // 至少为2
+                    num2 = Math.floor(Math.random() * (num1 - 1)) + 1; // 确保num2 < num1
+                    answer = num1 - num2;
+                    question = `${num1} - ${num2} = ?`;
+                    type = 'single_subtraction';
+                }
+                
+                return { question, answer, num1, num2, type, operationCount: 1 };
+            }
+            
+            /**
+             * 生成两次运算题目
+             */
+            generateDoubleOperation() {
+                // 随机选择运算符组合
+                const operations = ['+', '-'];
+                const op1 = operations[Math.floor(Math.random() * operations.length)];
+                const op2 = operations[Math.floor(Math.random() * operations.length)];
+                
+                // 从结果反推，确保所有中间结果和最终结果都有效
+                const finalAnswer = Math.floor(Math.random() * this.maxNumber) + 1;
+                
+                let num1, num2, num3, firstResult;
+                
+                // 根据第二个运算符确定第三个数字和第一步结果
+                if (op2 === '+') {
+                    // 如果第二步是加法：firstResult + num3 = finalAnswer
+                    num3 = Math.floor(Math.random() * Math.min(finalAnswer, this.maxNumber)) + 1;
+                    firstResult = finalAnswer - num3;
+                } else {
+                    // 如果第二步是减法：firstResult - num3 = finalAnswer
+                    const maxNum3 = Math.min(this.maxNumber - finalAnswer, this.maxNumber);
+                    num3 = Math.floor(Math.random() * maxNum3) + 1;
+                    firstResult = finalAnswer + num3;
+                }
+                
+                // 确保第一步结果有效
+                if (firstResult <= 0 || firstResult > this.maxNumber) {
+                    return null;
+                }
+                
+                // 根据第一个运算符确定前两个数字
+                if (op1 === '+') {
+                    // 如果第一步是加法：num1 + num2 = firstResult
+                    num1 = Math.floor(Math.random() * Math.min(firstResult, this.maxNumber)) + 1;
+                    num2 = firstResult - num1;
+                } else {
+                    // 如果第一步是减法：num1 - num2 = firstResult
+                    const maxNum1 = Math.min(firstResult + this.maxNumber, this.maxNumber);
+                    num1 = Math.floor(Math.random() * (maxNum1 - firstResult)) + firstResult + 1;
+                    num2 = num1 - firstResult;
+                }
+                
+                // 验证所有数字都在有效范围内
+                if (num1 <= 0 || num1 > this.maxNumber || 
+                    num2 <= 0 || num2 > this.maxNumber || 
+                    num3 <= 0 || num3 > this.maxNumber) {
+                    return null;
+                }
+                
+                const question = `${num1} ${op1} ${num2} ${op2} ${num3} = ?`;
+                const type = `mixed_${op1 === '+' ? 'add' : 'sub'}_${op2 === '+' ? 'add' : 'sub'}`;
+                
+                return { 
+                    question, 
+                    answer: finalAnswer, 
+                    num1, num2, num3, 
+                    op1, op2, 
+                    type, 
+                    operationCount: 2 
+                };
+            }
+            
+            /**
+             * 生成三次运算题目
+             */
+            generateTripleOperation() {
+                const operations = ['+', '-'];
+                const op1 = operations[Math.floor(Math.random() * operations.length)];
+                const op2 = operations[Math.floor(Math.random() * operations.length)];
+                const op3 = operations[Math.floor(Math.random() * operations.length)];
+                
+                // 从结果反推，确保所有步骤都有效
+                const finalAnswer = Math.floor(Math.random() * this.maxNumber) + 1;
+                
+                // 简化处理：生成较小的数字以确保计算有效
+                const maxSingleNum = Math.min(Math.floor(this.maxNumber / 3), 10);
+                
+                let num1 = Math.floor(Math.random() * maxSingleNum) + 1;
+                let num2 = Math.floor(Math.random() * maxSingleNum) + 1;
+                let num3 = Math.floor(Math.random() * maxSingleNum) + 1;
+                let num4 = Math.floor(Math.random() * maxSingleNum) + 1;
+                
+                // 计算中间结果
+                let firstResult = op1 === '+' ? num1 + num2 : Math.max(num1 - num2, 1);
+                let secondResult = op2 === '+' ? firstResult + num3 : Math.max(firstResult - num3, 1);
+                let finalResult = op3 === '+' ? secondResult + num4 : Math.max(secondResult - num4, 1);
+                
+                // 如果结果超出范围，调整数字
+                if (finalResult > this.maxNumber) {
+                    return null;
+                }
+                
+                const question = `${num1} ${op1} ${num2} ${op2} ${num3} ${op3} ${num4} = ?`;
+                const type = `triple_${op1 === '+' ? 'add' : 'sub'}_${op2 === '+' ? 'add' : 'sub'}_${op3 === '+' ? 'add' : 'sub'}`;
+                
+                return { 
+                    question, 
+                    answer: finalResult, 
+                    num1, num2, num3, num4,
+                    op1, op2, op3,
+                    type, 
+                    operationCount: 3 
+                };
+            }
+            
+            /**
+             * 生成备用题目（简单加法）
+             */
+            generateFallbackQuestion() {
+                const num1 = Math.floor(Math.random() * Math.floor(this.maxNumber / 2)) + 1;
+                const num2 = Math.floor(Math.random() * (this.maxNumber - num1)) + 1;
+                const answer = num1 + num2;
+                const question = `${num1} + ${num2} = ?`;
+                
+                return { 
+                    question, 
+                    answer, 
+                    num1, 
+                    num2, 
+                    type: 'fallback_addition', 
+                    operationCount: 1 
+                };
+            }
+            
+            /**
+             * 生成具有迷惑性的干扰选项（支持自定义范围）
+             */
+            generateOptions(correctAnswer) {
+                const options = [correctAnswer];
+                const maxAttempts = 20; // 防止无限循环
+                let attempts = 0;
+                
+                while (options.length < 4 && attempts < maxAttempts) {
+                    attempts++;
+                    let wrongOption;
+                    const mistakeType = Math.random();
+                    
+                    if (mistakeType < 0.3) {
+                        // 相邻数字错误（±1或±2）
+                        const offset = Math.random() > 0.5 ? 
+                            (Math.random() > 0.5 ? 1 : 2) : 
+                            (Math.random() > 0.5 ? -1 : -2);
+                        wrongOption = correctAnswer + offset;
+                    } else if (mistakeType < 0.6) {
+                        // 运算错误（可能的计算错误）
+                        const errorRange = Math.max(3, Math.floor(this.maxNumber * 0.1));
+                        const offset = Math.floor(Math.random() * errorRange * 2) - errorRange;
+                        wrongOption = correctAnswer + offset;
+                    } else if (mistakeType < 0.8) {
+                        // 基于正确答案的倍数或分数错误
+                        if (correctAnswer > 1) {
+                            wrongOption = Math.random() > 0.5 ? 
+                                Math.floor(correctAnswer * 1.5) : 
+                                Math.floor(correctAnswer * 0.5);
+                        } else {
+                            wrongOption = correctAnswer + Math.floor(Math.random() * 5) + 1;
+                        }
+                    } else {
+                        // 随机错误（在合理范围内）
+                        wrongOption = Math.floor(Math.random() * Math.min(this.maxNumber + 1, correctAnswer + 10));
+                    }
+                    
+                    // 确保选项在合理范围内且唯一
+                    wrongOption = Math.max(0, Math.min(this.maxNumber, wrongOption));
+                    
+                    // 避免与正确答案相同，且确保选项唯一
+                    if (wrongOption !== correctAnswer && !options.includes(wrongOption)) {
+                        options.push(wrongOption);
+                    }
+                }
+                
+                // 如果仍然没有足够的选项，补充一些简单的错误选项
+                while (options.length < 4) {
+                    const simpleWrong = Math.floor(Math.random() * (this.maxNumber + 1));
+                    if (!options.includes(simpleWrong)) {
+                        options.push(simpleWrong);
+                    }
+                }
+                
+                return this.shuffleArray(options);
+            }
+            
+            /**
+             * 显示题目
+             */
+            displayQuestion() {
+                // 直接显示题目文本，保持简洁清晰
+                this.domCache.question.textContent = this.currentQuestion.question;
+                
+                const options = this.generateOptions(this.currentQuestion.answer);
+                const buttons = [this.domCache.optionA, this.domCache.optionB, this.domCache.optionC, this.domCache.optionD];
+                
+                buttons.forEach((button, index) => {
+                    button.textContent = options[index];
+                    button.className = 'btn btn-primary answer-btn';
+                    button.disabled = false;
+                });
+            }
+            
+            /**
+             * 检查答案（优化版本）
+             */
+            checkAnswer(button) {
+                // 防止重复点击
+                if (button.disabled || button.classList.contains('correct') || button.classList.contains('incorrect')) {
+                    return;
+                }
+                
+                const selectedAnswer = parseInt(button.textContent);
+                const isCorrect = selectedAnswer === this.currentQuestion.answer;
+                
+                // 立即禁用所有按钮防止重复点击
+                this.disableAnswerButtons();
+                
+                // 批量DOM操作以提升性能
+                requestAnimationFrame(() => {
+                    if (isCorrect) {
+                        button.classList.add('correct');
+                        this.showFeedback('🎉 太棒了！', 'success');
+                        // 添加成功音效提示（如果支持）
+                        this.playFeedbackSound('success');
+                    } else {
+                        button.classList.add('incorrect');
+                        // 高效查找并标记正确答案
+                        this.answerButtons.forEach(btn => {
+                            if (parseInt(btn.textContent) === this.currentQuestion.answer) {
+                                btn.classList.add('correct');
+                            }
+                        });
+                        this.showFeedback('💪 再试一次！', 'danger');
+                        // 添加错误音效提示（如果支持）
+                        this.playFeedbackSound('error');
+                    }
+                });
+                
+                // 记录答题历史
+                this.recordAnswer(isCorrect, selectedAnswer);
+                
+                // 使用requestAnimationFrame优化延迟处理
+                setTimeout(() => {
+                    requestAnimationFrame(() => {
+                        const isLimited = this.checkDailyLimit();
+                        if (!isLimited) {
+                            this.generateNextQuestion();
+                        }
+                    });
+                }, 1000);
+            }
+            
+            /**
+             * 播放反馈音效（如果浏览器支持）
+             */
+            playFeedbackSound(type) {
+                try {
+                    // 使用Web Audio API创建简单的反馈音效
+                    if (window.AudioContext || window.webkitAudioContext) {
+                        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                        const oscillator = audioContext.createOscillator();
+                        const gainNode = audioContext.createGain();
+                        
+                        oscillator.connect(gainNode);
+                        gainNode.connect(audioContext.destination);
+                        
+                        if (type === 'success') {
+                            // 成功音效：高音调
+                            oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+                            oscillator.frequency.setValueAtTime(1000, audioContext.currentTime + 0.1);
+                        } else {
+                            // 错误音效：低音调
+                            oscillator.frequency.setValueAtTime(300, audioContext.currentTime);
+                        }
+                        
+                        gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+                        
+                        oscillator.start(audioContext.currentTime);
+                        oscillator.stop(audioContext.currentTime + 0.2);
+                    }
+                } catch (error) {
+                    // 静默处理音效错误
+                    console.debug('音效播放失败:', error);
+                }
+            }
+
+            /**
+             * 生成下一题
+             */
+            generateNextQuestion() {
+                this.currentQuestion = this.generateMixedQuestion();
+                this.displayQuestion();
+                
+                // 隐藏反馈信息
+                this.domCache.feedback.classList.add('hidden');
+                
+                // 启用答案按钮
+                this.enableAnswerButtons();
+            }
+            
+            /**
+             * 记录答题历史（优化版本）
+             */
+            recordAnswer(isCorrect, selectedAnswer) {
+                const record = {
+                    date: this.today,
+                    time: new Date().toLocaleTimeString(),
+                    question: this.currentQuestion.question,
+                    correctAnswer: this.currentQuestion.answer,
+                    selectedAnswer: selectedAnswer,
+                    correct: isCorrect,
+                    type: this.currentQuestion.type || 'mixed_operation',
+                    operationCount: this.currentQuestion.operationCount || 2
+                };
+                
+                this.history.push(record);
+                
+                // 异步保存历史记录以避免阻塞UI
+                requestIdleCallback(() => {
+                    this.saveHistory();
+                }, { timeout: 1000 });
+                
+                // 批量更新UI
+                this.updateStatsCache(); // 立即更新缓存
+                this.updateStats();
+                this.updateAllTimeStats();
+                this.debouncedUpdateHistory(); // 使用防抖更新历史记录
+            }
+            
+            /**
+             * 更新统计信息（优化版本）
+             */
+            updateStats() {
+                // 使用缓存的统计数据
+                this.updateStatsCache();
+                const todayStats = this.statsCache.todayStats;
+                const allTimeStats = this.statsCache.allTimeStats;
+                
+                // 批量DOM更新以提升性能
+                requestAnimationFrame(() => {
+                    this.domCache.todayTotal.textContent = todayStats.total;
+                    this.domCache.todayCorrect.textContent = todayStats.correct;
+                    this.domCache.todayAccuracy.textContent = todayStats.accuracy + '%';
+                    
+                    this.domCache.totalQuestions.textContent = allTimeStats.total;
+                    this.domCache.totalCorrect.textContent = allTimeStats.correct;
+                    this.domCache.totalAccuracy.textContent = allTimeStats.accuracy + '%';
+                });
+            }
+            
+            /**
+             * 更新所有时间统计信息（优化版本）
+             */
+            updateAllTimeStats() {
+                // 使用缓存的统计数据
+                this.updateStatsCache();
+                const allTimeStats = this.statsCache.allTimeStats;
+                
+                // 批量DOM更新
+                requestAnimationFrame(() => {
+                    this.domCache.allTimeTotal.textContent = allTimeStats.total;
+                    this.domCache.allTimeCorrect.textContent = allTimeStats.correct;
+                    this.domCache.allTimeAccuracy.textContent = allTimeStats.accuracy + '%';
+                });
+            }
+            
+            /**
+             * 更新历史记录列表（优化版本）
+             */
+            updateHistoryList() {
+                // 使用缓存的今日历史记录
+                this.updateStatsCache();
+                const todayHistory = this.statsCache.todayHistory.slice(-5);
+                
+                // 使用DocumentFragment批量操作DOM
+                const fragment = document.createDocumentFragment();
+                
+                todayHistory.reverse().forEach(record => {
+                    const item = document.createElement('div');
+                    item.className = 'history-item fade-in';
+                    
+                    // 使用模板字符串优化HTML生成
+                    const badgeClass = record.correct ? 'bg-success' : 'bg-danger';
+                    const badgeIcon = record.correct ? '✓' : '✗';
+                    
+                    item.innerHTML = `
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>${this.escapeHtml(record.question)}</strong>
+                                <br>
+                                <small class="text-muted">${record.time}</small>
+                            </div>
+                            <div>
+                                <span class="badge ${badgeClass}">
+                                    ${badgeIcon} ${record.selectedAnswer}
+                                </span>
+                            </div>
+                        </div>
+                    `;
+                    fragment.appendChild(item);
+                });
+                
+                // 批量更新DOM
+                requestAnimationFrame(() => {
+                    this.domCache.historyList.innerHTML = '';
+                    this.domCache.historyList.appendChild(fragment);
+                });
+            }
+            
+            /**
+             * HTML转义函数，防止XSS攻击
+             */
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+            
+            /**
+             * 更新所有历史记录列表
+             */
+            updateAllHistoryList() {
+                // 清空历史记录列表
+                this.domCache.allHistoryList.innerHTML = '';
+                
+                // 如果没有历史记录
+                if (this.history.length === 0) {
+                    const item = document.createElement('div');
+                    item.className = 'history-item text-center';
+                    item.innerHTML = '<p class="mb-0">暂无历史记录</p>';
+                    this.domCache.allHistoryList.appendChild(item);
+                    return;
+                }
+                
+                // 按日期分组显示历史记录
+                const groupedHistory = {};
+                this.history.forEach(record => {
+                    if (!groupedHistory[record.date]) {
+                        groupedHistory[record.date] = [];
+                    }
+                    groupedHistory[record.date].push(record);
+                });
+                
+                // 按日期倒序显示
+                const sortedDates = Object.keys(groupedHistory).sort().reverse();
+                
+                sortedDates.forEach(date => {
+                    const dateHeader = document.createElement('div');
+                    dateHeader.className = 'alert alert-secondary mt-3 mb-2 py-2';
+                    dateHeader.innerHTML = `<strong>${date}</strong>`;
+                    this.domCache.allHistoryList.appendChild(dateHeader);
+                    
+                    groupedHistory[date].reverse().forEach(record => {
+                        const item = document.createElement('div');
+                        item.className = 'history-item fade-in';
+                        item.innerHTML = `
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>${record.question}</strong>
+                                    <br>
+                                    <small class="text-muted">${record.time}</small>
+                                </div>
+                                <div>
+                                    <span class="badge ${record.correct ? 'bg-success' : 'bg-danger'}">
+                                        ${record.correct ? '✓' : '✗'} ${record.selectedAnswer}
+                                    </span>
+                                </div>
+                            </div>
+                        `;
+                        this.domCache.allHistoryList.appendChild(item);
+                    });
+                });
+            }
+            
+            /**
+             * 显示反馈信息
+             */
+            showFeedback(message, type) {
+                this.domCache.feedback.textContent = message;
+                this.domCache.feedback.className = `emoji-feedback fade-in text-${type}`;
+                this.domCache.feedback.classList.remove('hidden');
+            }
+            
+            /**
+             * 启用答案按钮
+             */
+            enableAnswerButtons() {
+                [this.domCache.optionA, this.domCache.optionB, this.domCache.optionC, this.domCache.optionD].forEach(button => {
+                    button.disabled = false;
+                });
+            }
+            
+            /**
+             * 禁用答案按钮
+             */
+            disableAnswerButtons() {
+                [this.domCache.optionA, this.domCache.optionB, this.domCache.optionC, this.domCache.optionD].forEach(button => {
+                    button.disabled = true;
+                });
+            }
+            
+            /**
+             * 打乱数组顺序
+             */
+            shuffleArray(array) {
+                const shuffled = [...array];
+                for (let i = shuffled.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+                }
+                return shuffled;
+            }
+            
+            /**
+             * 加载历史记录
+             */
+            loadHistory() {
+                const saved = localStorage.getItem('mixedMathTrainingHistory');
+                return saved ? JSON.parse(saved) : [];
+            }
+            
+            /**
+             * 保存历史记录
+             */
+            saveHistory() {
+                localStorage.setItem('mixedMathTrainingHistory', JSON.stringify(this.history));
+            }
+        }
+        
+        // 初始化系统
+        document.addEventListener('DOMContentLoaded', () => {
+            new MixedMathTrainingSystem();
+        });
+    </script>
+</body>
+</html>
