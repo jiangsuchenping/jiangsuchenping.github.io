@@ -334,11 +334,24 @@
                 </div>
             </div>
             
+            <!-- 学习情况图表 -->
+            <div class="mt-5">
+                <h4><i class="bi bi-bar-chart"></i> 学习情况图表</h4>
+                <div class="row">
+                    <div class="col-md-12">
+                        <canvas id="learningChart" height="100"></canvas>
+                    </div>
+                </div>
+            </div>
+            
             <!-- 返回首页按钮 -->
             <div class="text-center mt-4">
                 <a href="index.html" class="btn btn-outline-secondary">
                     <i class="bi bi-house-door"></i> 返回首页
                 </a>
+                <button id="generateTestData" class="btn btn-outline-primary ms-2" onclick="generateTestData()" style="display: none;">
+                    生成测试数据
+                </button>
             </div>
         </div>
     </div>
@@ -387,6 +400,90 @@
             }
             
             document.head.appendChild(script);
+            
+            // 加载Chart.js
+            const chartScript = document.createElement('script');
+            chartScript.src = 'https://cdn.jsdelivr.net/npm/chart.js';
+            chartScript.async = true;
+            chartScript.onload = function() {
+                console.log('Chart.js加载成功');
+                // 图表库加载成功后，如果有全局的初始化函数则调用
+                if (typeof window.initializeLearningChartAfterLoad === 'function') {
+                    window.initializeLearningChartAfterLoad();
+                }
+            };
+            document.head.appendChild(chartScript);
+            
+            // 检测是否为本地环境
+            function isLocalEnvironment() {
+                const hostname = window.location.hostname;
+                return hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1' || hostname.includes('local') || hostname.includes('test');
+            }
+            
+            // 根据环境显示或隐藏测试数据按钮
+            function toggleTestDataButton() {
+                const button = document.getElementById('generateTestData');
+                if (button) {
+                    if (isLocalEnvironment()) {
+                        button.style.display = 'inline-block';
+                    } else {
+                        button.style.display = 'none';
+                        // 在非本地环境中禁用生成测试数据的功能
+                        window.generateTestData = function() {
+                            console.warn('测试数据生成功能在生产环境中已被禁用');
+                        };
+                    }
+                }
+            }
+            
+            // 添加生成测试数据的函数
+            window.generateTestData = function() {
+                // 仅在本地环境中允许生成测试数据
+                if (!isLocalEnvironment()) {
+                    alert('此功能仅在本地测试环境中可用');
+                    return;
+                }
+                
+                const history = [];
+                const today = new Date();
+                
+                // 生成最近30天的数据
+                for (let i = 29; i >= 0; i--) {
+                    const date = new Date(today);
+                    date.setDate(today.getDate() - i);
+                    const dateStr = date.toISOString().split('T')[0];
+                    
+                    // 每天生成5-15条记录
+                    const count = Math.floor(Math.random() * 11) + 5;
+                    for (let j = 0; j < count; j++) {
+                        const correct = Math.random() > 0.3; // 70%正确率
+                        const hour = Math.floor(Math.random() * 12) + 8; // 8点到20点之间
+                        const minute = Math.floor(Math.random() * 60);
+                        const timeStr = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:${Math.floor(Math.random() * 60).toString().padStart(2, '0')}`;
+                        
+                        history.push({
+                            date: dateStr,
+                            time: timeStr,
+                            question: `${Math.floor(Math.random() * 10)} + ${Math.floor(Math.random() * 10)} = ?`,
+                            correctAnswer: Math.floor(Math.random() * 20),
+                            selectedAnswer: correct ? Math.floor(Math.random() * 20) : Math.floor(Math.random() * 20),
+                            correct: correct,
+                            type: 'mixed_operation',
+                            operationCount: 2
+                        });
+                    }
+                }
+                
+                // 保存到localStorage
+                localStorage.setItem('mixedMathTrainingHistory', JSON.stringify(history));
+                console.log('测试数据已生成并保存到localStorage');
+                alert('测试数据已生成！请刷新页面查看图表。');
+            };
+            
+            // 页面加载完成后检查环境并设置按钮显示状态
+            document.addEventListener('DOMContentLoaded', function() {
+                toggleTestDataButton();
+            });
         })();
     </script>
     <script>
@@ -438,6 +535,16 @@
                 this.updateStats();
                 this.updateAllTimeStats();
                 this.updateHistoryList();
+                
+                // 初始化学习图表（如果Chart.js已加载）
+                if (typeof Chart !== 'undefined') {
+                    this.initializeLearningChart();
+                } else {
+                    // 如果Chart.js尚未加载，设置一个全局函数供加载完成后调用
+                    window.initializeLearningChartAfterLoad = () => {
+                        this.initializeLearningChart();
+                    };
+                }
                 
                 // 检查每日训练上限并自动开始训练
                 const isLimited = this.checkDailyLimit();
@@ -1413,6 +1520,152 @@
              */
             saveHistory() {
                 localStorage.setItem('mixedMathTrainingHistory', JSON.stringify(this.history));
+            }
+            
+            /**
+             * 获取最近30天的学习数据
+             */
+            getRecentLearningData() {
+                // 获取最近30天的日期
+                const dates = [];
+                const today = new Date();
+                for (let i = 29; i >= 0; i--) {
+                    const date = new Date(today);
+                    date.setDate(today.getDate() - i);
+                    dates.push(date.toISOString().split('T')[0]);
+                }
+                
+                // 按日期统计答题情况
+                const dailyStats = dates.map(date => {
+                    const dayHistory = this.history.filter(h => h.date === date);
+                    const correct = dayHistory.filter(h => h.correct).length;
+                    const total = dayHistory.length;
+                    const accuracy = total > 0 ? Math.round((correct / total) * 100) : 0;
+                    
+                    return {
+                        date: date,
+                        correct: correct,
+                        total: total,
+                        accuracy: accuracy
+                    };
+                });
+                
+                return dailyStats;
+            }
+            
+            /**
+             * 更新学习图表
+             */
+            updateLearningChart() {
+                // 确保图表已初始化
+                if (!this.learningChart) return;
+                
+                // 获取最近30天的数据
+                const data = this.getRecentLearningData();
+                
+                // 准备图表数据
+                const labels = data.map(d => d.date);
+                const correctData = data.map(d => d.correct);
+                const totalData = data.map(d => d.total);
+                const accuracyData = data.map(d => d.accuracy);
+                
+                // 更新图表数据
+                this.learningChart.data.labels = labels;
+                this.learningChart.data.datasets[0].data = correctData;
+                this.learningChart.data.datasets[1].data = totalData;
+                this.learningChart.data.datasets[2].data = accuracyData;
+                
+                // 更新图表
+                this.learningChart.update();
+            }
+            
+            /**
+             * 初始化学习图表
+             */
+            initializeLearningChart() {
+                const canvas = document.getElementById('learningChart');
+                if (!canvas) return;
+                
+                const ctx = canvas.getContext('2d');
+                
+                // 创建图表
+                this.learningChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: [], // 日期标签
+                        datasets: [{
+                            label: '正确题数',
+                            data: [],
+                            backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 1,
+                            type: 'bar'
+                        }, {
+                            label: '总题数',
+                            data: [],
+                            backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1,
+                            type: 'bar'
+                        }, {
+                            label: '准确率 (%)',
+                            data: [],
+                            backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1,
+                            type: 'line',
+                            yAxisID: 'y1'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: '题目数量'
+                                }
+                            },
+                            y1: {
+                                position: 'right',
+                                beginAtZero: true,
+                                max: 100,
+                                title: {
+                                    display: true,
+                                    text: '准确率 (%)'
+                                },
+                                grid: {
+                                    drawOnChartArea: false,
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top'
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed.y !== null) {
+                                            label += context.parsed.y;
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                // 初始更新图表
+                this.updateLearningChart();
             }
         }
         
