@@ -188,7 +188,11 @@
                                 <select id="rangeSelect" class="form-select">
                                     <option value="10">10以内</option>
                                     <option value="20">20以内</option>
+                                    <option value="30">30以内</option>
+                                    <option value="40">40以内</option>
                                     <option value="50">50以内</option>
+                                    <option value="60">60以内</option>
+                                    <option value="80">80以内</option>
                                     <option value="100">100以内</option>
                                 </select>
                             </div>
@@ -875,7 +879,9 @@
              */
             resetDailyLimit() {
                 // 确认用户是否要增加训练上限
-                if (confirm(`确定要增加今日训练上限吗？将额外增加10道题（当前已答：${this.todayHistory.length}道）`)) {
+                this.updateStatsCache();
+                const currentCount = this.statsCache.todayStats.total;
+                if (confirm(`确定要增加今日训练上限吗？将额外增加10道题（当前已答：${currentCount}道）`)) {
                     // 在localStorage中存储增加的题目数量
                     const extraKey = `mixedMathTrainingExtra_${this.today}`;
                     let extraCount = parseInt(localStorage.getItem(extraKey) || '0');
@@ -887,6 +893,9 @@
                     
                     // 显示训练区域
                     this.domCache.trainingArea.classList.remove('hidden');
+                    // 同时显示答案选项区域并启用按钮
+                    this.domCache.answerOptions.classList.remove('hidden');
+                    this.enableAnswerButtons();
                     
                     // 显示增加成功的反馈
                     this.showFeedback(`✅ 今日训练上限已增加10道题！（额外：${extraCount}道）`, 'success');
