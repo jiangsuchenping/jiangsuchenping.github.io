@@ -1068,46 +1068,75 @@
             }
             
             /**
-             * 生成三次运算题目
+             * 生成三次运算题目（逐步构造，确保每步非负且最终答案在范围内）
              */
             generateTripleOperation() {
                 const operations = ['+', '-'];
-                const op1 = operations[Math.floor(Math.random() * operations.length)];
-                const op2 = operations[Math.floor(Math.random() * operations.length)];
-                const op3 = operations[Math.floor(Math.random() * operations.length)];
-                
-                // 从结果反推，确保所有步骤都有效
-                const finalAnswer = Math.floor(Math.random() * this.maxNumber) + 1;
-                
-                // 简化处理：生成较小的数字以确保计算有效
-                const maxSingleNum = Math.min(Math.floor(this.maxNumber / 3), 10);
-                
-                let num1 = Math.floor(Math.random() * maxSingleNum) + 1;
-                let num2 = Math.floor(Math.random() * maxSingleNum) + 1;
-                let num3 = Math.floor(Math.random() * maxSingleNum) + 1;
-                let num4 = Math.floor(Math.random() * maxSingleNum) + 1;
-                
-                // 计算中间结果
-                let firstResult = op1 === '+' ? num1 + num2 : Math.max(num1 - num2, 1);
-                let secondResult = op2 === '+' ? firstResult + num3 : Math.max(firstResult - num3, 1);
-                let finalResult = op3 === '+' ? secondResult + num4 : Math.max(secondResult - num4, 1);
-                
-                // 如果结果超出范围，调整数字
-                if (finalResult > this.maxNumber) {
-                    return null;
+                const maxAttempts = 50;
+                for (let attempt = 0; attempt < maxAttempts; attempt++) {
+                    const op1 = operations[Math.floor(Math.random() * operations.length)];
+                    const op2 = operations[Math.floor(Math.random() * operations.length)];
+                    const op3 = operations[Math.floor(Math.random() * operations.length)];
+                    
+                    // 逐步构造，确保每一步都合法（不为负，且不超过最大范围）
+                    // 选取 num1
+                    let num1 = Math.floor(Math.random() * this.maxNumber) + 1; // [1, max]
+                    
+                    // 选取 num2
+                    let num2Min = 1, num2Max = this.maxNumber;
+                    if (op1 === '+') {
+                        // num1 + num2 ≤ max
+                        num2Max = Math.max(1, this.maxNumber - num1);
+                    } else { // '-'
+                        // num1 - num2 ≥ 0 => num2 ≤ num1
+                        num2Max = Math.max(1, num1);
+                    }
+                    if (num2Max < 1) continue;
+                    let num2 = Math.floor(Math.random() * num2Max) + 1;
+                    
+                    let r1 = op1 === '+' ? (num1 + num2) : (num1 - num2);
+                    if (r1 < 0 || r1 > this.maxNumber) continue;
+                    
+                    // 选取 num3
+                    let num3Min = 1, num3Max = this.maxNumber;
+                    if (op2 === '+') {
+                        num3Max = Math.max(1, this.maxNumber - r1);
+                    } else { // '-'
+                        num3Max = Math.max(1, r1);
+                    }
+                    if (num3Max < 1) continue;
+                    let num3 = Math.floor(Math.random() * num3Max) + 1;
+                    
+                    let r2 = op2 === '+' ? (r1 + num3) : (r1 - num3);
+                    if (r2 < 0 || r2 > this.maxNumber) continue;
+                    
+                    // 选取 num4
+                    let num4Min = 1, num4Max = this.maxNumber;
+                    if (op3 === '+') {
+                        num4Max = Math.max(1, this.maxNumber - r2);
+                    } else { // '-'
+                        num4Max = Math.max(1, r2);
+                    }
+                    if (num4Max < 1) continue;
+                    let num4 = Math.floor(Math.random() * num4Max) + 1;
+                    
+                    let finalResult = op3 === '+' ? (r2 + num4) : (r2 - num4);
+                    if (finalResult < 0 || finalResult > this.maxNumber) continue;
+                    
+                    const question = `${num1} ${op1} ${num2} ${op2} ${num3} ${op3} ${num4} = ?`;
+                    const type = `triple_${op1 === '+' ? 'add' : 'sub'}_${op2 === '+' ? 'add' : 'sub'}_${op3 === '+' ? 'add' : 'sub'}`;
+                    
+                    return {
+                        question,
+                        answer: finalResult,
+                        num1, num2, num3, num4,
+                        op1, op2, op3,
+                        type,
+                        operationCount: 3
+                    };
                 }
-                
-                const question = `${num1} ${op1} ${num2} ${op2} ${num3} ${op3} ${num4} = ?`;
-                const type = `triple_${op1 === '+' ? 'add' : 'sub'}_${op2 === '+' ? 'add' : 'sub'}_${op3 === '+' ? 'add' : 'sub'}`;
-                
-                return { 
-                    question, 
-                    answer: finalResult, 
-                    num1, num2, num3, num4,
-                    op1, op2, op3,
-                    type, 
-                    operationCount: 3 
-                };
+                // 回退：若多次失败，返回 null 让上层使用备用题
+                return null;
             }
             
             /**
