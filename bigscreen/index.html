@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>大屏数据展示系统</title>
+    <!-- 引入外部库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- 预加载动画 -->
+    <div id="preloader" class="loading pulse-animation">
+        <div class="loader-spinner"></div>
+        <div class="loader-text">数据加载中...</div>
+    </div>
+    
+    <!-- 大屏容器 -->
+    <div class="bigscreen-container">
+        <!-- 顶部标题栏 -->
+        <header class="header">
+            <h1 class="title">数据可视化大屏展示</h1>
+            <div class="info-panel">
+                <span class="time" id="current-time">--:--:--</span>
+                <span class="date" id="current-date">----年--月--日</span>
+                <div class="data-status">
+                    <span class="status-indicator online"></span>
+                    <span class="status-text">数据状态: <span class="status-online">在线</span></span>
+                </div>
+                <div class="update-indicator">
+                    <span class="update-label">最后更新:</span>
+                    <span class="update-time" id="last-update-time">--:--:--</span>
+                    <span class="update-pulse"></span>
+                </div>
+            </div>
+        </header>
+        
+        <!-- 主内容区域 -->
+        <main class="content">
+            <!-- 左侧区域 -->
+            <div class="left-section">
+                <!-- 数据概览卡片 -->
+                <div class="card overview-card">
+                    <div class="card-header">
+                        <div class="card-title-wrapper">
+                            <i class="card-icon fas fa-chart-pie"></i>
+                            <h3 class="card-title">数据概览</h3>
+                        </div>
+                        <div class="card-actions">
+                            <button class="card-action-btn refresh-btn" title="刷新数据">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                            <button class="card-action-btn fullscreen-btn" title="全屏查看">
+                                <i class="fas fa-expand"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="overview-stats">
+                        <div class="stat-item">
+                            <span class="stat-value" id="total-users">0</span>
+                            <span class="stat-label">总用户数</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value" id="active-users">0</span>
+                            <span class="stat-label">活跃用户</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value" id="data-volume">0</span>
+                            <span class="stat-label">数据量 (GB)</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value" id="processing-rate">0</span>
+                            <span class="stat-label">处理速率</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 趋势图 -->
+                <div class="card trend-card">
+                    <div class="card-header">
+                        <div class="card-title-wrapper">
+                            <i class="card-icon fas fa-chart-line"></i>
+                            <h3 class="card-title">趋势分析</h3>
+                        </div>
+                        <div class="card-actions">
+                            <button class="card-action-btn refresh-btn" title="刷新数据">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                            <button class="card-action-btn fullscreen-btn" title="全屏查看">
+                                <i class="fas fa-expand"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="chart-container" id="trend-chart"></div>
+                </div>
+                
+                <!-- 分布饼图 -->
+                <div class="card pie-card">
+                    <div class="card-header">
+                        <div class="card-title-wrapper">
+                            <i class="card-icon fas fa-pie-chart"></i>
+                            <h3 class="card-title">数据分布</h3>
+                        </div>
+                        <div class="card-actions">
+                            <button class="card-action-btn refresh-btn" title="刷新数据">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                            <button class="card-action-btn fullscreen-btn" title="全屏查看">
+                                <i class="fas fa-expand"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="chart-container" id="distribution-chart"></div>
+                </div>
+            </div>
+            
+            <!-- 中间区域 -->
+            <div class="center-section">
+                <!-- 主要仪表盘 -->
+                <div class="card main-dashboard">
+                    <div class="card-header">
+                        <div class="card-title-wrapper">
+                            <i class="card-icon fas fa-tachometer-alt"></i>
+                            <h3 class="card-title">系统状态总览</h3>
+                        </div>
+                        <div class="card-actions">
+                            <button class="card-action-btn refresh-btn" title="刷新数据">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                            <button class="card-action-btn fullscreen-btn" title="全屏查看">
+                                <i class="fas fa-expand"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="chart-container" id="main-dashboard"></div>
+                </div>
+                
+                <!-- 实时监控 -->
+                <div class="card realtime-monitor">
+                    <div class="card-header">
+                        <div class="card-title-wrapper">
+                            <i class="card-icon fas fa-heartbeat"></i>
+                            <h3 class="card-title">实时监控</h3>
+                        </div>
+                        <div class="card-actions">
+                            <button class="card-action-btn refresh-btn" title="刷新数据">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                            <button class="card-action-btn fullscreen-btn" title="全屏查看">
+                                <i class="fas fa-expand"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="monitor-grid">
+                        <div class="monitor-item">
+                            <div class="monitor-header">
+                                <span class="monitor-label">CPU使用率</span>
+                                <div class="monitor-status">
+                                    <span class="status-indicator success"></span>
+                                    <span class="status-text">正常</span>
+                                </div>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill cpu-progress"></div>
+                                <div class="progress-value-tooltip">
+                                    <span id="cpu-usage-tooltip">0%</span>
+                                </div>
+                            </div>
+                            <div class="monitor-footer">
+                                <span class="monitor-value" id="cpu-usage">0%</span>
+                                <button class="monitor-action" title="查看详情">
+                                    <i class="fas fa-info-circle"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="monitor-item">
+                            <div class="monitor-header">
+                                <span class="monitor-label">内存占用</span>
+                                <div class="monitor-status">
+                                    <span class="status-indicator success"></span>
+                                    <span class="status-text">正常</span>
+                                </div>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill memory-progress"></div>
+                                <div class="progress-value-tooltip">
+                                    <span id="memory-usage-tooltip">0%</span>
+                                </div>
+                            </div>
+                            <div class="monitor-footer">
+                                <span class="monitor-value" id="memory-usage">0%</span>
+                                <button class="monitor-action" title="查看详情">
+                                    <i class="fas fa-info-circle"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="monitor-item">
+                            <div class="monitor-header">
+                                <span class="monitor-label">网络流量</span>
+                                <div class="monitor-status">
+                                    <span class="status-indicator warning"></span>
+                                    <span class="status-text">注意</span>
+                                </div>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill network-progress"></div>
+                                <div class="progress-value-tooltip">
+                                    <span id="network-traffic-tooltip">0 MB/s</span>
+                                </div>
+                            </div>
+                            <div class="monitor-footer">
+                                <span class="monitor-value" id="network-traffic">0 MB/s</span>
+                                <button class="monitor-action" title="查看详情">
+                                    <i class="fas fa-info-circle"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="monitor-item">
+                            <div class="monitor-header">
+                                <span class="monitor-label">磁盘使用率</span>
+                                <div class="monitor-status">
+                                    <span class="status-indicator danger"></span>
+                                    <span class="status-text">警告</span>
+                                </div>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill disk-progress"></div>
+                                <div class="progress-value-tooltip">
+                                    <span id="disk-usage-tooltip">0%</span>
+                                </div>
+                            </div>
+                            <div class="monitor-footer">
+                                <span class="monitor-value" id="disk-usage">0%</span>
+                                <button class="monitor-action" title="查看详情">
+                                    <i class="fas fa-info-circle"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 右侧区域 -->
+            <div class="right-section">
+                <!-- 告警信息 -->
+                <div class="card alerts-card">
+                    <div class="card-header">
+                        <div class="card-title-wrapper">
+                            <i class="card-icon fas fa-exclamation-triangle"></i>
+                            <h3 class="card-title">告警信息</h3>
+                        </div>
+                        <div class="card-actions">
+                            <button class="card-action-btn refresh-btn" title="刷新数据">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                            <button class="card-action-btn fullscreen-btn" title="全屏查看">
+                                <i class="fas fa-expand"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="alerts-list" id="alerts-container">
+                        <!-- 模拟告警项 -->
+                        <div class="alert-item danger">
+                            <div class="alert-icon">
+                                <i class="fas fa-exclamation-circle"></i>
+                            </div>
+                            <div class="alert-content">
+                                <h4 class="alert-title">磁盘空间不足</h4>
+                                <p class="alert-description">主服务器磁盘使用率达到92%，需要立即清理空间。</p>
+                                <span class="alert-time">10:24:36</span>
+                            </div>
+                            <div class="alert-actions">
+                                <button class="alert-action-btn" title="处理">
+                                    <i class="fas fa-check-circle"></i>
+                                </button>
+                                <button class="alert-action-btn" title="忽略">
+                                    <i class="fas fa-times-circle"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="alert-item warning">
+                            <div class="alert-icon">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div class="alert-content">
+                                <h4 class="alert-title">CPU使用率过高</h4>
+                                <p class="alert-description">应用服务器CPU使用率持续超过85%，可能影响性能。</p>
+                                <span class="alert-time">10:15:22</span>
+                            </div>
+                            <div class="alert-actions">
+                                <button class="alert-action-btn" title="处理">
+                                    <i class="fas fa-check-circle"></i>
+                                </button>
+                                <button class="alert-action-btn" title="忽略">
+                                    <i class="fas fa-times-circle"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="alert-item info">
+                            <div class="alert-icon">
+                                <i class="fas fa-info-circle"></i>
+                            </div>
+                            <div class="alert-content">
+                                <h4 class="alert-title">系统更新提醒</h4>
+                                <p class="alert-description">有3个系统更新包可用，建议在低峰期进行更新。</p>
+                                <span class="alert-time">09:45:18</span>
+                            </div>
+                            <div class="alert-actions">
+                                <button class="alert-action-btn" title="处理">
+                                    <i class="fas fa-check-circle"></i>
+                                </button>
+                                <button class="alert-action-btn" title="忽略">
+                                    <i class="fas fa-times-circle"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 排行榜 -->
+                <div class="card ranking-card">
+                    <div class="card-header">
+                        <div class="card-title-wrapper">
+                            <i class="card-icon fas fa-trophy"></i>
+                            <h3 class="card-title">数据排行榜</h3>
+                        </div>
+                        <div class="card-actions">
+                            <button class="card-action-btn refresh-btn" title="刷新数据">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                            <button class="card-action-btn fullscreen-btn" title="全屏查看">
+                                <i class="fas fa-expand"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="chart-container" id="ranking-chart"></div>
+                </div>
+                
+                <!-- 地理位置分布 -->
+                <div class="card geo-card">
+                    <div class="card-header">
+                        <div class="card-title-wrapper">
+                            <i class="card-icon fas fa-map-marker-alt"></i>
+                            <h3 class="card-title">地理分布</h3>
+                        </div>
+                        <div class="card-actions">
+                            <button class="card-action-btn refresh-btn" title="刷新数据">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                            <button class="card-action-btn fullscreen-btn" title="全屏查看">
+                                <i class="fas fa-expand"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="chart-container" id="geo-chart"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- 引入JavaScript文件 -->
+    <script src="js/data-simulation.js"></script>
+    <script src="js/charts.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
