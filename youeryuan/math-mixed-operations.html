@@ -1213,6 +1213,16 @@
                     }
                 }
                 
+                // 确保正确答案在数组中（如果由于某种原因不在数组中）
+                if (!options.includes(correctAnswer)) {
+                    if (options.length > 0) {
+                        // 替换最后一个选项为正确答案
+                        options[options.length - 1] = correctAnswer;
+                    } else {
+                        options.push(correctAnswer);
+                    }
+                }
+                
                 return this.shuffleArray(options);
             }
             
