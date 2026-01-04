@@ -1,8 +1,33 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import HanziLearning from './components/HanziLearning.vue'
+import MathLearning from './components/MathLearning.vue'
 
 const currentModule = ref('hanzi')
+
+// URL Synchronization Logic
+const syncUrlToModule = () => {
+  const params = new URLSearchParams(window.location.search)
+  const tab = params.get('tab')
+  if (tab && ['hanzi', 'math', 'english'].includes(tab)) {
+    currentModule.value = tab
+  }
+}
+
+const updateUrlFromModule = (newMod) => {
+  const url = new URL(window.location)
+  url.searchParams.set('tab', newMod)
+  window.history.pushState({}, '', url)
+}
+
+onMounted(() => {
+  syncUrlToModule()
+  window.addEventListener('popstate', syncUrlToModule)
+})
+
+watch(currentModule, (newVal) => {
+  updateUrlFromModule(newVal)
+})
 
 const modules = [
   { id: 'hanzi', name: '识汉字', icon: '🏮' },
@@ -33,10 +58,7 @@ const modules = [
       <transition name="fade-slide" mode="out-in">
         <div :key="currentModule" class="module-wrapper">
           <HanziLearning v-if="currentModule === 'hanzi'" />
-          <div v-else-if="currentModule === 'math'" class="placeholder-card glass-card">
-            <h2>🧮 数学模块正在建设中...</h2>
-            <p>很快就能和大家见面啦！</p>
-          </div>
+          <MathLearning v-else-if="currentModule === 'math'" />
           <div v-else-if="currentModule === 'english'" class="placeholder-card glass-card">
             <h2>🅰️ 英语模块正在建设中...</h2>
             <p>敬请期待！</p>
