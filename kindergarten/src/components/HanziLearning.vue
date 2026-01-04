@@ -239,8 +239,21 @@ const sessionCount = ref(0) // Track how many questions in this session
 const sessionFinished = ref(false) // Flag for when everything is done for the day
 const chartInstance = shallowRef(null)
 
-// Mastery Map
 const masteryMap = ref({})
+const streak = ref(0)
+const startTime = ref(null)
+const lastDuration = ref(0)
+
+const sessionGoalProgress = computed(() => {
+  const all = currentLevelList.value
+  if (all.length === 0) return 0
+  const exhausted = all.filter(item => {
+    const m = masteryMap.value[item.char] || { todayAttempts: 0, todayCorrect: 0 }
+    const todayAcc = m.todayAttempts > 0 ? m.todayCorrect / m.todayAttempts : 1
+    return (m.todayAttempts >= 3 && todayAcc >= 1.0) || (m.consecutiveCorrect >= 5) || (m.todayAttempts >= 6 && todayAcc < 0.35)
+  }).length
+  return Math.round((exhausted / all.length) * 100)
+})
 
 const currentLevelList = computed(() => {
   return hanziBank.filter(h => h.level <= currentLevel.value)
@@ -274,6 +287,7 @@ onMounted(() => {
 
   rebuildMastery()
   nextHanzi()
+  startTime.value = Date.now()
   nextTick(() => {
     initChart()
   })
@@ -282,7 +296,7 @@ onMounted(() => {
 const rebuildMastery = () => {
   const map = {}
   hanziBank.forEach(h => {
-    map[h.char] = { totalAttempts: 0, totalCorrect: 0, consecutiveCorrect: 0, lastSeen: null, todayAttempts: 0, todayCorrect: 0 }
+    map[h.char] = { totalAttempts: 0, totalCorrect: 0, consecutiveCorrect: 0, lastSeen: null, todayAttempts: 0, todayCorrect: 0, avgDuration: 0 }
   })
   history.value.forEach(record => {
     if (map[record.char]) {
@@ -323,40 +337,32 @@ const checkLevelProgression = () => {
 }
 
 const recordAnswer = (isCorrect) => {
+  const duration = Date.now() - startTime.value
+  lastDuration.value = duration
   const char = currentLevelList.value[currentIndex.value].char
-  const record = { char, timestamp: new Date().toISOString(), correct: isCorrect }
+  const record = { char, timestamp: new Date().toISOString(), correct: isCorrect, duration }
   
   history.value.push(record)
   localStorage.setItem('hanzi_learning_history', JSON.stringify(history.value))
   
-  // Update state immediately for reactivity
+  if (!masteryMap.value[char]) {
+    masteryMap.value[char] = { totalAttempts: 0, totalCorrect: 0, consecutiveCorrect: 0, lastSeen: null, todayAttempts: 0, todayCorrect: 0, avgDuration: 0 }
+  }
   const m = masteryMap.value[char]
+
   m.totalAttempts++
   m.lastSeen = record.timestamp
-  if (isCorrect) {
-    m.totalCorrect++
-    m.consecutiveCorrect++
-    m.todayCorrect++
-  } else {
-    m.consecutiveCorrect = 0
-  }
-  m.todayAttempts++
   
-  // Mandatory: Force trigger reactivity for nested updates if needed
-  masteryMap.value = { ...masteryMap.value }
-
-  recentHistory.value.push(currentIndex.value)
-  if (recentHistory.value.length > 6) recentHistory.value.shift()
-
   if (isCorrect) {
+    m.avgDuration = m.avgDuration === 0 ? duration : (m.avgDuration * 0.7 + duration * 0.3)
     m.totalCorrect++
     m.consecutiveCorrect++
     m.todayCorrect++
-    // If it was in the missed queue, remove it since user got it right now
+    streak.value++
     missedQueue.value = missedQueue.value.filter(c => c !== char)
   } else {
     m.consecutiveCorrect = 0
-    // If missed, add to queue for urgent return (if not already there)
+    streak.value = 0
     if (!missedQueue.value.includes(char)) {
       missedQueue.value.push(char)
     }
@@ -364,14 +370,9 @@ const recordAnswer = (isCorrect) => {
   m.todayAttempts++
   sessionCount.value++
   
-  // Clean up missed queue if the word is now mastered or "abandoned" for the day
-  const todayAccuracy = m.todayCorrect / m.todayAttempts
-  if (isCorrect || (m.todayAttempts >= 6 && todayAccuracy < 0.3)) {
-    missedQueue.value = missedQueue.value.filter(c => c !== char)
-  }
-  
-  // Mandatory: Force trigger reactivity for nested updates if needed
   masteryMap.value = { ...masteryMap.value }
+  checkLevelProgression()
+  updateChartData()
 
   recentHistory.value.push(currentIndex.value)
   if (recentHistory.value.length > 5) recentHistory.value.shift()
@@ -386,6 +387,7 @@ const recordAnswer = (isCorrect) => {
     showAnswer.value = false
     lastResult.value = null
     nextHanzi()
+    startTime.value = Date.now() // Reset timer for next question
   }, 1200)
 }
 
@@ -448,7 +450,7 @@ const nextHanzi = () => {
 
     // Stage 1: Intelligence Blockers (Strict Graduation & Fatigue)
     const todayAcc = m.todayAttempts > 0 ? m.todayCorrect / m.todayAttempts : 1
-    const isMasteredThisSession = (m.todayAttempts >= 3 && todayAcc >= 1.0) || (m.todayAttempts >= 5 && todayAcc >= 0.85)
+    const isMasteredThisSession = (m.todayAttempts >= 3 && todayAcc >= 1.0) || (m.consecutiveCorrect >= 5)
     const isFrustrated = m.todayAttempts >= 6 && todayAcc < 0.4
 
     if (isMasteredThisSession) return { index, weight: 0, reason: '学会了' }
@@ -489,11 +491,6 @@ const nextHanzi = () => {
           reason = '攻坚'
         }
 
-        if (m.lastSeen) {
-          const hours = (new Date() - new Date(m.lastSeen)) / (1000 * 3600)
-          weight *= (1 + Math.min(10, hours))
-        }
-
         if (m.todayAttempts > 0) {
           weight *= (1 / (m.todayAttempts * 1.5 + 1))
         }
@@ -506,10 +503,28 @@ const nextHanzi = () => {
     return { index, weight, reason }
   })
 
-  let totalWeight = weights.reduce((s, w) => s + w.weight, 0)
+  // 4. Spaced Repetition (Ebbinghaus) & Urgency Boost
+  const finalWeights = weights.map(w => {
+    if (w.weight <= 0) return w
+    const m = masteryMap.value[allAvailable[w.index].char] || {}
+    let boost = 1
+
+    // Ebbinghaus Urgency
+    if (m.lastSeen) {
+      const hoursSince = (new Date() - new Date(m.lastSeen)) / (1000 * 3600)
+      boost += Math.min(5, hoursSince / 12) // Faster decay for Hanzi
+    }
+
+    // Fluency Boost: Train recognition speed
+    if (m.avgDuration > 3500) boost *= 1.5
+
+    return { ...w, weight: w.weight * boost }
+  })
+
+  let totalWeight = finalWeights.reduce((s, w) => s + w.weight, 0)
 
   if (totalWeight <= 0) {
-    const retryWeights = weights.map(w => {
+    const retryWeights = finalWeights.map(w => {
       if (w.reason === '学会了' || w.reason === '暂缓') return w
       return { ...w, weight: 1 } 
     })
@@ -530,7 +545,7 @@ const nextHanzi = () => {
     }
   } else {
     let random = Math.random() * totalWeight
-    for (const w of weights) {
+    for (const w of finalWeights) {
       random -= w.weight
       if (random <= 0) {
         currentIndex.value = w.index
@@ -634,7 +649,18 @@ watch(history, () => updateChartData(), { deep: true })
 
 <template>
   <div class="hanzi-container">
+    <!-- Session Progress Bar -->
+    <div class="session-progress-wrapper" v-if="!sessionFinished">
+      <div class="progress-bar-inner" :style="{ width: sessionGoalProgress + '%' }"></div>
+      <span class="progress-text">今日目标：{{ sessionGoalProgress }}%</span>
+    </div>
+
     <div class="test-area" v-if="!sessionFinished && currentLevelList[currentIndex]">
+      <!-- Streak Badge -->
+      <div class="streak-badge" v-if="streak >= 3">
+        🔥 {{ streak }} 连胜!
+      </div>
+
       <!-- Char Card -->
       <div class="card-display" :class="{ 'correct-anim': lastResult === 'correct', 'incorrect-anim': lastResult === 'incorrect' }">
         <div class="char-reason-tag" v-if="selectionReason && !showAnswer">{{ selectionReason }}</div>
@@ -657,7 +683,12 @@ watch(history, () => updateChartData(), { deep: true })
       </div>
       <div class="controls" v-else>
         <div class="feedback-text" :class="lastResult">
-          {{ lastResult === 'correct' ? '🌟 太棒了！' : '💪 加油，多看一眼' }}
+          <template v-if="lastResult === 'correct'">
+            {{ lastDuration < 1500 ? '🚀 瞬间辨认！' : (lastDuration < 3000 ? '✨ 记的很牢！' : '🌟 太棒了！') }}
+          </template>
+          <template v-else>
+            💪 加油，多看一眼
+          </template>
         </div>
       </div>
     </div>
@@ -740,20 +771,63 @@ watch(history, () => updateChartData(), { deep: true })
 .hanzi-container {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.2rem;
   width: 100%;
   max-width: 600px;
   margin: 0 auto;
+  padding-bottom: 2rem;
+}
+
+/* Session Progress Indicator */
+.session-progress-wrapper {
+  width: 100%;
+  height: 12px;
+  background: rgba(255, 154, 162, 0.1);
+  border-radius: 10px;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+.progress-bar-inner {
+  height: 100%;
+  background: linear-gradient(90deg, #FF9AA2, #FFB7B2);
+  transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.progress-text {
+  position: absolute;
+  right: 10px;
+  top: -20px;
+  font-size: 0.75rem;
+  color: #FF9AA2;
+  font-weight: bold;
+}
+
+.streak-badge {
+  background: linear-gradient(135deg, #4ECDC4, #A29BFE);
+  color: white;
+  padding: 4px 15px;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 0.9rem;
+  margin-bottom: -10px;
+  z-index: 5;
+  box-shadow: 0 5px 15px rgba(78, 205, 196, 0.3);
+  animation: bounce 0.5s ease-in-out;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.2); }
 }
 
 /* Glass Card Style Base */
 .glass-card {
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(10px);
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  padding: 1rem;
-  box-shadow: 0 8px 16px rgba(0,0,0,0.05);
+  border-radius: 25px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  padding: 1.2rem;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.03);
 }
 
 .top-info {
