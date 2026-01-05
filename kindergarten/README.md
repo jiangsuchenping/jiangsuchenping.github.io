@@ -1,5 +1,205 @@
-# Vue 3 + Vite
+# 幼儿园快乐学习系统
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+## 项目概述
 
-Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://vuejs.org/guide/scaling-up/tooling.html#ide-support).
+幼儿园快乐学习系统是一个基于Vue 3开发的单页应用，旨在为幼儿园和小学低年级学生提供有趣、互动的学习体验。目前主要实现了汉字学习功能，并计划扩展到数学和英语学习领域。
+
+## 功能特性
+
+### 1. 识汉字 (Hanzi Learning)
+
+- **汉字库**：包含250个常用汉字，分为10个等级，每级25个汉字
+- **自适应学习**：智能算法根据学习情况调整练习内容
+- **学习历史**：记录每次练习的结果和时间
+- **实时统计**：展示今日答题数、正确率和学习进度
+- **学习曲线**：使用Chart.js可视化学习进步
+- **每日任务**：自动生成学习目标，完成后给予奖励
+- **遗忘曲线复习**：根据Ebbinghaus遗忘曲线安排复习
+- **连胜奖励**：鼓励连续正确答题
+
+### 2. 数学题 (Math Learning)
+
+- 待实现
+
+### 3. 学英语 (English Learning)
+
+- 待实现
+
+## 技术栈
+
+| 技术 | 版本 | 用途 |
+| --- | --- | --- |
+| Vue.js | 3.5.24 | 前端框架 |
+| Vite | 7.2.4 | 构建工具 |
+| Chart.js | 3.x | 数据可视化 |
+| CSS3 | - | 样式设计 |
+| HTML5 | - | 页面结构 |
+
+## 安装与运行
+
+### 环境要求
+
+- Node.js 16+ 
+- npm 8+ 或 yarn 1.22+ 或 pnpm 7+
+
+### 安装依赖
+
+```bash
+npm install
+```
+
+### 开发模式
+
+```bash
+npm run dev
+```
+
+应用将在 `http://localhost:5173` 启动
+
+### 构建生产版本
+
+```bash
+npm run build
+```
+
+构建产物将生成在 `dist` 目录
+
+### 预览生产版本
+
+```bash
+npm run preview
+```
+
+## 使用方法
+
+1. 打开应用后，默认进入「识汉字」模块
+2. 点击「✅ 认识」或「❓ 不认识」按钮回答当前汉字
+3. 系统会根据回答调整下一个出现的汉字
+4. 查看学习统计和进步曲线，了解学习情况
+5. 点击顶部导航切换学习模块
+
+### URL 参数
+
+可以通过 URL 参数直接进入特定模块：
+
+- `?tab=hanzi` - 进入识汉字模块
+- `?tab=math` - 进入数学题模块
+- `?tab=english` - 进入学英语模块
+
+## 项目结构
+
+```
+kindergarten/
+├── index.html              # 入口 HTML 文件
+├── package.json            # 项目配置和依赖
+├── vite.config.js          # Vite 配置
+├── README.md               # 项目说明文档
+└── src/
+    ├── main.js             # Vue 应用入口
+    ├── App.vue             # 主组件（模块切换）
+    ├── style.css           # 全局样式
+    └── components/
+        ├── HanziLearning.vue   # 汉字学习组件
+        └── MathLearning.vue    # 数学学习组件
+```
+
+## 汉字库结构
+
+汉字库包含250个汉字，分为10个等级，每级25个汉字：
+
+| 等级 | 主题 | 汉字数量 |
+| --- | --- | --- |
+| 1 | 数字 & 基础笔画 | 25 |
+| 2 | 身体部位 & 自然基础 | 25 |
+| 3 | 方向 & 反义词 | 25 |
+| 4 | 动作 & 动物 | 25 |
+| 5 | 家庭 & 人物 | 25 |
+| 6 | 颜色 & 形状 | 25 |
+| 7 | 食物 & 水果 | 25 |
+| 8 | 时间 & 季节 | 25 |
+| 9 | 交通 & 工具 | 25 |
+| 10 | 常用动词 | 25 |
+
+每个汉字包含：
+- 汉字 (char)
+- 拼音 (pinyin)
+- 释义 (meaning)
+- 等级 (level)
+
+## 学习算法
+
+系统采用自适应学习算法，主要特点包括：
+
+1. **热身阶段**：开始时展示简单的已掌握内容
+2. **工作集**：根据当前正确率动态调整学习窗口大小
+3. **智能权重**：
+   - 初见汉字权重最高
+   - 正确率低的汉字权重增加
+   - 连续正确的汉字权重降低
+   - 今日已练习多次的汉字权重降低
+4. **遗忘曲线**：根据上次练习时间调整复习频率
+5. **错题队列**：确保错过的汉字会再次出现
+6. **成就感机制**：
+   - 连胜奖励
+   - 今日目标达成
+   - 等级晋升
+
+## 数据持久化
+
+系统使用 localStorage 存储：
+- 当前学习等级
+- 学习历史记录
+- 掌握程度数据
+
+## 浏览器兼容性
+
+- Chrome (推荐)
+- Firefox
+- Safari
+- Edge
+
+## 开发说明
+
+### 组件设计
+
+- 采用 Vue 3 Composition API
+- 组件间通过 props 和 events 通信
+- 响应式数据管理使用 ref 和 computed
+
+### 样式设计
+
+- 使用 CSS 变量实现主题定制
+- 采用玻璃拟态设计风格 (Glassmorphism)
+- 响应式布局，适配移动端
+
+### 性能优化
+
+- 按需加载组件
+- 优化 Chart.js 渲染
+- 合理使用 watch 和 computed
+
+## 未来计划
+
+1. 完善数学学习模块
+2. 开发英语学习模块
+3. 添加更多互动游戏
+4. 支持家长监控功能
+5. 添加语音朗读功能
+6. 实现多语言支持
+7. 添加离线学习功能
+
+## 贡献指南
+
+欢迎提交 Issue 和 Pull Request！
+
+## 许可证
+
+MIT License
+
+## 联系方式
+
+如有问题或建议，欢迎通过 GitHub Issues 反馈。
+
+---
+
+🌈 让学习变得更有趣！
