@@ -3,7 +3,7 @@ import { ref, onMounted, computed, watch, nextTick, shallowRef } from 'vue'
 
 /**
  * 汉字字库 - 扩充版
- * 总共259个汉字，分为10个等级
+ * 总共260个汉字，分为10个等级
  */
 const hanziBank = [
   // Level 1: Numbers & Basic strokes (23个)
@@ -219,11 +219,12 @@ const hanziBank = [
   { char: '油', pinyin: 'yóu', meaning: '油 (Oil)', level: 7 },
   { char: '柚', pinyin: 'yòu', meaning: '柚 (Pomelo)', level: 7 },
 
-  // Level 8: Time & Seasons (18个)
+  // Level 8: Time & Seasons (19个)
   { char: '晨', pinyin: 'chén', meaning: '晨 (Morning)', level: 8 },
   { char: '春', pinyin: 'chūn', meaning: '春 (Spring)', level: 8 },
   { char: '冬', pinyin: 'dōng', meaning: '冬 (Winter)', level: 8 },
   { char: '分', pinyin: 'fēn', meaning: '分 (Minute)', level: 8 },
+  { char: '季', pinyin: 'jì', meaning: '季 (Season)', level: 8 },
   { char: '今', pinyin: 'jīn', meaning: '今 (Today)', level: 8 },
   { char: '刻', pinyin: 'kè', meaning: '刻 (Quarter)', level: 8 },
   { char: '秒', pinyin: 'miǎo', meaning: '秒 (Second)', level: 8 },
@@ -284,7 +285,7 @@ const hanziBank = [
   { char: '写', pinyin: 'xiě', meaning: '写 (Write)', level: 10 },
   { char: '学', pinyin: 'xué', meaning: '学 (Learn)', level: 10 },
   { char: '做', pinyin: 'zuò', meaning: '做 (Do)', level: 10 }
-];;
+];;;
 
 const currentIndex = ref(0)
 const history = ref([])
