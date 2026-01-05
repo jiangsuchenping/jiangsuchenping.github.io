@@ -2,6 +2,7 @@
 import { ref, onMounted, watch } from 'vue'
 import HanziLearning from './components/HanziLearning.vue'
 import MathLearning from './components/MathLearning.vue'
+import EnglishLearning from './components/EnglishLearning.vue'
 
 const currentModule = ref('hanzi')
 
@@ -59,10 +60,7 @@ const modules = [
         <div :key="currentModule" class="module-wrapper">
           <HanziLearning v-if="currentModule === 'hanzi'" />
           <MathLearning v-else-if="currentModule === 'math'" />
-          <div v-else-if="currentModule === 'english'" class="placeholder-card glass-card">
-            <h2>🅰️ 英语模块正在建设中...</h2>
-            <p>敬请期待！</p>
-          </div>
+          <EnglishLearning v-else-if="currentModule === 'english'" />
         </div>
       </transition>
     </main>
