@@ -402,24 +402,17 @@ const nextHanzi = () => {
   
   const isWarmUp = sessionCount.value < 4
   
-  // Logic to pick from Missed Queue
-  if (missedQueue.value.length > 0 && !recentHistory.value.some(idx => missedQueue.value.includes(allAvailable[idx]?.char))) {
-    const targetChar = missedQueue.value[0]
-    const targetIdx = allAvailable.findIndex(h => h.char === targetChar)
-    if (targetIdx !== -1 && !recentHistory.value.includes(targetIdx)) {
-      currentIndex.value = targetIdx
-      selectionReason.value = '克服困难'
-      return
-    }
-  }
-
-  // Detect global exhaustion for the day
+  // Detect global exhaustion for the day (skip too easy or too hard)
   const exhaustedPool = allAvailable.filter(item => {
-    const m = masteryMap.value[item.char] || { todayAttempts: 0, todayCorrect: 0 }
+    const m = masteryMap.value[item.char] || { todayAttempts: 0, todayCorrect: 0, consecutiveCorrect: 0 }
     const todayAcc = m.todayAttempts > 0 ? m.todayCorrect / m.todayAttempts : 1
-    const isMasteredThisSession = (m.todayAttempts >= 3 && todayAcc >= 1.0) || (m.todayAttempts >= 5 && todayAcc >= 0.85)
-    const isFrustrated = m.todayAttempts >= 6 && todayAcc < 0.4
-    return isMasteredThisSession || isFrustrated
+    
+    // 已经学会了（今日掌握或长期掌握）
+    const isMastered = (m.todayAttempts >= 3 && todayAcc >= 1.0) || (m.consecutiveCorrect >= 5)
+    // 挫败感保护：测试次数较多但正确率极低，当天放弃检测
+    const isTooHard = (m.todayAttempts >= 5 && todayAcc <= 0.2) || (m.todayAttempts >= 8 && todayAcc < 0.4)
+    
+    return isMastered || isTooHard
   })
 
   if (exhaustedPool.length >= allAvailable.length) {
@@ -427,13 +420,33 @@ const nextHanzi = () => {
     return
   }
 
+  // Logic to pick from Missed Queue (only if not too hard/frustrated)
+  if (missedQueue.value.length > 0) {
+    const targetChar = missedQueue.value[0]
+    const m = masteryMap.value[targetChar] || { todayAttempts: 0, todayCorrect: 0 }
+    const todayAcc = m.todayAttempts > 0 ? m.todayCorrect / m.todayAttempts : 1
+    const isTooHard = (m.todayAttempts >= 5 && todayAcc <= 0.2) || (m.todayAttempts >= 8 && todayAcc < 0.4)
+    
+    // 如果该错题已经处于“气馁”状态，将其移出队列
+    if (isTooHard) {
+        missedQueue.value = missedQueue.value.filter(c => c !== targetChar)
+    } else {
+        const targetIdx = allAvailable.findIndex(h => h.char === targetChar)
+        if (targetIdx !== -1 && !recentHistory.value.includes(targetIdx)) {
+          currentIndex.value = targetIdx
+          selectionReason.value = '克服困难'
+          return
+        }
+    }
+  }
+
   // Define Working Window
   const remainingPool = allAvailable.filter(item => {
-    const m = masteryMap.value[item.char] || { todayAttempts: 0, todayCorrect: 0 }
+    const m = masteryMap.value[item.char] || { todayAttempts: 0, todayCorrect: 0, consecutiveCorrect: 0 }
     const todayAcc = m.todayAttempts > 0 ? m.todayCorrect / m.todayAttempts : 1
-    const isMasteredThisSession = (m.todayAttempts >= 3 && todayAcc >= 1.0) || (m.todayAttempts >= 5 && todayAcc >= 0.85)
-    const isFrustrated = m.todayAttempts >= 6 && todayAcc < 0.4
-    return !isMasteredThisSession && !isFrustrated
+    const isMastered = (m.todayAttempts >= 3 && todayAcc >= 1.0) || (m.consecutiveCorrect >= 5)
+    const isTooHard = (m.todayAttempts >= 5 && todayAcc <= 0.2) || (m.todayAttempts >= 8 && todayAcc < 0.4)
+    return !isMastered && !isTooHard
   })
   
   const currentSessionAcc = parseFloat(statsToday.value.rate)
@@ -450,11 +463,11 @@ const nextHanzi = () => {
 
     // Stage 1: Intelligence Blockers (Strict Graduation & Fatigue)
     const todayAcc = m.todayAttempts > 0 ? m.todayCorrect / m.todayAttempts : 1
-    const isMasteredThisSession = (m.todayAttempts >= 3 && todayAcc >= 1.0) || (m.consecutiveCorrect >= 5)
-    const isFrustrated = m.todayAttempts >= 6 && todayAcc < 0.4
+    const isMastered = (m.todayAttempts >= 3 && todayAcc >= 1.0) || (m.consecutiveCorrect >= 5)
+    const isTooHard = (m.todayAttempts >= 5 && todayAcc <= 0.2) || (m.todayAttempts >= 8 && todayAcc < 0.4)
 
-    if (isMasteredThisSession) return { index, weight: 0, reason: '学会了' }
-    if (isFrustrated) return { index, weight: 0, reason: '暂缓' }
+    if (isMastered) return { index, weight: 0, reason: '学会了' }
+    if (isTooHard) return { index, weight: 0, reason: '暂缓' }
 
     // Stage 2: Weighting Logic
     const isInWorkingSet = workingSet.some(w => w.char === item.char)
