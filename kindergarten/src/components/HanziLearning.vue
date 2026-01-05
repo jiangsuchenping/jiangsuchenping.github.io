@@ -3,10 +3,10 @@ import { ref, onMounted, computed, watch, nextTick, shallowRef } from 'vue'
 
 /**
  * 汉字字库 - 扩充版
- * 总共200个汉字，分为10个等级，每级20个汉字
+ * 总共250个汉字，分为10个等级，每级25个汉字
  */
 const hanziBank = [
-  // Level 1: Numbers & Basic strokes (20个)
+  // Level 1: Numbers & Basic strokes (25个)
   { char: '一', pinyin: 'yī', meaning: '一 (One)', level: 1 },
   { char: '二', pinyin: 'èr', meaning: '二 (Two)', level: 1 },
   { char: '三', pinyin: 'sān', meaning: '三 (Three)', level: 1 },
@@ -27,8 +27,11 @@ const hanziBank = [
   { char: '是', pinyin: 'shì', meaning: '是 (To be)', level: 1 },
   { char: '的', pinyin: 'de', meaning: '的 (Particle)', level: 1 },
   { char: '不', pinyin: 'bù', meaning: '不 (Not)', level: 1 },
+  { char: '中', pinyin: 'zhōng', meaning: '中 (Middle)', level: 1 },
+  { char: '国', pinyin: 'guó', meaning: '国 (Country)', level: 1 },
+  { char: '好', pinyin: 'hǎo', meaning: '好 (Good)', level: 1 },
   
-  // Level 2: Body & Basic Nature (20个)
+  // Level 2: Body & Basic Nature (25个)
   { char: '人', pinyin: 'rén', meaning: '人 (Person)', level: 2 },
   { char: '口', pinyin: 'kǒu', meaning: '口 (Mouth)', level: 2 },
   { char: '手', pinyin: 'shǒu', meaning: '手 (Hand)', level: 2 },
@@ -49,8 +52,18 @@ const hanziBank = [
   { char: '雨', pinyin: 'yǔ', meaning: '雨 (Rain)', level: 2 },
   { char: '雪', pinyin: 'xuě', meaning: '雪 (Snow)', level: 2 },
   { char: '冰', pinyin: 'bīng', meaning: '冰 (Ice)', level: 2 },
+  { char: '鼻', pinyin: 'bí', meaning: '鼻 (Nose)', level: 2 },
+  { char: '牙', pinyin: 'yá', meaning: '牙 (Tooth)', level: 2 },
+  { char: '舌', pinyin: 'shé', meaning: '舌 (Tongue)', level: 2 },
+  { char: '脸', pinyin: 'liǎn', meaning: '脸 (Face)', level: 2 },
+  { char: '发', pinyin: 'fà', meaning: '发 (Hair)', level: 2 },
+  { char: '草', pinyin: 'cǎo', meaning: '草 (Grass)', level: 2 },
+  { char: '光', pinyin: 'guāng', meaning: '光 (Light)', level: 2 },
+  { char: '海', pinyin: 'hǎi', meaning: '海 (Sea)', level: 2 },
+  { char: '河', pinyin: 'hé', meaning: '河 (River)', level: 2 },
+  { char: '星', pinyin: 'xīng', meaning: '星 (Star)', level: 2 },
 
-  // Level 3: Directions & Opposites (20个)
+  // Level 3: Directions & Opposites (25个)
   { char: '大', pinyin: 'dà', meaning: '大 (Big)', level: 3 },
   { char: '小', pinyin: 'xiǎo', meaning: '小 (Small)', level: 3 },
   { char: '上', pinyin: 'shàng', meaning: '上 (Up)', level: 3 },
@@ -71,8 +84,20 @@ const hanziBank = [
   { char: '少', pinyin: 'shǎo', meaning: '少 (Few)', level: 3 },
   { char: '前', pinyin: 'qián', meaning: '前 (Front)', level: 3 },
   { char: '后', pinyin: 'hòu', meaning: '后 (Back)', level: 3 },
+  { char: '东', pinyin: 'dōng', meaning: '东 (East)', level: 3 },
+  { char: '西', pinyin: 'xī', meaning: '西 (West)', level: 3 },
+  { char: '南', pinyin: 'nán', meaning: '南 (South)', level: 3 },
+  { char: '北', pinyin: 'běi', meaning: '北 (North)', level: 3 },
+  { char: '里', pinyin: 'lǐ', meaning: '里 (Inside)', level: 3 },
+  { char: '外', pinyin: 'wài', meaning: '外 (Outside)', level: 3 },
+  { char: '中', pinyin: 'zhōng', meaning: '中 (Middle)', level: 3 },
+  { char: '间', pinyin: 'jiān', meaning: '间 (Between)', level: 3 },
+  { char: '近', pinyin: 'jìn', meaning: '近 (Near)', level: 3 },
+  { char: '远', pinyin: 'yuǎn', meaning: '远 (Far)', level: 3 },
+  { char: '新', pinyin: 'xīn', meaning: '新 (New)', level: 3 },
+  { char: '旧', pinyin: 'jiù', meaning: '旧 (Old)', level: 3 },
 
-  // Level 4: Actions & Animals (20个)
+  // Level 4: Actions & Animals (25个)
   { char: '鸟', pinyin: 'niǎo', meaning: '鸟 (Bird)', level: 4 },
   { char: '鱼', pinyin: 'yú', meaning: '鱼 (Fish)', level: 4 },
   { char: '马', pinyin: 'mǎ', meaning: '马 (Horse)', level: 4 },
@@ -93,8 +118,16 @@ const hanziBank = [
   { char: '跳', pinyin: 'tiào', meaning: '跳 (Jump)', level: 4 },
   { char: '飞', pinyin: 'fēi', meaning: '飞 (Fly)', level: 4 },
   { char: '游', pinyin: 'yóu', meaning: '游 (Swim)', level: 4 },
+  { char: '虎', pinyin: 'hǔ', meaning: '虎 (Tiger)', level: 4 },
+  { char: '狮', pinyin: 'shī', meaning: '狮 (Lion)', level: 4 },
+  { char: '熊', pinyin: 'xióng', meaning: '熊 (Bear)', level: 4 },
+  { char: '象', pinyin: 'xiàng', meaning: '象 (Elephant)', level: 4 },
+  { char: '兔', pinyin: 'tù', meaning: '兔 (Rabbit)', level: 4 },
+  { char: '爬', pinyin: 'pá', meaning: '爬 (Crawl)', level: 4 },
+  { char: '舞', pinyin: 'wǔ', meaning: '舞 (Dance)', level: 4 },
+  { char: '唱', pinyin: 'chàng', meaning: '唱 (Sing)', level: 4 },
 
-  // Level 5: Family & People (20个)
+  // Level 5: Family & People (25个)
   { char: '父', pinyin: 'fù', meaning: '父 (Father)', level: 5 },
   { char: '母', pinyin: 'mǔ', meaning: '母 (Mother)', level: 5 },
   { char: '儿', pinyin: 'ér', meaning: '儿 (Son)', level: 5 },
@@ -106,7 +139,6 @@ const hanziBank = [
   { char: '老', pinyin: 'lǎo', meaning: '老 (Old)', level: 5 },
   { char: '少', pinyin: 'shào', meaning: '少 (Young)', level: 5 },
   { char: '男', pinyin: 'nán', meaning: '男 (Male)', level: 5 },
-  { char: '女', pinyin: 'nǚ', meaning: '女 (Female)', level: 5 },
   { char: '孩', pinyin: 'hái', meaning: '孩 (Child)', level: 5 },
   { char: '子', pinyin: 'zǐ', meaning: '子 (Child)', level: 5 },
   { char: '我', pinyin: 'wǒ', meaning: '我 (I/Me)', level: 5 },
@@ -115,8 +147,18 @@ const hanziBank = [
   { char: '她', pinyin: 'tā', meaning: '她 (She)', level: 5 },
   { char: '它', pinyin: 'tā', meaning: '它 (It)', level: 5 },
   { char: '们', pinyin: 'men', meaning: '们 (Plural)', level: 5 },
+  { char: '爷', pinyin: 'yé', meaning: '爷 (Grandfather)', level: 5 },
+  { char: '奶', pinyin: 'nǎi', meaning: '奶 (Grandmother)', level: 5 },
+  { char: '叔', pinyin: 'shū', meaning: '叔 (Uncle)', level: 5 },
+  { char: '婶', pinyin: 'shěn', meaning: '婶 (Aunt)', level: 5 },
+  { char: '姑', pinyin: 'gū', meaning: '姑 (Aunt)', level: 5 },
+  { char: '舅', pinyin: 'jiù', meaning: '舅 (Maternal uncle)', level: 5 },
+  { char: '姨', pinyin: 'yí', meaning: '姨 (Aunt)', level: 5 },
+  { char: '侄', pinyin: 'zhí', meaning: '侄 (Nephew)', level: 5 },
+  { char: '甥', pinyin: 'shēng', meaning: '甥 (Niece)', level: 5 },
+  { char: '朋', pinyin: 'péng', meaning: '朋 (Friend)', level: 5 },
 
-  // Level 6: Colors & Shapes (20个)
+  // Level 6: Colors & Shapes (25个)
   { char: '红', pinyin: 'hóng', meaning: '红 (Red)', level: 6 },
   { char: '黄', pinyin: 'huáng', meaning: '黄 (Yellow)', level: 6 },
   { char: '蓝', pinyin: 'lán', meaning: '蓝 (Blue)', level: 6 },
@@ -137,8 +179,17 @@ const hanziBank = [
   { char: '灰', pinyin: 'huī', meaning: '灰 (Gray)', level: 6 },
   { char: '金', pinyin: 'jīn', meaning: '金 (Gold)', level: 6 },
   { char: '银', pinyin: 'yín', meaning: '银 (Silver)', level: 6 },
+  { char: '暗', pinyin: 'àn', meaning: '暗 (Dark)', level: 6 },
+  { char: '亮', pinyin: 'liàng', meaning: '亮 (Bright)', level: 6 },
+  { char: '清', pinyin: 'qīng', meaning: '清 (Clear)', level: 6 },
+  { char: '浊', pinyin: 'zhuó', meaning: '浊 (Turbid)', level: 6 },
+  { char: '深', pinyin: 'shēn', meaning: '深 (Deep)', level: 6 },
+  { char: '淡', pinyin: 'dàn', meaning: '淡 (Light)', level: 6 },
+  { char: '彩', pinyin: 'cǎi', meaning: '彩 (Colorful)', level: 6 },
+  { char: '艳', pinyin: 'yàn', meaning: '艳 (Bright)', level: 6 },
+  { char: '透', pinyin: 'tòu', meaning: '透 (Transparent)', level: 6 },
 
-  // Level 7: Food & Fruits (20个)
+  // Level 7: Food & Fruits (25个)
   { char: '米', pinyin: 'mǐ', meaning: '米 (Rice)', level: 7 },
   { char: '面', pinyin: 'miàn', meaning: '面 (Noodles)', level: 7 },
   { char: '肉', pinyin: 'ròu', meaning: '肉 (Meat)', level: 7 },
@@ -148,19 +199,26 @@ const hanziBank = [
   { char: '饭', pinyin: 'fàn', meaning: '饭 (Rice meal)', level: 7 },
   { char: '汤', pinyin: 'tāng', meaning: '汤 (Soup)', level: 7 },
   { char: '茶', pinyin: 'chá', meaning: '茶 (Tea)', level: 7 },
-  { char: '水', pinyin: 'shuǐ', meaning: '水 (Water)', level: 7 },
   { char: '酒', pinyin: 'jiǔ', meaning: '酒 (Wine)', level: 7 },
   { char: '糖', pinyin: 'táng', meaning: '糖 (Sugar)', level: 7 },
   { char: '盐', pinyin: 'yán', meaning: '盐 (Salt)', level: 7 },
   { char: '油', pinyin: 'yóu', meaning: '油 (Oil)', level: 7 },
-  { char: '鱼', pinyin: 'yú', meaning: '鱼 (Fish)', level: 7 },
   { char: '虾', pinyin: 'xiā', meaning: '虾 (Shrimp)', level: 7 },
   { char: '蟹', pinyin: 'xiè', meaning: '蟹 (Crab)', level: 7 },
   { char: '瓜', pinyin: 'guā', meaning: '瓜 (Melon)', level: 7 },
   { char: '豆', pinyin: 'dòu', meaning: '豆 (Bean)', level: 7 },
   { char: '麦', pinyin: 'mài', meaning: '麦 (Wheat)', level: 7 },
+  { char: '苹', pinyin: 'píng', meaning: '苹 (Apple)', level: 7 },
+  { char: '桃', pinyin: 'táo', meaning: '桃 (Peach)', level: 7 },
+  { char: '梨', pinyin: 'lí', meaning: '梨 (Pear)', level: 7 },
+  { char: '葡', pinyin: 'pú', meaning: '葡 (Grape)', level: 7 },
+  { char: '萄', pinyin: 'táo', meaning: '萄 (Grape)', level: 7 },
+  { char: '柠', pinyin: 'níng', meaning: '柠 (Lemon)', level: 7 },
+  { char: '檬', pinyin: 'méng', meaning: '檬 (Lemon)', level: 7 },
+  { char: '蕉', pinyin: 'jiāo', meaning: '蕉 (Banana)', level: 7 },
+  { char: '柚', pinyin: 'yòu', meaning: '柚 (Pomelo)', level: 7 },
 
-  // Level 8: Time & Seasons (20个)
+  // Level 8: Time & Seasons (25个)
   { char: '年', pinyin: 'nián', meaning: '年 (Year)', level: 8 },
   { char: '月', pinyin: 'yuè', meaning: '月 (Month)', level: 8 },
   { char: '日', pinyin: 'rì', meaning: '日 (Day)', level: 8 },
@@ -182,7 +240,7 @@ const hanziBank = [
   { char: '分', pinyin: 'fēn', meaning: '分 (Minute)', level: 8 },
   { char: '刻', pinyin: 'kè', meaning: '刻 (Quarter)', level: 8 },
 
-  // Level 9: Transportation & Tools (20个)
+  // Level 9: Transportation & Tools (25个)
   { char: '车', pinyin: 'chē', meaning: '车 (Car)', level: 9 },
   { char: '船', pinyin: 'chuán', meaning: '船 (Boat)', level: 9 },
   { char: '书', pinyin: 'shū', meaning: '书 (Book)', level: 9 },
@@ -204,7 +262,7 @@ const hanziBank = [
   { char: '表', pinyin: 'biǎo', meaning: '表 (Watch)', level: 9 },
   { char: '镜', pinyin: 'jìng', meaning: '镜 (Mirror)', level: 9 },
 
-  // Level 10: Common Verbs (20个)
+  // Level 10: Common Verbs (25个)
   { char: '来', pinyin: 'lái', meaning: '来 (Come)', level: 10 },
   { char: '去', pinyin: 'qù', meaning: '去 (Go)', level: 10 },
   { char: '看', pinyin: 'kàn', meaning: '看 (Look)', level: 10 },
