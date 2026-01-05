@@ -5,528 +5,7 @@ import { ref, onMounted, computed, watch, nextTick, shallowRef } from 'vue'
  * 英语单词库 - 入门版
  * 总共500个单词，分为10个等级
  */
-const wordBank = [
-  // Level 1: Basic Words (50个)
-  { word: 'the', phonetic: 'ðə', meaning: '定冠词', level: 1 },
-  { word: 'and', phonetic: 'ænd', meaning: '和', level: 1 },
-  { word: 'of', phonetic: 'əv', meaning: '的', level: 1 },
-  { word: 'to', phonetic: 'tuː', meaning: '到', level: 1 },
-  { word: 'a', phonetic: 'ə', meaning: '不定冠词', level: 1 },
-  { word: 'in', phonetic: 'ɪn', meaning: '在...里', level: 1 },
-  { word: 'is', phonetic: 'ɪz', meaning: '是', level: 1 },
-  { word: 'you', phonetic: 'juː', meaning: '你', level: 1 },
-  { word: 'that', phonetic: 'ðæt', meaning: '那个', level: 1 },
-  { word: 'it', phonetic: 'ɪt', meaning: '它', level: 1 },
-  { word: 'he', phonetic: 'hiː', meaning: '他', level: 1 },
-  { word: 'was', phonetic: 'wɒz', meaning: '是 (过去式)', level: 1 },
-  { word: 'for', phonetic: 'fɔː', meaning: '为了', level: 1 },
-  { word: 'on', phonetic: 'ɒn', meaning: '在...上', level: 1 },
-  { word: 'are', phonetic: 'ɑː', meaning: '是', level: 1 },
-  { word: 'as', phonetic: 'æz', meaning: '作为', level: 1 },
-  { word: 'with', phonetic: 'wɪð', meaning: '和...一起', level: 1 },
-  { word: 'his', phonetic: 'hɪz', meaning: '他的', level: 1 },
-  { word: 'they', phonetic: 'ðeɪ', meaning: '他们', level: 1 },
-  { word: 'I', phonetic: 'aɪ', meaning: '我', level: 1 },
-  { word: 'at', phonetic: 'æt', meaning: '在', level: 1 },
-  { word: 'be', phonetic: 'biː', meaning: '是', level: 1 },
-  { word: 'this', phonetic: 'ðɪs', meaning: '这个', level: 1 },
-  { word: 'have', phonetic: 'hæv', meaning: '有', level: 1 },
-  { word: 'from', phonetic: 'frəm', meaning: '从', level: 1 },
-  { word: 'or', phonetic: 'ɔː', meaning: '或者', level: 1 },
-  { word: 'one', phonetic: 'wʌn', meaning: '一', level: 1 },
-  { word: 'had', phonetic: 'hæd', meaning: '有 (过去式)', level: 1 },
-  { word: 'by', phonetic: 'baɪ', meaning: '通过', level: 1 },
-  { word: 'word', phonetic: 'wɜːd', meaning: '单词', level: 1 },
-  { word: 'but', phonetic: 'bʌt', meaning: '但是', level: 1 },
-  { word: 'what', phonetic: 'wɒt', meaning: '什么', level: 1 },
-  { word: 'some', phonetic: 'sʌm', meaning: '一些', level: 1 },
-  { word: 'can', phonetic: 'kæn', meaning: '能', level: 1 },
-  { word: 'out', phonetic: 'aʊt', meaning: '外面', level: 1 },
-  { word: 'other', phonetic: 'ˈʌðə', meaning: '其他', level: 1 },
-  { word: 'were', phonetic: 'wɜː', meaning: '是 (过去式)', level: 1 },
-  { word: 'all', phonetic: 'ɔːl', meaning: '所有', level: 1 },
-  { word: 'there', phonetic: 'ðeə', meaning: '那里', level: 1 },
-  { word: 'when', phonetic: 'wen', meaning: '当...时', level: 1 },
-  { word: 'up', phonetic: 'ʌp', meaning: '向上', level: 1 },
-  { word: 'use', phonetic: 'juːz', meaning: '使用', level: 1 },
-  { word: 'your', phonetic: 'jɔː', meaning: '你的', level: 1 },
-  { word: 'how', phonetic: 'haʊ', meaning: '如何', level: 1 },
-  { word: 'said', phonetic: 'sed', meaning: '说 (过去式)', level: 1 },
-  { word: 'an', phonetic: 'æn', meaning: '不定冠词', level: 1 },
-  { word: 'each', phonetic: 'iːtʃ', meaning: '每个', level: 1 },
-  { word: 'she', phonetic: 'ʃiː', meaning: '她', level: 1 },
-  { word: 'do', phonetic: 'duː', meaning: '做', level: 1 },
-  { word: 'their', phonetic: 'ðeə', meaning: '他们的', level: 1 },
-  { word: 'time', phonetic: 'taɪm', meaning: '时间', level: 1 },
-  
-  // Level 2: Common Nouns (50个)
-  { word: 'people', phonetic: 'ˈpiːpl', meaning: '人', level: 2 },
-  { word: 'year', phonetic: 'jɪə', meaning: '年', level: 2 },
-  { word: 'day', phonetic: 'deɪ', meaning: '天', level: 2 },
-  { word: 'man', phonetic: 'mæn', meaning: '男人', level: 2 },
-  { word: 'thing', phonetic: 'θɪŋ', meaning: '东西', level: 2 },
-  { word: 'woman', phonetic: 'ˈwʊmən', meaning: '女人', level: 2 },
-  { word: 'life', phonetic: 'laɪf', meaning: '生活', level: 2 },
-  { word: 'child', phonetic: 'tʃaɪld', meaning: '孩子', level: 2 },
-  { word: 'world', phonetic: 'wɜːld', meaning: '世界', level: 2 },
-  { word: 'school', phonetic: 'skuːl', meaning: '学校', level: 2 },
-  { word: 'state', phonetic: 'steɪt', meaning: '州', level: 2 },
-  { word: 'family', phonetic: 'ˈfæməli', meaning: '家庭', level: 2 },
-  { word: 'student', phonetic: 'ˈstjuːdənt', meaning: '学生', level: 2 },
-  { word: 'group', phonetic: 'ɡruːp', meaning: '组', level: 2 },
-  { word: 'country', phonetic: 'ˈkʌntri', meaning: '国家', level: 2 },
-  { word: 'problem', phonetic: 'ˈprɒbləm', meaning: '问题', level: 2 },
-  { word: 'hand', phonetic: 'hænd', meaning: '手', level: 2 },
-  { word: 'part', phonetic: 'pɑːt', meaning: '部分', level: 2 },
-  { word: 'place', phonetic: 'pleɪs', meaning: '地方', level: 2 },
-  { word: 'case', phonetic: 'keɪs', meaning: '情况', level: 2 },
-  { word: 'week', phonetic: 'wiːk', meaning: '周', level: 2 },
-  { word: 'company', phonetic: 'ˈkʌmpəni', meaning: '公司', level: 2 },
-  { word: 'system', phonetic: 'ˈsɪstəm', meaning: '系统', level: 2 },
-  { word: 'program', phonetic: 'ˈprəʊɡræm', meaning: '程序', level: 2 },
-  { word: 'question', phonetic: 'ˈkwestʃən', meaning: '问题', level: 2 },
-  { word: 'work', phonetic: 'wɜːk', meaning: '工作', level: 2 },
-  { word: 'government', phonetic: 'ˈɡʌvənmənt', meaning: '政府', level: 2 },
-  { word: 'number', phonetic: 'ˈnʌmbə', meaning: '数字', level: 2 },
-  { word: 'night', phonetic: 'naɪt', meaning: '夜晚', level: 2 },
-  { word: 'point', phonetic: 'pɔɪnt', meaning: '点', level: 2 },
-  { word: 'home', phonetic: 'həʊm', meaning: '家', level: 2 },
-  { word: 'water', phonetic: 'ˈwɔːtə', meaning: '水', level: 2 },
-  { word: 'room', phonetic: 'ruːm', meaning: '房间', level: 2 },
-  { word: 'mother', phonetic: 'ˈmʌðə', meaning: '母亲', level: 2 },
-  { word: 'area', phonetic: 'ˈeəriə', meaning: '区域', level: 2 },
-  { word: 'money', phonetic: 'ˈmʌni', meaning: '钱', level: 2 },
-  { word: 'story', phonetic: 'ˈstɔːri', meaning: '故事', level: 2 },
-  { word: 'fact', phonetic: 'fækt', meaning: '事实', level: 2 },
-  { word: 'month', phonetic: 'mʌnθ', meaning: '月', level: 2 },
-  { word: 'lot', phonetic: 'lɒt', meaning: '许多', level: 2 },
-  { word: 'right', phonetic: 'raɪt', meaning: '正确', level: 2 },
-  { word: 'study', phonetic: 'ˈstʌdi', meaning: '学习', level: 2 },
-  { word: 'book', phonetic: 'bʊk', meaning: '书', level: 2 },
-  { word: 'eye', phonetic: 'aɪ', meaning: '眼睛', level: 2 },
-  { word: 'job', phonetic: 'dʒɒb', meaning: '工作', level: 2 },
-  { word: 'word', phonetic: 'wɜːd', meaning: '单词', level: 2 },
-  { word: 'business', phonetic: 'ˈbɪznəs', meaning: '商业', level: 2 },
-  { word: 'issue', phonetic: 'ˈɪʃuː', meaning: '问题', level: 2 },
-  { word: 'side', phonetic: 'saɪd', meaning: '边', level: 2 },
-  { word: 'kind', phonetic: 'kaɪnd', meaning: '种类', level: 2 },
-  { word: 'head', phonetic: 'hed', meaning: '头', level: 2 },
-  { word: 'house', phonetic: 'haʊs', meaning: '房子', level: 2 },
-  
-  // Level 3: Common Verbs (50个)
-  { word: 'take', phonetic: 'teɪk', meaning: '拿', level: 3 },
-  { word: 'get', phonetic: 'ɡet', meaning: '得到', level: 3 },
-  { word: 'make', phonetic: 'meɪk', meaning: '制作', level: 3 },
-  { word: 'know', phonetic: 'nəʊ', meaning: '知道', level: 3 },
-  { word: 'want', phonetic: 'wɒnt', meaning: '想要', level: 3 },
-  { word: 'come', phonetic: 'kʌm', meaning: '来', level: 3 },
-  { word: 'look', phonetic: 'lʊk', meaning: '看', level: 3 },
-  { word: 'see', phonetic: 'siː', meaning: '看见', level: 3 },
-  { word: 'use', phonetic: 'juːz', meaning: '使用', level: 3 },
-  { word: 'find', phonetic: 'faɪnd', meaning: '找到', level: 3 },
-  { word: 'give', phonetic: 'ɡɪv', meaning: '给', level: 3 },
-  { word: 'tell', phonetic: 'tel', meaning: '告诉', level: 3 },
-  { word: 'ask', phonetic: 'ɑːsk', meaning: '问', level: 3 },
-  { word: 'work', phonetic: 'wɜːk', meaning: '工作', level: 3 },
-  { word: 'seem', phonetic: 'siːm', meaning: '似乎', level: 3 },
-  { word: 'feel', phonetic: 'fiːl', meaning: '感觉', level: 3 },
-  { word: 'try', phonetic: 'traɪ', meaning: '尝试', level: 3 },
-  { word: 'leave', phonetic: 'liːv', meaning: '离开', level: 3 },
-  { word: 'call', phonetic: 'kɔːl', meaning: '打电话', level: 3 },
-  { word: 'good', phonetic: 'ɡʊd', meaning: '好', level: 3 },
-  { word: 'should', phonetic: 'ʃʊd', meaning: '应该', level: 3 },
-  { word: 'would', phonetic: 'wʊd', meaning: '会', level: 3 },
-  { word: 'go', phonetic: 'ɡəʊ', meaning: '去', level: 3 },
-  { word: 'come', phonetic: 'kʌm', meaning: '来', level: 3 },
-  { word: 'could', phonetic: 'kʊd', meaning: '能', level: 3 },
-  { word: 'say', phonetic: 'seɪ', meaning: '说', level: 3 },
-  { word: 'will', phonetic: 'wɪl', meaning: '将', level: 3 },
-  { word: 'can', phonetic: 'kæn', meaning: '能', level: 3 },
-  { word: 'did', phonetic: 'dɪd', meaning: '做 (过去式)', level: 3 },
-  { word: 'get', phonetic: 'ɡet', meaning: '得到', level: 3 },
-  { word: 'make', phonetic: 'meɪk', meaning: '制作', level: 3 },
-  { word: 'take', phonetic: 'teɪk', meaning: '拿', level: 3 },
-  { word: 'have', phonetic: 'hæv', meaning: '有', level: 3 },
-  { word: 'look', phonetic: 'lʊk', meaning: '看', level: 3 },
-  { word: 'see', phonetic: 'siː', meaning: '看见', level: 3 },
-  { word: 'use', phonetic: 'juːz', meaning: '使用', level: 3 },
-  { word: 'find', phonetic: 'faɪnd', meaning: '找到', level: 3 },
-  { word: 'give', phonetic: 'ɡɪv', meaning: '给', level: 3 },
-  { word: 'tell', phonetic: 'tel', meaning: '告诉', level: 3 },
-  { word: 'ask', phonetic: 'ɑːsk', meaning: '问', level: 3 },
-  { word: 'work', phonetic: 'wɜːk', meaning: '工作', level: 3 },
-  { word: 'seem', phonetic: 'siːm', meaning: '似乎', level: 3 },
-  { word: 'feel', phonetic: 'fiːl', meaning: '感觉', level: 3 },
-  { word: 'try', phonetic: 'traɪ', meaning: '尝试', level: 3 },
-  { word: 'leave', phonetic: 'liːv', meaning: '离开', level: 3 },
-  { word: 'call', phonetic: 'kɔːl', meaning: '打电话', level: 3 },
-  { word: 'good', phonetic: 'ɡʊd', meaning: '好', level: 3 },
-  { word: 'should', phonetic: 'ʃʊd', meaning: '应该', level: 3 },
-  { word: 'would', phonetic: 'wʊd', meaning: '会', level: 3 },
-  
-  // Level 4: Common Adjectives (50个)
-  { word: 'good', phonetic: 'ɡʊd', meaning: '好', level: 4 },
-  { word: 'new', phonetic: 'njuː', meaning: '新', level: 4 },
-  { word: 'first', phonetic: 'fɜːst', meaning: '第一', level: 4 },
-  { word: 'last', phonetic: 'lɑːst', meaning: '最后', level: 4 },
-  { word: 'long', phonetic: 'lɒŋ', meaning: '长', level: 4 },
-  { word: 'great', phonetic: 'ɡreɪt', meaning: '伟大', level: 4 },
-  { word: 'little', phonetic: 'ˈlɪtl', meaning: '小', level: 4 },
-  { word: 'own', phonetic: 'əʊn', meaning: '自己的', level: 4 },
-  { word: 'other', phonetic: 'ˈʌðə', meaning: '其他', level: 4 },
-  { word: 'old', phonetic: 'əʊld', meaning: '旧', level: 4 },
-  { word: 'right', phonetic: 'raɪt', meaning: '正确', level: 4 },
-  { word: 'big', phonetic: 'bɪɡ', meaning: '大', level: 4 },
-  { word: 'high', phonetic: 'haɪ', meaning: '高', level: 4 },
-  { word: 'different', phonetic: 'ˈdɪfrənt', meaning: '不同', level: 4 },
-  { word: 'small', phonetic: 'smɔːl', meaning: '小', level: 4 },
-  { word: 'large', phonetic: 'lɑːdʒ', meaning: '大', level: 4 },
-  { word: 'next', phonetic: 'nekst', meaning: '下一个', level: 4 },
-  { word: 'early', phonetic: 'ˈɜːli', meaning: '早', level: 4 },
-  { word: 'young', phonetic: 'jʌŋ', meaning: '年轻', level: 4 },
-  { word: 'important', phonetic: 'ɪmˈpɔːtənt', meaning: '重要', level: 4 },
-  { word: 'few', phonetic: 'fjuː', meaning: '少', level: 4 },
-  { word: 'public', phonetic: 'ˈpʌblɪk', meaning: '公共', level: 4 },
-  { word: 'bad', phonetic: 'bæd', meaning: '坏', level: 4 },
-  { word: 'same', phonetic: 'seɪm', meaning: '相同', level: 4 },
-  { word: 'able', phonetic: 'ˈeɪbl', meaning: '能', level: 4 },
-  { word: 'to', phonetic: 'tuː', meaning: '到', level: 4 },
-  { word: 'all', phonetic: 'ɔːl', meaning: '所有', level: 4 },
-  { word: 'your', phonetic: 'jɔː', meaning: '你的', level: 4 },
-  { word: 'how', phonetic: 'haʊ', meaning: '如何', level: 4 },
-  { word: 'said', phonetic: 'sed', meaning: '说 (过去式)', level: 4 },
-  { word: 'an', phonetic: 'æn', meaning: '不定冠词', level: 4 },
-  { word: 'each', phonetic: 'iːtʃ', meaning: '每个', level: 4 },
-  { word: 'she', phonetic: 'ʃiː', meaning: '她', level: 4 },
-  { word: 'do', phonetic: 'duː', meaning: '做', level: 4 },
-  { word: 'their', phonetic: 'ðeə', meaning: '他们的', level: 4 },
-  { word: 'time', phonetic: 'taɪm', meaning: '时间', level: 4 },
-  { word: 'if', phonetic: 'ɪf', meaning: '如果', level: 4 },
-  { word: 'will', phonetic: 'wɪl', meaning: '将', level: 4 },
-  { word: 'way', phonetic: 'weɪ', meaning: '方式', level: 4 },
-  { word: 'about', phonetic: 'əˈbaʊt', meaning: '关于', level: 4 },
-  { word: 'many', phonetic: 'ˈmeni', meaning: '许多', level: 4 },
-  { word: 'then', phonetic: 'ðen', meaning: '然后', level: 4 },
-  { word: 'them', phonetic: 'ðem', meaning: '他们', level: 4 },
-  { word: 'write', phonetic: 'raɪt', meaning: '写', level: 4 },
-  { word: 'would', phonetic: 'wʊd', meaning: '会', level: 4 },
-  { word: 'like', phonetic: 'laɪk', meaning: '喜欢', level: 4 },
-  { word: 'so', phonetic: 'səʊ', meaning: '所以', level: 4 },
-  { word: 'these', phonetic: 'ðiːz', meaning: '这些', level: 4 },
-  { word: 'her', phonetic: 'hɜː', meaning: '她的', level: 4 },
-  { word: 'long', phonetic: 'lɒŋ', meaning: '长', level: 4 },
-  
-  // Level 5: Common Prepositions (50个)
-  { word: 'at', phonetic: 'æt', meaning: '在', level: 5 },
-  { word: 'by', phonetic: 'baɪ', meaning: '通过', level: 5 },
-  { word: 'for', phonetic: 'fɔː', meaning: '为了', level: 5 },
-  { word: 'from', phonetic: 'frəm', meaning: '从', level: 5 },
-  { word: 'in', phonetic: 'ɪn', meaning: '在...里', level: 5 },
-  { word: 'of', phonetic: 'əv', meaning: '的', level: 5 },
-  { word: 'on', phonetic: 'ɒn', meaning: '在...上', level: 5 },
-  { word: 'to', phonetic: 'tuː', meaning: '到', level: 5 },
-  { word: 'with', phonetic: 'wɪð', meaning: '和...一起', level: 5 },
-  { word: 'about', phonetic: 'əˈbaʊt', meaning: '关于', level: 5 },
-  { word: 'above', phonetic: 'əˈbʌv', meaning: '在...上', level: 5 },
-  { word: 'across', phonetic: 'əˈkrɒs', meaning: '穿过', level: 5 },
-  { word: 'after', phonetic: 'ˈɑːftə', meaning: '在...后', level: 5 },
-  { word: 'against', phonetic: 'əˈɡenst', meaning: '反对', level: 5 },
-  { word: 'along', phonetic: 'əˈlɒŋ', meaning: '沿着', level: 5 },
-  { word: 'among', phonetic: 'əˈmʌŋ', meaning: '在...中', level: 5 },
-  { word: 'around', phonetic: 'əˈraʊnd', meaning: '周围', level: 5 },
-  { word: 'as', phonetic: 'æz', meaning: '作为', level: 5 },
-  { word: 'at', phonetic: 'æt', meaning: '在', level: 5 },
-  { word: 'before', phonetic: 'bɪˈfɔː', meaning: '在...前', level: 5 },
-  { word: 'behind', phonetic: 'bɪˈhaɪnd', meaning: '在...后', level: 5 },
-  { word: 'below', phonetic: 'bɪˈləʊ', meaning: '在...下', level: 5 },
-  { word: 'beneath', phonetic: 'bɪˈniːθ', meaning: '在...下', level: 5 },
-  { word: 'beside', phonetic: 'bɪˈsaɪd', meaning: '在...旁', level: 5 },
-  { word: 'between', phonetic: 'bɪˈtwiːn', meaning: '在...之间', level: 5 },
-  { word: 'beyond', phonetic: 'bɪˈjɒnd', meaning: '超越', level: 5 },
-  { word: 'but', phonetic: 'bʌt', meaning: '但是', level: 5 },
-  { word: 'by', phonetic: 'baɪ', meaning: '通过', level: 5 },
-  { word: 'concerning', phonetic: 'kənˈsɜːnɪŋ', meaning: '关于', level: 5 },
-  { word: 'considering', phonetic: 'kənˈsɪdərɪŋ', meaning: '考虑到', level: 5 },
-  { word: 'despite', phonetic: 'dɪˈspaɪt', meaning: '尽管', level: 5 },
-  { word: 'down', phonetic: 'daʊn', meaning: '向下', level: 5 },
-  { word: 'during', phonetic: 'ˈdjʊərɪŋ', meaning: '在...期间', level: 5 },
-  { word: 'except', phonetic: 'ɪkˈsept', meaning: '除了', level: 5 },
-  { word: 'for', phonetic: 'fɔː', meaning: '为了', level: 5 },
-  { word: 'from', phonetic: 'frəm', meaning: '从', level: 5 },
-  { word: 'in', phonetic: 'ɪn', meaning: '在...里', level: 5 },
-  { word: 'inside', phonetic: 'ˌɪnˈsaɪd', meaning: '在...内', level: 5 },
-  { word: 'into', phonetic: 'ˈɪntuː', meaning: '进入', level: 5 },
-  { word: 'like', phonetic: 'laɪk', meaning: '像', level: 5 },
-  { word: 'near', phonetic: 'nɪə', meaning: '附近', level: 5 },
-  { word: 'of', phonetic: 'əv', meaning: '的', level: 5 },
-  { word: 'off', phonetic: 'ɒf', meaning: '离开', level: 5 },
-  { word: 'on', phonetic: 'ɒn', meaning: '在...上', level: 5 },
-  { word: 'onto', phonetic: 'ˈɒntuː', meaning: '到...上', level: 5 },
-  { word: 'out', phonetic: 'aʊt', meaning: '外面', level: 5 },
-  { word: 'outside', phonetic: 'ˌaʊtˈsaɪd', meaning: '在...外', level: 5 },
-  { word: 'over', phonetic: 'ˈəʊvə', meaning: '在...上', level: 5 },
-  { word: 'past', phonetic: 'pɑːst', meaning: '过去', level: 5 },
-  { word: 'regarding', phonetic: 'rɪˈɡɑːdɪŋ', meaning: '关于', level: 5 },
-  { word: 'round', phonetic: 'raʊnd', meaning: '围绕', level: 5 },
-  
-  // Level 6: Common Adverbs (50个)
-  { word: 'not', phonetic: 'nɒt', meaning: '不', level: 6 },
-  { word: 'now', phonetic: 'naʊ', meaning: '现在', level: 6 },
-  { word: 'very', phonetic: 'ˈveri', meaning: '非常', level: 6 },
-  { word: 'also', phonetic: 'ˈɔːlsəʊ', meaning: '也', level: 6 },
-  { word: 'here', phonetic: 'hɪə', meaning: '这里', level: 6 },
-  { word: 'so', phonetic: 'səʊ', meaning: '所以', level: 6 },
-  { word: 'how', phonetic: 'haʊ', meaning: '如何', level: 6 },
-  { word: 'then', phonetic: 'ðen', meaning: '然后', level: 6 },
-  { word: 'just', phonetic: 'dʒʌst', meaning: '刚刚', level: 6 },
-  { word: 'them', phonetic: 'ðem', meaning: '他们', level: 6 },
-  { word: 'there', phonetic: 'ðeə', meaning: '那里', level: 6 },
-  { word: 'all', phonetic: 'ɔːl', meaning: '所有', level: 6 },
-  { word: 'when', phonetic: 'wen', meaning: '当...时', level: 6 },
-  { word: 'up', phonetic: 'ʌp', meaning: '向上', level: 6 },
-  { word: 'only', phonetic: 'ˈəʊnli', meaning: '只有', level: 6 },
-  { word: 'but', phonetic: 'bʌt', meaning: '但是', level: 6 },
-  { word: 'back', phonetic: 'bæk', meaning: '回来', level: 6 },
-  { word: 'down', phonetic: 'daʊn', meaning: '向下', level: 6 },
-  { word: 'off', phonetic: 'ɒf', meaning: '离开', level: 6 },
-  { word: 'so', phonetic: 'səʊ', meaning: '所以', level: 6 },
-  { word: 'how', phonetic: 'haʊ', meaning: '如何', level: 6 },
-  { word: 'then', phonetic: 'ðen', meaning: '然后', level: 6 },
-  { word: 'just', phonetic: 'dʒʌst', meaning: '刚刚', level: 6 },
-  { word: 'them', phonetic: 'ðem', meaning: '他们', level: 6 },
-  { word: 'there', phonetic: 'ðeə', meaning: '那里', level: 6 },
-  { word: 'all', phonetic: 'ɔːl', meaning: '所有', level: 6 },
-  { word: 'when', phonetic: 'wen', meaning: '当...时', level: 6 },
-  { word: 'up', phonetic: 'ʌp', meaning: '向上', level: 6 },
-  { word: 'only', phonetic: 'ˈəʊnli', meaning: '只有', level: 6 },
-  { word: 'but', phonetic: 'bʌt', meaning: '但是', level: 6 },
-  { word: 'back', phonetic: 'bæk', meaning: '回来', level: 6 },
-  { word: 'down', phonetic: 'daʊn', meaning: '向下', level: 6 },
-  { word: 'off', phonetic: 'ɒf', meaning: '离开', level: 6 },
-  { word: 'out', phonetic: 'aʊt', meaning: '外面', level: 6 },
-  { word: 'over', phonetic: 'ˈəʊvə', meaning: '在...上', level: 6 },
-  { word: 'again', phonetic: 'əˈɡen', meaning: '再次', level: 6 },
-  { word: 'further', phonetic: 'ˈfɜːðə', meaning: '更远', level: 6 },
-  { word: 'then', phonetic: 'ðen', meaning: '然后', level: 6 },
-  { word: 'once', phonetic: 'wʌns', meaning: '一旦', level: 6 },
-  { word: 'here', phonetic: 'hɪə', meaning: '这里', level: 6 },
-  { word: 'well', phonetic: 'wel', meaning: '好', level: 6 },
-  { word: 'also', phonetic: 'ˈɔːlsəʊ', meaning: '也', level: 6 },
-  { word: 'now', phonetic: 'naʊ', meaning: '现在', level: 6 },
-  { word: 'very', phonetic: 'ˈveri', meaning: '非常', level: 6 },
-  { word: 'more', phonetic: 'mɔː', meaning: '更多', level: 6 },
-  { word: 'most', phonetic: 'məʊst', meaning: '最多', level: 6 },
-  { word: 'such', phonetic: 'sʌtʃ', meaning: '这样', level: 6 },
-  { word: 'as', phonetic: 'æz', meaning: '作为', level: 6 },
-  { word: 'too', phonetic: 'tuː', meaning: '也', level: 6 },
-  
-  // Level 7: Common Pronouns (50个)
-  { word: 'I', phonetic: 'aɪ', meaning: '我', level: 7 },
-  { word: 'you', phonetic: 'juː', meaning: '你', level: 7 },
-  { word: 'he', phonetic: 'hiː', meaning: '他', level: 7 },
-  { word: 'she', phonetic: 'ʃiː', meaning: '她', level: 7 },
-  { word: 'it', phonetic: 'ɪt', meaning: '它', level: 7 },
-  { word: 'we', phonetic: 'wiː', meaning: '我们', level: 7 },
-  { word: 'they', phonetic: 'ðeɪ', meaning: '他们', level: 7 },
-  { word: 'me', phonetic: 'miː', meaning: '我 (宾格)', level: 7 },
-  { word: 'him', phonetic: 'hɪm', meaning: '他 (宾格)', level: 7 },
-  { word: 'her', phonetic: 'hɜː', meaning: '她 (宾格)', level: 7 },
-  { word: 'us', phonetic: 'ʌs', meaning: '我们 (宾格)', level: 7 },
-  { word: 'them', phonetic: 'ðem', meaning: '他们 (宾格)', level: 7 },
-  { word: 'my', phonetic: 'maɪ', meaning: '我的', level: 7 },
-  { word: 'your', phonetic: 'jɔː', meaning: '你的', level: 7 },
-  { word: 'his', phonetic: 'hɪz', meaning: '他的', level: 7 },
-  { word: 'her', phonetic: 'hɜː', meaning: '她的', level: 7 },
-  { word: 'its', phonetic: 'ɪts', meaning: '它的', level: 7 },
-  { word: 'our', phonetic: 'ˈaʊə', meaning: '我们的', level: 7 },
-  { word: 'their', phonetic: 'ðeə', meaning: '他们的', level: 7 },
-  { word: 'mine', phonetic: 'maɪn', meaning: '我的 (名词性)', level: 7 },
-  { word: 'yours', phonetic: 'jɔːz', meaning: '你的 (名词性)', level: 7 },
-  { word: 'his', phonetic: 'hɪz', meaning: '他的 (名词性)', level: 7 },
-  { word: 'hers', phonetic: 'hɜːz', meaning: '她的 (名词性)', level: 7 },
-  { word: 'its', phonetic: 'ɪts', meaning: '它的 (名词性)', level: 7 },
-  { word: 'ours', phonetic: 'ˈaʊəz', meaning: '我们的 (名词性)', level: 7 },
-  { word: 'theirs', phonetic: 'ðeəz', meaning: '他们的 (名词性)', level: 7 },
-  { word: 'myself', phonetic: 'maɪˈself', meaning: '我自己', level: 7 },
-  { word: 'yourself', phonetic: 'jɔːˈself', meaning: '你自己', level: 7 },
-  { word: 'himself', phonetic: 'hɪmˈself', meaning: '他自己', level: 7 },
-  { word: 'herself', phonetic: 'hɜːˈself', meaning: '她自己', level: 7 },
-  { word: 'itself', phonetic: 'ɪtˈself', meaning: '它自己', level: 7 },
-  { word: 'ourselves', phonetic: 'ˌaʊəˈselvz', meaning: '我们自己', level: 7 },
-  { word: 'yourselves', phonetic: 'jɔːˈselvz', meaning: '你们自己', level: 7 },
-  { word: 'themselves', phonetic: 'ðəmˈselvz', meaning: '他们自己', level: 7 },
-  { word: 'what', phonetic: 'wɒt', meaning: '什么', level: 7 },
-  { word: 'which', phonetic: 'wɪtʃ', meaning: '哪个', level: 7 },
-  { word: 'who', phonetic: 'huː', meaning: '谁', level: 7 },
-  { word: 'whom', phonetic: 'huːm', meaning: '谁 (宾格)', level: 7 },
-  { word: 'whose', phonetic: 'huːz', meaning: '谁的', level: 7 },
-  { word: 'this', phonetic: 'ðɪs', meaning: '这个', level: 7 },
-  { word: 'that', phonetic: 'ðæt', meaning: '那个', level: 7 },
-  { word: 'these', phonetic: 'ðiːz', meaning: '这些', level: 7 },
-  { word: 'those', phonetic: 'ðəʊz', meaning: '那些', level: 7 },
-  { word: 'all', phonetic: 'ɔːl', meaning: '所有', level: 7 },
-  { word: 'any', phonetic: 'ˈeni', meaning: '任何', level: 7 },
-  { word: 'both', phonetic: 'bəʊθ', meaning: '两者都', level: 7 },
-  { word: 'each', phonetic: 'iːtʃ', meaning: '每个', level: 7 },
-  { word: 'either', phonetic: 'ˈaɪðə', meaning: '两者之一', level: 7 },
-  { word: 'neither', phonetic: 'ˈnaɪðə', meaning: '两者都不', level: 7 },
-  { word: 'none', phonetic: 'nʌn', meaning: '没有', level: 7 },
-  
-  // Level 8: Common Conjunctions (50个)
-  { word: 'and', phonetic: 'ænd', meaning: '和', level: 8 },
-  { word: 'but', phonetic: 'bʌt', meaning: '但是', level: 8 },
-  { word: 'or', phonetic: 'ɔː', meaning: '或者', level: 8 },
-  { word: 'so', phonetic: 'səʊ', meaning: '所以', level: 8 },
-  { word: 'for', phonetic: 'fɔː', meaning: '因为', level: 8 },
-  { word: 'nor', phonetic: 'nɔː', meaning: '也不', level: 8 },
-  { word: 'yet', phonetic: 'jet', meaning: '但是', level: 8 },
-  { word: 'although', phonetic: 'ɔːlˈðəʊ', meaning: '尽管', level: 8 },
-  { word: 'because', phonetic: 'bɪˈkɒz', meaning: '因为', level: 8 },
-  { word: 'if', phonetic: 'ɪf', meaning: '如果', level: 8 },
-  { word: 'since', phonetic: 'sɪns', meaning: '自从', level: 8 },
-  { word: 'than', phonetic: 'ðæn', meaning: '比', level: 8 },
-  { word: 'that', phonetic: 'ðæt', meaning: '那个', level: 8 },
-  { word: 'though', phonetic: 'ðəʊ', meaning: '尽管', level: 8 },
-  { word: 'until', phonetic: 'ənˈtɪl', meaning: '直到', level: 8 },
-  { word: 'when', phonetic: 'wen', meaning: '当...时', level: 8 },
-  { word: 'whenever', phonetic: 'wenˈevə', meaning: '无论何时', level: 8 },
-  { word: 'where', phonetic: 'weə', meaning: '哪里', level: 8 },
-  { word: 'wherever', phonetic: 'weərˈevə', meaning: '无论哪里', level: 8 },
-  { word: 'whether', phonetic: 'ˈweðə', meaning: '是否', level: 8 },
-  { word: 'while', phonetic: 'waɪl', meaning: '当...时', level: 8 },
-  { word: 'as', phonetic: 'æz', meaning: '作为', level: 8 },
-  { word: 'as if', phonetic: 'æz ɪf', meaning: '好像', level: 8 },
-  { word: 'as though', phonetic: 'æz ðəʊ', meaning: '好像', level: 8 },
-  { word: 'as well as', phonetic: 'æz wel æz', meaning: '也', level: 8 },
-  { word: 'in order that', phonetic: 'ɪn ˈɔːdə ðæt', meaning: '为了', level: 8 },
-  { word: 'now that', phonetic: 'naʊ ðæt', meaning: '既然', level: 8 },
-  { word: 'so that', phonetic: 'səʊ ðæt', meaning: '以便', level: 8 },
-  { word: 'than', phonetic: 'ðæn', meaning: '比', level: 8 },
-  { word: 'rather than', phonetic: 'ˈrɑːðə ðæn', meaning: '而不是', level: 8 },
-  { word: 'such that', phonetic: 'sʌtʃ ðæt', meaning: '如此...以至于', level: 8 },
-  { word: 'that', phonetic: 'ðæt', meaning: '那个', level: 8 },
-  { word: 'what', phonetic: 'wɒt', meaning: '什么', level: 8 },
-  { word: 'whatever', phonetic: 'wɒtˈevə', meaning: '无论什么', level: 8 },
-  { word: 'when', phonetic: 'wen', meaning: '当...时', level: 8 },
-  { word: 'whenever', phonetic: 'wenˈevə', meaning: '无论何时', level: 8 },
-  { word: 'where', phonetic: 'weə', meaning: '哪里', level: 8 },
-  { word: 'wherever', phonetic: 'weərˈevə', meaning: '无论哪里', level: 8 },
-  { word: 'whether', phonetic: 'ˈweðə', meaning: '是否', level: 8 },
-  { word: 'which', phonetic: 'wɪtʃ', meaning: '哪个', level: 8 },
-  { word: 'whichever', phonetic: 'wɪtʃˈevə', meaning: '无论哪个', level: 8 },
-  { word: 'who', phonetic: 'huː', meaning: '谁', level: 8 },
-  { word: 'whoever', phonetic: 'huːˈevə', meaning: '无论谁', level: 8 },
-  { word: 'whom', phonetic: 'huːm', meaning: '谁 (宾格)', level: 8 },
-  { word: 'whomever', phonetic: 'huːmˈevə', meaning: '无论谁 (宾格)', level: 8 },
-  { word: 'whose', phonetic: 'huːz', meaning: '谁的', level: 8 },
-  { word: 'whosever', phonetic: 'huːzˈevə', meaning: '无论谁的', level: 8 },
-  { word: 'and', phonetic: 'ænd', meaning: '和', level: 8 },
-  
-  // Level 9: Common Numbers (50个)
-  { word: 'one', phonetic: 'wʌn', meaning: '一', level: 9 },
-  { word: 'two', phonetic: 'tuː', meaning: '二', level: 9 },
-  { word: 'three', phonetic: 'θriː', meaning: '三', level: 9 },
-  { word: 'four', phonetic: 'fɔː', meaning: '四', level: 9 },
-  { word: 'five', phonetic: 'faɪv', meaning: '五', level: 9 },
-  { word: 'six', phonetic: 'sɪks', meaning: '六', level: 9 },
-  { word: 'seven', phonetic: 'ˈsevn', meaning: '七', level: 9 },
-  { word: 'eight', phonetic: 'eɪt', meaning: '八', level: 9 },
-  { word: 'nine', phonetic: 'naɪn', meaning: '九', level: 9 },
-  { word: 'ten', phonetic: 'ten', meaning: '十', level: 9 },
-  { word: 'eleven', phonetic: 'ɪˈlevn', meaning: '十一', level: 9 },
-  { word: 'twelve', phonetic: 'twelv', meaning: '十二', level: 9 },
-  { word: 'thirteen', phonetic: 'ˌθɜːˈtiːn', meaning: '十三', level: 9 },
-  { word: 'fourteen', phonetic: 'ˌfɔːˈtiːn', meaning: '十四', level: 9 },
-  { word: 'fifteen', phonetic: 'ˌfɪfˈtiːn', meaning: '十五', level: 9 },
-  { word: 'sixteen', phonetic: 'ˌsɪksˈtiːn', meaning: '十六', level: 9 },
-  { word: 'seventeen', phonetic: 'ˌsevnˈtiːn', meaning: '十七', level: 9 },
-  { word: 'eighteen', phonetic: 'ˌeɪˈtiːn', meaning: '十八', level: 9 },
-  { word: 'nineteen', phonetic: 'ˌnaɪnˈtiːn', meaning: '十九', level: 9 },
-  { word: 'twenty', phonetic: 'ˈtwenti', meaning: '二十', level: 9 },
-  { word: 'thirty', phonetic: 'ˈθɜːti', meaning: '三十', level: 9 },
-  { word: 'forty', phonetic: 'ˈfɔːti', meaning: '四十', level: 9 },
-  { word: 'fifty', phonetic: 'ˈfɪfti', meaning: '五十', level: 9 },
-  { word: 'sixty', phonetic: 'ˈsɪksti', meaning: '六十', level: 9 },
-  { word: 'seventy', phonetic: 'ˈsevnti', meaning: '七十', level: 9 },
-  { word: 'eighty', phonetic: 'ˈeɪti', meaning: '八十', level: 9 },
-  { word: 'ninety', phonetic: 'ˈnaɪnti', meaning: '九十', level: 9 },
-  { word: 'hundred', phonetic: 'ˈhʌndrəd', meaning: '百', level: 9 },
-  { word: 'thousand', phonetic: 'ˈθaʊznd', meaning: '千', level: 9 },
-  { word: 'million', phonetic: 'ˈmɪljən', meaning: '百万', level: 9 },
-  { word: 'billion', phonetic: 'ˈbɪljən', meaning: '十亿', level: 9 },
-  { word: 'first', phonetic: 'fɜːst', meaning: '第一', level: 9 },
-  { word: 'second', phonetic: 'ˈsekənd', meaning: '第二', level: 9 },
-  { word: 'third', phonetic: 'θɜːd', meaning: '第三', level: 9 },
-  { word: 'fourth', phonetic: 'fɔːθ', meaning: '第四', level: 9 },
-  { word: 'fifth', phonetic: 'fɪfθ', meaning: '第五', level: 9 },
-  { word: 'sixth', phonetic: 'sɪksθ', meaning: '第六', level: 9 },
-  { word: 'seventh', phonetic: 'ˈsevnθ', meaning: '第七', level: 9 },
-  { word: 'eighth', phonetic: 'eɪtθ', meaning: '第八', level: 9 },
-  { word: 'ninth', phonetic: 'naɪnθ', meaning: '第九', level: 9 },
-  { word: 'tenth', phonetic: 'tenθ', meaning: '第十', level: 9 },
-  { word: 'eleventh', phonetic: 'ɪˈlevnθ', meaning: '第十一', level: 9 },
-  { word: 'twelfth', phonetic: 'twelfθ', meaning: '第十二', level: 9 },
-  { word: 'thirteenth', phonetic: 'ˌθɜːˈtiːnθ', meaning: '第十三', level: 9 },
-  { word: 'fourteenth', phonetic: 'ˌfɔːˈtiːnθ', meaning: '第十四', level: 9 },
-  { word: 'fifteenth', phonetic: 'ˌfɪfˈtiːnθ', meaning: '第十五', level: 9 },
-  { word: 'sixteenth', phonetic: 'ˌsɪksˈtiːnθ', meaning: '第十六', level: 9 },
-  { word: 'seventeenth', phonetic: 'ˌsevnˈtiːnθ', meaning: '第十七', level: 9 },
-  { word: 'eighteenth', phonetic: 'ˌeɪˈtiːnθ', meaning: '第十八', level: 9 },
-  { word: 'nineteenth', phonetic: 'ˌnaɪnˈtiːnθ', meaning: '第十九', level: 9 },
-  
-  // Level 10: Common Phrases (50个)
-  { word: 'a lot', phonetic: 'ə lɒt', meaning: '许多', level: 10 },
-  { word: 'a little', phonetic: 'ə ˈlɪtl', meaning: '一点', level: 10 },
-  { word: 'a few', phonetic: 'ə fjuː', meaning: '一些', level: 10 },
-  { word: 'a great deal', phonetic: 'ə ɡreɪt diːl', meaning: '大量', level: 10 },
-  { word: 'a good many', phonetic: 'ə ɡʊd ˈmeni', meaning: '许多', level: 10 },
-  { word: 'a number of', phonetic: 'ə ˈnʌmbə əv', meaning: '一些', level: 10 },
-  { word: 'a pair of', phonetic: 'ə peə əv', meaning: '一对', level: 10 },
-  { word: 'a piece of', phonetic: 'ə piːs əv', meaning: '一片', level: 10 },
-  { word: 'according to', phonetic: 'əˈkɔːdɪŋ tuː', meaning: '根据', level: 10 },
-  { word: 'ahead of', phonetic: 'əˈhed əv', meaning: '在...前', level: 10 },
-  { word: 'all along', phonetic: 'ɔːl əˈlɒŋ', meaning: '一直', level: 10 },
-  { word: 'all at once', phonetic: 'ɔːl æt wʌns', meaning: '突然', level: 10 },
-  { word: 'all but', phonetic: 'ɔːl bʌt', meaning: '几乎', level: 10 },
-  { word: 'all in all', phonetic: 'ɔːl ɪn ɔːl', meaning: '总的来说', level: 10 },
-  { word: 'all of a sudden', phonetic: 'ɔːl əv ə ˈsʌdn', meaning: '突然', level: 10 },
-  { word: 'all over', phonetic: 'ɔːl ˈəʊvə', meaning: '到处', level: 10 },
-  { word: 'all right', phonetic: 'ɔːl raɪt', meaning: '好的', level: 10 },
-  { word: 'all the same', phonetic: 'ɔːl ðə seɪm', meaning: '仍然', level: 10 },
-  { word: 'all the time', phonetic: 'ɔːl ðə taɪm', meaning: '一直', level: 10 },
-  { word: 'and so on', phonetic: 'ænd səʊ ɒn', meaning: '等等', level: 10 },
-  { word: 'anything but', phonetic: 'ˈeniθɪŋ bʌt', meaning: '根本不', level: 10 },
-  { word: 'as a matter of fact', phonetic: 'æz ə ˈmætə əv fækt', meaning: '事实上', level: 10 },
-  { word: 'as far as', phonetic: 'æz fɑː æz', meaning: '就...而言', level: 10 },
-  { word: 'as for', phonetic: 'æz fɔː', meaning: '至于', level: 10 },
-  { word: 'as if', phonetic: 'æz ɪf', meaning: '好像', level: 10 },
-  { word: 'as long as', phonetic: 'æz lɒŋ æz', meaning: '只要', level: 10 },
-  { word: 'as soon as', phonetic: 'æz suːn æz', meaning: '一...就', level: 10 },
-  { word: 'as though', phonetic: 'æz ðəʊ', meaning: '好像', level: 10 },
-  { word: 'as well', phonetic: 'æz wel', meaning: '也', level: 10 },
-  { word: 'as well as', phonetic: 'æz wel æz', meaning: '也', level: 10 },
-  { word: 'at all', phonetic: 'æt ɔːl', meaning: '根本', level: 10 },
-  { word: 'at least', phonetic: 'æt liːst', meaning: '至少', level: 10 },
-  { word: 'at most', phonetic: 'æt məʊst', meaning: '最多', level: 10 },
-  { word: 'at once', phonetic: 'æt wʌns', meaning: '立即', level: 10 },
-  { word: 'at present', phonetic: 'æt ˈpreznt', meaning: '目前', level: 10 },
-  { word: 'at the same time', phonetic: 'æt ðə seɪm taɪm', meaning: '同时', level: 10 },
-  { word: 'at times', phonetic: 'æt taɪmz', meaning: '有时', level: 10 },
-  { word: 'back and forth', phonetic: 'bæk ænd fɔːθ', meaning: '来回', level: 10 },
-  { word: 'because of', phonetic: 'bɪˈkɒz əv', meaning: '因为', level: 10 },
-  { word: 'by all means', phonetic: 'baɪ ɔːl miːnz', meaning: '一定', level: 10 },
-  { word: 'by chance', phonetic: 'baɪ tʃɑːns', meaning: '偶然', level: 10 },
-  { word: 'by far', phonetic: 'baɪ fɑː', meaning: '到目前为止', level: 10 },
-  { word: 'by means of', phonetic: 'baɪ miːnz əv', meaning: '通过', level: 10 },
-  { word: 'by mistake', phonetic: 'baɪ mɪˈsteɪk', meaning: '错误地', level: 10 },
-  { word: 'by no means', phonetic: 'baɪ nəʊ miːnz', meaning: '绝不', level: 10 },
-  { word: 'by oneself', phonetic: 'baɪ wʌnˈself', meaning: '独自', level: 10 },
-  { word: 'by the way', phonetic: 'baɪ ðə weɪ', meaning: '顺便说', level: 10 },
-  { word: 'day after day', phonetic: 'deɪ ˈɑːftə deɪ', meaning: '日复一日', level: 10 },
-  { word: 'day and night', phonetic: 'deɪ ænd naɪt', meaning: '日夜', level: 10 },
-  { word: 'from time to time', phonetic: 'frəm taɪm tuː taɪm', meaning: '有时', level: 10 },
-  { word: 'in a hurry', phonetic: 'ɪn ə ˈhʌri', meaning: '匆忙', level: 10 }
-]
+const wordBank = ref([]);
 
 const currentIndex = ref(0)
 const history = ref([])
@@ -556,26 +35,31 @@ const sessionGoalProgress = computed(() => {
   return Math.round((exhausted / all.length) * 100)
 })
 
+const currentWord = computed(() => wordBank.value[currentIndex.value] || {})
 const currentLevelList = computed(() => {
-  return wordBank.filter(h => h.level <= currentLevel.value)
+  return wordBank.value.filter(w => w.level <= currentLevel.value)
 })
 
 const todayStr = computed(() => new Date().toISOString().split('T')[0])
 
 // Level Progress Computed
 const levelProgress = computed(() => {
-  const levelItems = wordBank.filter(h => h.level === currentLevel.value)
+  const levelItems = wordBank.value.filter(w => w.level === currentLevel.value)
   if (levelItems.length === 0) return 0
-  const masteredCount = levelItems.filter(h => {
-    const m = masteryMap.value[h.word]
+  const masteredCount = levelItems.filter(w => {
+    const m = masteryMap.value[w.word]
     return (m?.consecutiveCorrect || 0) > 2
   }).length
   return Math.round((masteredCount / levelItems.length) * 100)
 })
 
-onMounted(() => {
+onMounted(async () => {
   const savedLevel = localStorage.getItem('english_current_level')
   if (savedLevel) currentLevel.value = parseInt(savedLevel)
+
+  // Load English Bank dynamically
+  const data = await import('../data/englishBank.js')
+  wordBank.value = data.wordBank
 
   const savedHistory = localStorage.getItem('english_learning_history')
   if (savedHistory) {
@@ -596,8 +80,8 @@ onMounted(() => {
 
 const rebuildMastery = () => {
   const map = {}
-  wordBank.forEach(h => {
-    map[h.word] = { totalAttempts: 0, totalCorrect: 0, consecutiveCorrect: 0, lastSeen: null, todayAttempts: 0, todayCorrect: 0, avgDuration: 0 }
+  wordBank.value.forEach(w => {
+    map[w.word] = { totalAttempts: 0, totalCorrect: 0, consecutiveCorrect: 0, lastSeen: null, todayAttempts: 0, todayCorrect: 0, avgDuration: 0 }
   })
   history.value.forEach(record => {
     if (map[record.word]) {
@@ -622,7 +106,7 @@ const rebuildMastery = () => {
 }
 
 const checkLevelProgression = () => {
-  const levelItems = wordBank.filter(h => h.level === currentLevel.value)
+  const levelItems = wordBank.value.filter(w => w.level === currentLevel.value)
   if (levelItems.length === 0) return
 
   const fullyKnownCount = levelItems.filter(h => {
@@ -912,7 +396,7 @@ const statsToday = computed(() => {
   }
 })
 
-const currentCharStats = computed(() => {
+const currentWordStats = computed(() => {
   const list = currentLevelList.value
   if (!list[currentIndex.value]) return null
   const word = list[currentIndex.value].word
@@ -962,7 +446,7 @@ watch(history, () => updateChartData(), { deep: true })
 </script>
 
 <template>
-  <div class="hanzi-container">
+  <div class="english-container">
     <!-- Session Progress Bar -->
     <div class="session-progress-wrapper" v-if="!sessionFinished">
       <div class="progress-bar-inner" :style="{ width: sessionGoalProgress + '%' }"></div>
@@ -1022,13 +506,13 @@ watch(history, () => updateChartData(), { deep: true })
     </div>
 
     <!-- Real-time Detailed Stats for current Word -->
-    <div class="stats-panel glass-card" v-if="currentCharStats && !showAnswer">
-      <div class="panel-header">「{{ currentCharStats.word }}」成长档案</div>
+    <div class="stats-panel glass-card" v-if="currentWordStats && !showAnswer">
+      <div class="panel-header">「{{ currentWordStats.word }}」成长档案</div>
       <div class="panel-grid">
-        <div class="panel-item"><span>总次数</span><b>{{ currentCharStats.totalAttempts }}</b></div>
-        <div class="panel-item"><span>总正确</span><b>{{ currentCharStats.totalCorrect }}</b></div>
-        <div class="panel-item"><span>今日练习</span><b>{{ currentCharStats.todayAttempts }}</b></div>
-        <div class="panel-item"><span>今日正确</span><b>{{ currentCharStats.todayCorrect }}</b></div>
+        <div class="panel-item"><span>总次数</span><b>{{ currentWordStats.totalAttempts }}</b></div>
+        <div class="panel-item"><span>总正确</span><b>{{ currentWordStats.totalCorrect }}</b></div>
+        <div class="panel-item"><span>今日练习</span><b>{{ currentWordStats.todayAttempts }}</b></div>
+        <div class="panel-item"><span>今日正确</span><b>{{ currentWordStats.todayCorrect }}</b></div>
       </div>
     </div>
 
@@ -1082,7 +566,7 @@ watch(history, () => updateChartData(), { deep: true })
 </template>
 
 <style scoped>
-.hanzi-container {
+.english-container {
   display: flex;
   flex-direction: column;
   gap: 1.2rem;

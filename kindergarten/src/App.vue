@@ -1,8 +1,9 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue'
-import HanziLearning from './components/HanziLearning.vue'
-import MathLearning from './components/MathLearning.vue'
-import EnglishLearning from './components/EnglishLearning.vue'
+import { ref, onMounted, watch, defineAsyncComponent } from 'vue'
+
+const HanziLearning = defineAsyncComponent(() => import('./components/HanziLearning.vue'))
+const MathLearning = defineAsyncComponent(() => import('./components/MathLearning.vue'))
+const EnglishLearning = defineAsyncComponent(() => import('./components/EnglishLearning.vue'))
 
 const currentModule = ref('hanzi')
 
