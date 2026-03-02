@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>请假管理系统</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Main View Container -->
+        <main class="main-content fade-in"></main>
+
+        <!-- Navigation Bar -->
+        <nav class="bottom-nav">
+            <a href="#/" class="nav-item">
+                <i data-lucide="home"></i>
+                <span>首页</span>
+            </a>
+            <a href="#/leave/apply" class="nav-item">
+                <i data-lucide="plus-circle"></i>
+                <span>申请</span>
+            </a>
+            <a href="#/leave/list" class="nav-item">
+                <i data-lucide="list"></i>
+                <span>记录</span>
+            </a>
+            <a href="#/audit" class="nav-item" id="nav-audit" style="display: none;">
+                <i data-lucide="check-square"></i>
+                <span>审批</span>
+            </a>
+            <a href="#/admin" class="nav-item" id="nav-admin" style="display: none;">
+                <i data-lucide="settings"></i>
+                <span>管理</span>
+            </a>
+            <a href="javascript:Auth.logout()" class="nav-item">
+                <i data-lucide="log-out"></i>
+                <span>退出</span>
+            </a>
+        </nav>
+
+        <!-- Global Toast Container -->
+        <div id="toast-container" style="position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999;"></div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="assets/js/api.js"></script>
+    <script src="assets/js/auth.js"></script>
+    <script src="assets/js/router.js"></script>
+    <script src="assets/js/app.js"></script>
+</body>
+</html>

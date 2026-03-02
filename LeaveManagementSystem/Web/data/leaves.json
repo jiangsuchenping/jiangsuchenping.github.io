@@ -1,0 +1,17 @@
+[
+    {
+        "id": "lv001",
+        "userId": "u1",
+        "leaveTypeId": "lt1",
+        "startDate": "2024-03-01",
+        "endDate": "2024-03-02",
+        "duration": 2,
+        "reason": "个人休息",
+        "status": "Approved",
+        "approver1": "u2",
+        "approver1Status": "Approved",
+        "approver2": "u3",
+        "approver2Status": "Approved",
+        "createTime": "2024-02-25 10:00:00"
+    }
+]

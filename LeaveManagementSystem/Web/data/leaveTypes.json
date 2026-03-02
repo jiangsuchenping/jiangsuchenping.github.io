@@ -1,0 +1,30 @@
+[
+    {
+        "id": "lt1",
+        "name": "年假",
+        "hasAnnualLimit": true,
+        "requiresAttachment": false,
+        "color": "#4f46e5"
+    },
+    {
+        "id": "lt2",
+        "name": "病假",
+        "hasAnnualLimit": false,
+        "requiresAttachment": true,
+        "color": "#ef4444"
+    },
+    {
+        "id": "lt3",
+        "name": "事假",
+        "hasAnnualLimit": false,
+        "requiresAttachment": false,
+        "color": "#f59e0b"
+    },
+    {
+        "id": "lt4",
+        "name": "产假",
+        "hasAnnualLimit": true,
+        "requiresAttachment": true,
+        "color": "#ec4899"
+    }
+]

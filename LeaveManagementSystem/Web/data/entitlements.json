@@ -1,0 +1,23 @@
+[
+    {
+        "userId": "u1",
+        "leaveTypeId": "lt1",
+        "year": 2024,
+        "totalDays": 10,
+        "usedDays": 2
+    },
+    {
+        "userId": "u1",
+        "leaveTypeId": "lt2",
+        "year": 2024,
+        "totalDays": 999,
+        "usedDays": 0
+    },
+    {
+        "userId": "u2",
+        "leaveTypeId": "lt1",
+        "year": 2024,
+        "totalDays": 15,
+        "usedDays": 5
+    }
+]
