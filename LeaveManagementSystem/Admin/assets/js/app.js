@@ -496,6 +496,9 @@ const App = {
         this.updateGlobalUI();
 
         Router.init();
+        
+        // 绑定侧边栏切换事件
+        this.bindSidebarToggle();
     },
 
     setupRouter() {
@@ -598,6 +601,29 @@ const App = {
 
         document.querySelectorAll('.is-manager').forEach(el => el.style.display = isManager ? '' : 'none');
         document.querySelectorAll('.is-hr').forEach(el => el.style.display = isHR ? '' : 'none');
+    },
+
+    bindSidebarToggle() {
+        const toggle = document.getElementById('sidebarToggle');
+        const sidebar = document.getElementById('sidebar');
+        if (!toggle || !sidebar) return;
+
+        // 从 localStorage 恢复状态
+        const collapsed = localStorage.getItem('sidebar-collapsed') === 'true';
+        if (collapsed) {
+            sidebar.classList.add('collapsed');
+        }
+
+        toggle.addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+            const isCollapsed = sidebar.classList.contains('collapsed');
+            localStorage.setItem('sidebar-collapsed', isCollapsed);
+            
+            // 重新渲染图标
+            if (window.lucide) {
+                window.lucide.createIcons();
+            }
+        });
     },
 
     bindLoginEvents() {

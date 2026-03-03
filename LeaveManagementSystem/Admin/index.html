@@ -31,43 +31,46 @@
 
             <div class="body-wrapper">
                 <!-- Sidebar Navigation -->
-                <aside class="sidebar">
+                <aside class="sidebar" id="sidebar">
+                    <button class="sidebar-toggle" id="sidebarToggle" title="收起/展开菜单">
+                        <i data-lucide="panel-left"></i>
+                    </button>
                     <nav class="side-nav">
-                        <a href="#/" class="nav-item">
+                        <a href="#/" class="nav-item" data-tooltip="仪表盘">
                             <i data-lucide="layout-dashboard"></i>
-                            <span>仪表盘</span>
+                            <span class="menu-text">仪表盘</span>
                         </a>
-                        <a href="#/leave/apply" class="nav-item">
+                        <a href="#/leave/apply" class="nav-item" data-tooltip="请假申请">
                             <i data-lucide="plus-square"></i>
-                            <span>请假申请</span>
+                            <span class="menu-text">请假申请</span>
                         </a>
-                        <a href="#/leave/list" class="nav-item">
+                        <a href="#/leave/list" class="nav-item" data-tooltip="我的记录">
                             <i data-lucide="clipboard-list"></i>
-                            <span>我的记录</span>
+                            <span class="menu-text">我的记录</span>
                         </a>
                         <div class="nav-divider is-manager"></div>
-                        <a href="#/audit" class="nav-item is-manager" id="nav-audit">
+                        <a href="#/audit" class="nav-item is-manager" id="nav-audit" data-tooltip="审批中心">
                             <i data-lucide="check-circle"></i>
-                            <span>审批中心</span>
+                            <span class="menu-text">审批中心</span>
                         </a>
                         <div class="nav-divider is-hr"></div>
-                        <a href="#/admin/users" class="nav-item is-hr">
+                        <a href="#/admin/users" class="nav-item is-hr" data-tooltip="员工管理">
                             <i data-lucide="users"></i>
-                            <span>员工管理</span>
+                            <span class="menu-text">员工管理</span>
                         </a>
-                        <a href="#/admin/leave-types" class="nav-item is-hr">
+                        <a href="#/admin/leave-types" class="nav-item is-hr" data-tooltip="假期配置">
                             <i data-lucide="settings-2"></i>
-                            <span>假期配置</span>
+                            <span class="menu-text">假期配置</span>
                         </a>
-                        <a href="#/admin/entitlements" class="nav-item is-hr">
+                        <a href="#/admin/entitlements" class="nav-item is-hr" data-tooltip="额度调整">
                             <i data-lucide="bar-chart-3"></i>
-                            <span>额度调整</span>
+                            <span class="menu-text">额度调整</span>
                         </a>
                     </nav>
                     <div class="sidebar-footer">
-                        <a href="javascript:Auth.logout()" class="logout-btn">
+                        <a href="javascript:Auth.logout()" class="logout-btn" data-tooltip="安全退出">
                             <i data-lucide="log-out"></i>
-                            <span>安全退出</span>
+                            <span class="menu-text">安全退出</span>
                         </a>
                     </div>
                 </aside>
