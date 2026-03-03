@@ -43,20 +43,49 @@ body {
   font-size: 16px;
 }
 
-/* Layout */
+/* Layout - Fixed Header + Scrollable Content + Fixed Footer */
 .app-container {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
 }
 
+/* Fixed Header */
+.app-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 56px;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.app-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0;
+}
+
+/* Scrollable Main Content */
 .main-content {
   flex: 1;
+  margin-top: 56px; /* header height */
+  margin-bottom: 64px; /* bottom nav height */
   padding: 1rem;
-  padding-bottom: 5rem; /* for bottom nav */
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch; /* smooth scroll on iOS */
 }
 
-/* Navigation */
+/* Fixed Navigation */
 .bottom-nav {
   position: fixed;
   bottom: 0;

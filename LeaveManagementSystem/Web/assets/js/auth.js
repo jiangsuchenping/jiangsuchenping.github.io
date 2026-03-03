@@ -9,6 +9,9 @@ const Auth = {
     },
 
     async login(username, password) {
+        // 登录时从模拟数据文件重新加载最新数据到本地存储
+        await API.reloadFromMockData();
+        
         const users = API.getUsers();
         const user = users.find(u => u.username === username && u.password === password);
         if (user) {

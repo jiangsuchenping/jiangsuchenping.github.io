@@ -34,5 +34,18 @@
         "joinDate": "2021-03-10",
         "status": "Active",
         "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=wangwu"
+    },
+    {
+        "id": "u4",
+        "employeeId": "EMP004",
+        "username": "zhaoliu",
+        "password": "123",
+        "name": "赵六",
+        "role": "staff",
+        "managerId": "u2",
+        "joinDate": "2022-01-10",
+        "leaveDate": "2026-02-28",
+        "status": "Inactive",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=zhaoliu"
     }
 ]

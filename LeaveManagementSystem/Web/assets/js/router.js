@@ -1,8 +1,37 @@
 const Router = {
     routes: {},
 
+    // 页面标题映射配置
+    pageTitles: {
+        '#/': '首页',
+        '#/leave/apply': '申请请假',
+        '#/leave/list': '我的记录',
+        '#/audit': '审批中心',
+        '#/admin': '系统管理',
+        '#/admin/users': '员工管理',
+        '#/admin/leave-types': '假期配置',
+        '#/admin/entitlements': '额度调整',
+        '#/login': '登录'
+    },
+
     on(path, handler) {
         this.routes[path] = handler;
+    },
+
+    /**
+     * 更新页面顶部标题
+     * @param {string} hash - 当前路由hash
+     */
+    updatePageTitle(hash) {
+        const pageTitle = this.pageTitles[hash] || '';
+        const appTitle = document.querySelector('.app-title');
+        if (appTitle) {
+            if (pageTitle && hash !== '#/login') {
+                appTitle.textContent = `请假管理系统 - ${pageTitle}`;
+            } else {
+                appTitle.textContent = '请假管理系统';
+            }
+        }
     },
 
     async navigate() {
@@ -28,6 +57,9 @@ const Router = {
             window.location.hash = '#/login';
             return;
         }
+
+        // 更新页面标题
+        this.updatePageTitle(hash);
 
         if (handler) {
             document.querySelector('.main-content').innerHTML = '<div class="loader">加载中...</div>';
