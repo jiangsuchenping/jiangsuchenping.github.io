@@ -14,8 +14,27 @@ const Router = {
         '#/login': '登录'
     },
 
+    containerSelector: '.main-content',
+    navSelector: '.nav-item',
+
     on(path, handler) {
         this.routes[path] = handler;
+    },
+
+    /**
+     * 更新页面容器选择器
+     * @param {string} selector 
+     */
+    setContainer(selector) {
+        this.containerSelector = selector;
+    },
+
+    /**
+     * 更新导航选择器
+     * @param {string} selector 
+     */
+    setNavSelector(selector) {
+        this.navSelector = selector;
     },
 
     /**
@@ -61,11 +80,12 @@ const Router = {
         // 更新页面标题
         this.updatePageTitle(hash);
 
-        if (handler) {
-            document.querySelector('.main-content').innerHTML = '<div class="loader">加载中...</div>';
+        const container = document.querySelector(this.containerSelector);
+        if (handler && container) {
+            container.innerHTML = '<div class="loader">加载中...</div>';
             try {
                 const content = await handler();
-                document.querySelector('.main-content').innerHTML = content;
+                container.innerHTML = content;
                 // Re-init icons if using lucide
                 if (window.lucide) window.lucide.createIcons();
             } catch (e) {
@@ -81,7 +101,7 @@ const Router = {
 
     updateActiveNav() {
         const hash = window.location.hash || '#/';
-        document.querySelectorAll('.nav-item').forEach(nav => {
+        document.querySelectorAll(this.navSelector).forEach(nav => {
             nav.classList.toggle('active', nav.getAttribute('href') === hash);
         });
 

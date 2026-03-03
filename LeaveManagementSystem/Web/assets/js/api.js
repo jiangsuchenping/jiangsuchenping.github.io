@@ -9,7 +9,10 @@ const API = {
     leaves: []
   },
 
-  async init() {
+  dataPath: 'data/',
+
+  async init(dataPath) {
+    if (dataPath) this.dataPath = dataPath;
     // Try to load from localStorage first
     const localData = localStorage.getItem('leave_system_db');
     if (localData) {
@@ -27,10 +30,10 @@ const API = {
   async reloadFromMockData() {
     try {
       const [users, leaveTypes, entitlements, leaves] = await Promise.all([
-        fetch('data/users.json').then(r => r.json()),
-        fetch('data/leaveTypes.json').then(r => r.json()),
-        fetch('data/entitlements.json').then(r => r.json()),
-        fetch('data/leaves.json').then(r => r.json())
+        fetch(`${this.dataPath}users.json`).then(r => r.json()),
+        fetch(`${this.dataPath}leaveTypes.json`).then(r => r.json()),
+        fetch(`${this.dataPath}entitlements.json`).then(r => r.json()),
+        fetch(`${this.dataPath}leaves.json`).then(r => r.json())
       ]);
       this.db = { users, leaveTypes, entitlements, leaves };
       this.save();

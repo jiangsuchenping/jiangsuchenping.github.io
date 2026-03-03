@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>请假管理系统 - 管理后台</title>
+    <!-- Use local css -->
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+
+<body>
+    <div id="admin-app" class="admin-container">
+        <!-- Login View Container -->
+        <div id="login-container" class="login-wrapper" style="display: none;">
+            <!-- Login will be injected here -->
+        </div>
+
+        <!-- Main Layout Container -->
+        <div id="main-layout" class="main-layout" style="display: none;">
+            <!-- Top Header -->
+            <header class="top-header">
+                <div class="logo">
+                    <i data-lucide="calendar-check"></i>
+                    <span class="app-title">请假管理系统 <small>Portal</small></span>
+                </div>
+                <div class="user-info" id="top-user-info">
+                    <!-- User info injected here -->
+                </div>
+            </header>
+
+            <div class="body-wrapper">
+                <!-- Sidebar Navigation -->
+                <aside class="sidebar">
+                    <nav class="side-nav">
+                        <a href="#/" class="nav-item">
+                            <i data-lucide="layout-dashboard"></i>
+                            <span>仪表盘</span>
+                        </a>
+                        <a href="#/leave/apply" class="nav-item">
+                            <i data-lucide="plus-square"></i>
+                            <span>请假申请</span>
+                        </a>
+                        <a href="#/leave/list" class="nav-item">
+                            <i data-lucide="clipboard-list"></i>
+                            <span>我的记录</span>
+                        </a>
+                        <div class="nav-divider is-manager"></div>
+                        <a href="#/audit" class="nav-item is-manager" id="nav-audit">
+                            <i data-lucide="check-circle"></i>
+                            <span>审批中心</span>
+                        </a>
+                        <div class="nav-divider is-hr"></div>
+                        <a href="#/admin/users" class="nav-item is-hr">
+                            <i data-lucide="users"></i>
+                            <span>员工管理</span>
+                        </a>
+                        <a href="#/admin/leave-types" class="nav-item is-hr">
+                            <i data-lucide="settings-2"></i>
+                            <span>假期配置</span>
+                        </a>
+                        <a href="#/admin/entitlements" class="nav-item is-hr">
+                            <i data-lucide="bar-chart-3"></i>
+                            <span>额度调整</span>
+                        </a>
+                    </nav>
+                    <div class="sidebar-footer">
+                        <a href="javascript:Auth.logout()" class="logout-btn">
+                            <i data-lucide="log-out"></i>
+                            <span>安全退出</span>
+                        </a>
+                    </div>
+                </aside>
+
+                <!-- Main Content Area -->
+                <main class="content-area">
+                    <div id="page-content" class="fade-in"></div>
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <!-- Global Toast Container -->
+    <div id="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Reuse JS from Web -->
+    <script src="../Web/assets/js/api.js"></script>
+    <script src="../Web/assets/js/auth.js"></script>
+    <script src="../Web/assets/js/router.js"></script>
+    <!-- Admin specific JS -->
+    <script src="assets/js/app.js"></script>
+</body>
+
+</html>

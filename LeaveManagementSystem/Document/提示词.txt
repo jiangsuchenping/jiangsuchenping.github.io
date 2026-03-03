@@ -64,3 +64,13 @@ form.onsubmit	@	app.js:324
 
 【traecn】
 根据现有所有代码逻辑创建一份完整的自述文档，详细介绍该演示站点的技术特点、方案、功能、测试数据、访问地址，其他更多的你认为必要的自述内容
+
+
+【反重力】
+参考C:\Git\jiangsuchenping\jiangsuchenping.github.io\LeaveManagementSystem\Document\需求细化.md 需求文档 和 C:\Git\jiangsuchenping\jiangsuchenping.github.io\LeaveManagementSystem\Web 所有的代码逻辑 再完整实现适合PC端浏览器访问的管理后台，管理后台的完整路径为 C:\Git\jiangsuchenping\jiangsuchenping.github.io\LeaveManagementSystem\Admin，登录后的后台布局为上方顶部左边是项目名，下方左侧为菜单，右侧为工作区域，菜单同样需要根据权限确定是否显示，所有功能完全复制，技术实现方式由你来最终确定。如果能遵循软件设计的几个主流原则，则更佳。
+
+【反重力】
+顶部（header）没有平铺整个PC界面，与本该在下方的左右布局错乱，现在看到的左侧菜单被顶部撑到了屏幕中间
+
+【Traecn】
+顶部右边的登录用户、职位、图标 排成一行
