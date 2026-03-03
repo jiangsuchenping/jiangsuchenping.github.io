@@ -344,7 +344,35 @@ const Views = {
             leaves = leaves.filter(l => API.getUser(l.userId).managerId === user.id);
         }
 
-        const rows = leaves.map(l => {
+        // 存储当前排序状态
+        if (!this.auditSort) {
+            this.auditSort = { field: 'createTime', direction: 'desc' };
+        }
+
+        // 排序函数
+        const sortedLeaves = [...leaves].sort((a, b) => {
+            const field = this.auditSort.field;
+            const dir = this.auditSort.direction === 'asc' ? 1 : -1;
+
+            if (field === 'applicant') {
+                const userA = API.getUser(a.userId)?.name || '';
+                const userB = API.getUser(b.userId)?.name || '';
+                return dir * userA.localeCompare(userB, 'zh-CN');
+            } else if (field === 'type') {
+                const typeA = API.getLeaveTypes().find(t => t.id === a.leaveTypeId)?.name || '';
+                const typeB = API.getLeaveTypes().find(t => t.id === b.leaveTypeId)?.name || '';
+                return dir * typeA.localeCompare(typeB, 'zh-CN');
+            } else if (field === 'dateRange') {
+                return dir * (a.startDate + a.endDate).localeCompare(b.startDate + b.endDate);
+            } else if (field === 'duration') {
+                return dir * (a.duration - b.duration);
+            } else if (field === 'createTime') {
+                return dir * a.createTime.localeCompare(b.createTime);
+            }
+            return 0;
+        });
+
+        const rows = sortedLeaves.map(l => {
             const applicant = API.getUser(l.userId);
             const type = API.getLeaveTypes().find(t => t.id === l.leaveTypeId);
             return `
@@ -368,18 +396,30 @@ const Views = {
             `;
         }).join('');
 
+        // 生成带排序图标的表头
+        const getSortIcon = (field) => {
+            if (this.auditSort.field !== field) return '↕';
+            return this.auditSort.direction === 'asc' ? '↑' : '↓';
+        };
+
+        const createSortableHeader = (text, field) => {
+            return `<th style="cursor: pointer; user-select: none;" onclick="App.sortAuditList('${field}')">
+                ${text} ${getSortIcon(field)}
+            </th>`;
+        };
+
         return `
             <div class="card">
                 <h2 style="margin-bottom: 2rem; font-size: 1.25rem;">审批中心 - 待处理</h2>
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th>申请人</th>
-                            <th>假种</th>
-                            <th>请假时间</th>
-                            <th>天数</th>
+                            ${createSortableHeader('申请人', 'applicant')}
+                            ${createSortableHeader('假种', 'type')}
+                            ${createSortableHeader('请假时间', 'dateRange')}
+                            ${createSortableHeader('天数', 'duration')}
                             <th>申请理由</th>
-                            <th>提交时间</th>
+                            ${createSortableHeader('提交时间', 'createTime')}
                             <th>操作</th>
                         </tr>
                     </thead>
@@ -393,7 +433,34 @@ const Views = {
 
     adminUsers() {
         const users = API.getUsers();
-        const rows = users.map(u => `
+
+        // 存储当前排序状态
+        if (!this.usersSort) {
+            this.usersSort = { field: 'name', direction: 'asc' };
+        }
+
+        // 排序函数
+        const sortedUsers = [...users].sort((a, b) => {
+            const field = this.usersSort.field;
+            const dir = this.usersSort.direction === 'asc' ? 1 : -1;
+
+            if (field === 'name') {
+                return dir * a.name.localeCompare(b.name, 'zh-CN');
+            } else if (field === 'employeeId') {
+                return dir * a.employeeId.localeCompare(b.employeeId);
+            } else if (field === 'username') {
+                return dir * a.username.localeCompare(b.username);
+            } else if (field === 'role') {
+                return dir * a.role.localeCompare(b.role);
+            } else if (field === 'status') {
+                return dir * a.status.localeCompare(b.status);
+            } else if (field === 'joinDate') {
+                return dir * (a.joinDate || '').localeCompare(b.joinDate || '');
+            }
+            return 0;
+        });
+
+        const rows = sortedUsers.map(u => `
             <tr>
                 <td><img src="${u.avatar}" style="width: 32px; height: 32px; border-radius: 50%; vertical-align: middle; margin-right: 0.5rem;"> <strong>${u.name}</strong></td>
                 <td>${u.employeeId}</td>
@@ -407,6 +474,18 @@ const Views = {
             </tr>
         `).join('');
 
+        // 生成带排序图标的表头
+        const getSortIcon = (field) => {
+            if (this.usersSort.field !== field) return '↕';
+            return this.usersSort.direction === 'asc' ? '↑' : '↓';
+        };
+
+        const createSortableHeader = (text, field) => {
+            return `<th style="cursor: pointer; user-select: none;" onclick="App.sortUsersList('${field}')">
+                ${text} ${getSortIcon(field)}
+            </th>`;
+        };
+
         return `
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
@@ -419,12 +498,12 @@ const Views = {
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th>姓名</th>
-                            <th>工号</th>
-                            <th>用户名</th>
-                            <th>角色</th>
-                            <th>状态</th>
-                            <th>入职日期</th>
+                            ${createSortableHeader('姓名', 'name')}
+                            ${createSortableHeader('工号', 'employeeId')}
+                            ${createSortableHeader('用户名', 'username')}
+                            ${createSortableHeader('角色', 'role')}
+                            ${createSortableHeader('状态', 'status')}
+                            ${createSortableHeader('入职日期', 'joinDate')}
                             <th>操作</th>
                         </tr>
                     </thead>
@@ -438,7 +517,30 @@ const Views = {
 
     adminLeaveTypes() {
         const types = API.getLeaveTypes();
-        const rows = types.map(t => `
+
+        // 存储当前排序状态
+        if (!this.typesSort) {
+            this.typesSort = { field: 'name', direction: 'asc' };
+        }
+
+        // 排序函数
+        const sortedTypes = [...types].sort((a, b) => {
+            const field = this.typesSort.field;
+            const dir = this.typesSort.direction === 'asc' ? 1 : -1;
+
+            if (field === 'name') {
+                return dir * a.name.localeCompare(b.name, 'zh-CN');
+            } else if (field === 'hasAnnualLimit') {
+                return dir * (a.hasAnnualLimit === b.hasAnnualLimit ? 0 : (a.hasAnnualLimit ? 1 : -1));
+            } else if (field === 'requiresAttachment') {
+                return dir * (a.requiresAttachment === b.requiresAttachment ? 0 : (a.requiresAttachment ? 1 : -1));
+            } else if (field === 'id') {
+                return dir * a.id.localeCompare(b.id);
+            }
+            return 0;
+        });
+
+        const rows = sortedTypes.map(t => `
             <tr>
                 <td><div style="width: 12px; height: 12px; border-radius: 50%; background: ${t.color}; display: inline-block; margin-right: 0.5rem;"></div> <strong>${t.name}</strong></td>
                 <td>${t.hasAnnualLimit ? '有' : '无'}</td>
@@ -450,6 +552,18 @@ const Views = {
             </tr>
         `).join('');
 
+        // 生成带排序图标的表头
+        const getSortIcon = (field) => {
+            if (this.typesSort.field !== field) return '↕';
+            return this.typesSort.direction === 'asc' ? '↑' : '↓';
+        };
+
+        const createSortableHeader = (text, field) => {
+            return `<th style="cursor: pointer; user-select: none;" onclick="App.sortTypesList('${field}')">
+                ${text} ${getSortIcon(field)}
+            </th>`;
+        };
+
         return `
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
@@ -459,10 +573,10 @@ const Views = {
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th>类型名称</th>
-                            <th>上限控制</th>
-                            <th>强制附件</th>
-                            <th>内部代码</th>
+                            ${createSortableHeader('类型名称', 'name')}
+                            ${createSortableHeader('上限控制', 'hasAnnualLimit')}
+                            ${createSortableHeader('强制附件', 'requiresAttachment')}
+                            ${createSortableHeader('内部代码', 'id')}
                             <th>操作</th>
                         </tr>
                     </thead>
@@ -479,7 +593,35 @@ const Views = {
         const users = API.getUsers();
         const types = API.getLeaveTypes();
 
-        const rows = ents.map(e => {
+        // 存储当前排序状态
+        if (!this.entsSort) {
+            this.entsSort = { field: 'user', direction: 'asc' };
+        }
+
+        // 排序函数
+        const sortedEnts = [...ents].sort((a, b) => {
+            const field = this.entsSort.field;
+            const dir = this.entsSort.direction === 'asc' ? 1 : -1;
+
+            if (field === 'user') {
+                const userA = users.find(u => u.id === a.userId)?.name || '';
+                const userB = users.find(u => u.id === b.userId)?.name || '';
+                return dir * userA.localeCompare(userB, 'zh-CN');
+            } else if (field === 'type') {
+                const typeA = types.find(t => t.id === a.leaveTypeId)?.name || '';
+                const typeB = types.find(t => t.id === b.leaveTypeId)?.name || '';
+                return dir * typeA.localeCompare(typeB, 'zh-CN');
+            } else if (field === 'validity') {
+                return dir * (a.startDate + a.endDate).localeCompare(b.startDate + b.endDate);
+            } else if (field === 'totalDays') {
+                return dir * (a.totalDays - b.totalDays);
+            } else if (field === 'usedDays') {
+                return dir * (a.usedDays - b.usedDays);
+            }
+            return 0;
+        });
+
+        const rows = sortedEnts.map(e => {
             const user = users.find(u => u.id === e.userId);
             const type = types.find(t => t.id === e.leaveTypeId);
             return `
@@ -496,6 +638,18 @@ const Views = {
             `;
         }).join('');
 
+        // 生成带排序图标的表头
+        const getSortIcon = (field) => {
+            if (this.entsSort.field !== field) return '↕';
+            return this.entsSort.direction === 'asc' ? '↑' : '↓';
+        };
+
+        const createSortableHeader = (text, field) => {
+            return `<th style="cursor: pointer; user-select: none;" onclick="App.sortEntsList('${field}')">
+                ${text} ${getSortIcon(field)}
+            </th>`;
+        };
+
         return `
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
@@ -508,11 +662,11 @@ const Views = {
                 <table class="data-table">
                     <thead>
                         <tr>
-                            <th>员工</th>
-                            <th>假期类型</th>
-                            <th>有效期</th>
-                            <th>额度总量</th>
-                            <th>已用天数</th>
+                            ${createSortableHeader('员工', 'user')}
+                            ${createSortableHeader('假期类型', 'type')}
+                            ${createSortableHeader('有效期', 'validity')}
+                            ${createSortableHeader('额度总量', 'totalDays')}
+                            ${createSortableHeader('已用天数', 'usedDays')}
                             <th>操作</th>
                         </tr>
                     </thead>
@@ -680,6 +834,66 @@ const App = {
         } else {
             Views.leaveListSort.field = field;
             Views.leaveListSort.direction = 'desc';
+        }
+
+        Router.navigate();
+    },
+
+    sortAuditList(field) {
+        if (!Views.auditSort) {
+            Views.auditSort = { field: 'createTime', direction: 'desc' };
+        }
+
+        if (Views.auditSort.field === field) {
+            Views.auditSort.direction = Views.auditSort.direction === 'asc' ? 'desc' : 'asc';
+        } else {
+            Views.auditSort.field = field;
+            Views.auditSort.direction = 'desc';
+        }
+
+        Router.navigate();
+    },
+
+    sortUsersList(field) {
+        if (!Views.usersSort) {
+            Views.usersSort = { field: 'name', direction: 'asc' };
+        }
+
+        if (Views.usersSort.field === field) {
+            Views.usersSort.direction = Views.usersSort.direction === 'asc' ? 'desc' : 'asc';
+        } else {
+            Views.usersSort.field = field;
+            Views.usersSort.direction = 'asc';
+        }
+
+        Router.navigate();
+    },
+
+    sortTypesList(field) {
+        if (!Views.typesSort) {
+            Views.typesSort = { field: 'name', direction: 'asc' };
+        }
+
+        if (Views.typesSort.field === field) {
+            Views.typesSort.direction = Views.typesSort.direction === 'asc' ? 'desc' : 'asc';
+        } else {
+            Views.typesSort.field = field;
+            Views.typesSort.direction = 'asc';
+        }
+
+        Router.navigate();
+    },
+
+    sortEntsList(field) {
+        if (!Views.entsSort) {
+            Views.entsSort = { field: 'user', direction: 'asc' };
+        }
+
+        if (Views.entsSort.field === field) {
+            Views.entsSort.direction = Views.entsSort.direction === 'asc' ? 'desc' : 'asc';
+        } else {
+            Views.entsSort.field = field;
+            Views.entsSort.direction = 'asc';
         }
 
         Router.navigate();
