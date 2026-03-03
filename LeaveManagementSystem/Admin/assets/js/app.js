@@ -246,7 +246,37 @@ const Views = {
         const leaves = Auth.hasRole('hr') ? API.getLeaves() : API.getMyLeaves(user.id);
         const types = API.getLeaveTypes();
 
-        const rows = leaves.map(l => {
+        // 存储当前排序状态
+        if (!this.leaveListSort) {
+            this.leaveListSort = { field: 'createTime', direction: 'desc' };
+        }
+
+        // 排序函数
+        const sortedLeaves = [...leaves].sort((a, b) => {
+            const field = this.leaveListSort.field;
+            const dir = this.leaveListSort.direction === 'asc' ? 1 : -1;
+
+            if (field === 'type') {
+                const typeA = types.find(t => t.id === a.leaveTypeId)?.name || '';
+                const typeB = types.find(t => t.id === b.leaveTypeId)?.name || '';
+                return dir * typeA.localeCompare(typeB, 'zh-CN');
+            } else if (field === 'applicant') {
+                const userA = API.getUser(a.userId)?.name || '';
+                const userB = API.getUser(b.userId)?.name || '';
+                return dir * userA.localeCompare(userB, 'zh-CN');
+            } else if (field === 'duration') {
+                return dir * (a.duration - b.duration);
+            } else if (field === 'status') {
+                return dir * a.status.localeCompare(b.status);
+            } else if (field === 'dateRange') {
+                return dir * (a.startDate + a.endDate).localeCompare(b.startDate + b.endDate);
+            } else if (field === 'createTime') {
+                return dir * a.createTime.localeCompare(b.createTime);
+            }
+            return 0;
+        });
+
+        const rows = sortedLeaves.map(l => {
             const type = types.find(t => t.id === l.leaveTypeId);
             const applicant = API.getUser(l.userId);
             return `
@@ -259,12 +289,24 @@ const Views = {
                     <td>${l.createTime}</td>
                     <td>
                         ${l.status === 'Pending' ? `
-                            <button class="btn btn-edit-leave" data-id="${l.id}" style="padding: 2px 10px; font-size: 0.75rem; background: #f1f5f9; border: 1px solid var(--border);">编辑</button>
+                            <button class="btn btn-edit-leave" data-id="${l.id}" style="padding: 2px 10px; font-size: 0.75rem; background: #f1f5f9; border: 1px solid var(--border); cursor: pointer;">编辑</button>
                         ` : ''}
                     </td>
                 </tr>
             `;
         }).join('');
+
+        // 生成带排序图标的表头
+        const getSortIcon = (field) => {
+            if (this.leaveListSort.field !== field) return '↕';
+            return this.leaveListSort.direction === 'asc' ? '↑' : '↓';
+        };
+
+        const createSortableHeader = (text, field) => {
+            return `<th style="cursor: pointer; user-select: none;" onclick="App.sortLeaveList('${field}')">
+                ${text} ${getSortIcon(field)}
+            </th>`;
+        };
 
         return `
             <div class="card">
@@ -278,12 +320,12 @@ const Views = {
                 <table class="data-table">
                     <thead>
                         <tr>
-                            ${Auth.hasRole('hr') ? '<th>申请人</th>' : ''}
-                            <th>假种</th>
-                            <th>时间范围</th>
-                            <th>天数</th>
-                            <th>审批状态</th>
-                            <th>申请时间</th>
+                            ${Auth.hasRole('hr') ? createSortableHeader('申请人', 'applicant') : ''}
+                            ${createSortableHeader('假种', 'type')}
+                            ${createSortableHeader('时间范围', 'dateRange')}
+                            ${createSortableHeader('天数', 'duration')}
+                            ${createSortableHeader('审批状态', 'status')}
+                            ${createSortableHeader('申请时间', 'createTime')}
                             <th>操作</th>
                         </tr>
                     </thead>
@@ -496,7 +538,7 @@ const App = {
         this.updateGlobalUI();
 
         Router.init();
-        
+
         // 绑定侧边栏切换事件
         this.bindSidebarToggle();
     },
@@ -526,7 +568,9 @@ const App = {
 
         Router.on('#/leave/list', () => {
             this.requireAuth();
-            return Views.leaveList();
+            const html = Views.leaveList();
+            setTimeout(() => this.bindLeaveListEvents(), 0);
+            return html;
         });
 
         Router.on('#/audit', () => {
@@ -618,12 +662,175 @@ const App = {
             sidebar.classList.toggle('collapsed');
             const isCollapsed = sidebar.classList.contains('collapsed');
             localStorage.setItem('sidebar-collapsed', isCollapsed);
-            
+
             // 重新渲染图标
             if (window.lucide) {
                 window.lucide.createIcons();
             }
         });
+    },
+
+    sortLeaveList(field) {
+        if (!Views.leaveListSort) {
+            Views.leaveListSort = { field: 'createTime', direction: 'desc' };
+        }
+
+        if (Views.leaveListSort.field === field) {
+            Views.leaveListSort.direction = Views.leaveListSort.direction === 'asc' ? 'desc' : 'asc';
+        } else {
+            Views.leaveListSort.field = field;
+            Views.leaveListSort.direction = 'desc';
+        }
+
+        Router.navigate();
+    },
+
+    bindLeaveListEvents() {
+        // 绑定编辑按钮事件
+        document.querySelectorAll('.btn-edit-leave').forEach(btn => {
+            btn.onclick = () => {
+                const id = btn.dataset.id;
+                const leave = API.getLeaves().find(l => l.id === id);
+                if (leave) {
+                    this.showLeaveEditModal(leave);
+                }
+            };
+        });
+    },
+
+    showLeaveEditModal(leave) {
+        const user = Auth.currentUser;
+        const leaveTypes = API.getLeaveTypes();
+        const typeOptions = leaveTypes.map(t =>
+            `<option value="${t.id}" ${t.id === leave.leaveTypeId ? 'selected' : ''}>${t.name}</option>`
+        ).join('');
+
+        const formHtml = `
+            <form id="edit-leave-form">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label>申请人</label>
+                        <input type="text" class="form-control" value="${user.name} (${user.employeeId})" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>请假类型</label>
+                        <select id="edit-leaveTypeId" class="form-control" required>
+                            ${typeOptions}
+                        </select>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label>开始日期</label>
+                        <input type="date" id="edit-startDate" class="form-control" value="${leave.startDate}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>结束日期</label>
+                        <input type="date" id="edit-endDate" class="form-control" value="${leave.endDate}" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label id="edit-duration-label">请假天数</label>
+                    <input type="number" id="edit-duration" class="form-control" value="${leave.duration}" step="0.5" required>
+                </div>
+                <div class="form-group">
+                    <label>请假原因</label>
+                    <textarea id="edit-reason" class="form-control" rows="4" required>${leave.reason}</textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn" onclick="this.closest('.modal-overlay').remove()" style="background: #f1f5f9;">取消</button>
+                    <button type="submit" class="btn btn-primary">保存修改</button>
+                </div>
+            </form>
+        `;
+
+        const modal = UI.showModal('编辑请假申请', formHtml, { width: '600px' });
+
+        // 自动计算天数
+        const startInput = document.getElementById('edit-startDate');
+        const endInput = document.getElementById('edit-endDate');
+        const durationInput = document.getElementById('edit-duration');
+
+        const calculateDays = () => {
+            if (startInput.value && endInput.value) {
+                let start = new Date(startInput.value);
+                let end = new Date(endInput.value);
+                let count = 0;
+                let current = new Date(start);
+                while (current <= end) {
+                    const day = current.getDay();
+                    if (day !== 0 && day !== 6) count++;
+                    current.setDate(current.getDate() + 1);
+                }
+                durationInput.value = count;
+            }
+            updateRemainingHint();
+        };
+
+        const updateRemainingHint = () => {
+            const typeId = document.getElementById('edit-leaveTypeId').value;
+            const startDate = startInput.value;
+            const label = document.getElementById('edit-duration-label');
+
+            if (startDate) {
+                const ent = API.getEntitlement(leave.userId, typeId, startDate);
+                if (ent) {
+                    // 扣除当前这条请假记录已占用的天数，计算出真实剩余
+                    const remaining = ent.totalDays - ent.usedDays + leave.duration;
+                    label.innerHTML = `请假天数 <span style="color: var(--primary); font-weight: 400;">(该周期总剩余 ${remaining} 天)</span>`;
+                } else {
+                    label.innerHTML = `请假天数 <span style="color: #ef4444; font-weight: 400;">(未查到额度周期)</span>`;
+                }
+            }
+        };
+
+        startInput.onchange = calculateDays;
+        endInput.onchange = calculateDays;
+        document.getElementById('edit-leaveTypeId').onchange = updateRemainingHint;
+
+        // 初始化显示
+        updateRemainingHint();
+
+        document.getElementById('edit-leave-form').onsubmit = (e) => {
+            e.preventDefault();
+
+            const updatedLeave = {
+                ...leave,
+                leaveTypeId: document.getElementById('edit-leaveTypeId').value,
+                startDate: startInput.value,
+                endDate: endInput.value,
+                duration: parseFloat(durationInput.value),
+                reason: document.getElementById('edit-reason').value
+            };
+
+            // 验证额度
+            const ent = API.getEntitlement(user.id, updatedLeave.leaveTypeId, updatedLeave.startDate);
+            if (!ent) {
+                UI.alert('未找到对应的假期额度，请联系 HR！');
+                return;
+            }
+
+            // 计算已用天数的变化
+            const oldDuration = leave.duration;
+            const newDuration = updatedLeave.duration;
+            const diff = newDuration - oldDuration;
+
+            if (diff > 0 && (ent.totalDays - ent.usedDays + oldDuration) < newDuration) {
+                UI.alert('剩余额度不足，无法增加请假天数！');
+                return;
+            }
+
+            // 更新请假记录
+            API.updateLeave(updatedLeave);
+
+            // 调整额度
+            ent.usedDays += diff;
+            API.updateEntitlement(ent);
+
+            UI.toast('请假信息已更新', 'success');
+            modal.close();
+            Router.navigate();
+        };
     },
 
     bindLoginEvents() {
