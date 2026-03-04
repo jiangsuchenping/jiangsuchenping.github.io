@@ -413,7 +413,23 @@ const Views = {
             return 0;
         });
 
-        const rows = sortedLeaves.map(l => {
+        // 分页状态
+        if (!this.auditPageState) {
+            this.auditPageState = { current: 1, size: 10 };
+        }
+
+        const totalItems = sortedLeaves.length;
+        const totalPages = Math.ceil(totalItems / this.auditPageState.size) || 1;
+
+        if (this.auditPageState.current > totalPages) {
+            this.auditPageState.current = totalPages;
+        }
+
+        const startIndex = (this.auditPageState.current - 1) * this.auditPageState.size;
+        const endIndex = startIndex + this.auditPageState.size;
+        const pagedLeaves = sortedLeaves.slice(startIndex, endIndex);
+
+        const rows = pagedLeaves.map(l => {
             const applicant = API.getUser(l.userId);
             const type = API.getLeaveTypes().find(t => t.id === l.leaveTypeId);
             return `
@@ -468,6 +484,24 @@ const Views = {
                         ${rows || '<tr><td colspan="7" style="text-align: center; color: var(--text-light); padding: 3rem;">暂时没有待办审批任务</td></tr>'}
                     </tbody>
                 </table>
+                ${totalItems > 0 ? `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; color: var(--text-light); border-top: 1px solid var(--border);">
+                    <div>
+                        共 ${totalItems} 条记录，当前第 ${this.auditPageState.current}/${totalPages} 页
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <select class="form-control" style="width: auto; margin: 0; padding: 0.25rem 2rem 0.25rem 0.5rem;" onchange="App.changeAuditPageSize(this.value)">
+                            ${[5, 10, 20, 50].map(size => `<option value="${size}" ${this.auditPageState.size === size ? 'selected' : ''}>${size} / 页</option>`).join('')}
+                        </select>
+                        <div style="display: flex; gap: 0.25rem;">
+                            <button class="btn" style="padding: 0.25rem 0.5rem;" ${this.auditPageState.current <= 1 ? 'disabled' : ''} onclick="App.changeAuditPage(1)">首页</button>
+                            <button class="btn" style="padding: 0.25rem 0.5rem;" ${this.auditPageState.current <= 1 ? 'disabled' : ''} onclick="App.changeAuditPage(${this.auditPageState.current - 1})">上一页</button>
+                            <button class="btn" style="padding: 0.25rem 0.5rem;" ${this.auditPageState.current >= totalPages ? 'disabled' : ''} onclick="App.changeAuditPage(${this.auditPageState.current + 1})">下一页</button>
+                            <button class="btn" style="padding: 0.25rem 0.5rem;" ${this.auditPageState.current >= totalPages ? 'disabled' : ''} onclick="App.changeAuditPage(${totalPages})">末页</button>
+                        </div>
+                    </div>
+                </div>
+                ` : ''}
             </div>
         `;
     },
@@ -501,7 +535,23 @@ const Views = {
             return 0;
         });
 
-        const rows = sortedUsers.map(u => `
+        // 分页状态
+        if (!this.usersPageState) {
+            this.usersPageState = { current: 1, size: 10 };
+        }
+
+        const totalItems = sortedUsers.length;
+        const totalPages = Math.ceil(totalItems / this.usersPageState.size) || 1;
+
+        if (this.usersPageState.current > totalPages) {
+            this.usersPageState.current = totalPages;
+        }
+
+        const startIndex = (this.usersPageState.current - 1) * this.usersPageState.size;
+        const endIndex = startIndex + this.usersPageState.size;
+        const pagedUsers = sortedUsers.slice(startIndex, endIndex);
+
+        const rows = pagedUsers.map(u => `
             <tr>
                 <td><img src="${u.avatar}" style="width: 32px; height: 32px; border-radius: 50%; vertical-align: middle; margin-right: 0.5rem;"> <strong>${u.name}</strong></td>
                 <td>${u.employeeId}</td>
@@ -552,6 +602,24 @@ const Views = {
                         ${rows}
                     </tbody>
                 </table>
+                ${totalItems > 0 ? `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; color: var(--text-light); border-top: 1px solid var(--border);">
+                    <div>
+                        共 ${totalItems} 条记录，当前第 ${this.usersPageState.current}/${totalPages} 页
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <select class="form-control" style="width: auto; margin: 0; padding: 0.25rem 2rem 0.25rem 0.5rem;" onchange="App.changeUsersPageSize(this.value)">
+                            ${[5, 10, 20, 50].map(size => `<option value="${size}" ${this.usersPageState.size === size ? 'selected' : ''}>${size} / 页</option>`).join('')}
+                        </select>
+                        <div style="display: flex; gap: 0.25rem;">
+                            <button class="btn" style="padding: 0.25rem 0.5rem;" ${this.usersPageState.current <= 1 ? 'disabled' : ''} onclick="App.changeUsersPage(1)">首页</button>
+                            <button class="btn" style="padding: 0.25rem 0.5rem;" ${this.usersPageState.current <= 1 ? 'disabled' : ''} onclick="App.changeUsersPage(${this.usersPageState.current - 1})">上一页</button>
+                            <button class="btn" style="padding: 0.25rem 0.5rem;" ${this.usersPageState.current >= totalPages ? 'disabled' : ''} onclick="App.changeUsersPage(${this.usersPageState.current + 1})">下一页</button>
+                            <button class="btn" style="padding: 0.25rem 0.5rem;" ${this.usersPageState.current >= totalPages ? 'disabled' : ''} onclick="App.changeUsersPage(${totalPages})">末页</button>
+                        </div>
+                    </div>
+                </div>
+                ` : ''}
             </div>
         `;
     },
@@ -581,7 +649,23 @@ const Views = {
             return 0;
         });
 
-        const rows = sortedTypes.map(t => `
+        // 分页状态
+        if (!this.typesPageState) {
+            this.typesPageState = { current: 1, size: 10 };
+        }
+
+        const totalItems = sortedTypes.length;
+        const totalPages = Math.ceil(totalItems / this.typesPageState.size) || 1;
+
+        if (this.typesPageState.current > totalPages) {
+            this.typesPageState.current = totalPages;
+        }
+
+        const startIndex = (this.typesPageState.current - 1) * this.typesPageState.size;
+        const endIndex = startIndex + this.typesPageState.size;
+        const pagedTypes = sortedTypes.slice(startIndex, endIndex);
+
+        const rows = pagedTypes.map(t => `
             <tr>
                 <td><div style="width: 12px; height: 12px; border-radius: 50%; background: ${t.color}; display: inline-block; margin-right: 0.5rem;"></div> <strong>${t.name}</strong></td>
                 <td>${t.hasAnnualLimit ? '有' : '无'}</td>
@@ -625,6 +709,24 @@ const Views = {
                         ${rows}
                     </tbody>
                 </table>
+                ${totalItems > 0 ? `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; color: var(--text-light); border-top: 1px solid var(--border);">
+                    <div>
+                        共 ${totalItems} 条记录，当前第 ${this.typesPageState.current}/${totalPages} 页
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <select class="form-control" style="width: auto; margin: 0; padding: 0.25rem 2rem 0.25rem 0.5rem;" onchange="App.changeTypesPageSize(this.value)">
+                            ${[5, 10, 20, 50].map(size => `<option value="${size}" ${this.typesPageState.size === size ? 'selected' : ''}>${size} / 页</option>`).join('')}
+                        </select>
+                        <div style="display: flex; gap: 0.25rem;">
+                            <button class="btn" style="padding: 0.25rem 0.5rem;" ${this.typesPageState.current <= 1 ? 'disabled' : ''} onclick="App.changeTypesPage(1)">首页</button>
+                            <button class="btn" style="padding: 0.25rem 0.5rem;" ${this.typesPageState.current <= 1 ? 'disabled' : ''} onclick="App.changeTypesPage(${this.typesPageState.current - 1})">上一页</button>
+                            <button class="btn" style="padding: 0.25rem 0.5rem;" ${this.typesPageState.current >= totalPages ? 'disabled' : ''} onclick="App.changeTypesPage(${this.typesPageState.current + 1})">下一页</button>
+                            <button class="btn" style="padding: 0.25rem 0.5rem;" ${this.typesPageState.current >= totalPages ? 'disabled' : ''} onclick="App.changeTypesPage(${totalPages})">末页</button>
+                        </div>
+                    </div>
+                </div>
+                ` : ''}
             </div>
         `;
     },
@@ -662,7 +764,23 @@ const Views = {
             return 0;
         });
 
-        const rows = sortedEnts.map(e => {
+        // 分页状态
+        if (!this.entsPageState) {
+            this.entsPageState = { current: 1, size: 10 };
+        }
+
+        const totalItems = sortedEnts.length;
+        const totalPages = Math.ceil(totalItems / this.entsPageState.size) || 1;
+
+        if (this.entsPageState.current > totalPages) {
+            this.entsPageState.current = totalPages;
+        }
+
+        const startIndex = (this.entsPageState.current - 1) * this.entsPageState.size;
+        const endIndex = startIndex + this.entsPageState.size;
+        const pagedEnts = sortedEnts.slice(startIndex, endIndex);
+
+        const rows = pagedEnts.map(e => {
             const user = users.find(u => u.id === e.userId);
             const type = types.find(t => t.id === e.leaveTypeId);
             return `
@@ -715,6 +833,24 @@ const Views = {
                         ${rows}
                     </tbody>
                 </table>
+                ${totalItems > 0 ? `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; color: var(--text-light); border-top: 1px solid var(--border);">
+                    <div>
+                        共 ${totalItems} 条记录，当前第 ${this.entsPageState.current}/${totalPages} 页
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <select class="form-control" style="width: auto; margin: 0; padding: 0.25rem 2rem 0.25rem 0.5rem;" onchange="App.changeEntsPageSize(this.value)">
+                            ${[5, 10, 20, 50].map(size => `<option value="${size}" ${this.entsPageState.size === size ? 'selected' : ''}>${size} / 页</option>`).join('')}
+                        </select>
+                        <div style="display: flex; gap: 0.25rem;">
+                            <button class="btn" style="padding: 0.25rem 0.5rem;" ${this.entsPageState.current <= 1 ? 'disabled' : ''} onclick="App.changeEntsPage(1)">首页</button>
+                            <button class="btn" style="padding: 0.25rem 0.5rem;" ${this.entsPageState.current <= 1 ? 'disabled' : ''} onclick="App.changeEntsPage(${this.entsPageState.current - 1})">上一页</button>
+                            <button class="btn" style="padding: 0.25rem 0.5rem;" ${this.entsPageState.current >= totalPages ? 'disabled' : ''} onclick="App.changeEntsPage(${this.entsPageState.current + 1})">下一页</button>
+                            <button class="btn" style="padding: 0.25rem 0.5rem;" ${this.entsPageState.current >= totalPages ? 'disabled' : ''} onclick="App.changeEntsPage(${totalPages})">末页</button>
+                        </div>
+                    </div>
+                </div>
+                ` : ''}
             </div>
         `;
     }
@@ -852,6 +988,58 @@ const App = {
         if (!Views.leaveListPageState) return;
         Views.leaveListPageState.size = parseInt(size);
         Views.leaveListPageState.current = 1;
+        Router.navigate();
+    },
+
+    changeAuditPage(page) {
+        if (!Views.auditPageState) return;
+        Views.auditPageState.current = page;
+        Router.navigate();
+    },
+
+    changeAuditPageSize(size) {
+        if (!Views.auditPageState) return;
+        Views.auditPageState.size = parseInt(size);
+        Views.auditPageState.current = 1;
+        Router.navigate();
+    },
+
+    changeUsersPage(page) {
+        if (!Views.usersPageState) return;
+        Views.usersPageState.current = page;
+        Router.navigate();
+    },
+
+    changeUsersPageSize(size) {
+        if (!Views.usersPageState) return;
+        Views.usersPageState.size = parseInt(size);
+        Views.usersPageState.current = 1;
+        Router.navigate();
+    },
+
+    changeTypesPage(page) {
+        if (!Views.typesPageState) return;
+        Views.typesPageState.current = page;
+        Router.navigate();
+    },
+
+    changeTypesPageSize(size) {
+        if (!Views.typesPageState) return;
+        Views.typesPageState.size = parseInt(size);
+        Views.typesPageState.current = 1;
+        Router.navigate();
+    },
+
+    changeEntsPage(page) {
+        if (!Views.entsPageState) return;
+        Views.entsPageState.current = page;
+        Router.navigate();
+    },
+
+    changeEntsPageSize(size) {
+        if (!Views.entsPageState) return;
+        Views.entsPageState.size = parseInt(size);
+        Views.entsPageState.current = 1;
         Router.navigate();
     },
 
