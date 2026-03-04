@@ -339,8 +339,10 @@ const Views = {
                         ${pageSizeOptions}
                     </select>
                     <div style="display: flex; gap: 0.25rem;">
+                        <button class="btn" style="padding: 0.25rem 0.5rem;" ${this.leaveListPageState.current <= 1 ? 'disabled' : ''} onclick="App.changeLeaveListPage(1)">首页</button>
                         <button class="btn" style="padding: 0.25rem 0.5rem;" ${this.leaveListPageState.current <= 1 ? 'disabled' : ''} onclick="App.changeLeaveListPage(${this.leaveListPageState.current - 1})">上一页</button>
                         <button class="btn" style="padding: 0.25rem 0.5rem;" ${this.leaveListPageState.current >= totalPages ? 'disabled' : ''} onclick="App.changeLeaveListPage(${this.leaveListPageState.current + 1})">下一页</button>
+                        <button class="btn" style="padding: 0.25rem 0.5rem;" ${this.leaveListPageState.current >= totalPages ? 'disabled' : ''} onclick="App.changeLeaveListPage(${totalPages})">末页</button>
                     </div>
                 </div>
             </div>
