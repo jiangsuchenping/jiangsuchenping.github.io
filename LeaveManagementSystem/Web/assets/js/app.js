@@ -458,9 +458,9 @@ const Views = {
 
         return `
             <div class="fade-in">
-                <div style="margin-bottom: 1rem; display: flex; gap: 10px;">
-                    <input type="text" id="user-search" class="form-control" placeholder="搜索姓名/工号..." style="flex: 1; margin: 0;">
-                    <button id="btn-add-user" class="btn btn-primary" style="width: auto; padding: 0 1rem; margin: 0;">新增员工</button>
+                <div style="margin-bottom: 1rem; display: flex; flex-direction: column; gap: 10px;">
+                    <input type="text" id="user-search" class="form-control" placeholder="搜索姓名/工号..." style="width: 100%; margin: 0;">
+                    <button id="btn-add-user" class="btn btn-primary" style="width: 100%; margin: 0;">新增员工</button>
                 </div>
                 <div id="user-list">
                     ${rows}
@@ -486,8 +486,8 @@ const Views = {
 
         return `
             <div class="fade-in">
-                <div style="margin-bottom: 1rem; text-align: right;">
-                    <button id="btn-add-type" class="btn btn-primary" style="width: auto; padding: 0 1rem; margin: 0;">新增假期类型</button>
+                <div style="margin-bottom: 1rem;">
+                    <button id="btn-add-type" class="btn btn-primary" style="width: 100%; margin: 0;">新增假期类型</button>
                 </div>
                 <div id="type-list">
                     ${rows}
@@ -525,8 +525,8 @@ const Views = {
 
         return `
             <div class="fade-in">
-                <div style="margin-bottom: 1rem; display: flex; gap: 10px;">
-                    <button id="btn-add-ent" class="btn btn-primary" style="flex: 1; margin: 0;">新增员工额度</button>
+                <div style="margin-bottom: 1rem;">
+                    <button id="btn-add-ent" class="btn btn-primary" style="width: 100%; margin: 0;">新增员工额度</button>
                 </div>
                 <div id="ent-list">
                     ${rows}
