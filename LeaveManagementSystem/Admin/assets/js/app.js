@@ -251,6 +251,11 @@ const Views = {
             this.leaveListSort = { field: 'createTime', direction: 'desc' };
         }
 
+        // 存储当前分页状态
+        if (!this.leaveListPageState) {
+            this.leaveListPageState = { current: 1, size: 10 };
+        }
+
         // 排序函数
         const sortedLeaves = [...leaves].sort((a, b) => {
             const field = this.leaveListSort.field;
@@ -276,7 +281,19 @@ const Views = {
             return 0;
         });
 
-        const rows = sortedLeaves.map(l => {
+        const totalItems = sortedLeaves.length;
+        const totalPages = Math.ceil(totalItems / this.leaveListPageState.size) || 1;
+
+        if (this.leaveListPageState.current > totalPages) {
+            this.leaveListPageState.current = totalPages;
+        }
+
+        const startIndex = (this.leaveListPageState.current - 1) * this.leaveListPageState.size;
+        const endIndex = startIndex + this.leaveListPageState.size;
+
+        const pagedLeaves = sortedLeaves.slice(startIndex, endIndex);
+
+        const rows = pagedLeaves.map(l => {
             const type = types.find(t => t.id === l.leaveTypeId);
             const applicant = API.getUser(l.userId);
             return `
@@ -308,6 +325,27 @@ const Views = {
             </th>`;
         };
 
+        const pageSizeOptions = [5, 10, 20, 50].map(size =>
+            `<option value="${size}" ${this.leaveListPageState.size === size ? 'selected' : ''}>${size} / 页</option>`
+        ).join('');
+
+        const paginationHtml = `
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; color: var(--text-light); border-top: 1px solid var(--border);">
+                <div>
+                    共 ${totalItems} 条记录，当前第 ${this.leaveListPageState.current}/${totalPages} 页
+                </div>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <select class="form-control" style="width: auto; margin: 0; padding: 0.25rem 2rem 0.25rem 0.5rem;" onchange="App.changeLeaveListPageSize(this.value)">
+                        ${pageSizeOptions}
+                    </select>
+                    <div style="display: flex; gap: 0.25rem;">
+                        <button class="btn" style="padding: 0.25rem 0.5rem;" ${this.leaveListPageState.current <= 1 ? 'disabled' : ''} onclick="App.changeLeaveListPage(${this.leaveListPageState.current - 1})">上一页</button>
+                        <button class="btn" style="padding: 0.25rem 0.5rem;" ${this.leaveListPageState.current >= totalPages ? 'disabled' : ''} onclick="App.changeLeaveListPage(${this.leaveListPageState.current + 1})">下一页</button>
+                    </div>
+                </div>
+            </div>
+        `;
+
         return `
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
@@ -333,6 +371,7 @@ const Views = {
                         ${rows || '<tr><td colspan="7" style="text-align: center; color: var(--text-light); padding: 3rem;">暂无相关记录</td></tr>'}
                     </tbody>
                 </table>
+                ${totalItems > 0 ? paginationHtml : ''}
             </div>
         `;
     },
@@ -799,6 +838,19 @@ const App = {
 
         document.querySelectorAll('.is-manager').forEach(el => el.style.display = isManager ? '' : 'none');
         document.querySelectorAll('.is-hr').forEach(el => el.style.display = isHR ? '' : 'none');
+    },
+
+    changeLeaveListPage(page) {
+        if (!Views.leaveListPageState) return;
+        Views.leaveListPageState.current = page;
+        Router.navigate();
+    },
+
+    changeLeaveListPageSize(size) {
+        if (!Views.leaveListPageState) return;
+        Views.leaveListPageState.size = parseInt(size);
+        Views.leaveListPageState.current = 1;
+        Router.navigate();
     },
 
     bindSidebarToggle() {
