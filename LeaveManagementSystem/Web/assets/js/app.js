@@ -1,4 +1,13 @@
+/**
+ * UI 工具类（UI）
+ * 提供全局复用的轻量级 UI 交互方法：顶部浮动提示（Toast）和系统弹窗（Alert）
+ */
 const UI = {
+    /**
+     * 显示一条浮动 Toast 提示消息，3秒后自动消失
+     * @param {string} message - 提示文字内容
+     * @param {string} [type='info'] - 消息类型：'success'（绿色）| 'error'（红色）| 'info'（蓝紫色）
+     */
     toast(message, type = 'info') {
         const container = document.getElementById('toast-container');
         const toast = document.createElement('div');
@@ -6,23 +15,40 @@ const UI = {
         toast.style.padding = '12px 24px';
         toast.style.borderRadius = '8px';
         toast.style.marginBottom = '10px';
+        // 根据消息类型设置不同背景色：成功绿、错误红、信息蓝紫
         toast.style.background = type === 'success' ? '#10b981' : (type === 'error' ? '#ef4444' : '#6366f1');
         toast.style.color = 'white';
         toast.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
         toast.innerText = message;
         container.appendChild(toast);
-        setTimeout(() => toast.remove(), 3000);
+        setTimeout(() => toast.remove(), 3000); // 3 秒后自动移除 Toast 元素
     },
 
+    /**
+     * 显示原生系统弹窗（alert），主要用于操作确认提示
+     * 演示环境下使用原生 alert 代替自定义 Modal，简化实现
+     * @param {string} message - 弹窗内容
+     */
     alert(message) {
         window.alert(`【系统提示】\n${message}`);
     }
 };
 
 /**
- * Views
+ * Views 视图对象
+ * ============================================================
+ * 包含所有页面的 HTML 模板生成函数，每个函数返回对应页面的 HTML 字符串。
+ * 渲染时由 Router 将返回的 HTML 注入到页面内容容器中。
+ * 各视图函数均为纯渲染（无副作用），事件绑定由对应的 bind*Events 函数负责。
+ * ============================================================
  */
 const Views = {
+    /**
+     * 渲染登录页
+     * 包含系统 Logo、用户名/密码输入框和登录按钮
+     * 表单提交事件由 bindLoginEvents() 绑定
+     * @returns {string} 登录页面的 HTML 字符串
+     */
     login() {
         return `
             <div class="login-view fade-in" style="padding-top: 2rem;">
@@ -50,25 +76,33 @@ const Views = {
         `;
     },
 
+    /**
+     * 渲染首页仪表盘
+     * 显示当前登录用户的基本信息、各类假期余额（按最近有效额度周期计算）
+     * 以及快速申请入口，HR/经理可见管理快捷入口
+     * @returns {string} 首页 HTML 字符串
+     */
     dashboard() {
         const user = Auth.currentUser;
-        const entitlements = API.getEntitlements(user.id);
+        const entitlements = API.getEntitlements(user.id); // 获取当前用户的全部额度记录
         const leaveTypes = API.getLeaveTypes();
-        const nowStr = new Date().toISOString().split('T')[0];
+        const nowStr = new Date().toISOString().split('T')[0]; // 今天日期字符串 YYYY-MM-DD
 
-        // Find the "closest unexpired" period among all entitlements to show in the header
-        // Safety check: Filter out any legacy data missing date ranges
+        // 过滤出含有有效日期范围的额度记录（防止旧数据字段缺失导致报错）
         const validRangeItems = entitlements.filter(e => e.startDate && e.endDate);
 
+        // 找出最近未过期的额度周期用于展示周期标注；若全部过期则取 endDate 最大的一条历史记录
         const allValid = validRangeItems.filter(e => e.endDate >= nowStr).sort((a, b) => (a.startDate || '').localeCompare(b.startDate || ''));
         const activePeriod = allValid[0] || [...validRangeItems].sort((a, b) => (b.endDate || '').localeCompare(a.endDate || ''))[0];
+        // 生成"(xxxx年x月x日~xxxx年x月x日)"格式的周期描述字符串
         const periodStr = activePeriod ? `(${formatDateChinese(activePeriod.startDate)}~${formatDateChinese(activePeriod.endDate)})` : '';
 
+        // 遍历所有假期类型，生成每种假期的余额卡片 HTML
         const balanceHTML = leaveTypes.map(type => {
-            const ent = API.getEntitlement(user.id, type.id); // Internal logic finds best match
+            const ent = API.getEntitlement(user.id, type.id); // 自动匹配最近有效额度
             const total = ent ? ent.totalDays : 0;
             const used = ent ? ent.usedDays : 0;
-            const remaining = total - used;
+            const remaining = total - used; // 剩余天数 = 总额度 - 已使用
             return `
                 <div class="balance-item" style="flex: 1; min-width: 45%; padding: 1rem; background: var(--bg); border-radius: var(--radius); margin: 5px;">
                     <div style="font-size: 0.8rem; color: var(--text-light)">${type.name}</div>
@@ -103,6 +137,13 @@ const Views = {
         `;
     },
 
+    /**
+     * 渲染请假记录列表页（移动端卡片式布局）
+     * - 普通员工：只看自己的记录
+     * - HR：可看全员记录
+     * - 待审批且 editable=true 的记录右侧显示「编辑」按钮
+     * @returns {string} 请假记录页 HTML 字符串
+     */
     leaveList() {
         const user = Auth.currentUser;
         const leaves = Auth.hasRole('hr') ? API.getLeaves() : API.getMyLeaves(user.id);
@@ -131,15 +172,15 @@ const Views = {
             `;
         }).join('') || '<div style="text-align: center; color: var(--text-light); padding: 2rem;">暂无请假记录</div>';
 
-        // 绑定编辑事件
+        // 延迟绑定编辑按钮事件（等 innerHTML 渲染完成后再查询 DOM 元素）
         setTimeout(() => {
             document.querySelectorAll('.btn-edit-leave').forEach(btn => {
                 btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
+                    e.stopPropagation(); // 阻止事件冒泡，防止触发卡片点击
                     const leaveId = btn.dataset.id;
                     const leave = API.getLeaves().find(l => l.id === leaveId);
                     if (leave) {
-                        this.showEditModal(leave);
+                        this.showEditModal(leave); // 打开编辑弹窗
                     }
                 });
             });
@@ -158,6 +199,12 @@ const Views = {
     /**
      * 显示编辑请假申请弹窗
      * @param {Object} leave - 请假记录对象
+     */
+    /**
+     * 显示编辑请假申请弹窗（仅限 Pending 状态的单据）
+     * 支持修改：假期类型、开始/结束日期、请假原因
+     * 天数自动按工作日计算，实时展示剩余额度
+     * @param {Object} leave - 待编辑的请假记录对象
      */
     showEditModal(leave) {
         const user = Auth.currentUser;
@@ -308,6 +355,12 @@ const Views = {
         };
     },
 
+    /**
+     * 渲染发起请假申请表单页（移动端单列布局）
+     * 包含申请人信息、假期类型选择、日期范围、水感天数计算及请假原因输入
+     * 表单事件由 bindApplyEvents() 绑定
+     * @returns {string} 申请页 HTML 字符串
+     */
     leaveApply() {
         const user = Auth.currentUser;
         const leaveTypes = API.getLeaveTypes();
@@ -371,6 +424,13 @@ const Views = {
         `;
     },
 
+    /**
+     * 渲染审批页（仅经理/HR 可见）
+     * - 经理：只看到直接下属的待审批申请
+     * - HR：可看全员待审批申请
+     * 包含通过/拒绝按钮，事件由 bindAuditEvents() 绑定
+     * @returns {string} 审批页 HTML 字符串
+     */
     audit() {
         const user = Auth.currentUser;
         let leaves = API.getLeaves().filter(l => l.status === 'Pending');
@@ -407,6 +467,11 @@ const Views = {
         `;
     },
 
+    /**
+     * 渲染管理功能入口菜单页（HR 专用）
+     * 展示三个管理入口卡片：员工管理、假期配置、额度调整
+     * @returns {string} 管理菜单页 HTML 字符串
+     */
     admin() {
         return `
             <div class="fade-in">
@@ -441,6 +506,12 @@ const Views = {
         `;
     },
 
+    /**
+     * 渲染员工管理列表页（移动端卸置式布局）
+     * 每条员工卡片展示头像、姓名、工号、角色和在职状态
+     * 顶部提供搜索框和新增按钮，事件由 bindAdminUsersEvents() 绑定
+     * @returns {string} 员工管理页 HTML 字符串
+     */
     adminUsers() {
         const users = API.getUsers();
         const rows = users.map(u => `
@@ -469,6 +540,13 @@ const Views = {
         `;
     },
 
+    /**
+     * 渲染假期配置列表页（移动端）
+     * 展示全部假期类型，左边彩色条区分
+     * 顶部提供新增按钮，当前枚为全宽呈现
+     * 事件由 bindAdminLeaveTypesEvents() 绑定
+     * @returns {string} 假期配置页 HTML 字符串
+     */
     adminLeaveTypes() {
         const types = API.getLeaveTypes();
         const rows = types.map(t => `
@@ -496,6 +574,13 @@ const Views = {
         `;
     },
 
+    /**
+     * 渲染员工额度管理页（移动端）
+     * 展示所有员工的假期额度记录，包含周期、总额度和已用天数
+     * 顶部提供新增按钮，每条记录右侧有「调整」按钮
+     * 事件由 bindAdminEntitlementsEvents() 绑定
+     * @returns {string} 额度管理页 HTML 字符串
+     */
     adminEntitlements() {
         const ents = API.getAllEntitlements();
         const users = API.getUsers();
@@ -537,81 +622,104 @@ const Views = {
 };
 
 /**
- * App Controller
+ * 应用入口函数
+ * 应用启动流程：
+ *   1. 初始化 API（加载或恢复数据）
+ *   2. 初始化 Auth（恢复登录状态）
+ *   3. 注册各路由对应的视图渲染函数
+ *   4. 启动路由监听并渲染当前页面
+ *   5. 根据角色更新导航栏显示隐藏
  */
 async function initApp() {
-    await API.init();
-    Auth.init();
+    await API.init(); // 初始化数据层（优先 localStorage，否则加载 JSON）
+    Auth.init(); // 恢复 sessionStorage 中的登录状态
 
-    // Setup Routes
+    // 注册路由：将每个 URL Hash 路径映射到对应的视图函数
     Router.on('#/login', () => {
         const html = Views.login();
-        setTimeout(bindLoginEvents, 0);
+        setTimeout(bindLoginEvents, 0); // 等渲染完成后再绑定表单事件
         return html;
     });
 
-    Router.on('#/', () => Views.dashboard());
+    Router.on('#/', () => Views.dashboard()); // 首页：无事件绑定需求
     Router.on('#/leave/apply', () => {
         const html = Views.leaveApply();
-        setTimeout(bindApplyEvents, 0);
+        setTimeout(bindApplyEvents, 0); // 等渲染完成后绑定申请表单事件
         return html;
     });
-    Router.on('#/leave/list', () => Views.leaveList());
+    Router.on('#/leave/list', () => Views.leaveList()); // 请假列表：内嵌 setTimeout 绑定事件
     Router.on('#/audit', () => {
         const html = Views.audit();
-        setTimeout(bindAuditEvents, 0);
+        setTimeout(bindAuditEvents, 0); // 等渲染完成后绑定审批按钮事件
         return html;
     });
-    Router.on('#/admin', () => Views.admin());
+    Router.on('#/admin', () => Views.admin()); // 管理菜单页
     Router.on('#/admin/users', () => {
         const html = Views.adminUsers();
-        setTimeout(bindAdminUsersEvents, 0);
+        setTimeout(bindAdminUsersEvents, 0); // 等渲染完成后绑定员工管理事件
         return html;
     });
     Router.on('#/admin/leave-types', () => {
         const html = Views.adminLeaveTypes();
-        setTimeout(bindAdminLeaveTypesEvents, 0);
+        setTimeout(bindAdminLeaveTypesEvents, 0); // 等渲染完成后绑定假期配置事件
         return html;
     });
     Router.on('#/admin/entitlements', () => {
         const html = Views.adminEntitlements();
-        setTimeout(bindAdminEntitlementsEvents, 0);
+        setTimeout(bindAdminEntitlementsEvents, 0); // 等渲染完成后绑定额度管理事件
         return html;
     });
 
-    Router.init();
-    updateUIForRole();
+    Router.init(); // 启动路由监听并渲染当前页面
+    updateUIForRole(); // 根据当前用户角色展示/隐藏导航项
 }
 
+/**
+ * 根据登录用户的角色，动态显示或隐藏导航栏内的复权项目
+ * - 审批导航：经理和 HR 可见
+ * - 管理导航：仅 HR 可见
+ */
 function updateUIForRole() {
     if (!Auth.currentUser) return;
     const isManager = Auth.hasRole('manager') || Auth.hasRole('hr');
     const isHR = Auth.hasRole('hr');
 
+    // 根据角色切换待审批导航项的显示状态
     document.getElementById('nav-audit').style.display = isManager ? 'flex' : 'none';
+    // HR 才能看到管理导航项
     document.getElementById('nav-admin').style.display = isHR ? 'flex' : 'none';
 }
 
+/**
+ * 绑定登录表单的提交事件
+ * 调用 Auth.login() 进行登录，成功后跳转首页，失败则显示 Toast 错误提示
+ */
 function bindLoginEvents() {
     const form = document.getElementById('login-form');
-    if (!form) return;
+    if (!form) return; // 若 DOM 渲染延迟导致元素不存在，安全退出
     form.onsubmit = async (e) => {
-        e.preventDefault();
+        e.preventDefault(); // 阻止表单默认跳转行为
         const u = document.getElementById('username').value;
         const p = document.getElementById('password').value;
         try {
             await Auth.login(u, p);
             UI.toast('登录成功', 'success');
-            updateUIForRole();
-            window.location.hash = '#/';
+            updateUIForRole(); // 登录后立即更新导航栏显示隐藏
+            window.location.hash = '#/'; // 跳转首页
         } catch (err) {
-            UI.toast(err.message, 'error');
+            UI.toast(err.message, 'error'); // 登录失败显示错误 Toast
         }
     };
 }
 
 /**
- * Helpers
+ * 辅助工具函数
+ */
+
+/**
+ * 将 'YYYY-MM-DD' 格式的日期字符串转换为中文显示，如：2025年1月1日
+ * @param {string} dateStr - 日期字符串，格式 YYYY-MM-DD
+ * @returns {string} 中文日期字符串，如«2025年1月1日»；入参为空时返回空字符串
  */
 function formatDateChinese(dateStr) {
     if (!dateStr) return '';
@@ -619,45 +727,61 @@ function formatDateChinese(dateStr) {
     return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`;
 }
 
+/**
+ * 计算两个日期之间的工作日天数（不含周六、周日，未排除法定节假日）
+ * 计算方式：逐天遍历 [startDate, endDate] 间展的全部日期，统计工作日数量
+ * @param {string} startDate - 开始日期，格式 YYYY-MM-DD
+ * @param {string} endDate   - 结束日期，格式 YYYY-MM-DD
+ * @returns {number} 工作日天数（包含首尾两天）
+ */
 function calculateWorkdays(startDate, endDate) {
     const start = new Date(startDate);
     const end = new Date(endDate);
     let count = 0;
     let cur = new Date(start);
     while (cur <= end) {
-        const day = cur.getDay();
-        if (day !== 0 && day !== 6) { // Not Sat or Sun
+        const day = cur.getDay(); // 0=周日, 1-5=周一至周五, 6=周六
+        if (day !== 0 && day !== 6) { // 跳过周末日
             count++;
         }
-        cur.setDate(cur.getDate() + 1);
+        cur.setDate(cur.getDate() + 1); // 逾历到下一天
     }
     return count;
 }
 
+/**
+ * 绑定请假申请表单的交互事件
+ * 包括：天数实时计算、剩余额度展示、表单提交验证和保存逻辑
+ */
 function bindApplyEvents() {
     const form = document.getElementById('apply-form');
-    if (!form) return;
+    if (!form) return; // 验证表单元素存在
 
+    // 获取表单内各个交互元素
     const typeSelect = document.getElementById('leaveTypeId');
     const startInput = document.getElementById('startDate');
     const endInput = document.getElementById('endDate');
-    const durInput = document.getElementById('duration');
-    const durLabel = document.getElementById('duration-label');
+    const durInput = document.getElementById('duration'); // 天数（只读）
+    const durLabel = document.getElementById('duration-label'); // 天数标签（展示剩余天数）
 
+    /**
+     * 实时计算函数——当假期类型、开始日期、结束日期任一变化时触发
+     * 1. 重新计算工作日天数并写入天数输入框
+     * 2. 查找开始日期对应周期的剩余额度，展示在标签中
+     */
     const updateCalculations = () => {
         const user = Auth.currentUser;
         const typeId = typeSelect.value;
         const start = startInput.value;
         const end = endInput.value;
 
-        // 1. Calculate work days
+        // 1. 计算工作日天数
         if (start && end) {
             const count = calculateWorkdays(start, end);
             durInput.value = count;
         }
 
-        // 2. Show remaining balance in label
-        // Find entitlement for the START date (enforce single-year rule during submission)
+        // 2. 展示剩余额度（以开始日期匹配额度周期，强制单周期申请规则）
         const ent = API.getEntitlement(user.id, typeId, start);
         if (ent) {
             durLabel.innerHTML = `请假天数 <span style="color: var(--primary-hover); font-weight: normal;">(剩余 ${ent.totalDays - ent.usedDays} 天)</span>`;
@@ -666,20 +790,21 @@ function bindApplyEvents() {
         }
     };
 
+    // 将计算更新函数分别挂载到三个输入元素的 change 事件
     typeSelect.onchange = updateCalculations;
     startInput.onchange = updateCalculations;
     endInput.onchange = updateCalculations;
-    updateCalculations();
+    updateCalculations(); // 初始化时立即计算一次
 
     form.onsubmit = (e) => {
         e.preventDefault();
         const user = Auth.currentUser;
         const leaveTypeId = typeSelect.value;
-        const duration = parseFloat(durInput.value);
+        const duration = parseFloat(durInput.value); // 请假天数支持小数（如 0.5 天）
         const start = startInput.value;
         const end = endInput.value;
 
-        // Validation: Must span across a single period
+        // 验证：开始与结束日期必须都在某一额度周期内，且必须属于同一周期
         const entStart = API.getEntitlement(user.id, leaveTypeId, start);
         const entEnd = API.getEntitlement(user.id, leaveTypeId, end);
 
@@ -688,19 +813,21 @@ function bindApplyEvents() {
             return;
         }
 
+        // 开始和结束日期必须属于同一周期，不允许跨年度申请
         if (!entEnd || entStart.startDate !== entEnd.startDate || entStart.endDate !== entEnd.endDate) {
             UI.alert('请假申请不可跨年度额度周期申请。\n若确实需要跨年度，请分两次申请（分别在两个周期的时间范围内）。');
             return;
         }
 
-        // Validation: Balance
+        // 验证剩余额度是否充足
         if ((entStart.totalDays - entStart.usedDays) < duration) {
             UI.alert(`请假天数 (${duration}天) 超过剩余天数 (${entStart.totalDays - entStart.usedDays}天)`);
             return;
         }
 
-        UI.alert(`演示逻辑：\n1. 扣除 ${entStart.startDate} 至 ${entStart.endDate} 周期的余额\n2. 增加请假记录`);
+        UI.alert(`演示逻辑：\n1. 扮除 ${entStart.startDate} 至 ${entStart.endDate} 周期的余额\n2. 增加请假记录`);
 
+        // 构建新的请假申请对象
         const newLeave = {
             userId: user.id,
             leaveTypeId,
@@ -708,21 +835,26 @@ function bindApplyEvents() {
             endDate: end,
             duration,
             reason: document.getElementById('reason').value,
-            status: 'Pending',
+            status: 'Pending', // 初始状态为待审批
             createTime: new Date().toLocaleString()
         };
 
-        API.saveLeave(newLeave);
+        API.saveLeave(newLeave); // 保存请假申请记录
 
-        // Update entitlement
+        // 同步扣除对应额度周期的已用天数
         entStart.usedDays += duration;
         API.updateEntitlement(entStart);
 
         UI.toast('申请已提交', 'success');
-        window.location.hash = '#/leave/list';
+        window.location.hash = '#/leave/list'; // 提交后跳转到记录列表页
     };
 }
 
+/**
+ * 绑定审批页的通过/拒绝按钮事件
+ * - 通过：将请假记录状态更新为 'Approved'，然后刷新页面
+ * - 拒绝：将状态更新为 'Rejected'，并将已扣减的天数返还至员工对应额度周期
+ */
 function bindAuditEvents() {
     document.querySelectorAll('.btn-approve').forEach(btn => {
         btn.onclick = () => {
@@ -755,12 +887,20 @@ function bindAuditEvents() {
     });
 }
 
+/**
+ * 绑定员工管理页的交互事件
+ * - 搜索框实时过滤：按姓名或工号关键字匹配，动态重新渲染列表并重新绑定编辑按钮
+ * - 新增按钮：传入 null 打开空白员工编辑弹窗
+ * - 编辑按钮：传入员工对象，打开预填弹窗
+ */
 function bindAdminUsersEvents() {
     const searchInput = document.getElementById('user-search');
     const userList = document.getElementById('user-list');
 
+    // 实时搜索：每次键入时过滤并重新渲染员工卡片列表
     searchInput.oninput = () => {
         const q = searchInput.value.toLowerCase();
+        // 同时支持按姓名或工号进行模糊匹配
         const users = API.getUsers().filter(u => u.name.toLowerCase().includes(q) || u.employeeId.toLowerCase().includes(q));
         userList.innerHTML = users.map(u => `
             <div class="card fade-in" style="padding: 1rem; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between;">
@@ -774,19 +914,27 @@ function bindAdminUsersEvents() {
                 <button class="btn-edit-user" data-id="${u.id}" style="background: var(--bg); border: 1px solid var(--border); padding: 4px 12px; border-radius: 4px; font-size: 0.75rem;">编辑</button>
             </div>
         `).join('');
-        // Re-bind click events for dynamic search results
+        // 搜索结果是动态渲染的，需要重新绑定每个编辑按钮的点击事件
         userList.querySelectorAll('.btn-edit-user').forEach(btn => {
             btn.onclick = () => showUserEditModal(API.getUser(btn.dataset.id));
         });
     };
 
+    // 新增按钮：不传参数进入新增模式
     document.getElementById('btn-add-user').onclick = () => showUserEditModal();
 
+    // 初始列表中各编辑按钮：传入对应员工对象进入编辑模式
     document.querySelectorAll('.btn-edit-user').forEach(btn => {
         btn.onclick = () => showUserEditModal(API.getUser(btn.dataset.id));
     });
 }
 
+/**
+ * 显示员工新增/编辑弹窗（全屏遮罩 + 中心表单卡片）
+ * 新增模式（user=null）：表单字段全部为空，密码默认 '123'，头像随机生成
+ * 编辑模式（user=对象）：表单预填该员工现有信息，保留原头像
+ * @param {Object|null} user - 要编辑的员工对象；为 null 时表示新增
+ */
 function showUserEditModal(user = null) {
     const managers = API.getUsers().filter(u => u.role === 'manager' || u.role === 'hr');
     const managerOptions = managers.map(m => `<option value="${m.id}" ${user && user.managerId === m.id ? 'selected' : ''}>${m.name}</option>`).join('');
@@ -871,6 +1019,11 @@ function showUserEditModal(user = null) {
     };
 }
 
+/**
+ * 绑定假期配置页的按钮事件
+ * - 新增按钮：不传参数，打开空白假期类型弹窗
+ * - 配置按钮：传入对应假期类型对象，打开预填编辑弹窗
+ */
 function bindAdminLeaveTypesEvents() {
     document.getElementById('btn-add-type').onclick = () => showLeaveTypeEditModal();
     document.querySelectorAll('.btn-edit-type').forEach(btn => {
@@ -878,6 +1031,11 @@ function bindAdminLeaveTypesEvents() {
     });
 }
 
+/**
+ * 显示假期类型新增/编辑弹窗
+ * 字段：类型名称、颜色标识（用于卡片彩色条）、是否有年度上限、是否需要附件
+ * @param {Object|null} type - 要编辑的假期类型对象；为 null 时表示新增
+ */
 function showLeaveTypeEditModal(type = null) {
     const modal = document.createElement('div');
     modal.style.cssText = `position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center;`;
@@ -910,31 +1068,47 @@ function showLeaveTypeEditModal(type = null) {
     `;
     document.body.appendChild(modal);
 
+    // 绑定假期类型表单的提交事件
     document.getElementById('type-form').onsubmit = (e) => {
         e.preventDefault();
         const data = {
-            id: type ? type.id : null,
+            id: type ? type.id : null, // 编辑时保留原 id，新增时由 saveLeaveType 自动生成
             name: document.getElementById('edit-type-name').value,
-            color: document.getElementById('edit-type-color').value,
-            hasAnnualLimit: document.getElementById('edit-hasLimit').checked,
-            requiresAttachment: document.getElementById('edit-reqAttach').checked
+            color: document.getElementById('edit-type-color').value, // hex 颜色值
+            hasAnnualLimit: document.getElementById('edit-hasLimit').checked, // 是否有年度总天数上限
+            requiresAttachment: document.getElementById('edit-reqAttach').checked // 请假是否强制需要上传附件
         };
 
         UI.alert(`已模拟操作：\n1. 假期类型 [${data.name}] 已保存\n2. 同步更新所有员工额度选择项`);
-        API.saveLeaveType(data);
+        API.saveLeaveType(data); // 保存（新增或更新）假期类型
         modal.remove();
         UI.toast('保存成功', 'success');
         Router.navigate();
     };
 }
 
+/**
+ * 绑定额度管理页的按钮事件
+ * - 新增按钮：不传参数，打开空白额度新增弹窗
+ * - 调整按钮：从 data-json 属性反序列化额度对象，打开预填编辑弹窗
+ */
 function bindAdminEntitlementsEvents() {
+    // 新增按钮：进入新增模式
     document.getElementById('btn-add-ent').onclick = () => showEntitlementEditModal();
+    // 各行「调整」按钮：从 HTML 属性中反序列化 JSON 获取额度对象
     document.querySelectorAll('.btn-edit-ent').forEach(btn => {
         btn.onclick = () => showEntitlementEditModal(JSON.parse(btn.dataset.json));
     });
 }
 
+/**
+ * 显示员工额度新增/调整弹窗
+ * 新增模式（ent=null）：员工、假期类型、周期均可自由输入
+ * 编辑模式（ent=对象）：定位字段（员工/类型/周期）禁用，只允许修改总天数和已用天数
+ * 编辑模式下额外提供「删除」按钮，删除后余额永久清除
+ * 保存调用 API.updateEntitlement() 会进行周期重叠校验，重叠时弹出错误提示
+ * @param {Object|null} ent - 要调整的额度记录对象；为 null 时表示新增
+ */
 function showEntitlementEditModal(ent = null) {
     const users = API.getUsers();
     const types = API.getLeaveTypes();
@@ -988,12 +1162,14 @@ function showEntitlementEditModal(ent = null) {
             </form>
         </div>
     `;
-    document.body.appendChild(modal);
+    document.body.appendChild(modal); // 将弹窗挂载到 body
 
+    // 编辑模式下才绑定「删除」按钮事件
     if (ent) {
         document.getElementById('btn-del-ent').onclick = () => {
+            // 二次确认，防止误删重要额度记录
             if (confirm('确定要删除这条额度记录吗？')) {
-                API.deleteEntitlement(ent);
+                API.deleteEntitlement(ent); // 从数据库中删除该额度记录
                 modal.remove();
                 UI.toast('已删除', 'success');
                 Router.navigate();
@@ -1001,28 +1177,33 @@ function showEntitlementEditModal(ent = null) {
         };
     }
 
+    // 绑定额度表单的提交事件
     document.getElementById('ent-form').onsubmit = (e) => {
         e.preventDefault();
+        // 收集表单各字段值，构建额度数据对象
         const data = {
             userId: document.getElementById('edit-ent-userId').value,
             leaveTypeId: document.getElementById('edit-ent-typeId').value,
             startDate: document.getElementById('edit-ent-start').value,
             endDate: document.getElementById('edit-ent-end').value,
-            totalDays: parseFloat(document.getElementById('edit-ent-total').value),
-            usedDays: parseFloat(document.getElementById('edit-ent-used').value)
+            totalDays: parseFloat(document.getElementById('edit-ent-total').value), // 支持小数天数（如 0.5）
+            usedDays: parseFloat(document.getElementById('edit-ent-used').value)    // 支持小数天数
         };
 
         try {
+            // API 内部会校验该周期与已有记录是否存在时间重叠，重叠时抛出错误
             API.updateEntitlement(data);
             UI.alert(`已模拟操作：\n1. 员工额度已更新\n2. 校验通过（无时间重叠）\n3. 记录已同步至 LocalStorage`);
             modal.remove();
             UI.toast('保存成功', 'success');
             Router.navigate();
         } catch (err) {
+            // 周期重叠或其他验证失败时，展示错误提示
             UI.alert(err.message);
         }
     };
 }
 
-// Start
+// 等待页面 DOM 完全加载后再启动应用，确保所有 HTML 元素就绪
 document.addEventListener('DOMContentLoaded', initApp);
+
