@@ -357,22 +357,24 @@ const Views = {
                          <button class="btn btn-primary">导出报表</button>
                     </div>
                 </div>
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            ${Auth.hasRole('hr') ? createSortableHeader('申请人', 'applicant') : ''}
-                            ${createSortableHeader('假种', 'type')}
-                            ${createSortableHeader('时间范围', 'dateRange')}
-                            ${createSortableHeader('天数', 'duration')}
-                            ${createSortableHeader('审批状态', 'status')}
-                            ${createSortableHeader('申请时间', 'createTime')}
-                            <th>操作</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${rows || '<tr><td colspan="7" style="text-align: center; color: var(--text-light); padding: 3rem;">暂无相关记录</td></tr>'}
-                    </tbody>
-                </table>
+                <div class="table-scroll-wrap">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                ${Auth.hasRole('hr') ? createSortableHeader('申请人', 'applicant') : ''}
+                                ${createSortableHeader('假种', 'type')}
+                                ${createSortableHeader('时间范围', 'dateRange')}
+                                ${createSortableHeader('天数', 'duration')}
+                                ${createSortableHeader('审批状态', 'status')}
+                                ${createSortableHeader('申请时间', 'createTime')}
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rows || '<tr><td colspan="7" style="text-align: center; color: var(--text-light); padding: 3rem;">暂无相关记录</td></tr>'}
+                        </tbody>
+                    </table>
+                </div>
                 ${totalItems > 0 ? paginationHtml : ''}
             </div>
         `;

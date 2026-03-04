@@ -404,6 +404,16 @@ body {
 }
 
 /* Tables */
+.table-scroll-wrap {
+    overflow-x: auto;
+    overflow-y: auto;
+    max-height: 55vh;
+    /* 最大高度，超出后出现纵向滚动条 */
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    margin-bottom: 0;
+}
+
 .data-table {
     width: 100%;
     border-collapse: collapse;
@@ -416,6 +426,12 @@ body {
     font-weight: 600;
     color: var(--text-light);
     font-size: 0.875rem;
+    /* 固定表头 */
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: white;
+    box-shadow: 0 1px 0 var(--border);
 }
 
 .data-table td {
