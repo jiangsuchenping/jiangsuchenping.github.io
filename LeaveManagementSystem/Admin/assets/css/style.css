@@ -131,7 +131,8 @@ body {
 .body-wrapper {
     flex: 1;
     display: flex;
-    overflow: visible;
+    overflow: hidden;
+    min-height: 0;
 }
 
 /* Sidebar */
@@ -313,6 +314,8 @@ body {
     padding: 2rem;
     overflow-y: auto;
     background: #f8fafc;
+    min-height: 0;
+    min-width: 0;
 }
 
 /* Components */
