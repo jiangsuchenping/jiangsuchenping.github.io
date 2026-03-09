@@ -1,0 +1,51 @@
+[
+    {
+        "id": "u1",
+        "employeeId": "EMP001",
+        "username": "zhangsan",
+        "password": "123",
+        "name": "张三",
+        "role": "staff",
+        "managerId": "u2",
+        "joinDate": "2023-01-15",
+        "status": "Active",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=zhangsan"
+    },
+    {
+        "id": "u2",
+        "employeeId": "EMP002",
+        "username": "lisi",
+        "password": "123",
+        "name": "李四",
+        "role": "manager",
+        "managerId": "u3",
+        "joinDate": "2022-06-20",
+        "status": "Active",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=lisi"
+    },
+    {
+        "id": "u3",
+        "employeeId": "EMP003",
+        "username": "wangwu",
+        "password": "123",
+        "name": "王五",
+        "role": "hr",
+        "managerId": null,
+        "joinDate": "2021-03-10",
+        "status": "Active",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=wangwu"
+    },
+    {
+        "id": "u4",
+        "employeeId": "EMP004",
+        "username": "zhaoliu",
+        "password": "123",
+        "name": "赵六",
+        "role": "staff",
+        "managerId": "u2",
+        "joinDate": "2022-01-10",
+        "leaveDate": "2026-02-28",
+        "status": "Inactive",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=zhaoliu"
+    }
+]

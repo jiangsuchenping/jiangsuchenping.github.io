@@ -863,8 +863,8 @@ const Views = {
  */
 const App = {
     async init() {
-        // Initialize API with data path from Admin folder to Web/data
-        await API.init('../Web/data/');
+        // Initialize API with local data path
+        await API.init('./data/');
         Auth.init();
 
         this.setupRouter();
